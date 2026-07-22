@@ -34,6 +34,12 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   var panel = document.getElementById("region-panel");
+  var gmapFrame = document.getElementById("gmap-frame");
+
+  function setGmap(lat, lon, zoom) {
+    if (!gmapFrame) return;
+    gmapFrame.src = "https://maps.google.com/maps?q=" + lat + "," + lon + "&z=" + zoom + "&output=embed";
+  }
 
   function renderPanel(region) {
     var name = LANG === "ru" ? region.name_ru : region.name_uz;
@@ -90,10 +96,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
       var key = node.getAttribute("data-key");
       var region = window.REGIONS.filter(function (r) { return r.key === key; })[0];
-      if (region) renderPanel(region);
+      if (region) {
+        renderPanel(region);
+        setGmap(region.lat, region.lon, 9);
+      }
     });
   });
 
   var caption = document.getElementById("map-caption");
   if (caption) caption.textContent = T.caption;
+
+  // Default view: whole Uzbekistan
+  setGmap(41.3, 64.6, 6);
 });
