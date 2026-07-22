@@ -547,3 +547,22 @@ form.contact-form { display: grid; gap: 14px; }
 
 .results-hidden { display: none; }
 .disclaimer-box { font-size: 0.85rem; color: var(--ink-600); border-top: 1px dashed var(--border); padding-top: 14px; margin-top: 30px; }
+
+/* Live weather fetch */
+.weather-card {
+  background: linear-gradient(160deg, var(--green-100), var(--card));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow);
+}
+.weather-card h2 { margin-top: 0; }
+.weather-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+.weather-controls .field { flex: 1 1 220px; min-width: 200px; margin: 0; }
+.weather-controls .btn { white-space: nowrap; }
+.weather-status { margin: 14px 0 0; font-size: 0.9rem; color: var(--ink-600); min-height: 1.3em; }
+.weather-status-loading { color: var(--ink-600); }
+.weather-status-loading::before { content: "⏳ "; }
+.weather-status-success { color: var(--green-700); font-weight: 600; }
+.weather-status-error { color: var(--red-600); font-weight: 600; }

@@ -30,39 +30,16 @@ document.addEventListener("DOMContentLoaded", function () {
       recoTitle: "Тавсия этилган чоралар",
       recoNone: "Ҳозирча жиддий чора талаб этилмайди — режали кузатувни давом эттиринг.",
       detailLink: "Батафсил →",
-      cropThreats: {
-        tomato_potato: [
-          { name: "Кечки куйиш (фитофтороз)", cat: "fungal", href: "kasalliklar.html" },
-          { name: "Колорадо қўнғизи", cat: "pest", href: "zararkunandalar.html" },
-          { name: "Шира", cat: "pest", href: "zararkunandalar.html" }
-        ],
-        grain: [
-          { name: "Занг касаллиги", cat: "fungal", href: "kasalliklar.html" },
-          { name: "Чигиртка", cat: "locust", href: "zararkunandalar.html" },
-          { name: "Кўп йиллик бегона ўтлар", cat: "weed", href: "begona-otlar.html" }
-        ],
-        fruit_trees: [
-          { name: "Бактериал куйиш", cat: "fungal", href: "kasalliklar.html" },
-          { name: "Ун-шудринг касаллиги", cat: "fungal", href: "kasalliklar.html" },
-          { name: "Шира", cat: "pest", href: "zararkunandalar.html" }
-        ],
-        vegetables: [
-          { name: "Ун-шудринг касаллиги", cat: "fungal", href: "kasalliklar.html" },
-          { name: "Ўргимчаккана", cat: "mite", href: "zararkunandalar.html" },
-          { name: "Шира", cat: "pest", href: "zararkunandalar.html" }
-        ],
-        grapes: [
-          { name: "Ун-шудринг (оидиум)", cat: "fungal", href: "kasalliklar.html" },
-          { name: "Ўргимчаккана", cat: "mite", href: "zararkunandalar.html" },
-          { name: "Занг", cat: "fungal", href: "kasalliklar.html" }
-        ]
-      },
-      recoTexts: {
-        fungal: "Ўсимликлар орасидаги масофани сақланг, ортиқча суғоришдан қочинг, зарур бўлса мис асосидаги фунгицид билан профилактик ишлов беринг.",
-        pest: "Феромон ва ёпишқоқ тузоқлар ўрнатинг, фойдали ҳашаротлар учун шароит яратинг, юқори даражада рухсат этилган инсектицид қўлланг.",
-        mite: "Ҳаво намлигини ошириш чораларини кўринг, юқори даражада акарицид қўллашни режалаштиринг.",
-        locust: "Ҳудудий мониторингни кучайтиринг, дала четларини назорат остига олинг, оммавий тарқалишда тезкор ишлов беринг.",
-        weed: "Мулчалаш қилинг, ўз вақтида ўтоқ ишларини бажаринг, экинни зич жойлаштиришдан фойдаланинг."
+      weather: {
+        locating: "Жойлашувингиз аниқланмоқда...",
+        searching: "«{city}» қидирилмоқда...",
+        fetching: "Об-ҳаво маълумотлари олинмоқда...",
+        cityEmpty: "Илтимос, шаҳар номини киритинг.",
+        cityNotFound: "Шаҳар топилмади. Номини текшириб, қайта уриниб кўринг.",
+        geoDenied: "Жойлашувга рухсат берилмади. Шаҳар номини қўлда киритинг.",
+        geoUnsupported: "Браузерингиз геолокацияни қўллаб-қувватламайди. Шаҳар номини киритинг.",
+        network: "Маълумот олишда хатолик юз берди. Интернет алоқасини текшириб, қайта уриниб кўринг.",
+        success: "📍 {place}: ҳарорат {temp}°C, намлик {hum}%, бугунги ёғин {rain} мм — {time}. Шароит қуйида автоматик тўлдирилди."
       }
     },
     ru: {
@@ -90,45 +67,73 @@ document.addEventListener("DOMContentLoaded", function () {
       recoTitle: "Рекомендуемые меры",
       recoNone: "Срочных мер пока не требуется — продолжайте плановое наблюдение.",
       detailLink: "Подробнее →",
-      cropThreats: {
-        tomato_potato: [
-          { name: "Фитофтороз", cat: "fungal", href: "kasalliklar.ru.html" },
-          { name: "Колорадский жук", cat: "pest", href: "zararkunandalar.ru.html" },
-          { name: "Тля", cat: "pest", href: "zararkunandalar.ru.html" }
-        ],
-        grain: [
-          { name: "Ржавчина", cat: "fungal", href: "kasalliklar.ru.html" },
-          { name: "Саранча", cat: "locust", href: "zararkunandalar.ru.html" },
-          { name: "Многолетние сорняки", cat: "weed", href: "begona-otlar.ru.html" }
-        ],
-        fruit_trees: [
-          { name: "Бактериальный ожог", cat: "fungal", href: "kasalliklar.ru.html" },
-          { name: "Мучнистая роса", cat: "fungal", href: "kasalliklar.ru.html" },
-          { name: "Тля", cat: "pest", href: "zararkunandalar.ru.html" }
-        ],
-        vegetables: [
-          { name: "Мучнистая роса", cat: "fungal", href: "kasalliklar.ru.html" },
-          { name: "Паутинный клещ", cat: "mite", href: "zararkunandalar.ru.html" },
-          { name: "Тля", cat: "pest", href: "zararkunandalar.ru.html" }
-        ],
-        grapes: [
-          { name: "Мучнистая роса (оидиум)", cat: "fungal", href: "kasalliklar.ru.html" },
-          { name: "Паутинный клещ", cat: "mite", href: "zararkunandalar.ru.html" },
-          { name: "Ржавчина", cat: "fungal", href: "kasalliklar.ru.html" }
-        ]
-      },
-      recoTexts: {
-        fungal: "Соблюдайте расстояние между растениями, избегайте избыточного полива, при необходимости проведите профилактическую обработку медьсодержащим фунгицидом.",
-        pest: "Установите феромонные и клеевые ловушки, создайте условия для полезных насекомых, при высоком уровне примените разрешённый инсектицид.",
-        mite: "Примите меры по повышению влажности воздуха, при высоком уровне запланируйте применение акарицида.",
-        locust: "Усильте мониторинг территории, возьмите под контроль края поля, при массовом распространении проведите срочную обработку.",
-        weed: "Проведите мульчирование, своевременно выполняйте прополку, используйте более плотную посадку культуры."
+      weather: {
+        locating: "Определяем ваше местоположение...",
+        searching: "Поиск «{city}»...",
+        fetching: "Получаем данные о погоде...",
+        cityEmpty: "Пожалуйста, введите название города.",
+        cityNotFound: "Город не найден. Проверьте написание и попробуйте снова.",
+        geoDenied: "Доступ к геолокации не разрешён. Введите название города вручную.",
+        geoUnsupported: "Ваш браузер не поддерживает геолокацию. Введите название города.",
+        network: "Ошибка при получении данных. Проверьте подключение к интернету и попробуйте снова.",
+        success: "📍 {place}: температура {temp}°C, влажность {hum}%, осадки сегодня {rain} мм — {time}. Условия ниже заполнены автоматически."
       }
     }
   };
 
   var CATEGORY_ORDER = ["fungal", "pest", "mite", "locust", "weed"];
   var t = T[LANG];
+
+  var CROP_THREATS = {
+    tomato_potato: [
+      { cat: "fungal", href_uz: "kasalliklar.html", href_ru: "kasalliklar.ru.html", name_uz: "Кечки куйиш (фитофтороз)", name_ru: "Фитофтороз" },
+      { cat: "pest", href_uz: "zararkunandalar.html", href_ru: "zararkunandalar.ru.html", name_uz: "Колорадо қўнғизи", name_ru: "Колорадский жук" },
+      { cat: "pest", href_uz: "zararkunandalar.html", href_ru: "zararkunandalar.ru.html", name_uz: "Шира", name_ru: "Тля" }
+    ],
+    grain: [
+      { cat: "fungal", href_uz: "kasalliklar.html", href_ru: "kasalliklar.ru.html", name_uz: "Занг касаллиги", name_ru: "Ржавчина" },
+      { cat: "locust", href_uz: "zararkunandalar.html", href_ru: "zararkunandalar.ru.html", name_uz: "Чигиртка", name_ru: "Саранча" },
+      { cat: "weed", href_uz: "begona-otlar.html", href_ru: "begona-otlar.ru.html", name_uz: "Кўп йиллик бегона ўтлар", name_ru: "Многолетние сорняки" }
+    ],
+    fruit_trees: [
+      { cat: "fungal", href_uz: "kasalliklar.html", href_ru: "kasalliklar.ru.html", name_uz: "Бактериал куйиш", name_ru: "Бактериальный ожог" },
+      { cat: "fungal", href_uz: "kasalliklar.html", href_ru: "kasalliklar.ru.html", name_uz: "Ун-шудринг касаллиги", name_ru: "Мучнистая роса" },
+      { cat: "pest", href_uz: "zararkunandalar.html", href_ru: "zararkunandalar.ru.html", name_uz: "Шира", name_ru: "Тля" }
+    ],
+    vegetables: [
+      { cat: "fungal", href_uz: "kasalliklar.html", href_ru: "kasalliklar.ru.html", name_uz: "Ун-шудринг касаллиги", name_ru: "Мучнистая роса" },
+      { cat: "mite", href_uz: "zararkunandalar.html", href_ru: "zararkunandalar.ru.html", name_uz: "Ўргимчаккана", name_ru: "Паутинный клещ" },
+      { cat: "pest", href_uz: "zararkunandalar.html", href_ru: "zararkunandalar.ru.html", name_uz: "Шира", name_ru: "Тля" }
+    ],
+    grapes: [
+      { cat: "fungal", href_uz: "kasalliklar.html", href_ru: "kasalliklar.ru.html", name_uz: "Ун-шудринг (оидиум)", name_ru: "Мучнистая роса (оидиум)" },
+      { cat: "mite", href_uz: "zararkunandalar.html", href_ru: "zararkunandalar.ru.html", name_uz: "Ўргимчаккана", name_ru: "Паутинный клещ" },
+      { cat: "fungal", href_uz: "kasalliklar.html", href_ru: "kasalliklar.ru.html", name_uz: "Занг", name_ru: "Ржавчина" }
+    ]
+  };
+
+  var RECO_TEXTS = {
+    fungal: {
+      uz: "Ўсимликлар орасидаги масофани сақланг, ортиқча суғоришдан қочинг, зарур бўлса мис асосидаги фунгицид билан профилактик ишлов беринг.",
+      ru: "Соблюдайте расстояние между растениями, избегайте избыточного полива, при необходимости проведите профилактическую обработку медьсодержащим фунгицидом."
+    },
+    pest: {
+      uz: "Феромон ва ёпишқоқ тузоқлар ўрнатинг, фойдали ҳашаротлар учун шароит яратинг, юқори даражада рухсат этилган инсектицид қўлланг.",
+      ru: "Установите феромонные и клеевые ловушки, создайте условия для полезных насекомых, при высоком уровне примените разрешённый инсектицид."
+    },
+    mite: {
+      uz: "Ҳаво намлигини ошириш чораларини кўринг, юқори даражада акарицид қўллашни режалаштиринг.",
+      ru: "Примите меры по повышению влажности воздуха, при высоком уровне запланируйте применение акарицида."
+    },
+    locust: {
+      uz: "Ҳудудий мониторингни кучайтиринг, дала четларини назорат остига олинг, оммавий тарқалишда тезкор ишлов беринг.",
+      ru: "Усильте мониторинг территории, возьмите под контроль края поля, при массовом распространении проведите срочную обработку."
+    },
+    weed: {
+      uz: "Мулчалаш қилинг, ўз вақтида ўтоқ ишларини бажаринг, экинни зич жойлаштиришдан фойдаланинг.",
+      ru: "Проведите мульчирование, своевременно выполняйте прополку, используйте более плотную посадку культуры."
+    }
+  };
 
   function clamp(v) {
     return Math.max(0, Math.min(100, Math.round(v)));
@@ -184,15 +189,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var threatList = document.getElementById("threat-list");
     threatList.innerHTML = "";
-    var threats = t.cropThreats[crop] || [];
+    var threats = CROP_THREATS[crop] || [];
     threats.forEach(function (item) {
       var level = levelOf(scores[item.cat]);
+      var name = LANG === "ru" ? item.name_ru : item.name_uz;
+      var href = LANG === "ru" ? item.href_ru : item.href_uz;
       var li = document.createElement("li");
       li.innerHTML =
-        '<span class="threat-name">' + item.name + "<small>" + t.categories[item.cat] + "</small></span>" +
+        '<span class="threat-name">' + name + "<small>" + t.categories[item.cat] + "</small></span>" +
         '<span style="display:flex; align-items:center; gap:10px;">' +
         '<span class="risk-level-label risk-level-' + level + '">' + t.levels[level] + "</span>" +
-        '<a href="' + item.href + '">' + t.detailLink + "</a></span>";
+        '<a href="' + href + '">' + t.detailLink + "</a></span>";
       threatList.appendChild(li);
     });
 
@@ -204,7 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (level === "medium" || level === "high" || level === "critical") {
         anyReco = true;
         var li = document.createElement("li");
-        li.innerHTML = "<strong>" + t.categories[cat] + ":</strong> " + t.recoTexts[cat];
+        li.innerHTML = "<strong>" + t.categories[cat] + ":</strong> " + RECO_TEXTS[cat][LANG];
         recoList.appendChild(li);
       }
     });
@@ -218,8 +225,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("risk-results").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
+  function computeAndRenderFromForm() {
     var inputs = {
       crop: document.getElementById("crop").value,
       season: document.getElementById("season").value,
@@ -229,5 +235,160 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     var scores = computeScores(inputs);
     renderResults(inputs.crop, scores);
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    computeAndRenderFromForm();
+  });
+
+  // --- Live weather (Open-Meteo, no API key required) ---
+  var statusEl = document.getElementById("weather-status");
+  var cityInput = document.getElementById("city-input");
+  var cityBtn = document.getElementById("fetch-city-btn");
+  var geoBtn = document.getElementById("fetch-geo-btn");
+  if (!statusEl || !cityBtn || !geoBtn) return;
+
+  function setStatus(text, kind) {
+    statusEl.textContent = text;
+    statusEl.className = "weather-status" + (kind ? " weather-status-" + kind : "");
+  }
+
+  function fillTemplate(str, map) {
+    return str.replace(/\{(\w+)\}/g, function (_, k) {
+      return map[k] != null ? map[k] : "";
+    });
+  }
+
+  function seasonFromDate(date) {
+    var m = date.getMonth() + 1;
+    if (m === 12 || m <= 2) return "winter";
+    if (m <= 5) return "spring";
+    if (m <= 8) return "summer";
+    return "autumn";
+  }
+
+  function tempBucket(c) {
+    if (c < 15) return "low";
+    if (c <= 25) return "med";
+    return "high";
+  }
+
+  function humBucket(pct) {
+    if (pct < 40) return "low";
+    if (pct <= 70) return "med";
+    return "high";
+  }
+
+  function rainBucket(mm) {
+    if (mm <= 0.1) return "none";
+    if (mm <= 5) return "light";
+    return "heavy";
+  }
+
+  function applyWeather(place, current, dailyRain) {
+    var temp = current.temperature_2m;
+    var hum = current.relative_humidity_2m;
+    var rain = dailyRain != null ? dailyRain : current.precipitation || 0;
+    var now = new Date();
+
+    document.getElementById("season").value = seasonFromDate(now);
+    document.getElementById("temp").value = tempBucket(temp);
+    document.getElementById("humidity").value = humBucket(hum);
+    document.getElementById("rain").value = rainBucket(rain);
+
+    setStatus(
+      fillTemplate(t.weather.success, {
+        place: place,
+        temp: Math.round(temp),
+        hum: Math.round(hum),
+        rain: rain.toFixed(1),
+        time: now.toLocaleTimeString(LANG === "ru" ? "ru-RU" : "uz-UZ", { hour: "2-digit", minute: "2-digit" })
+      }),
+      "success"
+    );
+
+    computeAndRenderFromForm();
+  }
+
+  function fetchWeatherForCoords(lat, lon, place) {
+    setStatus(t.weather.fetching, "loading");
+    var url =
+      "https://api.open-meteo.com/v1/forecast?latitude=" + encodeURIComponent(lat) +
+      "&longitude=" + encodeURIComponent(lon) +
+      "&current=temperature_2m,relative_humidity_2m,precipitation" +
+      "&daily=precipitation_sum&timezone=auto&forecast_days=1";
+
+    fetch(url)
+      .then(function (res) {
+        if (!res.ok) throw new Error("weather-fetch-failed");
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data.current) throw new Error("weather-empty");
+        var dailyRain = data.daily && data.daily.precipitation_sum ? data.daily.precipitation_sum[0] : null;
+        applyWeather(place, data.current, dailyRain);
+      })
+      .catch(function () {
+        setStatus(t.weather.network, "error");
+      });
+  }
+
+  function geocodeCity(name) {
+    setStatus(fillTemplate(t.weather.searching, { city: name }), "loading");
+    var url =
+      "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(name) +
+      "&count=1&language=" + (LANG === "ru" ? "ru" : "en") + "&format=json";
+
+    fetch(url)
+      .then(function (res) {
+        if (!res.ok) throw new Error("geocode-failed");
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data.results || !data.results.length) {
+          setStatus(t.weather.cityNotFound, "error");
+          return;
+        }
+        var r = data.results[0];
+        var label = r.name + (r.country ? ", " + r.country : "");
+        fetchWeatherForCoords(r.latitude, r.longitude, label);
+      })
+      .catch(function () {
+        setStatus(t.weather.network, "error");
+      });
+  }
+
+  cityBtn.addEventListener("click", function () {
+    var name = cityInput.value.trim();
+    if (!name) {
+      setStatus(t.weather.cityEmpty, "error");
+      return;
+    }
+    geocodeCity(name);
+  });
+
+  cityInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      cityBtn.click();
+    }
+  });
+
+  geoBtn.addEventListener("click", function () {
+    if (!navigator.geolocation) {
+      setStatus(t.weather.geoUnsupported, "error");
+      return;
+    }
+    setStatus(t.weather.locating, "loading");
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        fetchWeatherForCoords(pos.coords.latitude, pos.coords.longitude, LANG === "ru" ? "Ваше местоположение" : "Жойлашувингиз");
+      },
+      function () {
+        setStatus(t.weather.geoDenied, "error");
+      },
+      { timeout: 10000 }
+    );
   });
 });
