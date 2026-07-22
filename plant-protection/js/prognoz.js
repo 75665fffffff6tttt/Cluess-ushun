@@ -530,4 +530,12 @@ document.addEventListener("DOMContentLoaded", function () {
       { timeout: 10000 }
     );
   });
+
+  // Auto-search when arriving from the region map (xarita.html?city=...)
+  var params = new URLSearchParams(window.location.search);
+  var cityParam = params.get("city");
+  if (cityParam) {
+    cityInput.value = cityParam;
+    geocodeCity(cityParam);
+  }
 });

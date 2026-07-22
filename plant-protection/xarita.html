@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="uz-Cyrl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Харита — вилоятлар ва туманлар — АгроҲимоя</title>
+<meta name="description" content="Ўзбекистон вилоятлари ва туманлари схематик харитаси — вилоятни танланг ва шу ҳудуд учун об-ҳаво ва фитосанитар хавфни кўринг.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-icon">🌿</span>
+      <div>
+        <div class="sidebar-brand-title">АГРО</div>
+        <div class="sidebar-brand-sub">ҲИМОЯ</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="sidebar-link"><span class="sidebar-ico">📊</span> Бош саҳифа</a>
+      <a href="xarita.html" class="sidebar-link active"><span class="sidebar-ico">🗺️</span> Харита</a>
+      <a href="zararkunandalar.html" class="sidebar-link"><span class="sidebar-ico">🐛</span> Зараркунандалар</a>
+      <a href="kasalliklar.html" class="sidebar-link"><span class="sidebar-ico">🍂</span> Касалликлар</a>
+      <a href="begona-otlar.html" class="sidebar-link"><span class="sidebar-ico">🌱</span> Бегона ўтлар</a>
+      <a href="himoya-usullari.html" class="sidebar-link"><span class="sidebar-ico">🛡️</span> Ҳимоя усуллари</a>
+      <a href="prognoz.html" class="sidebar-link"><span class="sidebar-ico">🌦️</span> Прогноз ва таҳлил</a>
+      <a href="fasl-kalendari.html" class="sidebar-link"><span class="sidebar-ico">📅</span> Фасл календари</a>
+      <a href="aloqa.html" class="sidebar-link"><span class="sidebar-ico">✉️</span> Алоқа</a>
+    </nav>
+    <div class="sidebar-footer">
+      <strong>АгроҲимоя порт.</strong>
+      Версия 1.0 · 2026
+    </div>
+  </aside>
+  <div class="main-area">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-expanded="false" aria-label="Менюни очиш">☰</button>
+      <h1 class="topbar-title">Харита</h1>
+      <div class="lang-switch">
+        <a href="xarita.html" aria-current="true">ЎЗ</a>
+        <a href="xarita.ru.html">РУ</a>
+      </div>
+    </header>
+    <main class="main-content">
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Бош саҳифа</a> / Харита</div>
+    <h1>Вилоятлар ва туманлар харитаси</h1>
+    <p>Харитадаги нуқтани босиб, вилоят номи, маркази ва туманлар рўйхатини кўринг, шунингдек шу ҳудуд учун об-ҳаво ва фитосанитар хавф таҳлилига ўтинг.</p>
+  </div>
+</div>
+
+<div class="content-block">
+  <div class="container">
+    <div class="map-layout">
+      <div class="map-card">
+        <div id="region-map-wrap"></div>
+        <p class="map-caption" id="map-caption"></p>
+      </div>
+      <div class="region-panel" id="region-panel"></div>
+    </div>
+  </div>
+</div>
+
+    </main>
+  </div>
+</div>
+<script src="js/main.js"></script>
+<script src="js/regions-data.js"></script>
+<script src="js/xarita.js"></script>
+</body>
+</html>

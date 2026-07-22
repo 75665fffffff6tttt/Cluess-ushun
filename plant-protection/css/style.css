@@ -782,3 +782,35 @@ form.contact-form { display: grid; gap: 14px; }
 }
 .main-content section.block { padding-left: 0; padding-right: 0; }
 .main-content section.block:first-child { padding-top: 0; }
+
+/* Region map */
+.map-layout {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 900px) { .map-layout { grid-template-columns: 1fr; } }
+
+.map-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+#region-map-wrap svg { width: 100%; height: auto; display: block; }
+#region-map-wrap text { pointer-events: none; }
+.region-node:hover circle { fill: var(--green-600) !important; }
+.map-caption { margin: 10px 2px 0; font-size: 0.82rem; color: var(--ink-600); text-align: center; }
+
+.region-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  box-shadow: var(--shadow);
+  min-height: 200px;
+  position: sticky;
+  top: 84px;
+}
