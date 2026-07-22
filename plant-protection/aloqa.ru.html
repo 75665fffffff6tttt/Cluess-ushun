@@ -8,27 +8,41 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<header class="site-header">
-  <div class="container nav-wrap">
-    <a href="index.ru.html" class="brand"><span class="brand-icon">🌿</span> АгроЗащита</a>
-    <button class="nav-toggle" aria-expanded="false" aria-label="Открыть меню">☰ Меню</button>
-    <nav class="main-nav">
-      <a href="index.ru.html">Главная</a>
-      <a href="zararkunandalar.ru.html">Вредители</a>
-      <a href="kasalliklar.ru.html">Болезни</a>
-      <a href="begona-otlar.ru.html">Сорняки</a>
-      <a href="himoya-usullari.ru.html">Методы защиты</a>
-      <a href="prognoz.ru.html">Прогноз и анализ</a>
-      <a href="fasl-kalendari.ru.html">Сезонный календарь</a>
-      <a href="aloqa.ru.html" aria-current="page">Контакты</a>
-    </nav>
-    <div class="lang-switch">
-      <a href="aloqa.html">ЎЗ</a>
-      <a href="aloqa.ru.html" aria-current="true">РУ</a>
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-icon">🌿</span>
+      <div>
+        <div class="sidebar-brand-title">АГРО</div>
+        <div class="sidebar-brand-sub">ЗАЩИТА</div>
+      </div>
     </div>
-  </div>
-</header>
-
+    <nav class="sidebar-nav">
+      <a href="index.ru.html" class="sidebar-link"><span class="sidebar-ico">📊</span> Главная</a>
+      <a href="zararkunandalar.ru.html" class="sidebar-link"><span class="sidebar-ico">🐛</span> Вредители</a>
+      <a href="kasalliklar.ru.html" class="sidebar-link"><span class="sidebar-ico">🍂</span> Болезни</a>
+      <a href="begona-otlar.ru.html" class="sidebar-link"><span class="sidebar-ico">🌱</span> Сорняки</a>
+      <a href="himoya-usullari.ru.html" class="sidebar-link"><span class="sidebar-ico">🛡️</span> Методы защиты</a>
+      <a href="prognoz.ru.html" class="sidebar-link"><span class="sidebar-ico">🌦️</span> Прогноз и анализ</a>
+      <a href="fasl-kalendari.ru.html" class="sidebar-link"><span class="sidebar-ico">📅</span> Сезонный календарь</a>
+      <a href="aloqa.ru.html" class="sidebar-link active"><span class="sidebar-ico">✉️</span> Контакты</a>
+    </nav>
+    <div class="sidebar-footer">
+      <strong>АгроЗащита</strong>
+      Версия 1.0 · 2026
+    </div>
+  </aside>
+  <div class="main-area">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-expanded="false" aria-label="Открыть меню">☰</button>
+      <h1 class="topbar-title">Контакты</h1>
+      <div class="lang-switch">
+        <a href="aloqa.html">ЎЗ</a>
+        <a href="aloqa.ru.html" aria-current="true">РУ</a>
+      </div>
+    </header>
+    <main class="main-content">
 <div class="page-header">
   <div class="container">
     <div class="breadcrumb"><a href="index.ru.html">Главная</a> / Контакты</div>
@@ -83,37 +97,9 @@
   </div>
 </div>
 
-<footer class="site-footer">
-  <div class="container">
-    <div class="footer-grid">
-      <div>
-        <h4>АгроЗащита</h4>
-        <p style="max-width: 44ch; font-size: 0.9rem;">Портал практической информации по защите растений. Материалы носят рекомендательный характер.</p>
-      </div>
-      <div>
-        <h4>Разделы</h4>
-        <ul>
-          <li><a href="zararkunandalar.ru.html">Вредители</a></li>
-          <li><a href="kasalliklar.ru.html">Болезни</a></li>
-          <li><a href="begona-otlar.ru.html">Сорняки</a></li>
-          <li><a href="himoya-usullari.ru.html">Методы защиты</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Дополнительно</h4>
-        <ul>
-          <li><a href="prognoz.ru.html">Прогноз и анализ</a></li>
-          <li><a href="fasl-kalendari.ru.html">Сезонный календарь</a></li>
-          <li><a href="aloqa.ru.html">Контакты</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2026 АгроЗащита. Все права защищены.</span>
-      <span>Информация предоставляется в рекомендательных целях.</span>
-    </div>
+    </main>
   </div>
-</footer>
+</div>
 <script src="js/main.js"></script>
 </body>
 </html>

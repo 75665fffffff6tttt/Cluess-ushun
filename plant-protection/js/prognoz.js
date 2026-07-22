@@ -39,7 +39,8 @@ document.addEventListener("DOMContentLoaded", function () {
         geoDenied: "Жойлашувга рухсат берилмади. Шаҳар номини қўлда киритинг.",
         geoUnsupported: "Браузерингиз геолокацияни қўллаб-қувватламайди. Шаҳар номини киритинг.",
         network: "Маълумот олишда хатолик юз берди. Интернет алоқасини текшириб, қайта уриниб кўринг.",
-        success: "📍 {place}: ҳарорат {temp}°C, намлик {hum}%, бугунги ёғин {rain} мм — {time}. Шароит қуйида автоматик тўлдирилди."
+        success: "📍 {place}: ҳарорат {temp}°C, намлик {hum}%, бугунги ёғин {rain} мм — {time}. Шароит қуйида автоматик тўлдирилди.",
+        chartSub: "Соатлик ҳарорат прогнози (Open-Meteo)"
       }
     },
     ru: {
@@ -76,7 +77,8 @@ document.addEventListener("DOMContentLoaded", function () {
         geoDenied: "Доступ к геолокации не разрешён. Введите название города вручную.",
         geoUnsupported: "Ваш браузер не поддерживает геолокацию. Введите название города.",
         network: "Ошибка при получении данных. Проверьте подключение к интернету и попробуйте снова.",
-        success: "📍 {place}: температура {temp}°C, влажность {hum}%, осадки сегодня {rain} мм — {time}. Условия ниже заполнены автоматически."
+        success: "📍 {place}: температура {temp}°C, влажность {hum}%, осадки сегодня {rain} мм — {time}. Условия ниже заполнены автоматически.",
+        chartSub: "Почасовой прогноз температуры (Open-Meteo)"
       }
     }
   };
@@ -286,7 +288,80 @@ document.addEventListener("DOMContentLoaded", function () {
     return "heavy";
   }
 
-  function applyWeather(place, current, dailyRain) {
+  var chipRow = document.getElementById("weather-chip-row");
+  var chartCard = document.getElementById("temp-chart-card");
+  var chartWrap = document.getElementById("temp-chart-wrap");
+  var chartSub = document.getElementById("temp-chart-sub");
+
+  function clearWeather() {
+    if (chipRow) chipRow.innerHTML = "";
+    setStatus("", null);
+    if (chartCard) chartCard.classList.add("results-hidden");
+  }
+
+  function renderChip(place) {
+    if (!chipRow) return;
+    chipRow.innerHTML = "";
+    var chip = document.createElement("span");
+    chip.className = "chip";
+    chip.innerHTML = "📍 " + place + ' <span class="chip-remove" role="button" tabindex="0" aria-label="close">✕</span>';
+    chip.querySelector(".chip-remove").addEventListener("click", clearWeather);
+    chipRow.appendChild(chip);
+  }
+
+  function hourLabel(iso) {
+    return new Date(iso).toLocaleTimeString(LANG === "ru" ? "ru-RU" : "uz-UZ", { hour: "2-digit" });
+  }
+
+  function buildSparklineSvg(times, temps) {
+    var w = 600, h = 170, padL = 34, padR = 14, padT = 18, padB = 28;
+    var n = temps.length;
+    var min = Math.min.apply(null, temps);
+    var max = Math.max.apply(null, temps);
+    if (min === max) { max = min + 1; }
+    var xStep = (w - padL - padR) / (n - 1);
+    function X(i) { return padL + i * xStep; }
+    function Y(v) { return padT + (1 - (v - min) / (max - min)) * (h - padT - padB); }
+
+    var linePts = temps.map(function (v, i) { return X(i).toFixed(1) + "," + Y(v).toFixed(1); }).join(" ");
+    var areaPts = linePts + " " + X(n - 1).toFixed(1) + "," + (h - padB) + " " + X(0).toFixed(1) + "," + (h - padB);
+    var midIdx = Math.floor((n - 1) / 2);
+
+    return (
+      '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="temperature chart">' +
+      '<polygon points="' + areaPts + '" style="fill:var(--green-100)"></polygon>' +
+      '<polyline points="' + linePts + '" fill="none" style="stroke:var(--green-700)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></polyline>' +
+      '<text x="4" y="' + (Y(max) + 4).toFixed(1) + '" font-size="11" style="fill:var(--ink-600)">' + Math.round(max) + '°</text>' +
+      '<text x="4" y="' + (Y(min) + 4).toFixed(1) + '" font-size="11" style="fill:var(--ink-600)">' + Math.round(min) + '°</text>' +
+      '<text x="' + X(0).toFixed(1) + '" y="' + (h - 8) + '" font-size="10" text-anchor="start" style="fill:var(--ink-600)">' + hourLabel(times[0]) + '</text>' +
+      '<text x="' + X(midIdx).toFixed(1) + '" y="' + (h - 8) + '" font-size="10" text-anchor="middle" style="fill:var(--ink-600)">' + hourLabel(times[midIdx]) + '</text>' +
+      '<text x="' + X(n - 1).toFixed(1) + '" y="' + (h - 8) + '" font-size="10" text-anchor="end" style="fill:var(--ink-600)">' + hourLabel(times[n - 1]) + '</text>' +
+      "</svg>"
+    );
+  }
+
+  function renderTempChart(place, hourly, now) {
+    if (!chartCard || !hourly || !hourly.time || !hourly.temperature_2m) {
+      if (chartCard) chartCard.classList.add("results-hidden");
+      return;
+    }
+    var times = hourly.time, temps = hourly.temperature_2m;
+    var startIdx = 0;
+    for (var i = 0; i < times.length; i++) {
+      if (new Date(times[i]) >= now) { startIdx = i; break; }
+    }
+    var sliceTimes = times.slice(startIdx, startIdx + 24);
+    var sliceTemps = temps.slice(startIdx, startIdx + 24);
+    if (sliceTemps.length < 2) {
+      chartCard.classList.add("results-hidden");
+      return;
+    }
+    chartWrap.innerHTML = buildSparklineSvg(sliceTimes, sliceTemps);
+    chartSub.textContent = place + " — " + t.weather.chartSub;
+    chartCard.classList.remove("results-hidden");
+  }
+
+  function applyWeather(place, current, dailyRain, hourly) {
     var temp = current.temperature_2m;
     var hum = current.relative_humidity_2m;
     var rain = dailyRain != null ? dailyRain : current.precipitation || 0;
@@ -307,6 +382,8 @@ document.addEventListener("DOMContentLoaded", function () {
       }),
       "success"
     );
+    renderChip(place);
+    renderTempChart(place, hourly, now);
 
     computeAndRenderFromForm();
   }
@@ -317,7 +394,8 @@ document.addEventListener("DOMContentLoaded", function () {
       "https://api.open-meteo.com/v1/forecast?latitude=" + encodeURIComponent(lat) +
       "&longitude=" + encodeURIComponent(lon) +
       "&current=temperature_2m,relative_humidity_2m,precipitation" +
-      "&daily=precipitation_sum&timezone=auto&forecast_days=1";
+      "&hourly=temperature_2m" +
+      "&daily=precipitation_sum&timezone=auto&forecast_days=2";
 
     fetch(url)
       .then(function (res) {
@@ -327,7 +405,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .then(function (data) {
         if (!data.current) throw new Error("weather-empty");
         var dailyRain = data.daily && data.daily.precipitation_sum ? data.daily.precipitation_sum[0] : null;
-        applyWeather(place, data.current, dailyRain);
+        applyWeather(place, data.current, dailyRain, data.hourly);
       })
       .catch(function () {
         setStatus(t.weather.network, "error");

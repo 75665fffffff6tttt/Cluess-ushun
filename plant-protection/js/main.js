@@ -1,12 +1,19 @@
 document.addEventListener("DOMContentLoaded", function () {
-  var toggle = document.querySelector(".nav-toggle");
-  var nav = document.querySelector(".main-nav");
-  if (toggle && nav) {
+  var toggle = document.getElementById("sidebar-toggle");
+  var sidebar = document.getElementById("sidebar");
+  var backdrop = document.getElementById("sidebar-backdrop");
+  function closeSidebar() {
+    sidebar.classList.remove("open");
+    backdrop.classList.remove("visible");
+    toggle.setAttribute("aria-expanded", "false");
+  }
+  if (toggle && sidebar && backdrop) {
     toggle.addEventListener("click", function () {
-      nav.classList.toggle("open");
-      var expanded = nav.classList.contains("open");
-      toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+      var isOpen = sidebar.classList.toggle("open");
+      backdrop.classList.toggle("visible", isOpen);
+      toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
     });
+    backdrop.addEventListener("click", closeSidebar);
   }
 
   var form = document.querySelector(".contact-form");
