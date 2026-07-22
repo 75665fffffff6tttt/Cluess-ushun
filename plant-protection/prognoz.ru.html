@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Прогноз и анализ фитосанитарного риска — АгроЗащита</title>
+<meta name="description" content="Современный анализ фитосанитарного риска на основе культуры, сезона, температуры и влажности — оцените риск вредителей, болезней и сорняков.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a href="index.ru.html" class="brand"><span class="brand-icon">🌿</span> АгроЗащита</a>
+    <button class="nav-toggle" aria-expanded="false" aria-label="Открыть меню">☰ Меню</button>
+    <nav class="main-nav">
+      <a href="index.ru.html">Главная</a>
+      <a href="zararkunandalar.ru.html">Вредители</a>
+      <a href="kasalliklar.ru.html">Болезни</a>
+      <a href="begona-otlar.ru.html">Сорняки</a>
+      <a href="himoya-usullari.ru.html">Методы защиты</a>
+      <a href="prognoz.ru.html" aria-current="page">Прогноз и анализ</a>
+      <a href="fasl-kalendari.ru.html">Сезонный календарь</a>
+      <a href="aloqa.ru.html">Контакты</a>
+    </nav>
+    <div class="lang-switch">
+      <a href="prognoz.html">ЎЗ</a>
+      <a href="prognoz.ru.html" aria-current="true">РУ</a>
+    </div>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.ru.html">Главная</a> / Прогноз и анализ</div>
+    <span class="promo-badge" style="background: var(--green-100); color: var(--green-700);">🆕 Современный инструмент</span>
+    <h1>Прогноз и анализ фитосанитарного риска</h1>
+    <p>Укажите культуру, текущий сезон и погодные условия — система оценит риск вредителей, болезней и сорняков и даст конкретные рекомендации.</p>
+  </div>
+</div>
+
+<div class="content-block">
+  <div class="container">
+
+    <div class="weather-card">
+      <h2>Получить текущую погоду автоматически</h2>
+      <p>Введите название города или разрешите определить ваше местоположение — данные о температуре, влажности и осадках (через сервис Open-Meteo) будут получены автоматически, и форма ниже заполнится сама.</p>
+      <div class="weather-controls">
+        <div class="field">
+          <label for="city-input">Название города</label>
+          <input type="text" id="city-input" placeholder="Например: Ташкент">
+        </div>
+        <button type="button" id="fetch-city-btn" class="btn btn-primary">Найти по городу</button>
+        <button type="button" id="fetch-geo-btn" class="btn btn-outline">📍 Определить моё местоположение</button>
+      </div>
+      <p id="weather-status" class="weather-status"></p>
+    </div>
+
+    <h2>Укажите условия</h2>
+    <p style="margin-top:-8px;">Если данные выше не получены автоматически — выберите значения ниже вручную.</p>
+    <form id="risk-form" class="risk-form">
+      <div class="field">
+        <label for="crop">Культура</label>
+        <select id="crop" name="crop">
+          <option value="tomato_potato">Томат / Картофель</option>
+          <option value="grain">Зерновые (пшеница и др.)</option>
+          <option value="fruit_trees">Плодовые деревья</option>
+          <option value="vegetables">Прочие овощи</option>
+          <option value="grapes">Виноград</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="season">Сезон</label>
+        <select id="season" name="season">
+          <option value="spring">Весна</option>
+          <option value="summer" selected>Лето</option>
+          <option value="autumn">Осень</option>
+          <option value="winter">Зима</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="temp">Температура</label>
+        <select id="temp" name="temp">
+          <option value="low">Низкая (менее 15°C)</option>
+          <option value="med" selected>Средняя (15–25°C)</option>
+          <option value="high">Высокая (более 25°C)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="humidity">Влажность воздуха</label>
+        <select id="humidity" name="humidity">
+          <option value="low">Низкая (сухо)</option>
+          <option value="med" selected>Средняя</option>
+          <option value="high">Высокая (влажно)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="rain">Недавние осадки</label>
+        <select id="rain" name="rain">
+          <option value="none" selected>Нет</option>
+          <option value="light">Небольшие / короткие</option>
+          <option value="heavy">Сильные / продолжительные</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Рассчитать</button>
+    </form>
+
+    <div id="risk-results" class="results-hidden">
+      <div class="risk-summary">
+        <div id="risk-ring" class="ring">--</div>
+        <div class="summary-text">
+          <h3 id="risk-summary-title"></h3>
+          <p id="risk-summary-text"></p>
+        </div>
+      </div>
+
+      <div class="risk-grid" id="risk-grid"></div>
+
+      <h2>Основные угрозы для выбранной культуры</h2>
+      <ul class="threat-list" id="threat-list"></ul>
+
+      <h2>Рекомендуемые меры</h2>
+      <ul class="reco-list" id="reco-list"></ul>
+    </div>
+
+    <div class="disclaimer-box">
+      <strong>Заметка:</strong> данные о погоде получены из открытого сервиса Open-Meteo и могут носить приблизительный характер. Оценка риска рассчитывается на основе этих данных и общих агрономических закономерностей — она не заменяет точный метеорологический прогноз или лабораторную диагностику. В серьёзных или неясных случаях обращайтесь в службу защиты растений вашего региона или к агроному-специалисту.
+    </div>
+
+    <p>Подробнее о видах рисков — в разделах <a href="zararkunandalar.ru.html">Вредители</a>, <a href="kasalliklar.ru.html">Болезни</a>, <a href="begona-otlar.ru.html">Сорняки</a> и <a href="himoya-usullari.ru.html">Методы защиты</a>.</p>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h4>АгроЗащита</h4>
+        <p style="max-width: 44ch; font-size: 0.9rem;">Портал практической информации по защите растений. Материалы носят рекомендательный характер.</p>
+      </div>
+      <div>
+        <h4>Разделы</h4>
+        <ul>
+          <li><a href="zararkunandalar.ru.html">Вредители</a></li>
+          <li><a href="kasalliklar.ru.html">Болезни</a></li>
+          <li><a href="begona-otlar.ru.html">Сорняки</a></li>
+          <li><a href="himoya-usullari.ru.html">Методы защиты</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Дополнительно</h4>
+        <ul>
+          <li><a href="prognoz.ru.html">Прогноз и анализ</a></li>
+          <li><a href="fasl-kalendari.ru.html">Сезонный календарь</a></li>
+          <li><a href="aloqa.ru.html">Контакты</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 АгроЗащита. Все права защищены.</span>
+      <span>Информация предоставляется в рекомендательных целях.</span>
+    </div>
+  </div>
+</footer>
+<script src="js/main.js"></script>
+<script src="js/prognoz.js"></script>
+</body>
+</html>

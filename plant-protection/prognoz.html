@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="uz-Cyrl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Прогноз ва фитосанитар хавф таҳлили — АгроҲимоя</title>
+<meta name="description" content="Экин тури, фасл, ҳарорат ва намликка асосланган замонавий фитосанитар хавф таҳлили — зараркунанда, касаллик ва бегона ўт хавфини баҳоланг.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a href="index.html" class="brand"><span class="brand-icon">🌿</span> АгроҲимоя</a>
+    <button class="nav-toggle" aria-expanded="false" aria-label="Менюни очиш">☰ Меню</button>
+    <nav class="main-nav">
+      <a href="index.html">Бош саҳифа</a>
+      <a href="zararkunandalar.html">Зараркунандалар</a>
+      <a href="kasalliklar.html">Касалликлар</a>
+      <a href="begona-otlar.html">Бегона ўтлар</a>
+      <a href="himoya-usullari.html">Ҳимоя усуллари</a>
+      <a href="prognoz.html" aria-current="page">Прогноз ва таҳлил</a>
+      <a href="fasl-kalendari.html">Фасл календари</a>
+      <a href="aloqa.html">Алоқа</a>
+    </nav>
+    <div class="lang-switch">
+      <a href="prognoz.html" aria-current="true">ЎЗ</a>
+      <a href="prognoz.ru.html">РУ</a>
+    </div>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Бош саҳифа</a> / Прогноз ва таҳлил</div>
+    <span class="promo-badge" style="background: var(--green-100); color: var(--green-700);">🆕 Замонавий восита</span>
+    <h1>Прогноз ва фитосанитар хавф таҳлили</h1>
+    <p>Экин турингиз, жорий фасл ва об-ҳаво шароитини киритинг — тизим зараркунанда, касаллик ва бегона ўт хавфини баҳолаб, аниқ тавсиялар беради.</p>
+  </div>
+</div>
+
+<div class="content-block">
+  <div class="container">
+
+    <div class="weather-card">
+      <h2>Жорий об-ҳавони автоматик олиш</h2>
+      <p>Шаҳар номини киритинг ёки жойлашувингизни аниқлашга рухсат беринг — ҳарорат, намлик ва ёғингарчилик маълумотлари (Open-Meteo хизмати орқали) автоматик олиниб, қуйидаги форма тўлдирилади.</p>
+      <div class="weather-controls">
+        <div class="field">
+          <label for="city-input">Шаҳар номи</label>
+          <input type="text" id="city-input" placeholder="Масалан: Тошкент">
+        </div>
+        <button type="button" id="fetch-city-btn" class="btn btn-primary">Шаҳар бўйича олиш</button>
+        <button type="button" id="fetch-geo-btn" class="btn btn-outline">📍 Жойлашувимни аниқлаш</button>
+      </div>
+      <p id="weather-status" class="weather-status"></p>
+    </div>
+
+    <h2>Шароитни киритинг</h2>
+    <p style="margin-top:-8px;">Юқорида автоматик олинган маълумот бўлмаса — қуйидаги қийматларни қўлда танланг.</p>
+    <form id="risk-form" class="risk-form">
+      <div class="field">
+        <label for="crop">Экин тури</label>
+        <select id="crop" name="crop">
+          <option value="tomato_potato">Помидор / Картошка</option>
+          <option value="grain">Ғалла (буғдой ва б.)</option>
+          <option value="fruit_trees">Боғ дарахтлари</option>
+          <option value="vegetables">Бошқа сабзавотлар</option>
+          <option value="grapes">Узум</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="season">Фасл</label>
+        <select id="season" name="season">
+          <option value="spring">Баҳор</option>
+          <option value="summer" selected>Ёз</option>
+          <option value="autumn">Куз</option>
+          <option value="winter">Қиш</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="temp">Ҳарорат</label>
+        <select id="temp" name="temp">
+          <option value="low">Паст (15°C дан кам)</option>
+          <option value="med" selected>Ўртача (15–25°C)</option>
+          <option value="high">Юқори (25°C дан ортиқ)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="humidity">Ҳаво намлиги</label>
+        <select id="humidity" name="humidity">
+          <option value="low">Паст (қуруқ)</option>
+          <option value="med" selected>Ўртача</option>
+          <option value="high">Юқори (нам)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="rain">Сўнгги ёғингарчилик</label>
+        <select id="rain" name="rain">
+          <option value="none" selected>Йўқ</option>
+          <option value="light">Кам / қисқа</option>
+          <option value="heavy">Кучли / узоқ</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Ҳисоблаш</button>
+    </form>
+
+    <div id="risk-results" class="results-hidden">
+      <div class="risk-summary">
+        <div id="risk-ring" class="ring">--</div>
+        <div class="summary-text">
+          <h3 id="risk-summary-title"></h3>
+          <p id="risk-summary-text"></p>
+        </div>
+      </div>
+
+      <div class="risk-grid" id="risk-grid"></div>
+
+      <h2>Танланган экин учун асосий таҳдидлар</h2>
+      <ul class="threat-list" id="threat-list"></ul>
+
+      <h2>Тавсия этилган чоралар</h2>
+      <ul class="reco-list" id="reco-list"></ul>
+    </div>
+
+    <div class="disclaimer-box">
+      <strong>Эслатма:</strong> об-ҳаво маълумотлари очиқ Open-Meteo хизматидан олинади ва тахминий хусусиятга эга бўлиши мумкин. Хавф баллари эса шу маълумотлар асосидаги умумий агрономик қоидалар ёрдамида ҳисобланади — аниқ метеорологик прогноз ёки лаборатория ташхиси ўрнини босмайди. Жиддий ёки ноаниқ ҳолатларда минтақангиздаги ўсимликларни муҳофаза қилиш хизматига ёки агроном мутахассисга мурожаат қилинг.
+    </div>
+
+    <p>Хавф турлари ҳақида батафсил — <a href="zararkunandalar.html">Зараркунандалар</a>, <a href="kasalliklar.html">Касалликлар</a>, <a href="begona-otlar.html">Бегона ўтлар</a> ва <a href="himoya-usullari.html">Ҳимоя усуллари</a> бўлимларида.</p>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h4>АгроҲимоя</h4>
+        <p style="max-width: 44ch; font-size: 0.9rem;">Ўсимликларни ҳимоя қилиш бўйича амалий маълумот портали. Материаллар умумий тавсия тарзида берилган.</p>
+      </div>
+      <div>
+        <h4>Бўлимлар</h4>
+        <ul>
+          <li><a href="zararkunandalar.html">Зараркунандалар</a></li>
+          <li><a href="kasalliklar.html">Касалликлар</a></li>
+          <li><a href="begona-otlar.html">Бегона ўтлар</a></li>
+          <li><a href="himoya-usullari.html">Ҳимоя усуллари</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Қўшимча</h4>
+        <ul>
+          <li><a href="prognoz.html">Прогноз ва таҳлил</a></li>
+          <li><a href="fasl-kalendari.html">Фасл календари</a></li>
+          <li><a href="aloqa.html">Алоқа</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 АгроҲимоя. Барча ҳуқуқлар ҳимояланган.</span>
+      <span>Маълумот тавсия тарзида берилади.</span>
+    </div>
+  </div>
+</footer>
+<script src="js/main.js"></script>
+<script src="js/prognoz.js"></script>
+</body>
+</html>
