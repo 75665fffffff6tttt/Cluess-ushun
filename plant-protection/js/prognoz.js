@@ -412,10 +412,71 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
+  // Local lookup for major Uzbekistan cities: Open-Meteo's geocoding database
+  // is indexed in Latin script, so a raw Cyrillic query like "Тошкент" or
+  // "Ташкент" almost never matches. Known cities resolve instantly here;
+  // anything else falls back to transliteration + the geocoding API.
+  var CITY_DB = {
+    "тошкент": { lat: 41.2995, lon: 69.2401, label: "Toshkent, O'zbekiston" },
+    "ташкент": { lat: 41.2995, lon: 69.2401, label: "Toshkent, O'zbekiston" },
+    "самарқанд": { lat: 39.6270, lon: 66.9749, label: "Samarqand, O'zbekiston" },
+    "самарканд": { lat: 39.6270, lon: 66.9749, label: "Samarqand, O'zbekiston" },
+    "бухоро": { lat: 39.7747, lon: 64.4286, label: "Buxoro, O'zbekiston" },
+    "бухара": { lat: 39.7747, lon: 64.4286, label: "Buxoro, O'zbekiston" },
+    "андижон": { lat: 40.7821, lon: 72.3442, label: "Andijon, O'zbekiston" },
+    "андижан": { lat: 40.7821, lon: 72.3442, label: "Andijon, O'zbekiston" },
+    "наманган": { lat: 41.0011, lon: 71.6726, label: "Namangan, O'zbekiston" },
+    "фарғона": { lat: 40.3864, lon: 71.7864, label: "Farg'ona, O'zbekiston" },
+    "фергана": { lat: 40.3864, lon: 71.7864, label: "Farg'ona, O'zbekiston" },
+    "қарши": { lat: 38.8606, lon: 65.7891, label: "Qarshi, O'zbekiston" },
+    "карши": { lat: 38.8606, lon: 65.7891, label: "Qarshi, O'zbekiston" },
+    "нукус": { lat: 42.4531, lon: 59.6103, label: "Nukus, O'zbekiston" },
+    "термиз": { lat: 37.2242, lon: 67.2783, label: "Termiz, O'zbekiston" },
+    "термез": { lat: 37.2242, lon: 67.2783, label: "Termiz, O'zbekiston" },
+    "жиззах": { lat: 40.1158, lon: 67.8422, label: "Jizzax, O'zbekiston" },
+    "джизак": { lat: 40.1158, lon: 67.8422, label: "Jizzax, O'zbekiston" },
+    "гулистон": { lat: 40.4897, lon: 68.7842, label: "Guliston, O'zbekiston" },
+    "гулистан": { lat: 40.4897, lon: 68.7842, label: "Guliston, O'zbekiston" },
+    "навоий": { lat: 40.0844, lon: 65.3792, label: "Navoiy, O'zbekiston" },
+    "навои": { lat: 40.0844, lon: 65.3792, label: "Navoiy, O'zbekiston" },
+    "урганч": { lat: 41.5500, lon: 60.6333, label: "Urganch, O'zbekiston" },
+    "ургенч": { lat: 41.5500, lon: 60.6333, label: "Urganch, O'zbekiston" },
+    "ангрен": { lat: 41.0167, lon: 70.1444, label: "Angren, O'zbekiston" },
+    "чирчиқ": { lat: 41.4686, lon: 69.5822, label: "Chirchiq, O'zbekiston" },
+    "чирчик": { lat: 41.4686, lon: 69.5822, label: "Chirchiq, O'zbekiston" },
+    "қўқон": { lat: 40.5283, lon: 70.9428, label: "Qo'qon, O'zbekiston" },
+    "коканд": { lat: 40.5283, lon: 70.9428, label: "Qo'qon, O'zbekiston" },
+    "марғилон": { lat: 40.4715, lon: 71.7244, label: "Marg'ilon, O'zbekiston" },
+    "маргилан": { lat: 40.4715, lon: 71.7244, label: "Marg'ilon, O'zbekiston" }
+  };
+
+  var CYRILLIC_TO_LATIN = {
+    "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ё": "yo",
+    "ж": "j", "з": "z", "и": "i", "й": "y", "к": "k", "л": "l", "м": "m",
+    "н": "n", "о": "o", "п": "p", "р": "r", "с": "s", "т": "t", "у": "u",
+    "ф": "f", "х": "x", "ц": "ts", "ч": "ch", "ш": "sh", "щ": "sh", "ъ": "",
+    "ы": "i", "ь": "", "э": "e", "ю": "yu", "я": "ya",
+    "ў": "o'", "қ": "q", "ғ": "g'", "ҳ": "h"
+  };
+
+  function transliterate(str) {
+    return str.toLowerCase().replace(/[Ѐ-ӿ']/g, function (ch) {
+      return CYRILLIC_TO_LATIN[ch] != null ? CYRILLIC_TO_LATIN[ch] : ch;
+    });
+  }
+
   function geocodeCity(name) {
     setStatus(fillTemplate(t.weather.searching, { city: name }), "loading");
+
+    var known = CITY_DB[name.trim().toLowerCase()];
+    if (known) {
+      fetchWeatherForCoords(known.lat, known.lon, known.label);
+      return;
+    }
+
+    var query = /[Ѐ-ӿ]/.test(name) ? transliterate(name) : name;
     var url =
-      "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(name) +
+      "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(query) +
       "&count=1&language=" + (LANG === "ru" ? "ru" : "en") + "&format=json";
 
     fetch(url)
