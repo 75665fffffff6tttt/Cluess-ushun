@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Карта — области и районы — АгроЗащита</title>
-<meta name="description" content="Схематичная карта областей и районов Узбекистана — выберите регион и посмотрите погоду и фитосанитарный риск для этой территории.">
+<title>База препаратов — АгроЗащита</title>
+<meta name="description" content="Поисковая база средств защиты растений (пестицидов) — по названию, действующему веществу, культуре, вредному организму и норме расхода.">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -20,8 +20,8 @@
     </div>
     <nav class="sidebar-nav">
       <a href="index.ru.html" class="sidebar-link"><span class="sidebar-ico">📊</span> Главная</a>
-      <a href="xarita.ru.html" class="sidebar-link active"><span class="sidebar-ico">🗺️</span> Карта</a>
-      <a href="preparatlar.ru.html" class="sidebar-link"><span class="sidebar-ico">🧪</span> База препаратов</a>
+      <a href="xarita.ru.html" class="sidebar-link"><span class="sidebar-ico">🗺️</span> Карта</a>
+      <a href="preparatlar.ru.html" class="sidebar-link active"><span class="sidebar-ico">🧪</span> База препаратов</a>
       <a href="zararkunandalar.ru.html" class="sidebar-link"><span class="sidebar-ico">🐛</span> Вредители</a>
       <a href="kasalliklar.ru.html" class="sidebar-link"><span class="sidebar-ico">🍂</span> Болезни</a>
       <a href="begona-otlar.ru.html" class="sidebar-link"><span class="sidebar-ico">🌱</span> Сорняки</a>
@@ -40,37 +40,27 @@
   <div class="main-area">
     <header class="topbar">
       <button class="sidebar-toggle" id="sidebar-toggle" aria-expanded="false" aria-label="Открыть меню">☰</button>
-      <h1 class="topbar-title">Карта</h1>
+      <h1 class="topbar-title">База препаратов</h1>
       <div class="lang-switch">
-        <a href="xarita.html">ЎЗ</a>
-        <a href="xarita.ru.html" aria-current="true">РУ</a>
+        <a href="preparatlar.html">ЎЗ</a>
+        <a href="preparatlar.ru.html" aria-current="true">РУ</a>
       </div>
     </header>
     <main class="main-content">
 <div class="page-header">
   <div class="container">
-    <div class="breadcrumb"><a href="index.ru.html">Главная</a> / Карта</div>
-    <h1>Карта областей и районов</h1>
-    <p>Нажмите на точку на карте, чтобы увидеть название области, её центр и список районов, а также перейти к прогнозу погоды и анализу фитосанитарного риска для этой территории.</p>
+    <div class="breadcrumb"><a href="index.ru.html">Главная</a> / База препаратов</div>
+    <h1>База средств защиты растений</h1>
+    <p>Ищите и фильтруйте по названию, действующему веществу, культуре, вредному организму или типу. Нажмите на строку для подробностей.</p>
   </div>
 </div>
 
 <div class="content-block">
   <div class="container">
-    <div class="map-layout">
-      <div class="map-card">
-        <div id="region-map-wrap"></div>
-        <p class="map-caption" id="map-caption"></p>
-      </div>
-      <div class="region-panel" id="region-panel"></div>
+    <div class="reg-notice">
+      ⚠️ <b>Внимание:</b> это демонстрационная база данных. Не является официальным государственным реестром Республики Узбекистан. Проверяйте регистрационные номера, сроки и нормы по официальному источнику.
     </div>
-
-    <div class="map-card" style="margin-top: 20px;">
-      <h3 style="margin: 0 0 10px;">На карте Google</h3>
-      <div class="gmap-wrap">
-        <iframe id="gmap-frame" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
-      </div>
-    </div>
+    <div id="reg-app"></div>
   </div>
 </div>
 
@@ -78,7 +68,7 @@
   </div>
 </div>
 <script src="js/main.js"></script>
-<script src="js/regions-data.js"></script>
-<script src="js/xarita.js"></script>
+<script src="js/preparatlar-data.js"></script>
+<script src="js/preparatlar.js"></script>
 </body>
 </html>

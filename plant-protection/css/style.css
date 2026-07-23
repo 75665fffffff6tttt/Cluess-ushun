@@ -884,3 +884,29 @@ textarea.hb-inp { resize: vertical; }
 .hb-anova { background: #eef4fb; border-radius: 8px; padding: 10px 12px; font-size: 0.86rem; margin-top: 8px; }
 .hb-note { color: #8a938c; font-size: 0.8rem; text-align: center; margin-top: 16px; }
 @media (max-width: 720px) { .hb-grid { grid-template-columns: 1fr; } .hb-manual { margin-left: 0; } }
+
+/* ============ Препаратлар базаси ============ */
+.reg-notice { background: #fff8e6; border: 1px solid #f0d98c; border-radius: 10px; padding: 12px 14px; font-size: 0.9rem; color: #7a5a00; margin-bottom: 16px; }
+.reg-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.reg-inp { border: 1px solid var(--border, #ccc); border-radius: 8px; padding: 9px 12px; font-size: 0.92rem; font-family: inherit; background: #fff; }
+#reg-q { flex: 1; min-width: 220px; }
+.reg-sel { min-width: 160px; }
+.reg-inp:focus { outline: none; border-color: var(--green-700, #2e7d32); box-shadow: 0 0 0 2px rgba(46,125,50,0.15); }
+.reg-count { font-size: 0.85rem; color: var(--ink-600, #667); margin: 0 0 10px; }
+.reg-scroll { overflow-x: auto; border: 1px solid var(--border, #e2e6e3); border-radius: 12px; }
+.reg-table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: 0.88rem; }
+.reg-table th, .reg-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border, #eee); }
+.reg-table thead th { background: var(--green-100, #e5f3e8); color: var(--green-700, #2e7d32); font-weight: 600; position: sticky; top: 0; }
+.reg-row { cursor: pointer; }
+.reg-row:hover { background: rgba(46,125,50,0.05); }
+.reg-empty { text-align: center; color: var(--ink-600, #889); padding: 24px; }
+.reg-badge { display: inline-block; color: #fff; font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.reg-modal { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.reg-modal-box { background: #fff; border-radius: 14px; padding: 22px; max-width: 520px; width: 100%; max-height: 88vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.reg-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.reg-modal-head h3 { margin: 0; font-size: 1.15rem; color: var(--green-800, #1b5e20); }
+#reg-close { background: none; border: none; font-size: 1.6rem; line-height: 1; cursor: pointer; color: #999; }
+.reg-kv { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.9rem; }
+.reg-kv th { text-align: left; width: 42%; color: var(--ink-600, #667); font-weight: 600; padding: 7px 8px; vertical-align: top; border-bottom: 1px solid var(--border, #f0f0f0); }
+.reg-kv td { padding: 7px 8px; color: var(--ink-900, #223); border-bottom: 1px solid var(--border, #f0f0f0); }
+@media (max-width: 640px) { .reg-sel { flex: 1; } }

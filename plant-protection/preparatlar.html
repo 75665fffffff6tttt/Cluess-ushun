@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Харита — вилоятлар ва туманлар — АгроҲимоя</title>
-<meta name="description" content="Ўзбекистон вилоятлари ва туманлари схематик харитаси — вилоятни танланг ва шу ҳудуд учун об-ҳаво ва фитосанитар хавфни кўринг.">
+<title>Препаратлар базаси — АгроҲимоя</title>
+<meta name="description" content="Ўсимликларни ҳимоя қилиш воситалари (пестицидлар) қидирувли базаси — препарат номи, таъсир этувчи модда, экин, зараркунанда ва сарф меъёри бўйича.">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -20,8 +20,8 @@
     </div>
     <nav class="sidebar-nav">
       <a href="index.html" class="sidebar-link"><span class="sidebar-ico">📊</span> Бош саҳифа</a>
-      <a href="xarita.html" class="sidebar-link active"><span class="sidebar-ico">🗺️</span> Харита</a>
-      <a href="preparatlar.html" class="sidebar-link"><span class="sidebar-ico">🧪</span> Препаратлар базаси</a>
+      <a href="xarita.html" class="sidebar-link"><span class="sidebar-ico">🗺️</span> Харита</a>
+      <a href="preparatlar.html" class="sidebar-link active"><span class="sidebar-ico">🧪</span> Препаратлар базаси</a>
       <a href="zararkunandalar.html" class="sidebar-link"><span class="sidebar-ico">🐛</span> Зараркунандалар</a>
       <a href="kasalliklar.html" class="sidebar-link"><span class="sidebar-ico">🍂</span> Касалликлар</a>
       <a href="begona-otlar.html" class="sidebar-link"><span class="sidebar-ico">🌱</span> Бегона ўтлар</a>
@@ -40,37 +40,27 @@
   <div class="main-area">
     <header class="topbar">
       <button class="sidebar-toggle" id="sidebar-toggle" aria-expanded="false" aria-label="Менюни очиш">☰</button>
-      <h1 class="topbar-title">Харита</h1>
+      <h1 class="topbar-title">Препаратлар базаси</h1>
       <div class="lang-switch">
-        <a href="xarita.html" aria-current="true">ЎЗ</a>
-        <a href="xarita.ru.html">РУ</a>
+        <a href="preparatlar.html" aria-current="true">ЎЗ</a>
+        <a href="preparatlar.ru.html">РУ</a>
       </div>
     </header>
     <main class="main-content">
 <div class="page-header">
   <div class="container">
-    <div class="breadcrumb"><a href="index.html">Бош саҳифа</a> / Харита</div>
-    <h1>Вилоятлар ва туманлар харитаси</h1>
-    <p>Харитадаги нуқтани босиб, вилоят номи, маркази ва туманлар рўйхатини кўринг, шунингдек шу ҳудуд учун об-ҳаво ва фитосанитар хавф таҳлилига ўтинг.</p>
+    <div class="breadcrumb"><a href="index.html">Бош саҳифа</a> / Препаратлар базаси</div>
+    <h1>Ўсимликларни ҳимоя қилиш воситалари базаси</h1>
+    <p>Препарат номи, таъсир этувчи модда, экин, зараркунанда ёки турига қараб қидиринг ва фильтрланг. Батафсил кўриш учун қаторни босинг.</p>
   </div>
 </div>
 
 <div class="content-block">
   <div class="container">
-    <div class="map-layout">
-      <div class="map-card">
-        <div id="region-map-wrap"></div>
-        <p class="map-caption" id="map-caption"></p>
-      </div>
-      <div class="region-panel" id="region-panel"></div>
+    <div class="reg-notice">
+      ⚠️ <b>Диққат:</b> бу — намунавий (демонстрацион) маълумотлар базаси. Ўзбекистон Республикасининг расмий давлат рўйхати эмас. Ҳақиқий рўйхат рақамлари, муддатлар ва меъёрларни расмий манбадан текширинг.
     </div>
-
-    <div class="map-card" style="margin-top: 20px;">
-      <h3 style="margin: 0 0 10px;">Google харитада</h3>
-      <div class="gmap-wrap">
-        <iframe id="gmap-frame" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
-      </div>
-    </div>
+    <div id="reg-app"></div>
   </div>
 </div>
 
@@ -78,7 +68,7 @@
   </div>
 </div>
 <script src="js/main.js"></script>
-<script src="js/regions-data.js"></script>
-<script src="js/xarita.js"></script>
+<script src="js/preparatlar-data.js"></script>
+<script src="js/preparatlar.js"></script>
 </body>
 </html>
