@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Управление резистентностью — АгроЗащита</title>
+<meta name="description" content="Определение группы механизма действия (MoA) препарата (IRAC/FRAC/HRAC) и проверка ротации для предотвращения резистентности.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-icon">🌿</span>
+      <div>
+        <div class="sidebar-brand-title">АГРО</div>
+        <div class="sidebar-brand-sub">ЗАЩИТА</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.ru.html" class="sidebar-link"><span class="sidebar-ico">📊</span> Главная</a>
+      <a href="xarita.ru.html" class="sidebar-link"><span class="sidebar-ico">🗺️</span> Карта</a>
+      <a href="preparatlar.ru.html" class="sidebar-link"><span class="sidebar-ico">🧪</span> База препаратов</a>
+      <a href="rezistentlik.ru.html" class="sidebar-link active"><span class="sidebar-ico">🔄</span> Резистентность</a>
+      <a href="zararkunandalar.ru.html" class="sidebar-link"><span class="sidebar-ico">🐛</span> Вредители</a>
+      <a href="kasalliklar.ru.html" class="sidebar-link"><span class="sidebar-ico">🍂</span> Болезни</a>
+      <a href="begona-otlar.ru.html" class="sidebar-link"><span class="sidebar-ico">🌱</span> Сорняки</a>
+      <a href="himoya-usullari.ru.html" class="sidebar-link"><span class="sidebar-ico">🛡️</span> Методы защиты</a>
+      <a href="standartlar.ru.html" class="sidebar-link"><span class="sidebar-ico">🌐</span> Международные стандарты</a>
+      <a href="hisobot.ru.html" class="sidebar-link"><span class="sidebar-ico">📄</span> Генератор отчётов</a>
+      <a href="prognoz.ru.html" class="sidebar-link"><span class="sidebar-ico">🌦️</span> Прогноз и анализ</a>
+      <a href="fasl-kalendari.ru.html" class="sidebar-link"><span class="sidebar-ico">📅</span> Сезонный календарь</a>
+      <a href="aloqa.ru.html" class="sidebar-link"><span class="sidebar-ico">✉️</span> Контакты</a>
+    </nav>
+    <div class="sidebar-footer">
+      <strong>АгроЗащита</strong>
+      Версия 1.0 · 2026
+    </div>
+  </aside>
+  <div class="main-area">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-expanded="false" aria-label="Открыть меню">☰</button>
+      <h1 class="topbar-title">Управление резистентностью</h1>
+      <div class="lang-switch">
+        <a href="rezistentlik.html">ЎЗ</a>
+        <a href="rezistentlik.ru.html" aria-current="true">РУ</a>
+      </div>
+    </header>
+    <main class="main-content">
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.ru.html">Главная</a> / Резистентность</div>
+    <h1>Управление резистентностью (IRAC / FRAC / HRAC)</h1>
+    <p>Определите группу механизма действия (MoA) препарата и проверьте вашу программу обработок — применение одной группы подряд повышает риск резистентности.</p>
+  </div>
+</div>
+
+<div class="content-block">
+  <div class="container">
+    <div id="rez-app"></div>
+
+    <div class="rez-card">
+      <h3 class="rez-h3">Принципы управления резистентностью</h3>
+      <ul class="rez-princ">
+        <li><b>Ротация (чередование):</b> меняйте группу механизма действия (MoA) между обработками — не более 2–3 применений одной группы за сезон.</li>
+        <li><b>Мозаика:</b> распределяйте препараты разных групп по полям или периодам.</li>
+        <li><b>Интегрированная защита (IPM):</b> сочетайте агротехнические, биологические и химические методы — не полагайтесь только на химию.</li>
+        <li><b>Правильная норма и срок:</b> обрабатывайте в рекомендованной норме, на ранней стадии развития вредного организма.</li>
+        <li><b>Мониторинг:</b> снижение эффективности — признак резистентности; смените группу и проверьте.</li>
+      </ul>
+      <p class="rez-note">⚠️ Классификация групп носит справочный характер. Уточняйте группу и рекомендации в официальных базах <b>IRAC</b> (irac-online.org), <b>FRAC</b> (frac.info), <b>HRAC</b> (hracglobal.com).</p>
+    </div>
+  </div>
+</div>
+
+    </main>
+  </div>
+</div>
+<script src="js/main.js"></script>
+<script src="js/moa-data.js"></script>
+<script src="js/rezistentlik.js"></script>
+</body>
+</html>

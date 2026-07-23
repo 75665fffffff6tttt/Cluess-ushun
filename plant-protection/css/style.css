@@ -910,3 +910,26 @@ textarea.hb-inp { resize: vertical; }
 .reg-kv th { text-align: left; width: 42%; color: var(--ink-600, #667); font-weight: 600; padding: 7px 8px; vertical-align: top; border-bottom: 1px solid var(--border, #f0f0f0); }
 .reg-kv td { padding: 7px 8px; color: var(--ink-900, #223); border-bottom: 1px solid var(--border, #f0f0f0); }
 @media (max-width: 640px) { .reg-sel { flex: 1; } }
+
+/* ============ Резистентликни бошқариш ============ */
+.rez-card { background: var(--card, #fff); border: 1px solid var(--border, #e2e6e3); border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; }
+.rez-lbl { display: block; font-weight: 600; font-size: 0.92rem; margin-bottom: 6px; color: var(--ink-700, #445); }
+.rez-h3 { margin: 0 0 8px; font-size: 1.05rem; font-weight: 700; color: var(--green-700, #2e7d32); }
+.rez-hint { font-size: 0.86rem; color: var(--ink-600, #667); margin: 0 0 12px; }
+.rez-out { margin-top: 12px; }
+.rez-result { background: #f4f9f5; border: 1px solid var(--border, #dde6e0); border-radius: 10px; padding: 12px 14px; }
+.rez-badge { display: inline-block; color: #fff; font-weight: 700; font-size: 0.82rem; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.rez-badge.sm { font-size: 0.72rem; padding: 2px 8px; }
+.rez-kv { margin-top: 8px; font-size: 0.92rem; color: var(--ink-900, #223); }
+.rez-sys { margin-top: 6px; font-size: 0.8rem; color: var(--ink-600, #778); }
+.rez-nf { background: #fff3d6; color: #7a5a00; border-radius: 8px; padding: 10px 12px; font-size: 0.86rem; }
+.rez-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.rez-num { font-weight: 700; color: var(--ink-600, #778); width: 20px; }
+.rez-prog-inp { flex: 1; min-width: 160px; }
+.rez-del { background: none; border: none; color: #c62828; cursor: pointer; font-size: 0.95rem; }
+.rez-warn { margin: -2px 0 8px 30px; font-size: 0.82rem; color: #c62828; font-weight: 600; }
+.rez-summary { margin-top: 10px; background: #eef6ef; border-radius: 8px; padding: 10px 12px; font-size: 0.86rem; color: var(--green-800, #1b5e20); }
+.rez-summary div { margin: 2px 0; }
+.rez-princ { margin: 4px 0 0; padding-left: 20px; font-size: 0.9rem; color: var(--ink-900, #223); line-height: 1.55; }
+.rez-princ li { margin-bottom: 8px; }
+.rez-note { margin-top: 12px; font-size: 0.8rem; color: var(--ink-600, #778); }

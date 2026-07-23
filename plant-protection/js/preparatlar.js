@@ -106,12 +106,21 @@
           kv(T.waiting, p.waiting) +
           kv(T.reg, p.reg) +
           kv(T.expiry, p.expiry) +
+          moaRow(p) +
         "</table>" +
       "</div>";
     modal.style.display = "flex";
     document.getElementById("reg-close").addEventListener("click", function () { modal.style.display = "none"; });
   }
   function kv(k, v) { return "<tr><th>" + esc(k) + "</th><td>" + esc(v || "—") + "</td></tr>"; }
+  function moaRow(p) {
+    if (!window.MOA) return "";
+    var r = window.MOA.lookup(p.ai);
+    if (!r) return "";
+    var label = LANG === "ru" ? "Группа MoA (резистентность)" : "MoA гуруҳи (резистентлик)";
+    var moa = LANG === "ru" ? r.moa_ru : r.moa_uz;
+    return '<tr><th>' + esc(label) + '</th><td><b>' + esc(r.system + " · " + r.group) + "</b> — " + esc(moa) + "</td></tr>";
+  }
 
   qEl.addEventListener("input", render);
   typeEl.addEventListener("change", render);
