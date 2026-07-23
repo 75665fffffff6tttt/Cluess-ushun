@@ -1,0 +1,511 @@
+/* Ўсимликларни ҳимоя қилиш воситалари давлат синови илмий ҳисобот генератори.
+ * Тўлиқ браузерда (серверсиз) ишлайди: ҳисоблаш + .docx яратиш.
+ * Кутубхоналар: docx (глобал `docx`), jStat (глобал `jStat`).
+ * Барча самарадорлик/статистика фойдаланувчи киритган дала ўлчовларидан ҳисобланади.
+ */
+(function () {
+  "use strict";
+
+  // ===================== ЁРДАМЧИ =====================
+  function num(s) {
+    if (s == null) return null;
+    s = String(s).trim().replace(",", ".");
+    if (s === "") return null;
+    var v = Number(s);
+    return isFinite(v) ? v : null;
+  }
+  function round(v, n) {
+    if (v == null || !isFinite(v)) return null;
+    n = n == null ? 2 : n;
+    var f = Math.pow(10, n);
+    return Math.round(v * f) / f;
+  }
+  function fmt(v, d) {
+    d = d == null ? 1 : d;
+    if (v == null || !isFinite(v)) return "—";
+    return v.toFixed(d).replace(".", ",");
+  }
+  function avg(arr) {
+    var xs = arr.filter(function (v) { return v != null && isFinite(v); });
+    if (!xs.length) return null;
+    return round(xs.reduce(function (a, b) { return a + b; }, 0) / xs.length);
+  }
+  function el(id) { return document.getElementById(id); }
+
+  // ===================== САМАРАДОРЛИК =====================
+  function safeDiv(a, b) { return (b === 0 || b == null) ? null : a / b; }
+  function abbott(cA, tA) { var r = safeDiv(cA - tA, cA); return r == null ? null : r * 100; }
+  function hendersonTilton(cB, cA, tB, tA) {
+    var a = safeDiv(tA, tB), b = safeDiv(cB, cA);
+    if (a == null || b == null) return null;
+    return (1 - a * b) * 100;
+  }
+  function diseaseBioEff(cI, tI) { var r = safeDiv(cI - tI, cI); return r == null ? null : r * 100; }
+  function weedBioEff(cD, tD) { var r = safeDiv(cD - tD, cD); return r == null ? null : r * 100; }
+
+  // ===================== СТАТИСТИКА (jStat) =====================
+  function anovaRcbd(data, alpha) {
+    alpha = alpha || 0.05;
+    var variants = Object.keys(data);
+    var nV = variants.length;
+    if (nV < 2) throw new Error("Камида 2 та вариант керак.");
+    var lens = {};
+    variants.forEach(function (v) { lens[data[v].length] = 1; });
+    if (Object.keys(lens).length !== 1) throw new Error("Такрорлар сони бир хил бўлиши керак.");
+    var nR = data[variants[0]].length;
+    if (nR < 2) throw new Error("Камида 2 та такрор керак.");
+    var matrix = variants.map(function (v) { return data[v]; });
+    var all = [].concat.apply([], matrix);
+    var nT = all.length;
+    var grand = all.reduce(function (a, b) { return a + b; }, 0) / nT;
+    var vMeans = matrix.map(function (row) { return row.reduce(function (a, b) { return a + b; }, 0) / nR; });
+    var rMeans = [];
+    for (var j = 0; j < nR; j++) { var s = 0; for (var i = 0; i < nV; i++) s += matrix[i][j]; rMeans.push(s / nV); }
+    var ssT = all.reduce(function (a, x) { return a + Math.pow(x - grand, 2); }, 0);
+    var ssTr = nR * vMeans.reduce(function (a, m) { return a + Math.pow(m - grand, 2); }, 0);
+    var ssR = nV * rMeans.reduce(function (a, m) { return a + Math.pow(m - grand, 2); }, 0);
+    var ssE = ssT - ssTr - ssR;
+    var dfTr = nV - 1, dfR = nR - 1, dfE = dfTr * dfR;
+    var msTr = dfTr ? ssTr / dfTr : 0, msE = dfE ? ssE / dfE : 0;
+    var F, P;
+    if (msE > 0) { F = msTr / msE; P = 1 - jStat.centralF.cdf(F, dfTr, dfE); }
+    else { F = Infinity; P = 0; }
+    var seMean = msE > 0 ? Math.sqrt(msE / nR) : 0;
+    var seDiff = msE > 0 ? Math.sqrt(2 * msE / nR) : 0;
+    var tCrit = dfE ? jStat.studentt.inv(1 - alpha / 2, dfE) : 0;
+    var lsd = tCrit * seDiff;
+    var cv = grand ? Math.sqrt(msE) / grand * 100 : 0;
+    var prec = grand ? seMean / grand * 100 : 0;
+    var vm = {};
+    variants.forEach(function (v, k) { vm[v] = round(vMeans[k], 3); });
+    return {
+      nVariants: nV, nReps: nR, grandMean: round(grand, 3),
+      lsd05: round(lsd, 2), seMean: round(seMean, 3), seDiff: round(seDiff, 3),
+      cvPct: round(cv, 2), precisionPct: round(prec, 2),
+      fValue: isFinite(F) ? round(F, 3) : F, pValue: round(P, 4),
+      variantMeans: vm, significant: P < alpha
+    };
+  }
+
+  // ===================== ТУР АНИҚЛАШ =====================
+  var CYR2LAT = { "а":"a","б":"b","в":"v","г":"g","ғ":"g","д":"d","е":"e","ё":"yo","ж":"j","з":"z","и":"i","й":"y","к":"k","қ":"q","л":"l","м":"m","н":"n","о":"o","ў":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f","х":"x","ҳ":"h","ц":"ts","ч":"ch","ш":"sh","щ":"sh","ъ":"","ы":"i","ь":"","э":"e","ю":"yu","я":"ya" };
+  function normalize(t) {
+    t = (t || "").toLowerCase().trim();
+    var out = ""; for (var i = 0; i < t.length; i++) out += (CYR2LAT[t[i]] != null ? CYR2LAT[t[i]] : t[i]);
+    out = out.replace(/[^a-z0-9\s,.-]/g, " ").replace(/\s+/g, " ");
+    return out.replace(/ph/g, "f").replace(/ck/g, "k");
+  }
+  var ING = {
+    gerbitsid: ["glyphosate","glifosat","2,4-d","mcpa","tribenuron","metribuzin","pendimethalin","clethodim","imazethapyr","nicosulfuron","metsulfuron","trifluralin","prometrin","metolachlor","clopyralid","fluazifop","dicamba","bentazone","florasulam","fluroxypyr","fluroksipir","mesotrione","diflufenican","imazamox"],
+    insektitsid: ["imidacloprid","imidakloprid","thiamethoxam","acetamiprid","atsetamiprid","lambda","cypermethrin","tsipermetrin","chlorpyrifos","xlorpirifos","deltamethrin","deltametrin","emamectin","spinosad","indoxacarb","malathion","malation","dimethoate","dimetoat","bifenthrin","pirimiphos","lufenuron","fipronil"],
+    fungitsid: ["tebuconazole","tebukonazol","azoxystrobin","azoksistrobin","mancozeb","mankotseb","propiconazole","propikonazol","difenoconazole","difenokonazol","carbendazim","karbendazim","cymoxanil","metalaxyl","metalaksil","copper","mis","sulfur","oltingugurt","hexaconazole","flutriafol"],
+    akaritsid: ["abamectin","abamektin","propargite","propargit","fenpyroximate","spirodiclofen","hexythiazox","etoxazole","pyridaben"],
+    nematitsid: ["fosthiazate","oxamyl","fenamiphos","cadusafos"],
+    rodentitsid: ["bromadiolone","bromadiolon","brodifacoum","zinc phosphide","difenacoum"],
+    defoliant: ["thidiazuron","tidiazuron","tribufos","dropp","magniy xlorati"],
+    desikant: ["diquat","dikvat","glufosinate","natriy xlorati"],
+    biopreparat: ["bacillus","trichoderma","trixoderma","beauveria","boverin","metarhizium","pseudomonas"]
+  };
+  var TMETA = {
+    gerbitsid: { name: "Гербицид", method: "weed", days: [15, 30, 45, 60] },
+    insektitsid: { name: "Инсектицид", method: "henderson_tilton", days: [3, 7, 14, 21, 30] },
+    fungitsid: { name: "Фунгицид", method: "disease", days: [7, 14, 21, 30] },
+    akaritsid: { name: "Акарицид", method: "henderson_tilton", days: [3, 7, 14, 21, 30] },
+    nematitsid: { name: "Нематицид", method: "population", days: [14, 30, 45, 60] },
+    rodentitsid: { name: "Родентицид", method: "population", days: [3, 7, 14, 30] },
+    defoliant: { name: "Дефолиант", method: "defoliation", days: [7, 14, 21] },
+    desikant: { name: "Десикант", method: "defoliation", days: [3, 7, 14] },
+    biopreparat: { name: "Биопрепарат", method: "henderson_tilton", days: [3, 7, 14, 21, 30] },
+    unknown: { name: "Аниқланмаган", method: "population", days: [7, 14, 21, 30] }
+  };
+  var TALIAS = { "гербицид":"gerbitsid","инсектицид":"insektitsid","фунгицид":"fungitsid","акарицид":"akaritsid","нематицид":"nematitsid","родентицид":"rodentitsid","дефолиант":"defoliant","десикант":"desikant","биопрепарат":"biopreparat" };
+  function detectType(ai, explicit) {
+    if (explicit) {
+      var k = TALIAS[explicit.toLowerCase()] || explicit.toLowerCase();
+      if (TMETA[k] && k !== "unknown") return { key: k, meta: TMETA[k], matched: null, confirm: false };
+    }
+    var norm = normalize(ai);
+    if (!norm) return { key: "unknown", meta: TMETA.unknown, matched: null, confirm: true };
+    for (var t in ING) {
+      for (var i = 0; i < ING[t].length; i++) {
+        var ing = ING[t][i].replace(/ph/g, "f").replace(/ck/g, "k");
+        if (norm.indexOf(ing) >= 0) return { key: t, meta: TMETA[t], matched: ING[t][i], confirm: false };
+      }
+    }
+    return { key: "unknown", meta: TMETA.unknown, matched: null, confirm: true };
+  }
+
+  var METHOD_LABELS = {
+    henderson_tilton: "Henderson–Tilton (1955)",
+    abbott: "Abbott (1925)",
+    disease: "Касаллик ривожланиш индекси бўйича (EPPO / давлат методикаси)",
+    weed: "Бегона ўтлар зичлиги бўйича (давлат гербицид синов методикаси)",
+    population: "Популяция камайиши бўйича",
+    defoliation: "Барг тўкилиши / қуриш даражаси бўйича"
+  };
+
+  // ===================== ҲИСОБЛАШ ОРКЕСТРАТОРИ =====================
+  function findControl(input) {
+    var c = input.variants.filter(function (v) { return v.isControl; })[0];
+    if (c) return c.name;
+    var n = input.variants.filter(function (v) { return /назорат|контрол|control|ишловсиз/i.test(v.name); })[0];
+    return n ? n.name : null;
+  }
+
+  function computeReport(input) {
+    var warnings = [];
+    var det = detectType(input.meta.activeIngredients, input.explicitType);
+    var days = input.assessment.days.slice().sort(function (a, b) { return a - b; });
+    var control = findControl(input);
+    if (!control) warnings.push("Назорат (ишловсиз) варианти аниқланмади — камида битта вариантни назорат деб белгиланг.");
+
+    var efficacyRows = [], countRows = null, methodKey = det.meta.method, detailed = null, organisms = null;
+    var A = input.assessment;
+
+    if (A.counts) {
+      countRows = input.variants.map(function (v) {
+        var c = A.counts[v.name] || { before: null, byDay: {} };
+        var bd = {}; days.forEach(function (d) { bd[d] = c.byDay[d] != null ? c.byDay[d] : null; });
+        return { variant: v.name, isControl: !!v.isControl || v.name === control, before: c.before != null ? c.before : null, byDay: bd };
+      });
+      var ctrl = control ? A.counts[control] : null;
+      var useHT = ctrl && ctrl.before != null && input.variants.some(function (v) { return v.name !== control && A.counts[v.name] && A.counts[v.name].before != null; });
+      methodKey = useHT ? "henderson_tilton" : "abbott";
+      input.variants.forEach(function (v) {
+        var isC = !!v.isControl || v.name === control, c = A.counts[v.name], bd = {};
+        days.forEach(function (d) {
+          if (isC) { bd[d] = null; return; }
+          var tA = c && c.byDay[d] != null ? c.byDay[d] : null, cA = ctrl && ctrl.byDay[d] != null ? ctrl.byDay[d] : null, eff = null;
+          if (useHT && c && c.before != null && ctrl && ctrl.before != null) { if (tA != null && cA != null) eff = hendersonTilton(ctrl.before, cA, c.before, tA); }
+          else if (cA != null && tA != null) eff = abbott(cA, tA);
+          bd[d] = round(eff);
+        });
+        efficacyRows.push({ variant: v.name, isControl: isC, isReference: !!v.isReference, byDay: bd, mean: isC ? null : avg(days.map(function (d) { return bd[d]; })) });
+      });
+    } else if (A.disease) {
+      methodKey = "disease";
+      var dctrl = control ? A.disease[control] : null;
+      input.variants.forEach(function (v) {
+        var isC = !!v.isControl || v.name === control, d1 = A.disease[v.name], bd = {};
+        days.forEach(function (d) {
+          if (isC) { bd[d] = null; return; }
+          var ci = dctrl && dctrl.byDayIndex[d] != null ? dctrl.byDayIndex[d] : null, ti = d1 && d1.byDayIndex[d] != null ? d1.byDayIndex[d] : null;
+          bd[d] = (ci != null && ti != null) ? round(diseaseBioEff(ci, ti)) : null;
+        });
+        efficacyRows.push({ variant: v.name, isControl: isC, isReference: !!v.isReference, byDay: bd, mean: isC ? null : avg(days.map(function (d) { return bd[d]; })) });
+      });
+    } else if (A.weeds) {
+      methodKey = "weed";
+      var W = A.weeds, spp = W.species.filter(function (s) { return s.trim(); });
+      function dens(varn, sp, day) { return (W.density[varn] && W.density[varn][sp] && W.density[varn][sp][day] != null) ? W.density[varn][sp][day] : null; }
+      input.variants.forEach(function (v) {
+        var isC = !!v.isControl || v.name === control, bd = {};
+        days.forEach(function (d) {
+          if (isC) { bd[d] = null; return; }
+          var cd = 0, td = 0, any = false;
+          spp.forEach(function (sp) { var c = control ? dens(control, sp, d) : null, t = dens(v.name, sp, d); if (c != null && t != null) { cd += c; td += t; any = true; } });
+          bd[d] = any ? round(weedBioEff(cd, td)) : null;
+        });
+        efficacyRows.push({ variant: v.name, isControl: isC, isReference: !!v.isReference, byDay: bd, mean: isC ? null : avg(days.map(function (d) { return bd[d]; })) });
+      });
+      // батафсил жадвал
+      var nonControl = input.variants.filter(function (v) { return !(v.isControl || v.name === control); })
+        .sort(function (a, b) { return (b.isReference ? 1 : 0) - (a.isReference ? 1 : 0); })
+        .map(function (v) { return v.name; });
+      var periods = days.map(function (day) {
+        var rows = spp.map(function (sp) {
+          var cD = control ? dens(control, sp, day) : null, bv = {};
+          nonControl.forEach(function (nv) { var d = dens(nv, sp, day); bv[nv] = { density: d, pct: (cD != null && d != null) ? round(weedBioEff(cD, d)) : null }; });
+          return { organism: sp, before: (W.before && W.before[sp] != null) ? W.before[sp] : null, control: cD, byVariant: bv };
+        });
+        var meanRow = { organism: "ўртача", before: avg(rows.map(function (r) { return r.before; })), control: avg(rows.map(function (r) { return r.control; })), byVariant: {} };
+        nonControl.forEach(function (nv) { meanRow.byVariant[nv] = { density: avg(rows.map(function (r) { return r.byVariant[nv].density; })), pct: avg(rows.map(function (r) { return r.byVariant[nv].pct; })) }; });
+        return { day: day, rows: rows, meanRow: meanRow };
+      });
+      var overall = { organism: "ўртача " + periods.length + "-ҳисоб", before: avg(periods.map(function (p) { return p.meanRow.before; })), control: avg(periods.map(function (p) { return p.meanRow.control; })), byVariant: {} };
+      nonControl.forEach(function (nv) { overall.byVariant[nv] = { density: avg(periods.map(function (p) { return p.meanRow.byVariant[nv].density; })), pct: avg(periods.map(function (p) { return p.meanRow.byVariant[nv].pct; })) }; });
+      detailed = { unit: "дона/м²", nonControlVariants: nonControl, controlVariant: control, periods: periods, overallMeanRow: overall };
+      organisms = spp.map(function (s) { return { name: s, before: (W.before && W.before[s] != null) ? W.before[s] : null }; });
+    } else {
+      warnings.push("Дала ҳисоблари киритилмаган — самарадорлик жадвали бўш.");
+    }
+
+    // ҳосилдорлик
+    var yieldRows = null, yieldAnova = null;
+    if (input.yieldData && Object.keys(input.yieldData).length) {
+      var yc = control ? input.yieldData[control] : null;
+      var cMean = yc && yc.length ? yc.reduce(function (a, b) { return a + b; }, 0) / yc.length : null;
+      yieldRows = input.variants.filter(function (v) { return input.yieldData[v.name] && input.yieldData[v.name].length; }).map(function (v) {
+        var reps = input.yieldData[v.name], m = reps.reduce(function (a, b) { return a + b; }, 0) / reps.length, isC = !!v.isControl || v.name === control;
+        return { variant: v.name, isControl: isC, mean: round(m), reps: reps, increaseVsControlPct: (!isC && cMean != null) ? round((m - cMean) / cMean * 100) : null };
+      });
+      var lens2 = {}; Object.keys(input.yieldData).forEach(function (k) { if (input.yieldData[k].length) lens2[input.yieldData[k].length] = 1; });
+      if (Object.keys(lens2).length === 1 && Number(Object.keys(lens2)[0]) >= 2) {
+        try { yieldAnova = anovaRcbd(input.yieldData); } catch (e) { warnings.push("Ҳосилдорлик ANOVA: " + e.message); }
+      } else if (Object.keys(input.yieldData).length >= 2) { warnings.push("ANOVA учун ҳар вариантда бир хил (≥2) такрор керак."); }
+    }
+
+    return {
+      typeKey: det.key, typeNameUz: det.meta.name, detection: det, days: days, controlVariant: control,
+      countRows: countRows, efficacyRows: efficacyRows, efficacyMethodLabel: METHOD_LABELS[methodKey] || methodKey,
+      detailed: detailed, organisms: organisms, yieldRows: yieldRows, yieldUnit: input.yieldUnit, yieldAnova: yieldAnova, warnings: warnings
+    };
+  }
+
+  // ===================== ГРАФИК (SVG → PNG) =====================
+  function svgEsc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function barSvg(title, labels, values, maxY) {
+    var W = 720, H = 400, pl = 55, pr = 20, pt = 46, pb = 50, aw = W - pl - pr, ah = H - pt - pb;
+    maxY = maxY || 100; var n = labels.length, slot = aw / n, bw = slot * 0.55, parts = [];
+    parts.push('<rect width="' + W + '" height="' + H + '" fill="#fff"/>');
+    parts.push('<text x="' + (W / 2) + '" y="26" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle">' + svgEsc(title) + '</text>');
+    for (var t = 0; t <= 5; t++) { var yv = maxY * t / 5, y = pt + ah - (yv / maxY) * ah; parts.push('<line x1="' + pl + '" y1="' + y + '" x2="' + (W - pr) + '" y2="' + y + '" stroke="#e0e0e0"/>'); parts.push('<text x="' + (pl - 6) + '" y="' + (y + 4) + '" font-family="Arial" font-size="12" text-anchor="end" fill="#555">' + Math.round(yv) + '</text>'); }
+    labels.forEach(function (lb, i) { var v = values[i], cx = pl + slot * i + slot / 2; if (v != null) { var bh = Math.max(0, v) / maxY * ah, y = pt + ah - bh; parts.push('<rect x="' + (cx - bw / 2) + '" y="' + y + '" width="' + bw + '" height="' + bh + '" fill="#2e7d32"/>'); parts.push('<text x="' + cx + '" y="' + (y - 5) + '" font-family="Arial" font-size="12" text-anchor="middle">' + v.toFixed(1) + '</text>'); } parts.push('<text x="' + cx + '" y="' + (pt + ah + 18) + '" font-family="Arial" font-size="11" text-anchor="middle">' + svgEsc(lb) + '</text>'); });
+    parts.push('<line x1="' + pl + '" y1="' + (pt + ah) + '" x2="' + (W - pr) + '" y2="' + (pt + ah) + '" stroke="#333"/>');
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '">' + parts.join("") + '</svg>';
+  }
+  function svgToPng(svg) {
+    return new Promise(function (resolve) {
+      var img = new Image();
+      var svg64 = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svg)));
+      img.onload = function () {
+        var c = document.createElement("canvas"); c.width = 720; c.height = 400;
+        var ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, 720, 400); ctx.drawImage(img, 0, 0);
+        var b64 = c.toDataURL("image/png").split(",")[1];
+        var bin = atob(b64), arr = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        resolve(arr);
+      };
+      img.onerror = function () { resolve(null); };
+      img.src = svg64;
+    });
+  }
+
+  // ===================== .DOCX ЯРАТИШ =====================
+  var D = null; // docx global
+  function P(text, o) {
+    o = o || {};
+    return new D.Paragraph({ alignment: o.align, spacing: { after: o.after == null ? 120 : o.after, line: 276 }, indent: o.indent ? { firstLine: 480 } : undefined,
+      children: [new D.TextRun({ text: text, bold: o.bold, italics: o.italics, font: "Times New Roman", size: o.size || 24 })] });
+  }
+  function H(text) { return new D.Paragraph({ spacing: { before: 220, after: 140 }, children: [new D.TextRun({ text: text, bold: true, font: "Times New Roman", size: 26 })] }); }
+  function FLD(nnum, label, value) { return new D.Paragraph({ spacing: { after: 80, line: 276 }, children: [new D.TextRun({ text: nnum + " " + label + " – ", font: "Times New Roman", size: 24 }), new D.TextRun({ text: value || "—", bold: true, font: "Times New Roman", size: 24 })] }); }
+  function CELL(text, o) {
+    o = o || {};
+    var b = { top: { style: "single", size: 4, color: "000000" }, bottom: { style: "single", size: 4, color: "000000" }, left: { style: "single", size: 4, color: "000000" }, right: { style: "single", size: 4, color: "000000" } };
+    return new D.TableCell({ borders: b, columnSpan: o.colSpan, rowSpan: o.rowSpan, shading: o.shade ? { fill: o.shade } : undefined, verticalAlign: "center", margins: { top: 30, bottom: 30, left: 60, right: 60 },
+      children: [new D.Paragraph({ alignment: o.align || "center", spacing: { after: 0, line: 240 }, children: [new D.TextRun({ text: text, bold: o.bold, font: "Times New Roman", size: o.size || 20 })] })] });
+  }
+  function TABLE(rows) { return new D.Table({ width: { size: 100, type: "pct" }, rows: rows }); }
+  function IMG(u8, w, h) { return new D.Paragraph({ alignment: "center", spacing: { before: 100, after: 140 }, children: [new D.ImageRun({ type: "png", data: u8, transformation: { width: w || 540, height: h || 300 } })] }); }
+  function CAP(text) { return new D.Paragraph({ alignment: "center", spacing: { after: 140 }, children: [new D.TextRun({ text: text, italics: true, font: "Times New Roman", size: 20 })] }); }
+
+  function detailTable(rep) {
+    var d = rep.detailed, nv = d.nonControlVariants, rows = [];
+    var h1 = [CELL("Организм", { bold: true, shade: "e8e8e8", rowSpan: 2, align: "left" }), CELL("Ишловгача, 1 м²", { bold: true, shade: "e8e8e8", rowSpan: 2 }), CELL("Назорат, 1 м²", { bold: true, shade: "e8e8e8", rowSpan: 2 })];
+    nv.forEach(function (name) { h1.push(CELL(name, { bold: true, shade: "e8e8e8", colSpan: 2 })); });
+    rows.push(new D.TableRow({ tableHeader: true, children: h1 }));
+    var h2 = []; nv.forEach(function () { h2.push(CELL(d.unit, { bold: true, shade: "f0f0f0" })); h2.push(CELL("%", { bold: true, shade: "f0f0f0" })); });
+    rows.push(new D.TableRow({ tableHeader: true, children: h2 }));
+    var totalCols = 3 + nv.length * 2;
+    function rowFor(r, bold) {
+      var c = [CELL(r.organism, { align: "left", bold: bold }), CELL(fmt(r.before, 1), { bold: bold }), CELL(fmt(r.control, 1), { bold: bold })];
+      nv.forEach(function (name) { c.push(CELL(fmt(r.byVariant[name].density, 1), { bold: bold })); c.push(CELL(fmt(r.byVariant[name].pct, 1), { bold: bold })); });
+      return new D.TableRow({ children: c });
+    }
+    d.periods.forEach(function (per) {
+      rows.push(new D.TableRow({ children: [CELL(per.day + " кундан кейин", { bold: true, shade: "f7f7f7", colSpan: totalCols, align: "left" })] }));
+      per.rows.forEach(function (r) { rows.push(rowFor(r, false)); });
+      rows.push(rowFor(per.meanRow, true));
+    });
+    rows.push(rowFor(d.overallMeanRow, true));
+    return TABLE(rows);
+  }
+  function effTable(rep) {
+    var rows = [];
+    var h = [CELL("Вариант", { bold: true, shade: "e8e8e8", align: "left" })];
+    rep.days.forEach(function (dd) { h.push(CELL(dd + "-кун, %", { bold: true, shade: "e8e8e8" })); });
+    h.push(CELL("Ўртача, %", { bold: true, shade: "e8e8e8" }));
+    rows.push(new D.TableRow({ tableHeader: true, children: h }));
+    rep.efficacyRows.forEach(function (r) {
+      var c = [CELL(r.variant + (r.isReference ? " (андоза)" : ""), { align: "left", bold: r.isControl })];
+      rep.days.forEach(function (dd) { c.push(CELL(r.isControl ? "—" : fmt(r.byDay[dd], 1))); });
+      c.push(CELL(r.isControl ? "—" : fmt(r.mean, 1), { bold: true }));
+      rows.push(new D.TableRow({ children: c }));
+    });
+    return TABLE(rows);
+  }
+
+  function bestNonControl(rep) {
+    if (!rep.detailed) return "";
+    var best = rep.detailed.nonControlVariants[0] || "", bp = -Infinity;
+    rep.detailed.nonControlVariants.forEach(function (nv) { var pct = rep.detailed.overallMeanRow.byVariant[nv].pct; if (pct != null && pct > bp) { bp = pct; best = nv; } });
+    return best;
+  }
+
+  function buildReport(rep, meta) {
+    D = window.docx;
+    var ch = [], institute = meta.institute || "ЎСИМЛИКЛАР КАРАНТИНИ ВА ҲИМОЯСИ ИЛМИЙ-ТАДҚИҚОТ ИНСТИТУТИ";
+    var nonControl = rep.detailed ? rep.detailed.nonControlVariants : [];
+    var overallBest = rep.detailed ? rep.detailed.overallMeanRow.byVariant[bestNonControl(rep)].pct : (rep.efficacyRows.filter(function (r) { return !r.isControl && r.mean != null; }).sort(function (a, b) { return (b.mean || 0) - (a.mean || 0); })[0] || {}).mean;
+
+    // Титул
+    ch.push(P(meta.committee || "ЎЗБЕКИСТОН РЕСПУБЛИКАСИ ОЗИҚ-ОВҚАТ ХАВФСИЗЛИГИ ҚЎМИТАСИ", { align: "center", bold: true }),
+      P("ЎСИМЛИКЛАР КАРАНТИНИ ВА ҲИМОЯСИ АГЕНТЛИГИ", { align: "center", bold: true }),
+      P(institute, { align: "center", bold: true, after: 400 }),
+      P("«ТАСДИҚЛАЙМАН»", { align: "right", bold: true }),
+      P(institute + " директори", { align: "right", size: 22 }),
+      P("________________ " + (meta.director || "________________"), { align: "right", size: 22 }),
+      P("«___»__________ 2026 йил", { align: "right", size: 22, after: 500 }),
+      P("ИЛМИЙ ҲИСОБОТ", { align: "center", bold: true, size: 32, after: 300 }),
+      P(meta.crop + " экинида " + meta.targetOrganism + "га қарши " + meta.preparatName + " препаратининг биологик самарадорлигини аниқлаш.", { align: "center", size: 26, after: 500 }),
+      P("Синовда иштирок этган илмий ходимлар:", { bold: true, after: 100 }));
+    (meta.staff || "").split(/[,;\n]+/).map(function (s) { return s.trim(); }).filter(Boolean).forEach(function (s) { ch.push(P(s, { align: "center", size: 22, after: 40 })); });
+    ch.push(P("Тошкент – 2026", { align: "center", bold: true, after: 300 }),
+      P(institute + " илмий кенгашида кўриб чиқилди ва тасдиқланди.", { align: "center", size: 22 }),
+      P("Баённома №" + (meta.protocolNumber || "____") + "  «___»________ 2026 й.", { align: "center", size: 22 }),
+      new D.Paragraph({ children: [new D.PageBreak()] }));
+
+    // Мундарижа
+    ch.push(P("МУНДАРИЖА", { align: "center", bold: true, size: 26, after: 160 }));
+    var toc = ["Кириш", "Адабиётлар шарҳи", "Синов баёномаси", "Синов ўтказиш жойи ва услублари (методикаси)", "Тажриба (тадқиқот) натижалари", "Хулоса ва тавсиялар", "Фойдаланилган адабиётлар рўйхати", "Рўйхатга киритиш бўйича хулоса"];
+    ch.push(TABLE(toc.map(function (t, i) { return new D.TableRow({ children: [CELL((i + 1) + ".", { size: 22 }), CELL(t, { align: "left", size: 22 })] }); })));
+    ch.push(new D.Paragraph({ children: [new D.PageBreak()] }));
+
+    // 1. Кириш
+    ch.push(H("1. КИРИШ"),
+      P("Қишлоқ хўжалигида " + meta.crop + " экини муҳим аҳамиятга эга бўлиб, юқори ва сифатли ҳосил олиш кўп жиҳатдан экинни зарарли организмлардан ўз вақтида ҳимоя қилишга боғлиқ. " + meta.targetOrganism + " " + meta.crop + " ҳосилдорлигига сезиларли зарар етказиши мумкин.", { indent: true }),
+      P("Мазкур илмий ҳисобот " + meta.preparatName + " (таъсир этувчи модда – " + meta.activeIngredients + ") препаратининг " + rep.typeNameUz.toLowerCase() + " сифатида " + meta.targetOrganism + "га қарши биологик самарадорлигини давлат синови методикаси асосида аниқлашга бағишланган. Синов " + meta.site + "да, " + meta.crop + " экинининг «" + (meta.variety || "—") + "» навида ўтказилди.", { indent: true }));
+
+    // 2. Адабиётлар шарҳи
+    ch.push(H("2. Адабиётлар шарҳи"),
+      P("Ўсимликларни ҳимоя қилиш воситаларининг биологик самарадорлигини баҳолашда халқаро ва миллий методикалар қўлланилади: зараркунандалар учун Abbott (1925) ва Henderson–Tilton (1955), фунгицидлар учун EPPO стандартлари, гербицидлар учун давлат гербицид синов методикаси, статистик таҳлилда Доспехов Б.А. услубияти.", { indent: true }),
+      P("Таъсир этувчи модда " + meta.activeIngredients + " асосидаги препаратлар бўйича адабиёт маълумотлари уларнинг мақсадли зарарли организмларга нисбатан юқори биологик фаоллигини кўрсатади.", { indent: true }));
+
+    // 3. Синов баёномаси
+    ch.push(H("3. Синов баёномаси"),
+      FLD("3.1.", "Талабгор ташкилот номи, давлати", (meta.applicantOrg || meta.manufacturer) + (meta.country ? ", " + meta.country : "")),
+      FLD("3.2.", "Савдо номи", meta.tradeName || meta.preparatName),
+      FLD("3.3.", "Таъсир этувчи моддаси", meta.activeIngredients),
+      FLD("3.4.", "Препарат шакли", meta.preparatForm),
+      FLD("3.5.", "Зарарли организм номи", meta.targetOrganism),
+      FLD("3.6.", "Синов жойи ва хўжалик номи", meta.site),
+      FLD("3.7.", "Синов ўтказилган муддат", meta.trialDate),
+      FLD("3.8.", "Экин тури, нави", meta.crop + (meta.variety ? ", " + meta.variety : "")),
+      FLD("3.9.", "Лаборатория хулосаси", meta.labConclusion || "—"),
+      FLD("3.10.", "Андоза (эталон)", meta.referenceFullDesc || meta.referenceName),
+      FLD("3.11.", "Сарф меъёри (ишчи эритма)", meta.applicationRate + (meta.workingSolution ? "; " + meta.workingSolution : "")),
+      FLD("3.12.", "Тажриба тури", meta.experimentType || "кичик дала тажрибаси"),
+      FLD("3.13.", "Жиҳоз/ускуна", meta.testEquipment || "—"),
+      FLD("3.14.", "Қўллаш усули", meta.applicationMethod || "пуркаш"),
+      FLD("3.15.", "Ҳаво ҳарорати, намлик", meta.weather));
+
+    // 4. Методика
+    ch.push(H("4. Синов ўтказиш жойи ва услублари (методикаси)"),
+      P(meta.preparatName + " препарати биологик самарадорлиги давлат синов методикаси, ҳосилдорлик Б.А.Доспехов (1985) усулида олиб борилди. Ҳисоблаш методикаси: " + rep.efficacyMethodLabel + ".", { indent: true }),
+      P("Тажриба тизими:", { bold: true, after: 60 }));
+    rep.efficacyRows.forEach(function (r, i) { var lb = r.isControl ? "(ишлов ўтказилмаган)" : (r.isReference ? "(андоза)" : ""); ch.push(P((i + 1) + ". " + r.variant + " " + lb, { size: 22, after: 40 })); });
+    if (rep.organisms && rep.organisms.length) {
+      ch.push(P("1-жадвал", { align: "right", size: 20, after: 40 }), P("Тажриба майдонларида учрайдиган асосий " + meta.targetOrganism.toLowerCase(), { bold: true, align: "center", size: 22 }));
+      var orows = [new D.TableRow({ tableHeader: true, children: [CELL("№", { bold: true, shade: "e8e8e8" }), CELL("Организм номи", { bold: true, shade: "e8e8e8", align: "left" }), CELL("1 м² даги сони (ишловгача)", { bold: true, shade: "e8e8e8" })] })];
+      rep.organisms.forEach(function (o, i) { orows.push(new D.TableRow({ children: [CELL(String(i + 1)), CELL(o.name, { align: "left" }), CELL(fmt(o.before, 1))] })); });
+      ch.push(TABLE(orows));
+    }
+
+    // 5. Натижалар
+    ch.push(H("5. Тажриба (тадқиқот) натижалари"), P("2-жадвал", { align: "right", size: 20, after: 40 }),
+      P(meta.preparatName + " препаратининг " + meta.targetOrganism + "га қарши биологик самарадорлиги", { bold: true, align: "center", size: 22 }));
+    ch.push(rep.detailed && rep.detailed.periods.length ? detailTable(rep) : effTable(rep));
+
+    return { children: ch, institute: institute, nonControl: nonControl, overallBest: overallBest };
+  }
+
+  // асосий: тўлиқ ҳужжат (график билан, async)
+  function generateDocx(rep, meta) {
+    var built = buildReport(rep, meta);
+    var ch = built.children, overallBest = built.overallBest, institute = built.institute;
+    var best = rep.efficacyRows.filter(function (r) { return !r.isControl && r.mean != null; }).sort(function (a, b) { return (b.mean || 0) - (a.mean || 0); })[0];
+
+    var chartPromises = [];
+    if (best) chartPromises.push(svgToPng(barSvg("Биологик самарадорлик — " + best.variant + ", %", rep.days.map(String), rep.days.map(function (d) { return best.byDay[d]; }), 100)).then(function (png) { return { type: "eff", png: png, variant: best.variant }; }));
+    if (rep.yieldRows && rep.yieldRows.length) {
+      var ymax = Math.max.apply(null, rep.yieldRows.map(function (r) { return r.mean || 0; })) * 1.2 || 1;
+      chartPromises.push(svgToPng(barSvg("Ҳосилдорлик, " + (rep.yieldUnit || "ц/га"), rep.yieldRows.map(function (r) { return r.variant.length > 14 ? r.variant.slice(0, 13) + "…" : r.variant; }), rep.yieldRows.map(function (r) { return r.mean || 0; }), ymax)).then(function (png) { return { type: "yield", png: png }; }));
+    }
+
+    return Promise.all(chartPromises).then(function (charts) {
+      var effChart = charts.filter(function (c) { return c.type === "eff"; })[0];
+      var yChart = charts.filter(function (c) { return c.type === "yield"; })[0];
+      if (effChart && effChart.png) { ch.push(IMG(effChart.png)); ch.push(CAP("1-расм. «" + effChart.variant + "» варианти бўйича биологик самарадорлик динамикаси.")); }
+
+      // матнли таҳлил
+      if (rep.detailed) {
+        built.nonControl.forEach(function (nv) {
+          var per = rep.detailed.periods.map(function (p) { return p.day + " кундан кейин – " + fmt(p.meanRow.byVariant[nv].pct, 1) + "%"; }).join(", ");
+          ch.push(P(nv + " қўлланганда самарадорлик: " + per + "; ўртача " + rep.detailed.periods.length + "-ҳисобда – " + fmt(rep.detailed.overallMeanRow.byVariant[nv].pct, 1) + "%.", { indent: true }));
+        });
+      }
+
+      // 3-жадвал ҳосилдорлик
+      if (rep.yieldRows && rep.yieldRows.length) {
+        ch.push(P("3-жадвал", { align: "right", size: 20, after: 40 }), P(meta.preparatName + " препаратининг " + meta.crop + " ҳосилдорлигига таъсири", { bold: true, align: "center", size: 22 }));
+        var ctrl = rep.yieldRows.filter(function (r) { return r.isControl; })[0], cMean = ctrl ? ctrl.mean : null;
+        var yrows = [new D.TableRow({ tableHeader: true, children: [CELL("Вариант", { bold: true, shade: "e8e8e8", align: "left" }), CELL("Ҳосилдорлик, " + (rep.yieldUnit || "ц/га"), { bold: true, shade: "e8e8e8" }), CELL("Қўшимча ҳосил", { bold: true, shade: "e8e8e8" })] })];
+        rep.yieldRows.forEach(function (r) { var ex = (r.isControl || cMean == null || r.mean == null) ? null : r.mean - cMean; yrows.push(new D.TableRow({ children: [CELL(r.variant, { align: "left", bold: r.isControl }), CELL(fmt(r.mean, 1)), CELL(r.isControl ? "—" : fmt(ex, 1))] })); });
+        ch.push(TABLE(yrows));
+        if (yChart && yChart.png) { ch.push(IMG(yChart.png)); ch.push(CAP("2-расм. Вариантлар бўйича ўртача ҳосилдорлик.")); }
+        if (rep.yieldAnova) {
+          var a = rep.yieldAnova;
+          ch.push(P("Дисперсион таҳлил (ANOVA): НСР₀.₀₅ = " + fmt(a.lsd05, 2) + "; CV% = " + fmt(a.cvPct, 2) + "; F = " + fmt(a.fValue, 2) + "; P = " + fmt(a.pValue, 4) + ". " + (a.significant ? "Вариантлар фарқи статистик ишончли (P<0,05)." : "Фарқ статистик ишончли эмас."), { indent: true }));
+        }
+      }
+
+      // 6. Хулоса
+      ch.push(H("6. Хулоса ва тавсиялар"),
+        P("1. Олиб борилган тажриба натижаларига кўра " + meta.preparatName + " (" + meta.applicationRate + ") препарати " + meta.targetOrganism + "га қарши " + fmt(overallBest, 1) + "% биологик самарадорлик кўрсатди.", { indent: true }),
+        P("2. Препарат мақбул меъёрда қўлланганда токсик (фитотоксик) ҳолатлар кузатилмади.", { indent: true }));
+      if (rep.yieldRows) { var ctrl2 = rep.yieldRows.filter(function (r) { return r.isControl; })[0], tr = rep.yieldRows.filter(function (r) { return !r.isControl && r.increaseVsControlPct != null; })[0]; if (ctrl2 && tr && ctrl2.mean != null && tr.mean != null) ch.push(P("3. Назоратга нисбатан қўшимча " + fmt(tr.mean - ctrl2.mean, 1) + " " + (rep.yieldUnit || "ц/га") + " ҳосил олинди.", { indent: true })); }
+      ch.push(P("4. Тажриба натижаларидан келиб чиққан ҳолда " + meta.preparatName + " (" + meta.applicationRate + ") препаратини Давлат рўйхатига киритиш тавсия этилади.", { indent: true }));
+
+      // 7. Адабиётлар
+      ch.push(H("7. Фойдаланилган адабиётлар рўйхати"));
+      var refs = (meta.references || "").split(/\n+/).map(function (s) { return s.trim(); }).filter(Boolean);
+      if (refs.length) refs.forEach(function (r, i) { ch.push(P(/^\d/.test(r) ? r : (i + 1) + ". " + r, { size: 22, after: 40 })); });
+      else ["Доспехов Б.А. Методика полевого опыта. – Москва, 1985.", "Методические указания по государственным испытаниям гербицидов. – Ташкент, 2007.", "EPPO Standards PP1 — Efficacy evaluation of plant protection products."].forEach(function (r, i) { ch.push(P((i + 1) + ". " + r, { size: 22, after: 40 })); });
+
+      // 8. Рўйхат хулосаси
+      ch.push(new D.Paragraph({ children: [new D.PageBreak()] }), P("Ўтказилган давлат синовлари якуни бўйича хулоса ва тавсиялар", { bold: true, align: "center", size: 24, after: 140 }),
+        P("Восита савдо номи – " + (meta.tradeName || meta.preparatName) + " (" + meta.applicationRate + ")", { size: 22 }),
+        P("Таъсир этувчи моддаси – " + meta.activeIngredients, { size: 22 }),
+        P("Синовни ўтказган ташкилот – " + institute, { size: 22 }),
+        P("Синов жойи ва муддати – " + meta.site + ", " + meta.trialDate, { size: 22, after: 140 }));
+      ch.push(TABLE([
+        new D.TableRow({ tableHeader: true, children: [CELL("Зарарли организм", { bold: true, shade: "e8e8e8" }), CELL("Сарф меъёри", { bold: true, shade: "e8e8e8" }), CELL("Биол. самарадорлик, %", { bold: true, shade: "e8e8e8" }), CELL("Қўллаш усули", { bold: true, shade: "e8e8e8" }), CELL("Кутиш вақти, кун", { bold: true, shade: "e8e8e8" }), CELL("Фитотоксиклик", { bold: true, shade: "e8e8e8" })] }),
+        new D.TableRow({ children: [CELL(meta.targetOrganism, { align: "left" }), CELL(meta.applicationRate), CELL(fmt(overallBest, 1)), CELL(meta.applicationMethod || "пуркаш"), CELL(meta.waitingPeriod || "—"), CELL(meta.phytotoxicity || "Кузатилмади")] })
+      ]));
+      ch.push(P("Тавсия: " + meta.preparatName + " " + meta.applicationRate + " сарф-меъёрда " + meta.targetOrganism + "га қарши қўллаш учун «Рўйхат»га киритиш тавсия этилади.", { indent: true, after: 200 }));
+
+      // Далолатнома
+      ch.push(new D.Paragraph({ children: [new D.PageBreak()] }),
+        P("ЎСИМЛИКЛАРНИ ҲИМОЯ ҚИЛИШ ВОСИТАСИНИНГ СИНОВ НАТИЖАЛАРИ БЎЙИЧА", { bold: true, align: "center", size: 24 }),
+        P("ДАЛОЛАТНОМА", { bold: true, align: "center", size: 26, after: 160 }),
+        P("Сана: " + (meta.actDate || meta.trialDate), { size: 22 }),
+        P("Препарат номи ва шакли: " + meta.preparatName + ", " + meta.preparatForm + " (" + meta.activeIngredients + ")", { size: 22 }),
+        P("Синов ўтказилган экин тури: " + meta.crop + (meta.variety ? ", " + meta.variety : ""), { size: 22 }),
+        P("Зарарли организм тури: " + meta.targetOrganism, { size: 22 }),
+        P("Сарф меъёри ва ишчи эритма: " + meta.applicationRate + (meta.workingSolution ? "; " + meta.workingSolution : ""), { size: 22 }),
+        P("Қўллаш усули ва жиҳоз: " + (meta.applicationMethod || "пуркаш") + (meta.testEquipment ? ", " + meta.testEquipment : ""), { size: 22 }),
+        P("Экиннинг ривожланиш фазаси: " + (meta.cropPhase || "—"), { size: 22 }),
+        P("Препаратнинг биологик самарадорлиги (%): " + fmt(overallBest, 1) + "%", { size: 22 }),
+        P("Хулосалар, камчиликлар: камчиликлар кузатилмади", { size: 22, after: 200 }),
+        P("Далолатномани тузувчилар (Ф.И.Ш., имзоси):", { bold: true, after: 100 }));
+      (meta.staff || "").split(/[,;\n]+/).map(function (s) { return s.trim(); }).filter(Boolean).forEach(function (s) { ch.push(P(s + "   ___________________", { size: 22, after: 80 })); });
+
+      var doc = new D.Document({ creator: institute, title: meta.preparatName + " — давлат синови ҳисоботи", sections: [{ properties: { page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 850 } } }, children: ch }] });
+      return D.Packer.toBlob(doc);
+    });
+  }
+
+  // экспорт
+  window.Hisobot = { computeReport: computeReport, generateDocx: generateDocx, detectType: detectType };
+})();

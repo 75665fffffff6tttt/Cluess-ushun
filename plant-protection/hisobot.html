@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="uz-Cyrl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ҳисобот генератори — давлат синови — АгроҲимоя</title>
+<meta name="description" content="Ўсимликларни ҳимоя қилиш воситалари давлат синови илмий ҳисоботини (.docx) браузерда автоматик яратиш — Henderson–Tilton/Abbott, ANOVA/НСР, EPPO/давлат методикалари.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-icon">🌿</span>
+      <div>
+        <div class="sidebar-brand-title">АГРО</div>
+        <div class="sidebar-brand-sub">ҲИМОЯ</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="sidebar-link"><span class="sidebar-ico">📊</span> Бош саҳифа</a>
+      <a href="xarita.html" class="sidebar-link"><span class="sidebar-ico">🗺️</span> Харита</a>
+      <a href="zararkunandalar.html" class="sidebar-link"><span class="sidebar-ico">🐛</span> Зараркунандалар</a>
+      <a href="kasalliklar.html" class="sidebar-link"><span class="sidebar-ico">🍂</span> Касалликлар</a>
+      <a href="begona-otlar.html" class="sidebar-link"><span class="sidebar-ico">🌱</span> Бегона ўтлар</a>
+      <a href="himoya-usullari.html" class="sidebar-link"><span class="sidebar-ico">🛡️</span> Ҳимоя усуллари</a>
+      <a href="standartlar.html" class="sidebar-link"><span class="sidebar-ico">🌐</span> Халқаро стандартлар</a>
+      <a href="hisobot.html" class="sidebar-link active"><span class="sidebar-ico">📄</span> Ҳисобот генератори</a>
+      <a href="prognoz.html" class="sidebar-link"><span class="sidebar-ico">🌦️</span> Прогноз ва таҳлил</a>
+      <a href="fasl-kalendari.html" class="sidebar-link"><span class="sidebar-ico">📅</span> Фасл календари</a>
+      <a href="aloqa.html" class="sidebar-link"><span class="sidebar-ico">✉️</span> Алоқа</a>
+    </nav>
+    <div class="sidebar-footer">
+      <strong>АгроҲимоя порт.</strong>
+      Версия 1.0 · 2026
+    </div>
+  </aside>
+  <div class="main-area">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-expanded="false" aria-label="Менюни очиш">☰</button>
+      <h1 class="topbar-title">Ҳисобот генератори</h1>
+      <div class="lang-switch">
+        <a href="hisobot.html" aria-current="true">ЎЗ</a>
+        <a href="hisobot.ru.html">РУ</a>
+      </div>
+    </header>
+    <main class="main-content">
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Бош саҳифа</a> / Ҳисобот генератори</div>
+    <span class="promo-badge" style="background: var(--green-100); color: var(--green-700);">🆕 Браузерда ишлайди</span>
+    <h1>Давлат синови илмий ҳисобот генератори</h1>
+    <p>Дала ўлчов маълумотларини киритинг — тизим биологик самарадорлик, статистика (ANOVA/НСР₀.₀₅) ва расмий <b>.docx</b> ҳисоботни браузернинг ўзида яратади. Барча ҳисоблар фақат киритилган ўлчовлардан бажарилади.</p>
+  </div>
+</div>
+
+<div class="content-block">
+  <div class="container hb-app">
+
+    <!-- 1. Препарат маълумотлари -->
+    <section class="hb-section">
+      <h2 class="hb-sec-title">1. Препарат ва синов маълумотлари</h2>
+      <div class="hb-grid">
+        <label class="hb-wide"><span>Препарат номи</span><input class="hb-inp" id="m_preparatName" placeholder="Мисол: Flurog 40, э.к."></label>
+        <label><span>Таъсир этувчи модда(лар)</span><input class="hb-inp" id="m_activeIngredients" placeholder="Флуроксипир (fluroxypyr)"></label>
+        <label><span>Препарат шакли</span><input class="hb-inp" id="m_preparatForm" placeholder="э.к."></label>
+        <label><span>Ишлаб чиқарувчи фирма</span><input class="hb-inp" id="m_manufacturer" placeholder="Фирма номи"></label>
+        <label><span>Давлат</span><input class="hb-inp" id="m_country" value="Ўзбекистон"></label>
+        <label><span>Экин тури</span><input class="hb-inp" id="m_crop" placeholder="Кузги буғдой"></label>
+        <label><span>Нави</span><input class="hb-inp" id="m_variety" placeholder="Нав номи"></label>
+        <label class="hb-wide"><span>Зарарли организм</span><input class="hb-inp" id="m_targetOrganism" placeholder="Икки паллали бегона ўтлар"></label>
+        <label><span>Сарф меъёри</span><input class="hb-inp" id="m_applicationRate" placeholder="0,5 л/га"></label>
+        <label><span>Эталон препарат</span><input class="hb-inp" id="m_referenceName" placeholder="Унико, 1,0 л/га"></label>
+        <label><span>Ишчи эритма меъёри</span><input class="hb-inp" id="m_workingSolution" placeholder="300 л/га"></label>
+        <label><span>Синов жойи</span><input class="hb-inp" id="m_site" placeholder="Тошкент вилояти, ... тумани"></label>
+        <label><span>Синов санаси</span><input class="hb-inp" id="m_trialDate" placeholder="3 апрел 2026 йил"></label>
+        <label class="hb-wide"><span>Лаборатория</span><input class="hb-inp" id="m_laboratory" placeholder="Лаборатория номи"></label>
+        <label class="hb-wide"><span>Илмий ходимлар (вергул билан)</span><input class="hb-inp" id="m_staff" placeholder="Турдиева Н.М., Қаландарова М., ..."></label>
+        <label class="hb-wide"><span>Ҳаво ҳарорати / об-ҳаво</span><input class="hb-inp" id="m_weather" placeholder="оптимал 22°C, намлик 45%"></label>
+      </div>
+      <div class="hb-detect">
+        <span class="hb-lbl">Аниқланган препарат тури:</span>
+        <span id="detect-badge" class="hb-badge hb-badge-empty">—</span>
+        <label class="hb-manual">Қўлбола тур:
+          <select class="hb-inp" id="explicit-type">
+            <option value="">Авто</option>
+            <option value="гербицид">Гербицид</option>
+            <option value="инсектицид">Инсектицид</option>
+            <option value="фунгицид">Фунгицид</option>
+            <option value="акарицид">Акарицид</option>
+            <option value="нематицид">Нематицид</option>
+            <option value="родентицид">Родентицид</option>
+            <option value="дефолиант">Дефолиант</option>
+            <option value="десикант">Десикант</option>
+            <option value="биопрепарат">Биопрепарат</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <!-- 1b. Расмий реквизитлар -->
+    <details class="hb-section">
+      <summary class="hb-sec-title">1b. Расмий реквизитлар (ихтиёрий — титул, баёнома, далолатнома)</summary>
+      <div class="hb-grid" style="margin-top:14px;">
+        <label class="hb-wide"><span>Илмий-тадқиқот институти</span><input class="hb-inp" id="m_institute" placeholder="Ўсимликлар карантини ва ҳимояси ИТИ"></label>
+        <label><span>Институт директори</span><input class="hb-inp" id="m_director" placeholder="А.Анорбаев"></label>
+        <label><span>Кенгаш баённомаси №</span><input class="hb-inp" id="m_protocolNumber" placeholder="12"></label>
+        <label><span>Талабгор ташкилот</span><input class="hb-inp" id="m_applicantOrg" placeholder="AGRO-SERVICE-TORG МЧЖ"></label>
+        <label><span>Савдо номи</span><input class="hb-inp" id="m_tradeName" placeholder="Flurog 40"></label>
+        <label><span>Жиҳоз / ускуна</span><input class="hb-inp" id="m_testEquipment" placeholder="FST-909 Sprayer"></label>
+        <label><span>Қўллаш усули</span><input class="hb-inp" id="m_applicationMethod" placeholder="пуркаш"></label>
+        <label><span>Тажриба тури</span><input class="hb-inp" id="m_experimentType" placeholder="кичик дала тажрибаси"></label>
+        <label class="hb-wide"><span>Эталон тўлиқ тавсифи (3.10)</span><input class="hb-inp" id="m_referenceFullDesc" placeholder="Унико ККР (Fluroxypyr 100 + florasulam 2,5), 1,0 л/га"></label>
+        <label class="hb-wide"><span>Лаборатория хулосаси (3.9)</span><input class="hb-inp" id="m_labConclusion" placeholder="бегона ўтлар 1 м² да 10-50 та"></label>
+        <label><span>Макс. ишлов сони</span><input class="hb-inp" id="m_maxTreatments" placeholder="1"></label>
+        <label><span>Кутиш вақти (кун)</span><input class="hb-inp" id="m_waitingPeriod" placeholder="15"></label>
+        <label><span>Фитотоксик хусусияти</span><input class="hb-inp" id="m_phytotoxicity" placeholder="Кузатилмади"></label>
+        <label class="hb-wide"><span>Экин ривожланиш фазаси</span><input class="hb-inp" id="m_cropPhase" placeholder="ўсиш даврида, култивация қилинган"></label>
+        <label><span>Далолатнома санаси</span><input class="hb-inp" id="m_actDate" placeholder="05.09.2026"></label>
+        <label class="hb-wide"><span>Фойдаланилган адабиётлар (ҳар сатр — битта)</span><textarea class="hb-inp" id="m_references" rows="3" placeholder="1. Доспехов Б.А. ...&#10;2. ..."></textarea></label>
+      </div>
+    </details>
+
+    <!-- 2. Вариантлар -->
+    <section class="hb-section">
+      <h2 class="hb-sec-title">2. Тажриба вариантлари</h2>
+      <div id="variants-list"></div>
+      <button class="btn btn-primary" id="add-variant" style="margin-top:10px;">+ Вариант қўшиш</button>
+    </section>
+
+    <!-- 3. Кузатиш кунлари + режим -->
+    <section class="hb-section">
+      <h2 class="hb-sec-title">3. Кузатиш кунлари ва дала маълумотлари тури</h2>
+      <div class="hb-grid">
+        <label><span>Кузатиш кунлари (вергул билан)</span><input class="hb-inp" id="days-input" value="15, 30, 60"></label>
+        <label><span>Дала маълумотлари тури</span>
+          <select class="hb-inp" id="mode-select">
+            <option value="counts">Зараркунанда сони (инсектицид/акарицид)</option>
+            <option value="disease">Касаллик индекси (фунгицид)</option>
+            <option value="weeds">Бегона ўтлар зичлиги (гербицид)</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <!-- 4. Дала ҳисоблари -->
+    <section class="hb-section">
+      <h2 class="hb-sec-title">4. Дала ҳисоблари (ўлчов маълумотлари)</h2>
+      <div id="fielddata"></div>
+    </section>
+
+    <!-- 5. Ҳосилдорлик -->
+    <section class="hb-section">
+      <h2 class="hb-sec-title">5. Ҳосилдорлик натижалари (повторностлар бўйича)</h2>
+      <div class="hb-yield-ctrl">
+        <label>Такрорлар сони: <input class="hb-inp hb-small" id="yield-reps" type="number" min="2" max="8" value="4"></label>
+        <label>Бирлик: <input class="hb-inp hb-small" id="yield-unit" value="ц/га"></label>
+      </div>
+      <div id="yield-table"></div>
+    </section>
+
+    <!-- Амаллар -->
+    <div class="hb-actions">
+      <button class="btn btn-primary" id="btn-compute">Ҳисоблаш ва кўриб чиқиш</button>
+      <button class="btn btn-primary" id="btn-download" style="background:var(--green-700);">📄 Word (.docx) юклаб олиш</button>
+      <span id="status" class="hb-status"></span>
+    </div>
+
+    <section id="preview" class="hb-section hb-preview" style="display:none;"></section>
+
+    <p class="hb-note">Барча самарадорлик ва статистик кўрсаткичлар фақат киритилган дала ўлчовларидан ҳисобланади. Тизим ўлчов қийматларини ўзи ўйлаб чиқармайди.</p>
+  </div>
+</div>
+
+    </main>
+  </div>
+</div>
+<script src="js/main.js"></script>
+<script src="js/vendor/jstat.min.js"></script>
+<script src="js/vendor/docx.iife.js"></script>
+<script src="js/hisobot.js"></script>
+<script src="js/hisobot-ui.js"></script>
+</body>
+</html>

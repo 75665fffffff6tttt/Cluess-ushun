@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Генератор отчётов — государственные испытания — АгроЗащита</title>
+<meta name="description" content="Автоматическое создание научного отчёта государственных испытаний средств защиты растений (.docx) прямо в браузере — Henderson–Tilton/Abbott, ANOVA/НСР, EPPO/государственные методики.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-icon">🌿</span>
+      <div>
+        <div class="sidebar-brand-title">АГРО</div>
+        <div class="sidebar-brand-sub">ЗАЩИТА</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.ru.html" class="sidebar-link"><span class="sidebar-ico">📊</span> Главная</a>
+      <a href="xarita.ru.html" class="sidebar-link"><span class="sidebar-ico">🗺️</span> Карта</a>
+      <a href="zararkunandalar.ru.html" class="sidebar-link"><span class="sidebar-ico">🐛</span> Вредители</a>
+      <a href="kasalliklar.ru.html" class="sidebar-link"><span class="sidebar-ico">🍂</span> Болезни</a>
+      <a href="begona-otlar.ru.html" class="sidebar-link"><span class="sidebar-ico">🌱</span> Сорняки</a>
+      <a href="himoya-usullari.ru.html" class="sidebar-link"><span class="sidebar-ico">🛡️</span> Методы защиты</a>
+      <a href="standartlar.ru.html" class="sidebar-link"><span class="sidebar-ico">🌐</span> Международные стандарты</a>
+      <a href="hisobot.ru.html" class="sidebar-link active"><span class="sidebar-ico">📄</span> Генератор отчётов</a>
+      <a href="prognoz.ru.html" class="sidebar-link"><span class="sidebar-ico">🌦️</span> Прогноз и анализ</a>
+      <a href="fasl-kalendari.ru.html" class="sidebar-link"><span class="sidebar-ico">📅</span> Сезонный календарь</a>
+      <a href="aloqa.ru.html" class="sidebar-link"><span class="sidebar-ico">✉️</span> Контакты</a>
+    </nav>
+    <div class="sidebar-footer">
+      <strong>АгроЗащита</strong>
+      Версия 1.0 · 2026
+    </div>
+  </aside>
+  <div class="main-area">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-expanded="false" aria-label="Открыть меню">☰</button>
+      <h1 class="topbar-title">Генератор отчётов</h1>
+      <div class="lang-switch">
+        <a href="hisobot.html">ЎЗ</a>
+        <a href="hisobot.ru.html" aria-current="true">РУ</a>
+      </div>
+    </header>
+    <main class="main-content">
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.ru.html">Главная</a> / Генератор отчётов</div>
+    <span class="promo-badge" style="background: var(--green-100); color: var(--green-700);">🆕 Работает в браузере</span>
+    <h1>Генератор научного отчёта государственных испытаний</h1>
+    <p>Введите полевые данные измерений — система рассчитает биологическую эффективность, статистику (ANOVA/НСР₀.₀₅) и создаст официальный <b>.docx</b> отчёт прямо в браузере. Все расчёты выполняются только из введённых данных. <b>Готовый отчёт формируется на узбекском языке (кириллица)</b> согласно государственной форме.</p>
+  </div>
+</div>
+
+<div class="content-block">
+  <div class="container hb-app">
+
+    <section class="hb-section">
+      <h2 class="hb-sec-title">1. Данные препарата и испытания</h2>
+      <div class="hb-grid">
+        <label class="hb-wide"><span>Название препарата</span><input class="hb-inp" id="m_preparatName" placeholder="Напр.: Flurog 40, э.к."></label>
+        <label><span>Действующее вещество(а)</span><input class="hb-inp" id="m_activeIngredients" placeholder="Флуроксипир (fluroxypyr)"></label>
+        <label><span>Препаративная форма</span><input class="hb-inp" id="m_preparatForm" placeholder="э.к."></label>
+        <label><span>Фирма-производитель</span><input class="hb-inp" id="m_manufacturer" placeholder="Название фирмы"></label>
+        <label><span>Страна</span><input class="hb-inp" id="m_country" value="Ўзбекистон"></label>
+        <label><span>Культура</span><input class="hb-inp" id="m_crop" placeholder="Озимая пшеница"></label>
+        <label><span>Сорт</span><input class="hb-inp" id="m_variety" placeholder="Название сорта"></label>
+        <label class="hb-wide"><span>Вредный организм</span><input class="hb-inp" id="m_targetOrganism" placeholder="Двудольные сорняки"></label>
+        <label><span>Норма расхода</span><input class="hb-inp" id="m_applicationRate" placeholder="0,5 л/га"></label>
+        <label><span>Эталонный препарат</span><input class="hb-inp" id="m_referenceName" placeholder="Унико, 1,0 л/га"></label>
+        <label><span>Норма рабочего раствора</span><input class="hb-inp" id="m_workingSolution" placeholder="300 л/га"></label>
+        <label><span>Место испытания</span><input class="hb-inp" id="m_site" placeholder="Ташкентская обл., ... район"></label>
+        <label><span>Дата испытания</span><input class="hb-inp" id="m_trialDate" placeholder="3 апреля 2026 г."></label>
+        <label class="hb-wide"><span>Лаборатория</span><input class="hb-inp" id="m_laboratory" placeholder="Название лаборатории"></label>
+        <label class="hb-wide"><span>Научные сотрудники (через запятую)</span><input class="hb-inp" id="m_staff" placeholder="Турдиева Н.М., ..."></label>
+        <label class="hb-wide"><span>Температура воздуха / погода</span><input class="hb-inp" id="m_weather" placeholder="оптимально 22°C, влажность 45%"></label>
+      </div>
+      <div class="hb-detect">
+        <span class="hb-lbl">Определённый тип препарата:</span>
+        <span id="detect-badge" class="hb-badge hb-badge-empty">—</span>
+        <label class="hb-manual">Вручную:
+          <select class="hb-inp" id="explicit-type">
+            <option value="">Авто</option>
+            <option value="гербицид">Гербицид</option>
+            <option value="инсектицид">Инсектицид</option>
+            <option value="фунгицид">Фунгицид</option>
+            <option value="акарицид">Акарицид</option>
+            <option value="нематицид">Нематицид</option>
+            <option value="родентицид">Родентицид</option>
+            <option value="дефолиант">Дефолиант</option>
+            <option value="десикант">Десикант</option>
+            <option value="биопрепарат">Биопрепарат</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <details class="hb-section">
+      <summary class="hb-sec-title">1b. Официальные реквизиты (необязательно — титул, протокол, акт)</summary>
+      <div class="hb-grid" style="margin-top:14px;">
+        <label class="hb-wide"><span>Научно-исследовательский институт</span><input class="hb-inp" id="m_institute" placeholder="НИИ карантина и защиты растений"></label>
+        <label><span>Директор института</span><input class="hb-inp" id="m_director" placeholder="А.Анорбаев"></label>
+        <label><span>№ протокола совета</span><input class="hb-inp" id="m_protocolNumber" placeholder="12"></label>
+        <label><span>Организация-заявитель</span><input class="hb-inp" id="m_applicantOrg" placeholder="AGRO-SERVICE-TORG"></label>
+        <label><span>Торговое название</span><input class="hb-inp" id="m_tradeName" placeholder="Flurog 40"></label>
+        <label><span>Оборудование</span><input class="hb-inp" id="m_testEquipment" placeholder="FST-909 Sprayer"></label>
+        <label><span>Способ применения</span><input class="hb-inp" id="m_applicationMethod" placeholder="опрыскивание"></label>
+        <label><span>Тип опыта</span><input class="hb-inp" id="m_experimentType" placeholder="мелкоделяночный опыт"></label>
+        <label class="hb-wide"><span>Полное описание эталона (3.10)</span><input class="hb-inp" id="m_referenceFullDesc" placeholder="Унико ККР (Fluroxypyr 100 + florasulam 2,5), 1,0 л/га"></label>
+        <label class="hb-wide"><span>Заключение лаборатории (3.9)</span><input class="hb-inp" id="m_labConclusion" placeholder="сорняки 10-50 шт/м²"></label>
+        <label><span>Макс. число обработок</span><input class="hb-inp" id="m_maxTreatments" placeholder="1"></label>
+        <label><span>Срок ожидания (дней)</span><input class="hb-inp" id="m_waitingPeriod" placeholder="15"></label>
+        <label><span>Фитотоксичность</span><input class="hb-inp" id="m_phytotoxicity" placeholder="Не наблюдалась"></label>
+        <label class="hb-wide"><span>Фаза развития культуры</span><input class="hb-inp" id="m_cropPhase" placeholder="в фазе роста, культивация"></label>
+        <label><span>Дата акта</span><input class="hb-inp" id="m_actDate" placeholder="05.09.2026"></label>
+        <label class="hb-wide"><span>Использованная литература (каждая строка — одна)</span><textarea class="hb-inp" id="m_references" rows="3" placeholder="1. Доспехов Б.А. ...&#10;2. ..."></textarea></label>
+      </div>
+    </details>
+
+    <section class="hb-section">
+      <h2 class="hb-sec-title">2. Варианты опыта</h2>
+      <div id="variants-list"></div>
+      <button class="btn btn-primary" id="add-variant" style="margin-top:10px;">+ Добавить вариант</button>
+    </section>
+
+    <section class="hb-section">
+      <h2 class="hb-sec-title">3. Дни учёта и тип полевых данных</h2>
+      <div class="hb-grid">
+        <label><span>Дни учёта (через запятую)</span><input class="hb-inp" id="days-input" value="15, 30, 60"></label>
+        <label><span>Тип полевых данных</span>
+          <select class="hb-inp" id="mode-select">
+            <option value="counts">Численность вредителя (инсектицид/акарицид)</option>
+            <option value="disease">Индекс болезни (фунгицид)</option>
+            <option value="weeds">Плотность сорняков (гербицид)</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="hb-section">
+      <h2 class="hb-sec-title">4. Полевые учёты (данные измерений)</h2>
+      <div id="fielddata"></div>
+    </section>
+
+    <section class="hb-section">
+      <h2 class="hb-sec-title">5. Урожайность (по повторностям)</h2>
+      <div class="hb-yield-ctrl">
+        <label>Число повторностей: <input class="hb-inp hb-small" id="yield-reps" type="number" min="2" max="8" value="4"></label>
+        <label>Единица: <input class="hb-inp hb-small" id="yield-unit" value="ц/га"></label>
+      </div>
+      <div id="yield-table"></div>
+    </section>
+
+    <div class="hb-actions">
+      <button class="btn btn-primary" id="btn-compute">Рассчитать и просмотреть</button>
+      <button class="btn btn-primary" id="btn-download" style="background:var(--green-700);">📄 Скачать Word (.docx)</button>
+      <span id="status" class="hb-status"></span>
+    </div>
+
+    <section id="preview" class="hb-section hb-preview" style="display:none;"></section>
+
+    <p class="hb-note">Все показатели эффективности и статистики рассчитываются только из введённых полевых данных. Система не выдумывает значения измерений.</p>
+  </div>
+</div>
+
+    </main>
+  </div>
+</div>
+<script src="js/main.js"></script>
+<script src="js/vendor/jstat.min.js"></script>
+<script src="js/vendor/docx.iife.js"></script>
+<script src="js/hisobot.js"></script>
+<script src="js/hisobot-ui.js"></script>
+</body>
+</html>
