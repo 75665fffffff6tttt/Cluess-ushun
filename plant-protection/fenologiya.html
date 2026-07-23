@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Препаратлар базаси — АгроҲимоя</title>
-<meta name="description" content="Ўсимликларни ҳимоя қилиш воситалари (пестицидлар) қидирувли базаси — препарат номи, таъсир этувчи модда, экин, зараркунанда ва сарф меъёри бўйича.">
+<title>Degree-Day / фенологик прогноз — АгроҲимоя</title>
+<meta name="description" content="Фаол ҳарорат йиғиндиси (Degree-Day) асосида зараркунанда авлодлари ва ривожланиш босқичларини прогноз қилиш — Open-Meteo об-ҳаво маълумотлари билан.">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -21,7 +21,7 @@
     <nav class="sidebar-nav">
       <a href="index.html" class="sidebar-link"><span class="sidebar-ico">📊</span> Бош саҳифа</a>
       <a href="xarita.html" class="sidebar-link"><span class="sidebar-ico">🗺️</span> Харита</a>
-      <a href="preparatlar.html" class="sidebar-link active"><span class="sidebar-ico">🧪</span> Препаратлар базаси</a>
+      <a href="preparatlar.html" class="sidebar-link"><span class="sidebar-ico">🧪</span> Препаратлар базаси</a>
       <a href="rezistentlik.html" class="sidebar-link"><span class="sidebar-ico">🔄</span> Резистентлик</a>
       <a href="zararkunandalar.html" class="sidebar-link"><span class="sidebar-ico">🐛</span> Зараркунандалар</a>
       <a href="kasalliklar.html" class="sidebar-link"><span class="sidebar-ico">🍂</span> Касалликлар</a>
@@ -30,7 +30,7 @@
       <a href="standartlar.html" class="sidebar-link"><span class="sidebar-ico">🌐</span> Халқаро стандартлар</a>
       <a href="hisobot.html" class="sidebar-link"><span class="sidebar-ico">📄</span> Ҳисобот генератори</a>
       <a href="prognoz.html" class="sidebar-link"><span class="sidebar-ico">🌦️</span> Прогноз ва таҳлил</a>
-      <a href="fenologiya.html" class="sidebar-link"><span class="sidebar-ico">🌡️</span> Degree-Day прогноз</a>
+      <a href="fenologiya.html" class="sidebar-link active"><span class="sidebar-ico">🌡️</span> Degree-Day прогноз</a>
       <a href="fasl-kalendari.html" class="sidebar-link"><span class="sidebar-ico">📅</span> Фасл календари</a>
       <a href="aloqa.html" class="sidebar-link"><span class="sidebar-ico">✉️</span> Алоқа</a>
     </nav>
@@ -42,27 +42,24 @@
   <div class="main-area">
     <header class="topbar">
       <button class="sidebar-toggle" id="sidebar-toggle" aria-expanded="false" aria-label="Менюни очиш">☰</button>
-      <h1 class="topbar-title">Препаратлар базаси</h1>
+      <h1 class="topbar-title">Degree-Day прогноз</h1>
       <div class="lang-switch">
-        <a href="preparatlar.html" aria-current="true">ЎЗ</a>
-        <a href="preparatlar.ru.html">РУ</a>
+        <a href="fenologiya.html" aria-current="true">ЎЗ</a>
+        <a href="fenologiya.ru.html">РУ</a>
       </div>
     </header>
     <main class="main-content">
 <div class="page-header">
   <div class="container">
-    <div class="breadcrumb"><a href="index.html">Бош саҳифа</a> / Препаратлар базаси</div>
-    <h1>Ўсимликларни ҳимоя қилиш воситалари базаси</h1>
-    <p>Препарат номи, таъсир этувчи модда, экин, зараркунанда ёки турига қараб қидиринг ва фильтрланг. Батафсил кўриш учун қаторни босинг.</p>
+    <div class="breadcrumb"><a href="index.html">Бош саҳифа</a> / Degree-Day прогноз</div>
+    <h1>Фаол ҳарорат йиғиндиси (Degree-Day) прогнози</h1>
+    <p>Шаҳар ва зараркунандани танланг — тизим Open-Meteo об-ҳаво маълумотлари асосида фаол ҳарорат йиғиндисини ҳисоблаб, авлодлар пайдо бўлиш санасини прогноз қилади. Ҳимоя тадбирларини вақтида режалаштиришга ёрдам беради.</p>
   </div>
 </div>
 
 <div class="content-block">
   <div class="container">
-    <div class="reg-notice">
-      ⚠️ <b>Диққат:</b> бу — намунавий (демонстрацион) маълумотлар базаси. Ўзбекистон Республикасининг расмий давлат рўйхати эмас. Ҳақиқий рўйхат рақамлари, муддатлар ва меъёрларни расмий манбадан текширинг.
-    </div>
-    <div id="reg-app"></div>
+    <div id="fen-app"></div>
   </div>
 </div>
 
@@ -70,8 +67,6 @@
   </div>
 </div>
 <script src="js/main.js"></script>
-<script src="js/moa-data.js"></script>
-<script src="js/preparatlar-data.js"></script>
-<script src="js/preparatlar.js"></script>
+<script src="js/fenologiya.js"></script>
 </body>
 </html>

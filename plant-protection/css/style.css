@@ -933,3 +933,20 @@ textarea.hb-inp { resize: vertical; }
 .rez-princ { margin: 4px 0 0; padding-left: 20px; font-size: 0.9rem; color: var(--ink-900, #223); line-height: 1.55; }
 .rez-princ li { margin-bottom: 8px; }
 .rez-note { margin-top: 12px; font-size: 0.8rem; color: var(--ink-600, #778); }
+
+/* ============ Degree-Day / фенологик прогноз ============ */
+.fen-form { background: var(--card, #fff); border: 1px solid var(--border, #e2e6e3); border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; }
+.fen-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+.fen-field { display: flex; flex-direction: column; font-size: 0.88rem; }
+.fen-field > span { margin-bottom: 4px; font-weight: 600; color: var(--ink-700, #445); }
+.fen-status { margin-left: 12px; font-size: 0.86rem; color: #1565c0; font-weight: 600; }
+.fen-card { background: var(--card, #fff); border: 1px solid var(--border, #e2e6e3); border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; }
+.fen-cur { font-size: 1.05rem; margin-bottom: 10px; color: var(--ink-900, #223); }
+.fen-cur b { color: var(--green-700, #2e7d32); }
+.fen-scroll { overflow-x: auto; }
+.fen-svg { width: 100%; min-width: 560px; height: auto; border: 1px solid var(--border, #eee); border-radius: 8px; }
+.fen-ok { color: var(--green-700, #2e7d32); font-weight: 600; }
+.fen-fc { color: #1565c0; }
+.fen-note { margin-top: 10px; font-size: 0.8rem; color: var(--ink-600, #778); }
+@media (max-width: 900px) { .fen-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .fen-grid { grid-template-columns: 1fr; } }
