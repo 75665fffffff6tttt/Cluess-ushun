@@ -32,6 +32,25 @@ const META_FIELDS: { key: keyof ReportMeta; label: string; placeholder: string; 
   { key: "weather", label: "Ҳаво ҳарорати / об-ҳаво", placeholder: "26–33°C, намлик 45%", wide: true },
 ];
 
+const OFFICIAL_FIELDS: { key: keyof ReportMeta; label: string; placeholder: string; wide?: boolean }[] = [
+  { key: "institute", label: "Илмий-тадқиқот институти", placeholder: "Ўсимликлар карантини ва ҳимояси ИТИ", wide: true },
+  { key: "director", label: "Институт директори (ТАСДИҚЛАЙМАН)", placeholder: "А.Анорбаев" },
+  { key: "protocolNumber", label: "Кенгаш баённомаси №", placeholder: "12" },
+  { key: "applicantOrg", label: "Рўйхатга талабгор ташкилот", placeholder: "AGRO-SERVICE-TORG МЧЖ" },
+  { key: "tradeName", label: "Савдо номи", placeholder: "Flurog 40" },
+  { key: "testEquipment", label: "Жиҳоз / ускуна", placeholder: "FST-909 Knapsack Power Sprayer" },
+  { key: "applicationMethod", label: "Қўллаш усули", placeholder: "пуркаш" },
+  { key: "experimentType", label: "Тажриба тури", placeholder: "кичик дала тажрибаси" },
+  { key: "referenceFullDesc", label: "Эталон тўлиқ тавсифи (3.10)", placeholder: "Унико ККР (Fluroxypyr 100 + florasulam 2,5), 1,0 л/га", wide: true },
+  { key: "labConclusion", label: "Лаборатория хулосаси (3.9)", placeholder: "бегона ўтлар 1 м² да 10-50 та", wide: true },
+  { key: "maxTreatments", label: "Макс. ишлов сони", placeholder: "1" },
+  { key: "waitingPeriod", label: "Кутиш вақти (кун)", placeholder: "15" },
+  { key: "phytotoxicity", label: "Фитотоксик хусусияти", placeholder: "Кузатилмади" },
+  { key: "cropPhase", label: "Экин ривожланиш фазаси", placeholder: "ўсиш даврида, култивация қилинган", wide: true },
+  { key: "actDate", label: "Далолатнома санаси", placeholder: "05.09.2026" },
+  { key: "references", label: "Фойдаланилган адабиётлар (ҳар сатр — битта)", placeholder: "1. Доспехов Б.А. ...\n2. ...", wide: true },
+];
+
 const emptyMeta: ReportMeta = {
   preparatName: "", activeIngredients: "", preparatForm: "", manufacturer: "", country: "Ўзбекистон",
   crop: "", variety: "", targetOrganism: "", applicationRate: "", referenceName: "",
@@ -76,6 +95,7 @@ export default function ReportForm() {
   const [disease, setDisease] = useState<Record<string, Record<number, string>>>({});
   const [species, setSpecies] = useState<string[]>(["Курмак", "Шўра"]);
   const [weeds, setWeeds] = useState<Record<string, Record<string, Record<number, string>>>>({});
+  const [weedBefore, setWeedBefore] = useState<Record<string, string>>({});
 
   const [yieldReps, setYieldReps] = useState(4);
   const [yieldUnit, setYieldUnit] = useState("ц/га");
@@ -223,7 +243,12 @@ export default function ReportForm() {
           density[nameById[v.id]][sp] = byDay;
         }
       }
-      assessment.weeds = { species: species.filter((s) => s.trim()), density };
+      const beforeOut: Record<string, number> = {};
+      for (const sp of species) {
+        const n = num(weedBefore[sp] ?? "");
+        if (n != null) beforeOut[sp] = n;
+      }
+      assessment.weeds = { species: species.filter((s) => s.trim()), density, before: beforeOut };
     }
 
     const yieldOut: Record<string, number[]> = {};
@@ -240,7 +265,7 @@ export default function ReportForm() {
       yieldData: Object.keys(yieldOut).length ? yieldOut : undefined,
       yieldUnit,
     };
-  }, [variants, days, mode, counts, disease, species, weeds, yieldData, meta, explicitType, yieldUnit]);
+  }, [variants, days, mode, counts, disease, species, weeds, weedBefore, yieldData, meta, explicitType, yieldUnit]);
 
   const doCompute = async () => {
     setBusy(true);
@@ -385,6 +410,38 @@ export default function ReportForm() {
         </div>
       </Section>
 
+      {/* 1b. Расмий реквизитлар (йиғма) */}
+      <details className="mb-5 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        <summary className="cursor-pointer text-lg font-bold text-green-900">
+          1b. Расмий реквизитлар (ихтиёрий — титул, баёнома, далолатнома учун)
+        </summary>
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {OFFICIAL_FIELDS.map((f) =>
+            f.key === "references" ? (
+              <label key={f.key} className="sm:col-span-2 lg:col-span-3">
+                <span className="mb-1 block text-sm font-medium text-gray-700">{f.label}</span>
+                <textarea
+                  className={inp + " h-24 resize-y"}
+                  value={meta[f.key] ?? ""}
+                  placeholder={f.placeholder}
+                  onChange={(e) => setMetaField(f.key, e.target.value)}
+                />
+              </label>
+            ) : (
+              <label key={f.key} className={f.wide ? "sm:col-span-2 lg:col-span-3" : ""}>
+                <span className="mb-1 block text-sm font-medium text-gray-700">{f.label}</span>
+                <input
+                  className={inp}
+                  value={meta[f.key] ?? ""}
+                  placeholder={f.placeholder}
+                  onChange={(e) => setMetaField(f.key, e.target.value)}
+                />
+              </label>
+            ),
+          )}
+        </div>
+      </details>
+
       {/* 2. Вариантлар */}
       <Section title="2. Тажриба вариантлари">
         <div className="space-y-2">
@@ -495,7 +552,16 @@ export default function ReportForm() {
             </div>
             {species.map((sp) => (
               <div key={sp}>
-                <div className="mb-1 text-sm font-semibold text-gray-700">{sp} — зичлик (дона/м²)</div>
+                <div className="mb-1 flex flex-wrap items-center gap-2 text-sm font-semibold text-gray-700">
+                  <span>{sp} — зичлик (дона/м²)</span>
+                  <span className="font-normal text-gray-500">· Ишловгача (1 м²):</span>
+                  <input
+                    className="w-24 rounded border border-gray-200 px-2 py-1 text-sm outline-none focus:border-green-600"
+                    inputMode="decimal"
+                    value={weedBefore[sp] ?? ""}
+                    onChange={(e) => setWeedBefore((p) => ({ ...p, [sp]: e.target.value }))}
+                  />
+                </div>
                 <DataTable
                   headers={["Вариант", ...days.map((d) => `${d}-кун`)]}
                   rows={variants.map((v) => (

@@ -26,6 +26,28 @@ export interface ReportMeta {
   laboratory: string; // Лаборатория
   staff: string; // Илмий ходимлар
   weather: string; // Ҳаво ҳарорати / об-ҳаво
+
+  // --- Расмий реквизитлар (ихтиёрий, default билан) ---
+  committee?: string; // юқори қўмита номи
+  institute?: string; // илмий-тадқиқот институти
+  director?: string; // институт директори (ТАСДИҚЛАЙМАН)
+  directorDeputy?: string; // директор ўринбосари
+  responsiblePerson?: string; // масъул ижрочи
+  scientificSecretary?: string; // илмий котиб
+  protocolNumber?: string; // кенгаш баённомаси №
+  applicantOrg?: string; // рўйхатга талабгор ташкилот
+  tradeName?: string; // савдо номи
+  testEquipment?: string; // жиҳоз/ускуна
+  applicationMethod?: string; // қўллаш усули (default: пуркаш)
+  experimentType?: string; // тажриба тури (кичик/катта дала)
+  labConclusion?: string; // 3.9 лаборатория хулосаси
+  referenceFullDesc?: string; // 3.10 эталон тўлиқ тавсифи
+  maxTreatments?: string; // рухсат этилган максимал ишлов сони
+  waitingPeriod?: string; // кутиш вақти (кун)
+  phytotoxicity?: string; // фитотоксик хусусияти
+  references?: string; // фойдаланилган адабиётлар (сатрма-сатр)
+  actDate?: string; // далолатнома санаси
+  cropPhase?: string; // экин ривожланиш фазаси
 }
 
 /** Тажриба варианти. */
@@ -53,6 +75,8 @@ export interface WeedData {
   species: string[]; // бегона ўт турлари
   // {вариант: {тур: {кун: зичлик дона/м²}}}
   density: Record<string, Record<string, Record<number, number>>>;
+  before?: Record<string, number>; // {тур: ишлов бергунга қадар зичлик дона/м²}
+  speciesLatin?: Record<string, string>; // {тур: лотинча ном}
 }
 
 export interface Assessment {
@@ -98,6 +122,37 @@ export interface YieldRow {
   increaseVsControlPct: number | null;
 }
 
+/** Битта вариант учун (дона/зичлик + самарадорлик %). */
+export interface DetailVariantCell {
+  density: number | null; // дона/м² ёки дона
+  pct: number | null; // биологик самарадорлик %
+}
+
+/** Битта организм (бегона ўт тури) бўйича бир кундаги қатор. */
+export interface DetailRow {
+  organism: string;
+  organismLatin?: string;
+  before: number | null; // ишлов бергунга қадар
+  control: number | null; // назорат (гербицидсиз)
+  byVariant: Record<string, DetailVariantCell>; // ноназорат вариантлар
+}
+
+/** Бир баҳолаш даври (масалан 15 кундан кейин). */
+export interface DetailPeriod {
+  day: number;
+  rows: DetailRow[];
+  meanRow: DetailRow; // ўртача
+}
+
+/** Батафсил натижалар жадвали (шаблонга мос). */
+export interface DetailedResults {
+  unit: string; // "дона/м²" ёки "дона"
+  nonControlVariants: string[]; // ноназорат вариантлар (эталон, тажриба, ...)
+  controlVariant: string | null;
+  periods: DetailPeriod[];
+  overallMeanRow: DetailRow; // ўртача N-ҳисоб
+}
+
 export interface ComputedReport {
   typeKey: PesticideType;
   typeNameUz: string;
@@ -115,6 +170,12 @@ export interface ComputedReport {
   // Асосий чиқиш: самарадорлик жадвали
   efficacyRows: EfficacyRow[];
   efficacyMethodLabel: string; // масалан "Henderson–Tilton (1955)"
+
+  // Батафсил жадвал (организм × давр) — шаблонга мос расмий кўриниш
+  detailed?: DetailedResults;
+
+  // организмлар рўйхати (1-жадвал учун): {ном, лотинча, ишловгача зичлик}
+  organisms?: { name: string; latin?: string; before: number | null }[];
 
   // Ҳосилдорлик
   yieldRows?: YieldRow[];

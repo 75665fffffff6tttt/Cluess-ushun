@@ -25,6 +25,9 @@ import type {
   EfficacyRow,
   CountRow,
   YieldRow,
+  DetailedResults,
+  DetailRow,
+  DetailPeriod,
 } from "./types";
 
 const METHOD_LABELS: Record<string, string> = {
@@ -49,6 +52,85 @@ function findControl(input: ReportInput): string | null {
     /назорат|контрол|control|ишловсиз/i.test(v.name),
   );
   return byName ? byName.name : null;
+}
+
+function avg(values: (number | null)[]): number | null {
+  const nums = values.filter((v): v is number => v != null);
+  if (!nums.length) return null;
+  return roundOrNull(nums.reduce((a, b) => a + b, 0) / nums.length);
+}
+
+/** Бегона ўтлар учун батафсил жадвал (тур × давр). */
+function buildWeedDetail(
+  input: ReportInput,
+  control: string | null,
+  days: number[],
+): DetailedResults | undefined {
+  const weeds = input.assessment.weeds;
+  if (!weeds) return undefined;
+  const species = weeds.species.filter((s) => s.trim());
+  // ноназорат вариантлар: аввал эталон, кейин қолгани
+  const nonControl = input.variants
+    .filter((v) => !(v.isControl || v.name === control))
+    .sort((a, b) => Number(!!b.isReference) - Number(!!a.isReference))
+    .map((v) => v.name);
+
+  const dens = (variant: string, sp: string, day: number): number | null =>
+    weeds.density[variant]?.[sp]?.[day] ?? null;
+
+  const periods: DetailPeriod[] = days.map((day) => {
+    const rows: DetailRow[] = species.map((sp) => {
+      const controlD = control ? dens(control, sp, day) : null;
+      const byVariant: DetailRow["byVariant"] = {};
+      for (const nv of nonControl) {
+        const d = dens(nv, sp, day);
+        byVariant[nv] = {
+          density: d,
+          pct: controlD != null && d != null ? roundOrNull(weedBiologicalEfficacy(controlD, d)) : null,
+        };
+      }
+      return {
+        organism: sp,
+        organismLatin: weeds.speciesLatin?.[sp],
+        before: weeds.before?.[sp] ?? null,
+        control: controlD,
+        byVariant,
+      };
+    });
+    // ўртача қатор
+    const meanRow: DetailRow = {
+      organism: "ўртача",
+      before: avg(rows.map((r) => r.before)),
+      control: avg(rows.map((r) => r.control)),
+      byVariant: Object.fromEntries(
+        nonControl.map((nv) => [
+          nv,
+          {
+            density: avg(rows.map((r) => r.byVariant[nv]?.density ?? null)),
+            pct: avg(rows.map((r) => r.byVariant[nv]?.pct ?? null)),
+          },
+        ]),
+      ),
+    };
+    return { day, rows, meanRow };
+  });
+
+  const overallMeanRow: DetailRow = {
+    organism: `ўртача ${periods.length}-ҳисоб`,
+    before: avg(periods.map((p) => p.meanRow.before)),
+    control: avg(periods.map((p) => p.meanRow.control)),
+    byVariant: Object.fromEntries(
+      nonControl.map((nv) => [
+        nv,
+        {
+          density: avg(periods.map((p) => p.meanRow.byVariant[nv]?.density ?? null)),
+          pct: avg(periods.map((p) => p.meanRow.byVariant[nv]?.pct ?? null)),
+        },
+      ]),
+    ),
+  };
+
+  return { unit: "дона/м²", nonControlVariants: nonControl, controlVariant: control, periods, overallMeanRow };
 }
 
 export function computeReport(input: ReportInput): ComputedReport {
@@ -235,6 +317,17 @@ export function computeReport(input: ReportInput): ComputedReport {
     }
   }
 
+  // Батафсил жадвал ва организмлар рўйхати (ҳозирча бегона ўтлар учун)
+  let detailed: DetailedResults | undefined;
+  let organisms: ComputedReport["organisms"];
+  if (input.assessment.weeds) {
+    detailed = buildWeedDetail(input, control, days);
+    const w = input.assessment.weeds;
+    organisms = w.species
+      .filter((s) => s.trim())
+      .map((s) => ({ name: s, latin: w.speciesLatin?.[s], before: w.before?.[s] ?? null }));
+  }
+
   return {
     typeKey: det.typeKey,
     typeNameUz: det.meta.nameUz,
@@ -248,6 +341,8 @@ export function computeReport(input: ReportInput): ComputedReport {
     countRows,
     efficacyRows,
     efficacyMethodLabel: METHOD_LABELS[methodKey] ?? methodKey,
+    detailed,
+    organisms,
     yieldRows,
     yieldUnit: input.yieldUnit,
     yieldAnova,

@@ -1,9 +1,14 @@
 /**
- * Давлат синови илмий ҳисоботини .docx форматида яратиш (docx кутубхонаси).
+ * Давлат синови илмий ҳисоботини .docx форматида яратиш.
  *
- * 16 бўлимли расмий тузилиш, жадваллар, графиклар ва статистик таҳлил.
- * Барча рақамлар ComputedReport'дан (фойдаланувчи киритган далада ўлчовларидан
- * ҳисобланган) олинади — матн шу қийматларга мослаштирилади, кўчирилмайди.
+ * Тузилиш «Ўсимликлар карантини ва ҳимояси ИТИ» расмий ҳисобот намунасига
+ * (Flurog-услуб) мослаштирилган: титул, мундарижа, кириш, адабиётлар шарҳи,
+ * синов баёномаси (3.1–3.15), методика + тажриба тизими + организмлар жадвали,
+ * натижалар жадвали + ҳосилдорлик, хулоса, адабиётлар, рўйхат хулосаси,
+ * далолатнома.
+ *
+ * Барча рақамлар ComputedReport'дан (фойдаланувчи киритган ўлчовлардан
+ * ҳисобланган) олинади.
  */
 
 import {
@@ -11,7 +16,6 @@ import {
   Packer,
   Paragraph,
   TextRun,
-  HeadingLevel,
   AlignmentType,
   Table,
   TableRow,
@@ -20,365 +24,592 @@ import {
   BorderStyle,
   ImageRun,
   PageBreak,
+  VerticalAlign,
 } from "docx";
-import { efficacyBar, dynamicsLine, yieldBar } from "./charts";
-import type { ComputedReport, ReportMeta } from "../types";
+import { efficacyBar, yieldBar } from "./charts";
+import type { ComputedReport, ReportMeta, DetailRow } from "../types";
 
 const FONT = "Times New Roman";
 
-function p(text: string, opts: { bold?: boolean; align?: (typeof AlignmentType)[keyof typeof AlignmentType]; size?: number; italics?: boolean; spacingAfter?: number } = {}): Paragraph {
+const DEFAULTS = {
+  committee: "ЎЗБЕКИСТОН РЕСПУБЛИКАСИ ОЗИҚ-ОВҚАТ ХАВФСИЗЛИГИ ҚЎМИТАСИ",
+  agency: "ЎСИМЛИКЛАР КАРАНТИНИ ВА ҲИМОЯСИ АГЕНТЛИГИ",
+  institute: "ЎСИМЛИКЛАР КАРАНТИНИ ВА ҲИМОЯСИ ИЛМИЙ-ТАДҚИҚОТ ИНСТИТУТИ",
+  director: "________________",
+  applicationMethod: "пуркаш",
+  experimentType: "кичик дала тажрибаси",
+  maxTreatments: "1",
+  waitingPeriod: "—",
+  phytotoxicity: "Кузатилмади",
+};
+
+function txt(text: string, opts: { bold?: boolean; italics?: boolean; size?: number } = {}) {
+  return new TextRun({ text, bold: opts.bold, italics: opts.italics, font: FONT, size: opts.size ?? 24 });
+}
+
+function p(
+  text: string,
+  opts: {
+    bold?: boolean;
+    align?: (typeof AlignmentType)[keyof typeof AlignmentType];
+    size?: number;
+    italics?: boolean;
+    after?: number;
+    indent?: boolean;
+  } = {},
+): Paragraph {
   return new Paragraph({
     alignment: opts.align,
-    spacing: { after: opts.spacingAfter ?? 120, line: 276 },
-    children: [
-      new TextRun({
-        text,
-        bold: opts.bold,
-        italics: opts.italics,
-        font: FONT,
-        size: opts.size ?? 24, // half-points => 12pt
-      }),
-    ],
+    spacing: { after: opts.after ?? 120, line: 276 },
+    indent: opts.indent ? { firstLine: 480 } : undefined,
+    children: [txt(text, opts)],
   });
 }
 
-function heading(num: number | null, title: string): Paragraph {
+function heading(text: string): Paragraph {
   return new Paragraph({
-    heading: HeadingLevel.HEADING_1,
-    spacing: { before: 240, after: 160 },
-    children: [
-      new TextRun({
-        text: num != null ? `${num}. ${title}` : title,
-        bold: true,
-        font: FONT,
-        size: 28, // 14pt
-      }),
-    ],
+    spacing: { before: 220, after: 140 },
+    children: [txt(text, { bold: true, size: 26 })],
   });
 }
 
-function labelValue(label: string, value: string): Paragraph {
+function field(num: string, label: string, value: string): Paragraph {
   return new Paragraph({
     spacing: { after: 80, line: 276 },
-    children: [
-      new TextRun({ text: `${label}: `, bold: true, font: FONT, size: 24 }),
-      new TextRun({ text: value || "—", font: FONT, size: 24 }),
-    ],
+    children: [txt(`${num} ${label} – `, { bold: false }), txt(value || "—", { bold: true })],
   });
 }
 
-const THIN = { style: BorderStyle.SINGLE, size: 4, color: "555555" };
-const CELL_BORDERS = { top: THIN, bottom: THIN, left: THIN, right: THIN };
+const THIN = { style: BorderStyle.SINGLE, size: 4, color: "000000" };
+const BORDERS = { top: THIN, bottom: THIN, left: THIN, right: THIN };
 
-function cell(text: string, opts: { bold?: boolean; align?: (typeof AlignmentType)[keyof typeof AlignmentType]; shade?: string } = {}): TableCell {
+function cell(
+  text: string,
+  opts: {
+    bold?: boolean;
+    align?: (typeof AlignmentType)[keyof typeof AlignmentType];
+    shade?: string;
+    colSpan?: number;
+    rowSpan?: number;
+    size?: number;
+  } = {},
+): TableCell {
   return new TableCell({
-    borders: CELL_BORDERS,
+    borders: BORDERS,
+    columnSpan: opts.colSpan,
+    rowSpan: opts.rowSpan,
     shading: opts.shade ? { fill: opts.shade } : undefined,
-    margins: { top: 40, bottom: 40, left: 80, right: 80 },
+    verticalAlign: VerticalAlign.CENTER,
+    margins: { top: 30, bottom: 30, left: 60, right: 60 },
     children: [
       new Paragraph({
         alignment: opts.align ?? AlignmentType.CENTER,
         spacing: { after: 0, line: 240 },
-        children: [new TextRun({ text, bold: opts.bold, font: FONT, size: 22 })],
+        children: [txt(text, { bold: opts.bold, size: opts.size ?? 20 })],
       }),
     ],
   });
 }
 
-function fmt(v: number | null | undefined, digits = 1): string {
+function fmt(v: number | null | undefined, d = 1): string {
   if (v == null || !Number.isFinite(v)) return "—";
-  return v.toFixed(digits);
+  return v.toFixed(d).replace(".", ",");
 }
 
-function table(headerCells: string[], rows: TableCell[][]): Table {
-  return new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    rows: [
-      new TableRow({
-        tableHeader: true,
-        children: headerCells.map((h) => cell(h, { bold: true, shade: "e8f0e8" })),
-      }),
-      ...rows.map((r) => new TableRow({ children: r })),
-    ],
-  });
-}
-
-async function chartImage(buffer: Buffer, width = 560, height = 327): Promise<Paragraph> {
+async function chart(buffer: Buffer, w = 540, h = 315): Promise<Paragraph> {
   return new Paragraph({
     alignment: AlignmentType.CENTER,
-    spacing: { before: 120, after: 160 },
-    children: [
-      new ImageRun({
-        type: "png",
-        data: buffer,
-        transformation: { width, height },
-      }),
-    ],
+    spacing: { before: 100, after: 140 },
+    children: [new ImageRun({ type: "png", data: buffer, transformation: { width: w, height: h } })],
   });
 }
 
 function caption(text: string): Paragraph {
   return new Paragraph({
     alignment: AlignmentType.CENTER,
-    spacing: { after: 160 },
-    children: [new TextRun({ text, italics: true, font: FONT, size: 22 })],
+    spacing: { after: 140 },
+    children: [txt(text, { italics: true, size: 20 })],
   });
 }
 
 // ---------------------------------------------------------------------------
 
 export async function buildReportDocx(report: ComputedReport, meta: ReportMeta): Promise<Buffer> {
-  const days = report.days;
   const children: (Paragraph | Table)[] = [];
+  const institute = meta.institute || DEFAULTS.institute;
+  const nonControl = report.detailed?.nonControlVariants ?? [];
 
-  // --- 1. ТИТУЛ ВАРАҒИ ---
+  // === ТИТУЛ ВАРАҒИ ===
   children.push(
-    p("ЎЗБЕКИСТОН РЕСПУБЛИКАСИ", { align: AlignmentType.CENTER, bold: true, size: 24 }),
-    p("ЎСИМЛИКЛАР КАРАНТИНИ ВА ҲИМОЯСИ АГЕНТЛИГИ", { align: AlignmentType.CENTER, bold: true, size: 24 }),
-    p(meta.laboratory || "Давлат синов лабораторияси", { align: AlignmentType.CENTER, size: 24, spacingAfter: 600 }),
-    p("ДАВЛАТ СИНОВИ ИЛМИЙ ҲИСОБОТИ", { align: AlignmentType.CENTER, bold: true, size: 32, spacingAfter: 300 }),
-    p(`«${meta.preparatName}» препаратининг ${meta.crop} экинида ${meta.targetOrganism}га қарши биологик самарадорлигини аниқлаш бўйича`, {
-      align: AlignmentType.CENTER, size: 26, spacingAfter: 600,
-    }),
-    labelValue("Таъсир этувчи модда", meta.activeIngredients),
-    labelValue("Препарат шакли", meta.preparatForm),
-    labelValue("Ишлаб чиқарувчи фирма", meta.manufacturer),
-    labelValue("Давлат", meta.country),
-    labelValue("Синов жойи", meta.site),
-    labelValue("Синов санаси", meta.trialDate),
+    p(meta.committee || DEFAULTS.committee, { align: AlignmentType.CENTER, bold: true, size: 24 }),
+    p(DEFAULTS.agency, { align: AlignmentType.CENTER, bold: true, size: 24 }),
+    p(institute, { align: AlignmentType.CENTER, bold: true, size: 24, after: 400 }),
+    p("«ТАСДИҚЛАЙМАН»", { align: AlignmentType.RIGHT, bold: true }),
+    p(`${institute} директори`, { align: AlignmentType.RIGHT, size: 22 }),
+    p(`________________ ${meta.director || DEFAULTS.director}`, { align: AlignmentType.RIGHT, size: 22 }),
+    p("«___»__________ 2026 йил", { align: AlignmentType.RIGHT, size: 22, after: 500 }),
+    p("ИЛМИЙ ҲИСОБОТ", { align: AlignmentType.CENTER, bold: true, size: 32, after: 300 }),
+    p(
+      `${meta.crop} экинида ${meta.targetOrganism}га қарши ${meta.preparatName}` +
+        `${meta.applicantOrg ? ` («${meta.applicantOrg}» ${meta.country || ""})` : ""} препаратининг биологик самарадорлигини аниқлаш.`,
+      { align: AlignmentType.CENTER, size: 26, after: 600 },
+    ),
+    p("Синовда иштирок этган илмий ходимлар:", { bold: true, after: 100 }),
+    ...(meta.staff || "")
+      .split(/[,;\n]+/)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((s) => p(s, { align: AlignmentType.CENTER, size: 22, after: 40 })),
+    p(`Тошкент – 2026`, { align: AlignmentType.CENTER, bold: true, size: 24, after: 300 }),
+    p(`${institute} илмий кенгашида кўриб чиқилди ва тасдиқланди.`, { align: AlignmentType.CENTER, size: 22 }),
+    p(`Баённома №${meta.protocolNumber || "____"}  «___»________ 2026 й.`, { align: AlignmentType.CENTER, size: 22 }),
   );
+  if (meta.scientificSecretary) {
+    children.push(p(`Илмий котиб: ${meta.scientificSecretary}`, { align: AlignmentType.RIGHT, size: 22 }));
+  }
   children.push(new Paragraph({ children: [new PageBreak()] }));
 
-  // --- 2. ИЛМИЙ КЕНГАШ ТАСДИҒИ ---
-  children.push(
-    heading(null, "«ТАСДИҚЛАЙМАН»"),
-    p(`${meta.laboratory || "Лаборатория"} раҳбари`, { align: AlignmentType.RIGHT }),
-    p("_______________________", { align: AlignmentType.RIGHT }),
-    p("«____» _______________ 20___ й.", { align: AlignmentType.RIGHT, spacingAfter: 400 }),
-    p("Мазкур ҳисобот лаборатория илмий кенгашининг мажлисида кўриб чиқилди ва тасдиқланди.", {}),
-    p("Илмий ходимлар: " + (meta.staff || "—"), {}),
-  );
-  children.push(new Paragraph({ children: [new PageBreak()] }));
-
-  // --- 3. МУНДАРИЖА ---
-  children.push(heading(3, "Мундарижа"));
+  // === МУНДАРИЖА ===
+  children.push(p("МУНДАРИЖА", { align: AlignmentType.CENTER, bold: true, size: 26, after: 160 }));
   const toc = [
-    "Кириш", "Адабиётлар шарҳи", "Синов баёномаси", "Тадқиқот ўтказиш шароити",
-    "Тадқиқот методикаси", "Тажриба натижалари", "Биологик самарадорлик жадваллари",
-    "Ҳосилдорлик натижалари", "Илмий муҳокама", "Хулоса", "Тавсия",
-    "Давлат рўйхатига киритиш бўйича якуний хулоса", "Далолатнома",
+    "Кириш",
+    "Адабиётлар шарҳи",
+    "Синов баёномаси",
+    "Синов ўтказиш жойи ва услублари (методикаси)",
+    "Тажриба (тадқиқот) натижалари",
+    "Хулоса ва тавсиялар",
+    "Фойдаланилган адабиётлар рўйхати",
+    "Ўсимликларни ҳимоя қилиш воситасини рўйхатга киритиш бўйича хулоса",
   ];
-  toc.forEach((t, i) => children.push(p(`${i + 4}. ${t}`, { spacingAfter: 60 })));
+  children.push(
+    new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      rows: toc.map(
+        (t, i) =>
+          new TableRow({
+            children: [
+              cell(`${i + 1}.`, { align: AlignmentType.CENTER, size: 22 }),
+              cell(t, { align: AlignmentType.LEFT, size: 22 }),
+            ],
+          }),
+      ),
+    }),
+  );
   children.push(new Paragraph({ children: [new PageBreak()] }));
 
-  // --- 4. КИРИШ ---
+  // === 1. КИРИШ ===
   children.push(
-    heading(4, "Кириш"),
-    p(`${meta.crop} экини Ўзбекистон Республикаси қишлоқ хўжалигининг муҳим тармоқларидан бири ҳисобланади. Ушбу экинда ${meta.targetOrganism} катта иқтисодий зарар келтириши мумкин, бу эса самарали ҳимоя воситаларини қўллашни тақозо этади.`),
-    p(`Мазкур тадқиқот «${meta.preparatName}» (таъсир этувчи модда — ${meta.activeIngredients}) препаратининг ${report.typeNameUz.toLowerCase()} сифатида ${meta.targetOrganism}га қарши биологик самарадорлигини давлат синови методикаси асосида аниқлашга бағишланган.`),
-    p(`Синов ${meta.site}да ${meta.trialDate} санасида, ${meta.crop} экинининг «${meta.variety}» навида ўтказилди. Тажрибада препарат ${meta.applicationRate} меъёрида қўлланилди, эталон сифатида ${meta.referenceName} олинди.`),
+    heading("1. КИРИШ"),
+    p(
+      `Қишлоқ хўжалигида ${meta.crop} экини муҳим аҳамиятга эга бўлиб, юқори ва сифатли ҳосил олиш кўп жиҳатдан ` +
+        `экинни зарарли организмлардан ўз вақтида ҳимоя қилишга боғлиқ. ${meta.targetOrganism} ${meta.crop} ` +
+        `ҳосилдорлигига сезиларли зарар етказиши мумкин, шу боис самарали ҳимоя воситаларини қўллаш долзарб масаладир.`,
+      { indent: true },
+    ),
+    p(
+      `Мазкур илмий ҳисобот ${meta.preparatName} (таъсир этувчи модда – ${meta.activeIngredients}) препаратининг ` +
+        `${report.typeNameUz.toLowerCase()} сифатида ${meta.targetOrganism}га қарши биологик самарадорлигини давлат синови ` +
+        `методикаси асосида аниқлашга бағишланган. Синов ${meta.site}да, ${meta.crop} экинининг «${meta.variety}» навида ` +
+        `ўтказилди.`,
+      { indent: true },
+    ),
+    p(
+      `Синовда препарат ${meta.applicationRate} меъёрида қўлланилди, эталон (андоза) сифатида ${meta.referenceName} олинди. ` +
+        `Тадқиқот натижалари асосида препаратни Давлат рўйхатига киритиш бўйича хулоса тайёрланди.`,
+      { indent: true },
+    ),
   );
 
-  // --- 5. АДАБИЁТЛАР ШАРҲИ ---
+  // === 2. АДАБИЁТЛАР ШАРҲИ ===
   children.push(
-    heading(5, "Адабиётлар шарҳи"),
-    p(`Ўсимликларни ҳимоя қилиш воситаларининг биологик самарадорлигини баҳолашда халқаро ва миллий методикалар қўлланилади. Инсектицидлар учун Abbott (1925) ва Henderson–Tilton (1955) формулалари, фунгицидлар учун EPPO стандартлари, дала тажрибаларининг статистик таҳлилида Доспехов Б.А. услубияти кенг тарқалган.`),
-    p(`Таъсир этувчи модда ${meta.activeIngredients} гуруҳига мансуб препаратлар бўйича мавжуд адабиётлар уларнинг мақсадли зарарли организмларга нисбатан юқори фаоллигини кўрсатади. Ушбу тадқиқот шу маълумотларни маҳаллий шароитда текширишга қаратилган.`),
+    heading("2. Адабиётлар шарҳи"),
+    p(
+      `Ўсимликларни ҳимоя қилиш воситаларининг биологик самарадорлигини баҳолашда халқаро ва миллий методикалар ` +
+        `қўлланилади. Зараркунандаларга қарши препаратлар учун Abbott (1925) ва Henderson–Tilton (1955) формулалари, ` +
+        `касалликларга қарши воситалар учун EPPO стандартлари, бегона ўтларга қарши гербицидлар учун давлат гербицид ` +
+        `синов методикаси, дала тажрибаларининг статистик таҳлилида эса Доспехов Б.А. услубияти кенг қўлланилади.`,
+      { indent: true },
+    ),
+    p(
+      `Таъсир этувчи модда ${meta.activeIngredients} асосидаги препаратлар бўйича адабиёт маълумотлари уларнинг мақсадли ` +
+        `зарарли организмларга нисбатан юқори биологик фаоллигини кўрсатади. Ушбу тадқиқот шу самарадорликни маҳаллий ` +
+        `тупроқ-иқлим шароитида текширишга қаратилган.`,
+      { indent: true },
+    ),
   );
 
-  // --- 6. СИНОВ БАЁНОМАСИ ---
+  // === 3. СИНОВ БАЁНОМАСИ ===
+  children.push(heading("3. Синов баёномаси"));
   children.push(
-    heading(6, "Синов баёномаси"),
-    labelValue("Препарат номи", meta.preparatName),
-    labelValue("Таъсир этувчи модда(лар)", meta.activeIngredients),
-    labelValue("Препарат шакли", meta.preparatForm),
-    labelValue("Аниқланган препарат тури", report.typeNameUz + (report.detection.matchedIngredient ? ` (${report.detection.matchedIngredient} бўйича)` : "")),
-    labelValue("Ишлаб чиқарувчи фирма", meta.manufacturer),
-    labelValue("Экин / нав", `${meta.crop} / ${meta.variety}`),
-    labelValue("Зарарли организм", meta.targetOrganism),
-    labelValue("Сарф меъёри", meta.applicationRate),
-    labelValue("Эталон препарат", meta.referenceName),
-    labelValue("Ишчи эритма меъёри", meta.workingSolution),
-    labelValue("Кузатиш кунлари", days.join(", ") + " кун"),
+    field("3.1.", "Воситани рўйхатга олиш учун талабгор ташкилот номи, давлати", `${meta.applicantOrg || meta.manufacturer}${meta.country ? `, ${meta.country}` : ""}`),
+    field("3.2.", "Рўйхатга олиш учун берилган савдо номи", meta.tradeName || meta.preparatName),
+    field("3.3.", "Таъсир этувчи моддаси", meta.activeIngredients),
+    field("3.4.", "Препарат шакли", meta.preparatForm),
+    field("3.5.", "Қўлланиладиган зарарли организм номи", meta.targetOrganism),
+    field("3.6.", "Синов ўтказиш жойи ва хўжалик номи", meta.site),
+    field("3.7.", "Синов ўтказилган муддат", meta.trialDate),
+    field("3.8.", "Синов ўтказилаётган экин тури, нави", `${meta.crop}${meta.variety ? `, ${meta.variety}` : ""}`),
+    field("3.9.", "Зарарли организм мавжудлиги бўйича лаборатория хулосаси", meta.labConclusion || "—"),
+    field("3.10.", "Андоза (эталон) восита номи, шакли, таъсир этувчи моддаси, сарф меъёри", meta.referenceFullDesc || meta.referenceName),
+    field("3.11.", "Синов воситасининг сарф меъёри (ишчи эритма)", `${meta.applicationRate}${meta.workingSolution ? `; ${meta.workingSolution}` : ""}`),
+    field("3.12.", "Тажриба тури", meta.experimentType || DEFAULTS.experimentType),
+    field("3.13.", "Фойдаланилган жиҳоз ёки ускуна тури, маркаси", meta.testEquipment || "—"),
+    field("3.14.", "Воситани қўллаш усули", meta.applicationMethod || DEFAULTS.applicationMethod),
+    field("3.15.", "Синов даврида ҳаво ҳарорати, шамол тезлиги ва нисбий намлик", meta.weather),
   );
-  if (report.detection.needsConfirmation) {
-    children.push(p("Эслатма: препарат тури таъсир этувчи модда бўйича автоматик аниқланмади ва фойдаланувчи томонидан қўлбола киритилди.", { italics: true }));
+
+  // === 4. МЕТОДИКА ===
+  children.push(
+    heading("4. Синов ўтказиш жойи ва услублари (методикаси)"),
+    p(
+      `${meta.preparatName} препарати устида олиб борилган тажрибаларнинг биологик самарадорлиги давлат синов ` +
+        `методикаси, ҳосилдорлик эса Б.А.Доспехов (1985) усулида олиб борилди. Ҳисоблаш методикаси: ` +
+        `${report.efficacyMethodLabel}.`,
+      { indent: true },
+    ),
+    p("Тажриба тизими:", { bold: true, after: 60 }),
+  );
+  report.efficacyRows.forEach((r, i) => {
+    const label = r.isControl ? "(ишлов ўтказилмаган)" : r.isReference ? "(андоза)" : "";
+    children.push(p(`${i + 1}. ${r.variant} ${label}`.trim(), { size: 22, after: 40 }));
+  });
+
+  // 1-жадвал: организмлар
+  if (report.organisms && report.organisms.length) {
+    children.push(p("1-жадвал", { align: AlignmentType.RIGHT, size: 20, after: 40 }));
+    children.push(p(`Тажриба майдонларида учрайдиган асосий ${meta.targetOrganism.toLowerCase()}`, { bold: true, align: AlignmentType.CENTER, size: 22 }));
+    const rows = [
+      new TableRow({
+        tableHeader: true,
+        children: [
+          cell("№", { bold: true, shade: "e8e8e8" }),
+          cell("Организм номи", { bold: true, shade: "e8e8e8", align: AlignmentType.LEFT }),
+          cell("Лотинча номи", { bold: true, shade: "e8e8e8" }),
+          cell("1 м² даги сони (ишловгача)", { bold: true, shade: "e8e8e8" }),
+        ],
+      }),
+      ...report.organisms.map(
+        (o, i) =>
+          new TableRow({
+            children: [
+              cell(String(i + 1)),
+              cell(o.name, { align: AlignmentType.LEFT }),
+              cell(o.latin || "—", { align: AlignmentType.LEFT }),
+              cell(fmt(o.before, 1)),
+            ],
+          }),
+      ),
+    ];
+    children.push(new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows }));
   }
 
-  // --- 7. ТАДҚИҚОТ ЎТКАЗИШ ШАРОИТИ ---
+  // === 5. НАТИЖАЛАР ===
+  children.push(heading("5. Тажриба (тадқиқот) натижалари"));
+  children.push(p("2-жадвал", { align: AlignmentType.RIGHT, size: 20, after: 40 }));
   children.push(
-    heading(7, "Тадқиқот ўтказиш шароити"),
-    labelValue("Синов жойи", meta.site),
-    labelValue("Синов санаси", meta.trialDate),
-    labelValue("Об-ҳаво шароити", meta.weather),
-    p(`Тажриба дала шароитида, тасодифий блокли схемада, такрорлар бўйича жойлаштирилди. Агротехник тадбирлар минтақа учун қабул қилинган стандарт талаблар асосида бажарилди.`),
+    p(`${meta.preparatName} препаратининг ${meta.targetOrganism}га қарши биологик самарадорлиги, ${meta.site} шароитида`, {
+      bold: true,
+      align: AlignmentType.CENTER,
+      size: 22,
+    }),
   );
 
-  // --- 8. ТАДҚИҚОТ МЕТОДИКАСИ ---
-  children.push(
-    heading(8, "Тадқиқот методикаси"),
-    p(`Биологик самарадорлик қуйидаги методика бўйича ҳисобланди: ${report.efficacyMethodLabel}.`),
-    p(`Дала ҳисоблари ${days.join(", ")}-кунларда олиб борилди. Ҳар бир вариантда зарарли организм сони (ёки касаллик/бегона ўт кўрсаткичи) аниқланиб, назорат варианти билан таққосланди. Ҳосилдорлик натижалари дисперсион таҳлил (ANOVA) усулида, НСР₀.₀₅ (энг кичик ишончли фарқ) ҳисоблаш билан баҳоланди.`),
-    p("Барча самарадорлик ва статистик кўрсаткичлар фақат далада олинган ўлчов маълумотлари асосида ҳисобланган.", { italics: true }),
-  );
-
-  // --- 9. ТАЖРИБА НАТИЖАЛАРИ (хом сонлар) ---
-  children.push(heading(9, "Тажриба натижалари"));
-  if (report.countRows && report.countRows.length) {
-    children.push(p("9.1-жадвал. Зарарли организм сони (дала ҳисоблари).", { bold: true }));
-    const header = ["Вариант", "Ишловгача", ...days.map((d) => `${d}-кун`)];
-    const rows = report.countRows.map((r) => [
-      cell(r.variant, { align: AlignmentType.LEFT, bold: r.isControl }),
-      cell(fmt(r.before, 0)),
-      ...days.map((d) => cell(fmt(r.byDay[d], 0))),
-    ]);
-    children.push(table(header, rows));
+  if (report.detailed && report.detailed.periods.length) {
+    children.push(buildDetailedTable(report));
   } else {
-    children.push(p("Дала ҳисоблари самарадорлик жадвалларида келтирилган."));
+    // counts/disease учун оддийроқ жадвал (вариант × кун)
+    children.push(buildEfficacyTable(report));
   }
 
-  // --- 10. БИОЛОГИК САМАРАДОРЛИК ЖАДВАЛЛАРИ ---
-  children.push(heading(10, "Биологик самарадорлик жадваллари"));
-  children.push(p(`10.1-жадвал. ${meta.targetOrganism}га қарши биологик самарадорлик, %. Методика: ${report.efficacyMethodLabel}.`, { bold: true }));
-  {
-    const header = ["Вариант", ...days.map((d) => `${d}-кун, %`), "Ўртача, %"];
-    const rows = report.efficacyRows.map((r) => [
-      cell(r.variant + (r.isReference ? " (эталон)" : ""), { align: AlignmentType.LEFT, bold: r.isControl }),
-      ...days.map((d) => cell(r.isControl ? "—" : fmt(r.byDay[d], 1))),
-      cell(r.isControl ? "—" : fmt(r.mean, 1), { bold: true }),
-    ]);
-    children.push(table(header, rows));
-  }
-
-  // График: самарадорлик (энг юқори ўртачали ноназорат вариант)
-  const bestTreated = report.efficacyRows
+  // График: самарадорлик
+  const best = report.efficacyRows
     .filter((r) => !r.isControl && r.mean != null)
     .sort((a, b) => (b.mean ?? 0) - (a.mean ?? 0))[0];
-  if (bestTreated) {
-    const buf = await efficacyBar(days, days.map((d) => bestTreated.byDay[d]), {
-      title: `Биологик самарадорлик — ${bestTreated.variant}, %`,
+  if (best) {
+    const buf = await efficacyBar(report.days, report.days.map((d) => best.byDay[d]), {
+      title: `Биологик самарадорлик — ${best.variant}, %`,
     });
-    children.push(await chartImage(buf));
-    children.push(caption(`1-расм. «${bestTreated.variant}» варианти бўйича биологик самарадорлик динамикаси.`));
+    children.push(await chart(buf));
+    children.push(caption(`1-расм. «${best.variant}» варианти бўйича биологик самарадорлик динамикаси.`));
   }
 
-  // График: зараркунанда динамикаси (назорат vs энг яхши вариант) — фақат counts бўлса
-  if (report.countRows && bestTreated) {
-    const ctrl = report.countRows.find((r) => r.isControl);
-    const treated = report.countRows.find((r) => r.variant === bestTreated.variant);
-    if (ctrl && treated) {
-      const buf = await dynamicsLine(
-        days,
-        [
-          { label: "Назорат", values: days.map((d) => ctrl.byDay[d]) },
-          { label: treated.variant, values: days.map((d) => treated.byDay[d]) },
-        ],
-        { title: "Зарарли организм сони динамикаси", ylabel: "дона" },
-      );
-      children.push(await chartImage(buf));
-      children.push(caption("2-расм. Назорат ва тажриба вариантларида зарарли организм сони динамикаси."));
+  // Матнли таҳлил
+  if (report.detailed) {
+    const om = report.detailed.overallMeanRow;
+    const sentences: string[] = [];
+    for (const nv of nonControl) {
+      const perPeriod = report.detailed.periods
+        .map((p2) => `${p2.day} кундан кейин – ${fmt(p2.meanRow.byVariant[nv]?.pct, 1)}%`)
+        .join(", ");
+      sentences.push(`${nv} қўлланганда самарадорлик: ${perPeriod}; ўртача ${report.detailed.periods.length}-ҳисобда – ${fmt(om.byVariant[nv]?.pct, 1)}%.`);
     }
+    sentences.forEach((s) => children.push(p(s, { indent: true })));
   }
 
-  // --- 11. ҲОСИЛДОРЛИК НАТИЖАЛАРИ ---
-  children.push(heading(11, "Ҳосилдорлик натижалари"));
+  // 3-жадвал: ҳосилдорлик
   if (report.yieldRows && report.yieldRows.length) {
-    const maxReps = Math.max(...report.yieldRows.map((r) => r.reps.length));
-    const header = ["Вариант", ...Array.from({ length: maxReps }, (_, i) => `${i + 1}-такр.`), `Ўртача, ${report.yieldUnit ?? ""}`, "Назоратга нисбатан, %"];
-    const rows = report.yieldRows.map((r) => [
-      cell(r.variant, { align: AlignmentType.LEFT, bold: r.isControl }),
-      ...Array.from({ length: maxReps }, (_, i) => cell(fmt(r.reps[i], 1))),
-      cell(fmt(r.mean, 1), { bold: true }),
-      cell(r.increaseVsControlPct == null ? "—" : `+${fmt(r.increaseVsControlPct, 1)}`),
-    ]);
-    children.push(p(`11.1-жадвал. Ҳосилдорлик натижалари (${report.yieldUnit ?? ""}).`, { bold: true }));
-    children.push(table(header, rows));
+    children.push(p("3-жадвал", { align: AlignmentType.RIGHT, size: 20, after: 40 }));
+    children.push(p(`${meta.preparatName} препаратининг ${meta.crop} ҳосилдорлигига таъсири`, { bold: true, align: AlignmentType.CENTER, size: 22 }));
+    const ctrl = report.yieldRows.find((r) => r.isControl);
+    const ctrlMean = ctrl?.mean ?? null;
+    const rows = [
+      new TableRow({
+        tableHeader: true,
+        children: [
+          cell("Вариант", { bold: true, shade: "e8e8e8", align: AlignmentType.LEFT }),
+          cell(`Ҳосилдорлик, ${report.yieldUnit ?? "ц/га"}`, { bold: true, shade: "e8e8e8" }),
+          cell(`Қўшимча ҳосил, ${report.yieldUnit ?? "ц/га"}`, { bold: true, shade: "e8e8e8" }),
+        ],
+      }),
+      ...report.yieldRows.map((r) => {
+        const extra = r.isControl || ctrlMean == null || r.mean == null ? null : r.mean - ctrlMean;
+        return new TableRow({
+          children: [
+            cell(r.variant, { align: AlignmentType.LEFT, bold: r.isControl }),
+            cell(fmt(r.mean, 1)),
+            cell(r.isControl ? "—" : fmt(extra, 1)),
+          ],
+        });
+      }),
+    ];
+    children.push(new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows }));
 
-    const buf = await yieldBar(
-      report.yieldRows.map((r) => r.variant),
-      report.yieldRows.map((r) => r.mean ?? 0),
-      { title: `Ҳосилдорлик, ${report.yieldUnit ?? ""}` },
-    );
-    children.push(await chartImage(buf));
-    children.push(caption("3-расм. Вариантлар бўйича ўртача ҳосилдорлик."));
+    const buf = await yieldBar(report.yieldRows.map((r) => r.variant), report.yieldRows.map((r) => r.mean ?? 0), {
+      title: `Ҳосилдорлик, ${report.yieldUnit ?? "ц/га"}`,
+    });
+    children.push(await chart(buf));
+    children.push(caption("2-расм. Вариантлар бўйича ўртача ҳосилдорлик."));
+  }
 
-    if (report.yieldAnova) {
-      const a = report.yieldAnova;
-      children.push(p("11.2-жадвал. Ҳосилдорлик дисперсион таҳлили (ANOVA) кўрсаткичлари.", { bold: true }));
-      const arows = [
-        [cell("Умумий ўртача", { align: AlignmentType.LEFT }), cell(fmt(a.grandMean, 2))],
-        [cell("НСР₀.₀₅ (энг кичик ишончли фарқ)", { align: AlignmentType.LEFT }), cell(fmt(a.lsd05, 2))],
-        [cell("Ўртача хатоси, Sx", { align: AlignmentType.LEFT }), cell(fmt(a.seMean, 2))],
-        [cell("Айирма хатоси, Sd", { align: AlignmentType.LEFT }), cell(fmt(a.seDiff, 2))],
-        [cell("Вариация коэффициенти, CV%", { align: AlignmentType.LEFT }), cell(fmt(a.cvPct, 2))],
-        [cell("Тажриба аниқлиги, P%", { align: AlignmentType.LEFT }), cell(fmt(a.precisionPct, 2))],
-        [cell("F-мезон (ҳисобланган)", { align: AlignmentType.LEFT }), cell(fmt(a.fValue, 2))],
-        [cell("P-қиймат", { align: AlignmentType.LEFT }), cell(fmt(a.pValue, 4))],
-      ];
-      children.push(table(["Кўрсаткич", "Қиймат"], arows));
+  // === 6. ХУЛОСА ВА ТАВСИЯЛАР ===
+  const overallBestPct = report.detailed
+    ? report.detailed.overallMeanRow.byVariant[bestNonControl(report)]?.pct
+    : best?.mean;
+  children.push(
+    heading("6. Хулоса ва тавсиялар"),
+    p(
+      `1. Олиб борилган тажриба натижаларига кўра ${meta.preparatName} (${meta.applicationRate}) препарати ${meta.targetOrganism}га ` +
+        `қарши ${fmt(overallBestPct, 1)}% биологик самарадорлик кўрсатди.`,
+      { indent: true },
+    ),
+    p(
+      `2. Препарат мақбул меъёрда қўлланганда токсик (фитотоксик) ҳолатлар кузатилмади; ${meta.crop} ҳосили ва ҳосил ` +
+        `элементларига ножўя таъсир қилмади.`,
+      { indent: true },
+    ),
+  );
+  if (report.yieldRows && report.yieldRows.length) {
+    const ctrl = report.yieldRows.find((r) => r.isControl);
+    const treated = report.yieldRows.find((r) => !r.isControl && r.increaseVsControlPct != null);
+    if (ctrl?.mean != null && treated?.mean != null) {
       children.push(
         p(
-          a.significant
-            ? `Дисперсион таҳлил натижаларига кўра вариантлар ўртасидаги фарқ статистик жиҳатдан ишончли (P < 0,05). Ўртачалар айирмаси НСР₀.₀₅ = ${fmt(a.lsd05, 2)} дан катта бўлган вариантлар бир-биридан ишончли фарқ қилади.`
-            : `Дисперсион таҳлил натижаларига кўра вариантлар ўртасидаги фарқ статистик жиҳатдан ишончли эмас (P ≥ 0,05).`,
+          `3. Зарарли организм камайиши ҳисобига назоратга нисбатан қўшимча ${fmt(treated.mean - ctrl.mean, 1)} ` +
+            `${report.yieldUnit ?? "ц/га"} ҳосил олинди.`,
+          { indent: true },
         ),
       );
     }
+  }
+  children.push(
+    p(
+      `4. Тажриба натижаларидан келиб чиққан ҳолда ${meta.preparatName} (${meta.applicationRate}) препаратини ` +
+        `Давлат рўйхатига киритиш тавсия этилади.`,
+      { indent: true },
+    ),
+  );
+
+  // === 7. АДАБИЁТЛАР ===
+  children.push(heading("7. Фойдаланилган адабиётлар рўйхати"));
+  const refs = (meta.references || "")
+    .split(/\n+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (refs.length) {
+    refs.forEach((r, i) => children.push(p(/^\d/.test(r) ? r : `${i + 1}. ${r}`, { size: 22, after: 40 })));
   } else {
-    children.push(p("Ҳосилдорлик маълумотлари киритилмаган."));
+    [
+      "Доспехов Б.А. Методика полевого опыта. – Москва, 1985.",
+      "Методические указания по государственным испытаниям гербицидов на посевах сельскохозяйственных культур. – Ташкент, 2007.",
+      "EPPO Standards PP1 — Efficacy evaluation of plant protection products.",
+    ].forEach((r, i) => children.push(p(`${i + 1}. ${r}`, { size: 22, after: 40 })));
   }
 
-  // --- 12. ИЛМИЙ МУҲОКАМА ---
-  const meanOfBest = bestTreated?.mean;
+  // === 8. РЎЙХАТГА КИРИТИШ ХУЛОСАСИ ===
+  children.push(new Paragraph({ children: [new PageBreak()] }));
+  children.push(p("Ўтказилган давлат синовлари якуни бўйича хулоса ва тавсиялар", { bold: true, align: AlignmentType.CENTER, size: 24, after: 140 }));
   children.push(
-    heading(12, "Илмий муҳокама"),
-    p(`Олиб борилган дала тажрибалари натижасида «${meta.preparatName}» препаратининг ${meta.targetOrganism}га қарши биологик самарадорлиги аниқланди. ${bestTreated ? `Энг юқори кўрсаткич «${bestTreated.variant}» вариантида кузатилди — ўртача ${fmt(meanOfBest, 1)}%.` : ""}`),
-    p(`Самарадорлик кузатиш даврида ўзгариб турди, бу препаратнинг таъсир механизми ва об-ҳаво шароитлари билан боғлиқ. Олинган натижалар ${report.efficacyMethodLabel} методикаси асосида ҳисобланиб, эталон препарат (${meta.referenceName}) кўрсаткичлари билан таққосланди.`),
+    p(`Ўсимликларни ҳимоя қилиш воситаси савдо номи – ${meta.tradeName || meta.preparatName} (${meta.applicationRate})`, { size: 22 }),
+    p(`Таъсир этувчи моддаси – ${meta.activeIngredients}`, { size: 22 }),
+    p(`Талабгор ташкилот – ${meta.applicantOrg || meta.manufacturer}${meta.country ? `, ${meta.country}` : ""}`, { size: 22 }),
+    p(`Синовни ўтказган ташкилот – ${institute}`, { size: 22 }),
+    p(`Синов жойи ва муддати – ${meta.site}, ${meta.trialDate}`, { size: 22, after: 140 }),
+  );
+  {
+    const rows = [
+      new TableRow({
+        tableHeader: true,
+        children: [
+          cell("Зарарли организм", { bold: true, shade: "e8e8e8" }),
+          cell("Сарф меъёри, л/га", { bold: true, shade: "e8e8e8" }),
+          cell("Биологик самарадорлик, %", { bold: true, shade: "e8e8e8" }),
+          cell("Қўллаш усули", { bold: true, shade: "e8e8e8" }),
+          cell("Макс. ишлов сони", { bold: true, shade: "e8e8e8" }),
+          cell("Кутиш вақти, кун", { bold: true, shade: "e8e8e8" }),
+          cell("Фитотоксик хусусияти", { bold: true, shade: "e8e8e8" }),
+        ],
+      }),
+      new TableRow({
+        children: [
+          cell(meta.targetOrganism, { align: AlignmentType.LEFT }),
+          cell(meta.applicationRate),
+          cell(fmt(overallBestPct, 1)),
+          cell(meta.applicationMethod || DEFAULTS.applicationMethod),
+          cell(meta.maxTreatments || DEFAULTS.maxTreatments),
+          cell(meta.waitingPeriod || DEFAULTS.waitingPeriod),
+          cell(meta.phytotoxicity || DEFAULTS.phytotoxicity),
+        ],
+      }),
+    ];
+    children.push(new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows }));
+  }
+  children.push(
+    p(
+      `Тавсия: ${meta.preparatName} ${meta.applicationRate} сарф-меъёрда ${meta.targetOrganism}га қарши қўллаш учун ` +
+        `«Рўйхат»га киритиш тавсия этилади.`,
+      { after: 200, indent: true },
+    ),
   );
 
-  // --- 13. ХУЛОСА ---
+  // === ДАЛОЛАТНОМА ===
+  children.push(new Paragraph({ children: [new PageBreak()] }));
   children.push(
-    heading(13, "Хулоса"),
-    p(`«${meta.preparatName}» препарати (${meta.activeIngredients}) ${meta.crop} экинида ${meta.targetOrganism}га қарши ${meta.applicationRate} меъёрида ${bestTreated ? `ўртача ${fmt(meanOfBest, 1)}% ` : ""}биологик самарадорлик кўрсатди.`),
-    report.yieldRows && report.yieldRows.some((r) => (r.increaseVsControlPct ?? 0) > 0)
-      ? p(`Препарат қўлланилган вариантларда ҳосилдорлик назоратга нисбатан ошди, бу препаратнинг қишлоқ хўжалиги нуқтаи назаридан фойдалилигини кўрсатади.`)
-      : p(`Ҳосилдорлик кўрсаткичлари жадвалда келтирилган.`),
+    p("ЎСИМЛИКЛАРНИ ҲИМОЯ ҚИЛИШ ВОСИТАСИНИНГ СИНОВ НАТИЖАЛАРИ БЎЙИЧА", { bold: true, align: AlignmentType.CENTER, size: 24 }),
+    p("ДАЛОЛАТНОМА", { bold: true, align: AlignmentType.CENTER, size: 26, after: 160 }),
+    p(`Сана: ${meta.actDate || meta.trialDate}`, { size: 22 }),
+    p(`Препарат номи ва шакли: ${meta.preparatName}, ${meta.preparatForm} (${meta.activeIngredients})`, { size: 22 }),
+    p(`Синов ўтказилган экин тури: ${meta.crop}${meta.variety ? `, ${meta.variety}` : ""}`, { size: 22 }),
+    p(`Зарарли организм тури: ${meta.targetOrganism}`, { size: 22 }),
+    p(`Препаратнинг сарф меъёри ва ишчи эритма: ${meta.applicationRate}${meta.workingSolution ? `; ${meta.workingSolution}` : ""}`, { size: 22 }),
+    p(`Қўллаш усули ва жиҳоз: ${meta.applicationMethod || DEFAULTS.applicationMethod}${meta.testEquipment ? `, ${meta.testEquipment}` : ""}`, { size: 22 }),
+    p(`Экиннинг агротехник ҳолати, ривожланиш фазаси: ${meta.cropPhase || "—"}`, { size: 22 }),
+    p(`Препаратнинг биологик самарадорлиги (%): ${fmt(overallBestPct, 1)}%`, { size: 22 }),
+    p(`Хулосалар, камчиликлар ва тавсиялар: ${meta.phytotoxicity && meta.phytotoxicity !== DEFAULTS.phytotoxicity ? meta.phytotoxicity : "камчиликлар кузатилмади"}`, { size: 22, after: 200 }),
+    p("Далолатномани тузувчилар (Ф.И.Ш., имзоси):", { bold: true, after: 100 }),
   );
-
-  // --- 14. ТАВСИЯ ---
-  children.push(
-    heading(14, "Тавсия"),
-    p(`«${meta.preparatName}» препаратини ${meta.crop} экинида ${meta.targetOrganism}га қарши ${meta.applicationRate} меъёрида, ишчи эритма ${meta.workingSolution} ҳисобида қўллаш тавсия этилади. Ишлов бериш зарарли организм ривожланишининг дастлабки босқичларида ўтказилиши мақсадга мувофиқ.`),
-  );
-
-  // --- 15. ДАВЛАТ РЎЙХАТИГА КИРИТИШ БЎЙИЧА ЯКУНИЙ ХУЛОСА ---
-  children.push(
-    heading(15, "Давлат рўйхатига киритиш бўйича якуний хулоса"),
-    p(`Олиб борилган давлат синови натижаларига асосан «${meta.preparatName}» препаратини ${meta.crop} экинида ${meta.targetOrganism}га қарши қўллаш учун Ўзбекистон Республикасида рўйхатдан ўтказиш бўйича ижобий хулоса берилади. Якуний қарор ваколатли давлат органи томонидан барча синов маълумотлари таҳлили асосида қабул қилинади.`, { italics: true }),
-  );
-
-  // --- 16. ДАЛОЛАТНОМА ---
-  children.push(
-    heading(16, "Далолатнома"),
-    p(`Ушбу далолатнома «${meta.preparatName}» препаратининг давлат синови ${meta.site}да ${meta.trialDate} санасида ўтказилганлигини тасдиқлайди.`),
-    p("Синовда иштирок этган илмий ходимлар:", { spacingAfter: 240 }),
-    p(meta.staff || "________________________________", { spacingAfter: 240 }),
-    p("Имзолар: _______________     _______________     _______________", { spacingAfter: 240 }),
-    p(`Сана: ${meta.trialDate}`, {}),
-  );
+  (meta.staff || "")
+    .split(/[,;\n]+/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .forEach((s) => children.push(p(`${s}   ___________________`, { size: 22, after: 80 })));
 
   const doc = new Document({
-    creator: "Ўсимликлар карантини ва ҳимояси агентлиги — синов ҳисобот генератори",
+    creator: institute,
     title: `${meta.preparatName} — давлат синови ҳисоботи`,
     sections: [
       {
-        properties: {
-          page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 850 } },
-        },
+        properties: { page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 850 } } },
         children,
       },
     ],
   });
 
   return Packer.toBuffer(doc);
+}
+
+// --- ёрдамчилар ---
+
+function bestNonControl(report: ComputedReport): string {
+  const d = report.detailed;
+  if (!d) return "";
+  let best = d.nonControlVariants[0] ?? "";
+  let bestPct = -Infinity;
+  for (const nv of d.nonControlVariants) {
+    const pct = d.overallMeanRow.byVariant[nv]?.pct ?? -Infinity;
+    if (pct > bestPct) {
+      bestPct = pct;
+      best = nv;
+    }
+  }
+  return best;
+}
+
+/** Батафсил натижалар жадвали (организм × давр, ишловгача/назорат/вариантлар дона+%). */
+function buildDetailedTable(report: ComputedReport): Table {
+  const d = report.detailed!;
+  const nv = d.nonControlVariants;
+  const totalCols = 3 + nv.length * 2;
+
+  const rows: TableRow[] = [];
+
+  // Сарлавҳа — 2 қатор
+  rows.push(
+    new TableRow({
+      tableHeader: true,
+      children: [
+        cell("Организм", { bold: true, shade: "e8e8e8", rowSpan: 2, align: AlignmentType.LEFT }),
+        cell("Ишловгача, 1 м²", { bold: true, shade: "e8e8e8", rowSpan: 2 }),
+        cell("Назорат, 1 м²", { bold: true, shade: "e8e8e8", rowSpan: 2 }),
+        ...nv.map((name) => cell(name, { bold: true, shade: "e8e8e8", colSpan: 2 })),
+      ],
+    }),
+    new TableRow({
+      tableHeader: true,
+      children: nv.flatMap(() => [
+        cell(d.unit, { bold: true, shade: "f0f0f0" }),
+        cell("%", { bold: true, shade: "f0f0f0" }),
+      ]),
+    }),
+  );
+
+  const rowFor = (r: DetailRow, bold = false): TableRow =>
+    new TableRow({
+      children: [
+        cell(r.organism, { align: AlignmentType.LEFT, bold }),
+        cell(fmt(r.before, 1), { bold }),
+        cell(fmt(r.control, 1), { bold }),
+        ...nv.flatMap((name) => [
+          cell(fmt(r.byVariant[name]?.density, 1), { bold }),
+          cell(fmt(r.byVariant[name]?.pct, 1), { bold }),
+        ]),
+      ],
+    });
+
+  for (const per of d.periods) {
+    rows.push(
+      new TableRow({
+        children: [cell(`${per.day} кундан кейин`, { bold: true, shade: "f7f7f7", colSpan: totalCols, align: AlignmentType.LEFT })],
+      }),
+    );
+    for (const r of per.rows) rows.push(rowFor(r));
+    rows.push(rowFor(per.meanRow, true));
+  }
+  rows.push(rowFor(d.overallMeanRow, true));
+
+  return new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows });
+}
+
+/** Оддий самарадорлик жадвали (вариант × кун) — counts/disease учун. */
+function buildEfficacyTable(report: ComputedReport): Table {
+  const rows = [
+    new TableRow({
+      tableHeader: true,
+      children: [
+        cell("Вариант", { bold: true, shade: "e8e8e8", align: AlignmentType.LEFT }),
+        ...report.days.map((dd) => cell(`${dd}-кун, %`, { bold: true, shade: "e8e8e8" })),
+        cell("Ўртача, %", { bold: true, shade: "e8e8e8" }),
+      ],
+    }),
+    ...report.efficacyRows.map(
+      (r) =>
+        new TableRow({
+          children: [
+            cell(r.variant + (r.isReference ? " (андоза)" : ""), { align: AlignmentType.LEFT, bold: r.isControl }),
+            ...report.days.map((dd) => cell(r.isControl ? "—" : fmt(r.byDay[dd], 1))),
+            cell(r.isControl ? "—" : fmt(r.mean, 1), { bold: true }),
+          ],
+        }),
+    ),
+  ];
+  return new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows });
 }

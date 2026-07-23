@@ -34,6 +34,8 @@ const ACTIVE_INGREDIENTS: Record<Exclude<PesticideType, "unknown">, string[]> = 
     "metsulfuron", "sulfosulfuron", "trifluralin", "prometryn", "prometrin",
     "s-metolachlor", "metolachlor", "clopyralid", "fluazifop", "haloxyfop",
     "oxyfluorfen", "dicamba", "bentazone", "propaquizafop", "florasulam",
+    "fluroxypyr", "fluroksipir", "tribenuron-methyl", "aminopyralid", "topramezone",
+    "mesotrione", "isoproturon", "chlorsulfuron", "imazamox", "diflufenican",
   ],
   insektitsid: [
     "imidacloprid", "imidakloprid", "thiamethoxam", "acetamiprid", "atsetamiprid",
