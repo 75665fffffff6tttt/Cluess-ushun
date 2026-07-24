@@ -141,7 +141,8 @@
     disease: "Касаллик ривожланиш индекси бўйича (EPPO / давлат методикаси)",
     weed: "Бегона ўтлар зичлиги бўйича (давлат гербицид синов методикаси)",
     population: "Популяция камайиши бўйича",
-    defoliation: "Барг тўкилиши / қуриш даражаси бўйича"
+    defoliation: "Барг тўкилиши / қуриш даражаси бўйича",
+    storage_scale: "Касаллик ривожланиш даражаси шкаласи бўйича (сақлаш синови методикаси)"
   };
 
   // ===================== ҲИСОБЛАШ ОРКЕСТРАТОРИ =====================
@@ -159,7 +160,7 @@
     var control = findControl(input);
     if (!control) warnings.push("Назорат (ишловсиз) варианти аниқланмади — камида битта вариантни назорат деб белгиланг.");
 
-    var efficacyRows = [], countRows = null, methodKey = det.meta.method, detailed = null, organisms = null;
+    var efficacyRows = [], countRows = null, methodKey = det.meta.method, detailed = null, organisms = null, storage = null;
     var A = input.assessment;
 
     if (A.counts) {
@@ -226,6 +227,26 @@
       nonControl.forEach(function (nv) { overall.byVariant[nv] = { density: avg(periods.map(function (p) { return p.meanRow.byVariant[nv].density; })), pct: avg(periods.map(function (p) { return p.meanRow.byVariant[nv].pct; })) }; });
       detailed = { unit: "дона/м²", nonControlVariants: nonControl, controlVariant: control, periods: periods, overallMeanRow: overall };
       organisms = spp.map(function (s) { return { name: s, before: (W.before && W.before[s] != null) ? W.before[s] : null }; });
+    } else if (A.storage) {
+      // Мева/сабзавот сақлаш синови: турғорлик, касалланмаган %, касаллик даражаси/оғирлиги
+      methodKey = "storage_scale";
+      var S = A.storage, diseases = S.diseases.filter(function (d) { return d.trim(); });
+      var ctrlS = control ? S.data[control] : null;
+      var srows = input.variants.map(function (v) {
+        var d = S.data[v.name] || { firmness: null, healthy: null, byDisease: {} };
+        var isC = !!v.isControl || v.name === control, perD = {};
+        diseases.forEach(function (dis) {
+          var cur = d.byDisease[dis] || { severity: null, massLost: null };
+          var ctrlSev = (ctrlS && ctrlS.byDisease[dis]) ? ctrlS.byDisease[dis].severity : null;
+          var eff = (!isC && ctrlSev != null && ctrlSev > 0 && cur.severity != null) ? round((ctrlSev - cur.severity) / ctrlSev * 100) : null;
+          perD[dis] = { severity: cur.severity, massLost: cur.massLost, efficacyPct: eff };
+        });
+        return { variant: v.name, isControl: isC, isReference: !!v.isReference, firmness: d.firmness, healthy: d.healthy, byDisease: perD };
+      });
+      storage = { diseases: diseases, rows: srows, controlVariant: control };
+      // энг яхши вариантни аниқлаш учун efficacyRows (mean = касалланмаган %)
+      srows.forEach(function (r) { efficacyRows.push({ variant: r.variant, isControl: r.isControl, isReference: r.isReference, byDay: {}, mean: r.isControl ? null : r.healthy }); });
+      days = [];
     } else {
       warnings.push("Дала ҳисоблари киритилмаган — самарадорлик жадвали бўш.");
     }
@@ -248,7 +269,7 @@
     return {
       typeKey: det.key, typeNameUz: det.meta.name, detection: det, days: days, controlVariant: control,
       countRows: countRows, efficacyRows: efficacyRows, efficacyMethodLabel: METHOD_LABELS[methodKey] || methodKey,
-      detailed: detailed, organisms: organisms, yieldRows: yieldRows, yieldUnit: input.yieldUnit, yieldAnova: yieldAnova, warnings: warnings
+      detailed: detailed, organisms: organisms, storage: storage, yieldRows: yieldRows, yieldUnit: input.yieldUnit, yieldAnova: yieldAnova, warnings: warnings
     };
   }
 
@@ -359,6 +380,36 @@
     return TABLE(rows);
   }
 
+  // Сақлаш синови жадваллари (1-жадвал: турғорлик/касалланиш даражаси; 2-жадвал: касалланган оғирлик)
+  function storageTables(ch, rep, meta) {
+    var st = rep.storage, dis = st.diseases, rows = st.rows;
+    function tedModda(r) { return r.isControl ? "—" : (r.isReference ? (meta.referenceFullDesc || meta.referenceName || "андоза") : meta.activeIngredients); }
+    // 1-жадвал
+    ch.push(P("1-жадвал", { align: "right", size: TBL, after: 40 }),
+      P(meta.crop + " маҳсулотини сақлашда " + meta.preparatName + " препаратининг самарадорлиги (турғорлик ва касалланиш даражаси)", { bold: true, align: "center", size: BODY }));
+    var h1 = [CELL("Вариантлар", { bold: true, shade: "e8e8e8", align: "left" }), CELL("Таъсир этувчи моддаси", { bold: true, shade: "e8e8e8" }), CELL("Мевалар турғорлиги, кг/см²", { bold: true, shade: "e8e8e8" }), CELL("Касалланмаган мевалар, %", { bold: true, shade: "e8e8e8" })];
+    dis.forEach(function (d) { h1.push(CELL("Касалланиш даражаси, % (" + d + ")", { bold: true, shade: "e8e8e8" })); });
+    var r1 = [new D.TableRow({ tableHeader: true, children: h1 })];
+    rows.forEach(function (r) {
+      var c = [CELL(r.variant + (r.isReference ? " (андоза)" : (r.isControl ? " (назорат)" : "")), { align: "left", bold: r.isControl }), CELL(tedModda(r), { size: 18 }), CELL(fmt(r.firmness, 2)), CELL(fmt(r.healthy, 1))];
+      dis.forEach(function (d) { c.push(CELL(fmt(r.byDisease[d].severity, 1))); });
+      r1.push(new D.TableRow({ children: c }));
+    });
+    ch.push(TABLE(r1));
+    // 2-жадвал — касалланган мевалар оғирлиги
+    ch.push(P("", { after: 120 }), P("2-жадвал", { align: "right", size: TBL, after: 40 }),
+      P(meta.crop + " маҳсулотини сақлашда касалланган мевалар оғирлиги ва биологик самарадорлик", { bold: true, align: "center", size: BODY }));
+    var h2 = [CELL("Вариантлар", { bold: true, shade: "e8e8e8", align: "left" })];
+    dis.forEach(function (d) { h2.push(CELL("Касалланган мевалар, кг (" + d + ")", { bold: true, shade: "e8e8e8" })); h2.push(CELL("Самарадорлик, % (" + d + ")", { bold: true, shade: "e8e8e8" })); });
+    var r2 = [new D.TableRow({ tableHeader: true, children: h2 })];
+    rows.forEach(function (r) {
+      var c = [CELL(r.variant + (r.isReference ? " (андоза)" : (r.isControl ? " (назорат)" : "")), { align: "left", bold: r.isControl })];
+      dis.forEach(function (d) { c.push(CELL(fmt(r.byDisease[d].massLost, 2))); c.push(CELL(r.isControl ? "—" : fmt(r.byDisease[d].efficacyPct, 1))); });
+      r2.push(new D.TableRow({ children: c }));
+    });
+    ch.push(TABLE(r2));
+  }
+
   function bestNonControl(rep) {
     if (!rep.detailed) return "";
     var best = rep.detailed.nonControlVariants[0] || "", bp = -Infinity;
@@ -460,8 +511,11 @@
 
     // 4. Методика
     ch.push(H("3. Синов ўтказиш жойи ва услублари (методикаси)"),
-      P(meta.preparatName + " препарати биологик самарадорлиги давлат синов методикаси, ҳосилдорлик Б.А.Доспехов (1985) усулида олиб борилди. Ҳисоблаш методикаси: " + rep.efficacyMethodLabel + ".", { indent: true }),
-      P("Тажриба тизими:", { bold: true, after: 60 }));
+      P(meta.preparatName + " препарати биологик самарадорлиги давлат синов методикаси, ҳосилдорлик Б.А.Доспехов (1985) усулида олиб борилди. Ҳисоблаш методикаси: " + rep.efficacyMethodLabel + ".", { indent: true }));
+    if (rep.storage) {
+      ch.push(P("Касаллик ривожланиш даражаси R = Σ(a·b)·100/(N·K) формуласи бўйича, касалланган мевалар улуши эса Km = (A−a)·100/A формуласи бўйича аниқланди. Бунда: a·b — зарарланган органларнинг балл ифодасига кўпайтмаси йиғиндиси; N — кузатилган намуналар умумий сони; K — шкаладаги энг юқори балл; A — соғлом мевалар оғирлиги; a — касалланган мевалар оғирлиги. Биологик самарадорлик назорат вариантига нисбатан касалланиш даражасининг камайиши бўйича баҳоланди.", { indent: true }));
+    }
+    ch.push(P("Тажриба тизими:", { bold: true, after: 60 }));
     rep.efficacyRows.forEach(function (r, i) { var lb = r.isControl ? "(ишлов ўтказилмаган)" : (r.isReference ? "(андоза)" : ""); ch.push(P((i + 1) + ". " + r.variant + " " + lb, { size: BODY, after: 40 })); });
     if (rep.organisms && rep.organisms.length) {
       ch.push(P("1-жадвал", { align: "right", size: TBL, after: 40 }), P("Тажриба майдонларида учрайдиган асосий " + meta.targetOrganism.toLowerCase(), { bold: true, align: "center", size: BODY }));
@@ -471,9 +525,14 @@
     }
 
     // 5. Натижалар
-    ch.push(H("4. Тажриба (тадқиқот) натижалари"), P("2-жадвал", { align: "right", size: TBL, after: 40 }),
-      P(meta.preparatName + " препаратининг " + meta.targetOrganism + "га қарши биологик самарадорлиги", { bold: true, align: "center", size: BODY }));
-    ch.push(rep.detailed && rep.detailed.periods.length ? detailTable(rep) : effTable(rep));
+    ch.push(H("4. Тажриба (тадқиқот) натижалари"));
+    if (rep.storage) {
+      storageTables(ch, rep, meta);
+    } else {
+      ch.push(P("2-жадвал", { align: "right", size: TBL, after: 40 }),
+        P(meta.preparatName + " препаратининг " + meta.targetOrganism + "га қарши биологик самарадорлиги", { bold: true, align: "center", size: BODY }));
+      ch.push(rep.detailed && rep.detailed.periods.length ? detailTable(rep) : effTable(rep));
+    }
 
     return { children: ch, institute: institute, nonControl: nonControl, overallBest: overallBest };
   }
@@ -485,7 +544,7 @@
     var best = rep.efficacyRows.filter(function (r) { return !r.isControl && r.mean != null; }).sort(function (a, b) { return (b.mean || 0) - (a.mean || 0); })[0];
 
     var chartPromises = [];
-    if (best) chartPromises.push(svgToPng(barSvg("Биологик самарадорлик — " + best.variant + ", %", rep.days.map(String), rep.days.map(function (d) { return best.byDay[d]; }), 100)).then(function (png) { return { type: "eff", png: png, variant: best.variant }; }));
+    if (best && rep.days.length && !rep.storage) chartPromises.push(svgToPng(barSvg("Биологик самарадорлик — " + best.variant + ", %", rep.days.map(String), rep.days.map(function (d) { return best.byDay[d]; }), 100)).then(function (png) { return { type: "eff", png: png, variant: best.variant }; }));
     if (rep.yieldRows && rep.yieldRows.length) {
       var ymax = Math.max.apply(null, rep.yieldRows.map(function (r) { return r.mean || 0; })) * 1.2 || 1;
       chartPromises.push(svgToPng(barSvg("Ҳосилдорлик, " + (rep.yieldUnit || "ц/га"), rep.yieldRows.map(function (r) { return r.variant.length > 14 ? r.variant.slice(0, 13) + "…" : r.variant; }), rep.yieldRows.map(function (r) { return r.mean || 0; }), ymax)).then(function (png) { return { type: "yield", png: png }; }));
@@ -501,6 +560,12 @@
         built.nonControl.forEach(function (nv) {
           var per = rep.detailed.periods.map(function (p) { return p.day + " кундан кейин – " + fmt(p.meanRow.byVariant[nv].pct, 1) + "%"; }).join(", ");
           ch.push(P(nv + " қўлланганда самарадорлик: " + per + "; ўртача " + rep.detailed.periods.length + "-ҳисобда – " + fmt(rep.detailed.overallMeanRow.byVariant[nv].pct, 1) + "%.", { indent: true }));
+        });
+      }
+      if (rep.storage) {
+        rep.storage.rows.filter(function (r) { return !r.isControl; }).forEach(function (r) {
+          var parts = rep.storage.diseases.map(function (d) { return d + " бўйича касалланиш даражаси " + fmt(r.byDisease[d].severity, 1) + "% (самарадорлик " + fmt(r.byDisease[d].efficacyPct, 1) + "%)"; }).join(", ");
+          ch.push(P(r.variant + " қўлланганда касалланмаган мевалар улуши " + fmt(r.healthy, 1) + "%, мевалар турғорлиги " + fmt(r.firmness, 2) + " кг/см² бўлди; " + parts + ".", { indent: true }));
         });
       }
 

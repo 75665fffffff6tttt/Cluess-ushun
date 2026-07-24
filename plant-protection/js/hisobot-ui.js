@@ -26,7 +26,8 @@
     ],
     species: ["Курмак", "Шўра"],
     mode: "counts", manualMode: false, detection: null,
-    counts: {}, disease: {}, weeds: {}, weedBefore: {}, yieldData: {}, yieldReps: 4
+    counts: {}, disease: {}, weeds: {}, weedBefore: {}, yieldData: {}, yieldReps: 4,
+    storageDiseases: ["Кулранг чириш", "Антракноз"], storage: {}
   };
 
   function getDays() {
@@ -79,6 +80,7 @@
 
   function renderFieldData() {
     var box = $("fielddata"); box.innerHTML = "";
+    if (state.mode === "storage") { renderStorage(box); return; }
     var days = getDays();
     if (!days.length) { box.innerHTML = '<p class="hb-warn">Аввал кузатиш кунларини киритинг.</p>'; return; }
 
@@ -133,6 +135,39 @@
         box.appendChild(tbl3.table);
       });
     }
+  }
+
+  // ---------- сақлаш синови (мева/сабзавот) ----------
+  function renderStorage(box) {
+    var dz = state.storageDiseases;
+    var dWrap = document.createElement("div"); dWrap.className = "hb-species-row";
+    dWrap.innerHTML = '<span class="hb-lbl">Касалликлар:</span>';
+    dz.forEach(function (d, i) {
+      var inp = document.createElement("input"); inp.className = "hb-inp hb-sp"; inp.value = d;
+      inp.addEventListener("input", function () { state.storageDiseases[i] = inp.value; });
+      dWrap.appendChild(inp);
+    });
+    dWrap.appendChild(btn("+ касаллик", function () { state.storageDiseases.push("Касаллик " + (dz.length + 1)); renderFieldData(); }));
+    if (dz.length > 1) dWrap.appendChild(btn("− касаллик", function () { state.storageDiseases.pop(); renderFieldData(); }));
+    box.appendChild(dWrap);
+
+    var headers = ["Вариант", "Турғорлик, кг/см²", "Касалланмаган, %"];
+    dz.forEach(function (d) { headers.push(d + " — даража, %"); headers.push(d + " — касал. кг"); });
+    var tbl = mkTable(headers);
+    state.variants.forEach(function (v) {
+      state.storage[v.id] = state.storage[v.id] || { firmness: "", healthy: "", byDisease: {} };
+      var s = state.storage[v.id];
+      var tr = document.createElement("tr"); tr.appendChild(td(v.name));
+      var fc = document.createElement("td"); fc.appendChild(cellInput(s.firmness, function (val) { s.firmness = val; })); tr.appendChild(fc);
+      var hc = document.createElement("td"); hc.appendChild(cellInput(s.healthy, function (val) { s.healthy = val; })); tr.appendChild(hc);
+      dz.forEach(function (d) {
+        s.byDisease[d] = s.byDisease[d] || { severity: "", massLost: "" };
+        var sc = document.createElement("td"); sc.appendChild(cellInput(s.byDisease[d].severity, function (val) { s.byDisease[d].severity = val; })); tr.appendChild(sc);
+        var mc = document.createElement("td"); mc.appendChild(cellInput(s.byDisease[d].massLost, function (val) { s.byDisease[d].massLost = val; })); tr.appendChild(mc);
+      });
+      tbl.body.appendChild(tr);
+    });
+    box.appendChild(tbl.table);
   }
 
   function renderYield() {
@@ -195,6 +230,14 @@
         dz[nameById[v.id]] = { byDayIndex: bd };
       });
       assessment.disease = dz;
+    } else if (state.mode === "storage") {
+      var sdata = {}, sdis = state.storageDiseases.filter(function (s) { return s.trim(); });
+      state.variants.forEach(function (v) {
+        var cur = state.storage[v.id] || { firmness: "", healthy: "", byDisease: {} }, byD = {};
+        sdis.forEach(function (d) { var c = (cur.byDisease || {})[d] || {}; byD[d] = { severity: num(c.severity), massLost: num(c.massLost) }; });
+        sdata[nameById[v.id]] = { firmness: num(cur.firmness), healthy: num(cur.healthy), byDisease: byD };
+      });
+      assessment.storage = { diseases: sdis, data: sdata };
     } else {
       var density = {}, before = {};
       state.variants.forEach(function (v) {
@@ -223,15 +266,29 @@
     h += '<span class="hb-tag">Методика: ' + rep.efficacyMethodLabel + '</span>';
     h += '<span class="hb-tag">Назорат: ' + (rep.controlVariant || "—") + '</span></div>';
     if (rep.warnings.length) { h += '<ul class="hb-warnbox">'; rep.warnings.forEach(function (w) { h += '<li>' + w + '</li>'; }); h += '</ul>'; }
-    h += '<h3 class="hb-h3">Биологик самарадорлик, %</h3><div class="hb-scroll"><table class="hb-table"><thead><tr><th>Вариант</th>';
-    rep.days.forEach(function (d) { h += '<th>' + d + '-кун</th>'; });
-    h += '<th>Ўртача</th></tr></thead><tbody>';
-    rep.efficacyRows.forEach(function (r) {
-      h += '<tr' + (r.isControl ? ' class="hb-ctrl"' : '') + '><td class="hb-td-name">' + r.variant + (r.isReference ? ' (эталон)' : '') + '</td>';
-      rep.days.forEach(function (d) { h += '<td>' + (r.isControl ? "—" : (r.byDay[d] == null ? "—" : r.byDay[d])) + '</td>'; });
-      h += '<td><b>' + (r.isControl ? "—" : (r.mean == null ? "—" : r.mean)) + '</b></td></tr>';
-    });
-    h += '</tbody></table></div>';
+    if (rep.storage) {
+      var dz = rep.storage.diseases;
+      h += '<h3 class="hb-h3">Сақлаш синови натижалари</h3><div class="hb-scroll"><table class="hb-table"><thead><tr><th>Вариант</th><th>Турғорлик, кг/см²</th><th>Касалланмаган, %</th>';
+      dz.forEach(function (d) { h += '<th>' + d + ' даража, %</th><th>' + d + ' самар., %</th>'; });
+      h += '</tr></thead><tbody>';
+      rep.storage.rows.forEach(function (r) {
+        h += '<tr' + (r.isControl ? ' class="hb-ctrl"' : '') + '><td class="hb-td-name">' + r.variant + (r.isReference ? ' (эталон)' : '') + '</td>';
+        h += '<td>' + (r.firmness == null ? "—" : r.firmness) + '</td><td><b>' + (r.healthy == null ? "—" : r.healthy) + '</b></td>';
+        dz.forEach(function (d) { h += '<td>' + (r.byDisease[d].severity == null ? "—" : r.byDisease[d].severity) + '</td><td>' + (r.isControl ? "—" : (r.byDisease[d].efficacyPct == null ? "—" : r.byDisease[d].efficacyPct)) + '</td>'; });
+        h += '</tr>';
+      });
+      h += '</tbody></table></div>';
+    } else {
+      h += '<h3 class="hb-h3">Биологик самарадорлик, %</h3><div class="hb-scroll"><table class="hb-table"><thead><tr><th>Вариант</th>';
+      rep.days.forEach(function (d) { h += '<th>' + d + '-кун</th>'; });
+      h += '<th>Ўртача</th></tr></thead><tbody>';
+      rep.efficacyRows.forEach(function (r) {
+        h += '<tr' + (r.isControl ? ' class="hb-ctrl"' : '') + '><td class="hb-td-name">' + r.variant + (r.isReference ? ' (эталон)' : '') + '</td>';
+        rep.days.forEach(function (d) { h += '<td>' + (r.isControl ? "—" : (r.byDay[d] == null ? "—" : r.byDay[d])) + '</td>'; });
+        h += '<td><b>' + (r.isControl ? "—" : (r.mean == null ? "—" : r.mean)) + '</b></td></tr>';
+      });
+      h += '</tbody></table></div>';
+    }
     if (rep.yieldRows && rep.yieldRows.length) {
       h += '<h3 class="hb-h3">Ҳосилдорлик (' + (rep.yieldUnit || "") + ')</h3><div class="hb-scroll"><table class="hb-table"><thead><tr><th>Вариант</th><th>Ўртача</th><th>Назоратга нисбатан, %</th></tr></thead><tbody>';
       rep.yieldRows.forEach(function (r) { h += '<tr><td class="hb-td-name">' + r.variant + '</td><td>' + (r.mean == null ? "—" : r.mean) + '</td><td>' + (r.increaseVsControlPct == null ? "—" : "+" + r.increaseVsControlPct) + '</td></tr>'; });
