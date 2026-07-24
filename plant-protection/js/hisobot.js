@@ -531,8 +531,9 @@
       if (refs.length) refs.forEach(function (r, i) { ch.push(P(/^\d/.test(r) ? r : (i + 1) + ". " + r, { size: BODY, after: 40 })); });
       else ["Доспехов Б.А. Методика полевого опыта. – Москва, 1985.", "Методические указания по государственным испытаниям гербицидов. – Ташкент, 2007.", "EPPO Standards PP1 — Efficacy evaluation of plant protection products."].forEach(function (r, i) { ch.push(P((i + 1) + ". " + r, { size: BODY, after: 40 })); });
 
-      // 8. 1-форма — рўйхатга олиш бўйича хулоса ва тавсиялар
-      ch.push(new D.Paragraph({ children: [new D.PageBreak()] }), P("1-форма", { align: "right", after: 40 }),
+      // 8. 1-форма — рўйхатга олиш бўйича хулоса ва тавсиялар (АЛБОМ бўлими)
+      var form1 = [];
+      form1.push(P("1-форма", { align: "right", after: 40 }),
         P("Рўйхатга олиш учун синовлар якуни бўйича хулоса ва тавсиялар", { bold: true, align: "center", size: BODY, after: 160 }),
         P("1. Ўсимликларни ҳимоя қилиш воситасининг савдо номи – " + (meta.tradeName || meta.preparatName), { indent: true, after: 40 }),
         P("2. Таъсир этувчи моддаси – " + meta.activeIngredients + ".", { indent: true, after: 40 }),
@@ -543,8 +544,8 @@
       // Расмий 9 устунли жадвал (устун кенгликлари билан)
       var recText = "«" + meta.preparatName + "» " + meta.applicationRate + " сарф-меъёрда " + meta.crop + " экинида " + meta.targetOrganism + "га қарши рўйхатга олишга тавсия этилсин.";
       var tavHead = "Тавсиялар: «рўйхатга олишга тавсия этилсин (сарф меъёри ва бошқалар)». «Рўйхатга олиш учун синовлар давом эттирилсин» (сарф меъёри ва бошқалар). «Кейинги рўйхатга олиш учун синовлар рад этилсин» (сабаблари кўрсатилади).";
-      var cw = [700, 900, 1000, 1050, 1550, 950, 850, 850, 1789];
-      ch.push(new D.Table({
+      var cw = [900, 1250, 1500, 1550, 2600, 1400, 1250, 1300, 2800];
+      form1.push(new D.Table({
         width: { size: 100, type: "pct" }, borders: TBORDERS, columnWidths: cw,
         rows: [
           new D.TableRow({ tableHeader: true, children: [
@@ -571,10 +572,10 @@
           ] })
         ]
       }));
-      ch.push(P("", { after: 200 }));
+      form1.push(P("", { after: 200 }));
 
       // Имзолар
-      ch.push(new D.Table({
+      form1.push(new D.Table({
         width: { size: 100, type: "pct" },
         borders: { top: { style: "none" }, bottom: { style: "none" }, left: { style: "none" }, right: { style: "none" }, insideHorizontal: { style: "none" }, insideVertical: { style: "none" } },
         rows: [new D.TableRow({ children: [
@@ -586,7 +587,15 @@
         ] })]
       }));
 
-      var doc = new D.Document({ creator: institute, title: meta.preparatName + " — давлат синови ҳисоботи", sections: [{ properties: { page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 850 } } }, children: ch }] });
+      var doc = new D.Document({
+        creator: institute, title: meta.preparatName + " — давлат синови ҳисоботи",
+        sections: [
+          // Асосий ҳисобот — тик (portrait)
+          { properties: { page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 850 } } }, children: ch },
+          // 1-форма — албом (landscape)
+          { properties: { page: { size: { orientation: "landscape", width: 11906, height: 16838 }, margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } } }, children: form1 }
+        ]
+      });
       return D.Packer.toBlob(doc);
     });
   }
