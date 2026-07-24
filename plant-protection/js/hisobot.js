@@ -457,6 +457,8 @@
       }));
     }
     ch.push(P(city + " – 2026 й.", { align: "center", bold: true, before: 300, after: 400 }),
+      // Кенгаш баённомаси + Илмий котиб — алоҳида 2-варақда
+      new D.Paragraph({ children: [new D.PageBreak()] }),
       P(institute + " илмий кенгашида №___-сонли баённома, «___»________ 2026 йилда кўриб чиқилди.", { align: "center", after: 200 }),
       P("Илмий котиб, қ.х.ф.д.                                        " + (meta.scientificSecretary || "____________"), { align: "center" }),
       new D.Paragraph({ children: [new D.PageBreak()] }));
