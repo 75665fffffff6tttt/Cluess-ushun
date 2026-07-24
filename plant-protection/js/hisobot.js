@@ -325,7 +325,8 @@
     o = o || {};
     var b = { top: { style: "single", size: 4, color: "000000" }, bottom: { style: "single", size: 4, color: "000000" }, left: { style: "single", size: 4, color: "000000" }, right: { style: "single", size: 4, color: "000000" } };
     var mg = o.compact ? { top: 20, bottom: 20, left: 50, right: 50 } : { top: 40, bottom: 40, left: 80, right: 80 };
-    return new D.TableCell({ borders: b, width: o.width ? { size: o.width, type: "dxa" } : undefined, columnSpan: o.colSpan, rowSpan: o.rowSpan, shading: o.shade ? { fill: o.shade } : undefined, verticalAlign: "center", margins: mg,
+    // Жадвал катакларида фон ранги ишлатилмайди (оқ фон)
+    return new D.TableCell({ borders: b, width: o.width ? { size: o.width, type: "dxa" } : undefined, columnSpan: o.colSpan, rowSpan: o.rowSpan, verticalAlign: "center", margins: mg,
       children: [new D.Paragraph({ alignment: o.align || "center", spacing: { after: 0, line: o.compact ? 200 : 240 }, children: [new D.TextRun({ text: text, bold: o.bold, font: FONT, size: o.size || TBL })] })] });
   }
   var TBORDERS = {
