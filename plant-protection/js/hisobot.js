@@ -608,12 +608,25 @@
         }
       }
 
-      // 6. Хулоса
-      ch.push(H("5. Хулоса ва тавсиялар"),
-        P("1. Олиб борилган тажриба натижаларига кўра " + meta.preparatName + " (" + meta.applicationRate + ") препарати " + meta.targetOrganism + "га қарши " + fmt(overallBest, 1) + "% биологик самарадорлик кўрсатди.", { indent: true }),
-        P("2. Препарат мақбул меъёрда қўлланганда токсик (фитотоксик) ҳолатлар кузатилмади.", { indent: true }));
-      if (rep.yieldRows) { var ctrl2 = rep.yieldRows.filter(function (r) { return r.isControl; })[0], tr = rep.yieldRows.filter(function (r) { return !r.isControl && r.increaseVsControlPct != null; })[0]; if (ctrl2 && tr && ctrl2.mean != null && tr.mean != null) ch.push(P("3. Назоратга нисбатан қўшимча " + fmt(tr.mean - ctrl2.mean, 1) + " " + (rep.yieldUnit || "ц/га") + " ҳосил олинди.", { indent: true })); }
-      ch.push(P("4. Тажриба натижаларидан келиб чиққан ҳолда " + meta.preparatName + " (" + meta.applicationRate + ") препаратини Давлат рўйхатига киритиш тавсия этилади.", { indent: true }));
+      // 6. Хулоса — синов турига мос
+      ch.push(H("5. Хулоса ва тавсиялар"));
+      if (rep.storage) {
+        // ——— Сақлаш синови учун хулоса ———
+        var sBest = rep.storage.rows.filter(function (r) { return !r.isControl; }).sort(function (a, b) { return (b.healthy || 0) - (a.healthy || 0); })[0];
+        var sCtrl = rep.storage.rows.filter(function (r) { return r.isControl; })[0];
+        var disTxt = sBest ? rep.storage.diseases.map(function (d) { return d + " бўйича касалланиш даражаси " + fmt(sBest.byDisease[d].severity, 1) + "% (самарадорлик " + fmt(sBest.byDisease[d].efficacyPct, 1) + "%)"; }).join(", ") : "";
+        var n = 0;
+        ch.push(P((++n) + ". " + meta.crop + " маҳсулотини сақлашда " + meta.preparatName + " (" + meta.applicationRate + ") воситаси қўлланганда касалланмаган мевалар улуши " + fmt(sBest ? sBest.healthy : overallBest, 1) + "%, мевалар турғорлиги " + (sBest ? fmt(sBest.firmness, 2) + " кг/см²" : "юқори даражада") + " бўлди; " + disTxt + ".", { indent: true }));
+        if (sCtrl) ch.push(P((++n) + ". Назорат вариантида (ишлов берилмаган) касалланмаган мевалар улуши атиги " + fmt(sCtrl.healthy, 1) + "% ни ташкил этди — бу восита сақлаш давомида микробиологик фаолликни пасайтириши ва маҳсулот сифатини сақлашга ёрдам беришини кўрсатади.", { indent: true }));
+        ch.push(P((++n) + ". Восита мақбул меъёрда қўлланганда фитотоксик таъсир, ёт ҳид ёки қолдиқ модда кузатилмади; уни қўллаш технологияси оддий ва иқтисодий жиҳатдан мақбул.", { indent: true }));
+        ch.push(P((++n) + ". Тажриба натижаларидан келиб чиққан ҳолда " + meta.preparatName + " (" + meta.applicationRate + ") воситасини " + meta.crop + " маҳсулотини сақлашда " + meta.targetOrganism + "нинг олдини олиш учун Давлат рўйхатига киритиш тавсия этилади.", { indent: true }));
+      } else {
+        // ——— Дала синови учун хулоса ———
+        ch.push(P("1. Олиб борилган тажриба натижаларига кўра " + meta.preparatName + " (" + meta.applicationRate + ") препарати " + meta.targetOrganism + "га қарши " + fmt(overallBest, 1) + "% биологик самарадорлик кўрсатди.", { indent: true }),
+          P("2. Препарат мақбул меъёрда қўлланганда токсик (фитотоксик) ҳолатлар кузатилмади.", { indent: true }));
+        if (rep.yieldRows) { var ctrl2 = rep.yieldRows.filter(function (r) { return r.isControl; })[0], tr = rep.yieldRows.filter(function (r) { return !r.isControl && r.increaseVsControlPct != null; })[0]; if (ctrl2 && tr && ctrl2.mean != null && tr.mean != null) ch.push(P("3. Назоратга нисбатан қўшимча " + fmt(tr.mean - ctrl2.mean, 1) + " " + (rep.yieldUnit || "ц/га") + " ҳосил олинди.", { indent: true })); }
+        ch.push(P("4. Тажриба натижаларидан келиб чиққан ҳолда " + meta.preparatName + " (" + meta.applicationRate + ") препаратини Давлат рўйхатига киритиш тавсия этилади.", { indent: true }));
+      }
 
       // 7. Адабиётлар — ГОСТ 7.1-2003 талабида, синов турига мос
       ch.push(H("6. Фойдаланилган адабиётлар рўйхати"));
