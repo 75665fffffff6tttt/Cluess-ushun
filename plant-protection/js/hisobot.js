@@ -431,11 +431,11 @@
     ch.push(P(meta.committee || "ЎЗБЕКИСТОН РЕСПУБЛИКАСИ ОЗИҚ-ОВҚАТ МАҲСУЛОТЛАРИ ХАВФСИЗЛИГИ ҚЎМИТАСИ", { align: "center", bold: true, after: 60 }),
       P("ЎСИМЛИКЛАР КАРАНТИНИ ВА ҲИМОЯСИ АГЕНТЛИГИ", { align: "center", bold: true, after: 60 }),
       P(institute, { align: "center", bold: true, after: 360 }),
-      // Тасдиқлаш блоки — марказда (шаблондагидек)
-      P("«ТАСДИҚЛАЙМАН»", { align: "center", bold: true, after: 40 }),
-      P(institute + " директори", { align: "center", after: 40 }),
-      P("________________ " + (meta.director || "____________"), { align: "center", after: 40 }),
-      P("«___»__________ 2026 йил", { align: "center", after: 500 }),
+      // Тасдиқлаш блоки — ўнг бурчакда
+      P("«ТАСДИҚЛАЙМАН»", { align: "right", bold: true, after: 40 }),
+      P(institute + " директори", { align: "right", after: 40 }),
+      P("________________ " + (meta.director || "____________"), { align: "right", after: 40 }),
+      P("«___»__________ 2026 йил", { align: "right", after: 500 }),
       P("ИЛМИЙ ҲИСОБОТ", { align: "center", bold: true, size: 32, after: 260 }),
       P(meta.crop + " экинида " + meta.targetOrganism + "га қарши " + meta.preparatName + " препаратининг биологик самарадорлигини рўйхатга олиш учун синов натижалари", { align: "center", after: 600 }));
     // Маъсул ижрочи / Ижрочилар
