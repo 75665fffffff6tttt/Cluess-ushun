@@ -324,8 +324,9 @@
   function CELL(text, o) {
     o = o || {};
     var b = { top: { style: "single", size: 4, color: "000000" }, bottom: { style: "single", size: 4, color: "000000" }, left: { style: "single", size: 4, color: "000000" }, right: { style: "single", size: 4, color: "000000" } };
-    return new D.TableCell({ borders: b, width: o.width ? { size: o.width, type: "dxa" } : undefined, columnSpan: o.colSpan, rowSpan: o.rowSpan, shading: o.shade ? { fill: o.shade } : undefined, verticalAlign: "center", margins: { top: 40, bottom: 40, left: 80, right: 80 },
-      children: [new D.Paragraph({ alignment: o.align || "center", spacing: { after: 0, line: 240 }, children: [new D.TextRun({ text: text, bold: o.bold, font: FONT, size: o.size || TBL })] })] });
+    var mg = o.compact ? { top: 20, bottom: 20, left: 50, right: 50 } : { top: 40, bottom: 40, left: 80, right: 80 };
+    return new D.TableCell({ borders: b, width: o.width ? { size: o.width, type: "dxa" } : undefined, columnSpan: o.colSpan, rowSpan: o.rowSpan, shading: o.shade ? { fill: o.shade } : undefined, verticalAlign: "center", margins: mg,
+      children: [new D.Paragraph({ alignment: o.align || "center", spacing: { after: 0, line: o.compact ? 200 : 240 }, children: [new D.TextRun({ text: text, bold: o.bold, font: FONT, size: o.size || TBL })] })] });
   }
   var TBORDERS = {
     top: { style: "single", size: 4, color: "000000" }, bottom: { style: "single", size: 4, color: "000000" },
@@ -598,46 +599,49 @@
 
       // 8. 1-форма — рўйхатга олиш бўйича хулоса ва тавсиялар (АЛБОМ бўлими)
       var form1 = [];
-      form1.push(P("1-форма", { align: "right", after: 40 }),
-        P("Рўйхатга олиш учун синовлар якуни бўйича хулоса ва тавсиялар", { bold: true, align: "center", size: BODY, after: 160 }),
-        P("1. Ўсимликларни ҳимоя қилиш воситасининг савдо номи – " + (meta.tradeName || meta.preparatName), { indent: true, after: 40 }),
-        P("2. Таъсир этувчи моддаси – " + meta.activeIngredients + ".", { indent: true, after: 40 }),
-        P("3. Рўйхатга олиш учун талабгор ташкилотнинг номи, давлати – " + (meta.applicantOrg || meta.manufacturer || "—") + (meta.country ? ", " + meta.country : "") + ".", { indent: true, after: 40 }),
-        P("4. Рўйхатга олиш учун синовларни ўтказган ташкилотнинг номи – " + institute + ".", { indent: true, after: 40 }),
-        P("5. Рўйхатга олиш учун синов ўтказилган жой ва муддати – " + meta.site + "да " + meta.trialDate + ".", { indent: true, after: 160 }));
+      var L = { align: "left", after: 30, line: 240, size: TBL };  // ихчам банд
+      form1.push(P("1-форма", { align: "right", after: 30 }),
+        P("Рўйхатга олиш учун синовлар якуни бўйича хулоса ва тавсиялар", { bold: true, align: "center", size: BODY, after: 120 }),
+        P("1. Ўсимликларни ҳимоя қилиш воситасининг савдо номи – " + (meta.tradeName || meta.preparatName), L),
+        P("2. Таъсир этувчи моддаси – " + meta.activeIngredients + ".", L),
+        P("3. Рўйхатга олиш учун талабгор ташкилотнинг номи, давлати – " + (meta.applicantOrg || meta.manufacturer || "—") + (meta.country ? ", " + meta.country : "") + ".", L),
+        P("4. Рўйхатга олиш учун синовларни ўтказган ташкилотнинг номи – " + institute + ".", L),
+        P("5. Рўйхатга олиш учун синов ўтказилган жой ва муддати – " + meta.site + "да " + meta.trialDate + ".", { align: "left", after: 120, line: 240, size: TBL }));
 
-      // Расмий 9 устунли жадвал (устун кенгликлари билан)
+      // Расмий 9 устунли жадвал — албом бетга ихчам жойлашади
       var recText = "«" + meta.preparatName + "» " + meta.applicationRate + " сарф-меъёрда " + meta.crop + " экинида " + meta.targetOrganism + "га қарши рўйхатга олишга тавсия этилсин.";
-      var tavHead = "Тавсиялар: «рўйхатга олишга тавсия этилсин (сарф меъёри ва бошқалар)». «Рўйхатга олиш учун синовлар давом эттирилсин» (сарф меъёри ва бошқалар). «Кейинги рўйхатга олиш учун синовлар рад этилсин» (сабаблари кўрсатилади).";
-      var cw = [900, 1250, 1500, 1550, 2600, 1400, 1250, 1300, 2800];
+      var tavHead = "Тавсиялар: «рўйхатга олишга тавсия этилсин (сарф меъёри ва бошқалар)». «Рўйхатга олиш учун синовлар давом эттирилсин». «Кейинги синовлар рад этилсин» (сабаблари кўрсатилади).";
+      var cw = [950, 1320, 1600, 1650, 2750, 1480, 1320, 1380, 2950]; // сумма ≈ 15400 (албом эни)
+      var HC = { bold: true, shade: "e8e8e8", compact: true, size: 18 };
+      var DC = { compact: true, size: 18 };
       form1.push(new D.Table({
-        width: { size: 100, type: "pct" }, borders: TBORDERS, columnWidths: cw,
+        width: { size: 15400, type: "dxa" }, borders: TBORDERS, columnWidths: cw,
         rows: [
-          new D.TableRow({ tableHeader: true, children: [
-            CELL("Экин тури", { bold: true, shade: "e8e8e8", width: cw[0] }),
-            CELL("Зарарли организм номи", { bold: true, shade: "e8e8e8", width: cw[1] }),
-            CELL("Воситани синовдан ўтган сарф меъёрлари, л(кг)/га", { bold: true, shade: "e8e8e8", width: cw[2] }),
-            CELL("Биологик самарадорлик (%), ҳисоб куни", { bold: true, shade: "e8e8e8", width: cw[3] }),
-            CELL("Воситани қўллаш усули", { bold: true, shade: "e8e8e8", width: cw[4] }),
-            CELL("Қўллаш такрорийлиги", { bold: true, shade: "e8e8e8", width: cw[5] }),
-            CELL("Кутиш муддати, кун", { bold: true, shade: "e8e8e8", width: cw[6] }),
-            CELL("Фитотоксиклик хусусияти", { bold: true, shade: "e8e8e8", width: cw[7] }),
-            CELL(tavHead, { bold: true, shade: "e8e8e8", width: cw[8], align: "left" })
+          new D.TableRow({ cantSplit: true, tableHeader: true, children: [
+            CELL("Экин тури", { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[0] }),
+            CELL("Зарарли организм номи", { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[1] }),
+            CELL("Воситани синовдан ўтган сарф меъёрлари, л(кг)/га", { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[2] }),
+            CELL("Биологик самарадорлик (%), ҳисоб куни", { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[3] }),
+            CELL("Воситани қўллаш усули", { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[4] }),
+            CELL("Қўллаш такрорийлиги", { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[5] }),
+            CELL("Кутиш муддати, кун", { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[6] }),
+            CELL("Фитотоксиклик хусусияти", { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[7] }),
+            CELL(tavHead, { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[8], align: "left" })
           ] }),
-          new D.TableRow({ children: [
-            CELL(meta.crop, { width: cw[0] }),
-            CELL(meta.targetOrganism, { width: cw[1] }),
-            CELL(meta.applicationRate, { width: cw[2] }),
-            CELL(fmt(overallBest, 1), { width: cw[3] }),
-            CELL(meta.applicationMethod || "пуркаш", { width: cw[4], align: "left" }),
-            CELL(meta.maxTreatments ? ("мавсумда " + meta.maxTreatments + " марта") : "мавсумда 1 марта", { width: cw[5] }),
-            CELL(meta.waitingPeriod || "—", { width: cw[6] }),
-            CELL(meta.phytotoxicity || "Йўқ", { width: cw[7] }),
-            CELL(recText, { width: cw[8], align: "left" })
+          new D.TableRow({ cantSplit: true, children: [
+            CELL(meta.crop, { compact: true, size: 18, width: cw[0] }),
+            CELL(meta.targetOrganism, { compact: true, size: 18, width: cw[1] }),
+            CELL(meta.applicationRate, { compact: true, size: 18, width: cw[2] }),
+            CELL(fmt(overallBest, 1), { compact: true, size: 18, width: cw[3] }),
+            CELL(meta.applicationMethod || "пуркаш", { compact: true, size: 18, width: cw[4], align: "left" }),
+            CELL(meta.maxTreatments ? ("мавсумда " + meta.maxTreatments + " марта") : "мавсумда 1 марта", { compact: true, size: 18, width: cw[5] }),
+            CELL(meta.waitingPeriod || "—", { compact: true, size: 18, width: cw[6] }),
+            CELL(meta.phytotoxicity || "Йўқ", { compact: true, size: 18, width: cw[7] }),
+            CELL(recText, { compact: true, size: 18, width: cw[8], align: "left" })
           ] })
         ]
       }));
-      form1.push(P("", { after: 200 }));
+      form1.push(P("", { after: 120 }));
 
       // Имзолар
       form1.push(new D.Table({
@@ -658,7 +662,7 @@
           // Асосий ҳисобот — тик (portrait)
           { properties: { page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 850 } } }, children: ch },
           // 1-форма — албом (landscape)
-          { properties: { page: { size: { orientation: "landscape", width: 11906, height: 16838 }, margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } } }, children: form1 }
+          { properties: { page: { size: { orientation: "landscape", width: 11906, height: 16838 }, margin: { top: 720, bottom: 720, left: 720, right: 720 } } }, children: form1 }
         ]
       });
       return D.Packer.toBlob(doc);
