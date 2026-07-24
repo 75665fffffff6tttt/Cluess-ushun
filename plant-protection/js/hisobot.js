@@ -303,7 +303,7 @@
   function CELL(text, o) {
     o = o || {};
     var b = { top: { style: "single", size: 4, color: "000000" }, bottom: { style: "single", size: 4, color: "000000" }, left: { style: "single", size: 4, color: "000000" }, right: { style: "single", size: 4, color: "000000" } };
-    return new D.TableCell({ borders: b, columnSpan: o.colSpan, rowSpan: o.rowSpan, shading: o.shade ? { fill: o.shade } : undefined, verticalAlign: "center", margins: { top: 40, bottom: 40, left: 80, right: 80 },
+    return new D.TableCell({ borders: b, width: o.width ? { size: o.width, type: "dxa" } : undefined, columnSpan: o.colSpan, rowSpan: o.rowSpan, shading: o.shade ? { fill: o.shade } : undefined, verticalAlign: "center", margins: { top: 40, bottom: 40, left: 80, right: 80 },
       children: [new D.Paragraph({ alignment: o.align || "center", spacing: { after: 0, line: 240 }, children: [new D.TextRun({ text: text, bold: o.bold, font: FONT, size: o.size || TBL })] })] });
   }
   var TBORDERS = {
@@ -531,17 +531,47 @@
       if (refs.length) refs.forEach(function (r, i) { ch.push(P(/^\d/.test(r) ? r : (i + 1) + ". " + r, { size: BODY, after: 40 })); });
       else ["Доспехов Б.А. Методика полевого опыта. – Москва, 1985.", "Методические указания по государственным испытаниям гербицидов. – Ташкент, 2007.", "EPPO Standards PP1 — Efficacy evaluation of plant protection products."].forEach(function (r, i) { ch.push(P((i + 1) + ". " + r, { size: BODY, after: 40 })); });
 
-      // 8. Рўйхат хулосаси
-      ch.push(new D.Paragraph({ children: [new D.PageBreak()] }), P("1-форма", { align: "right", after: 40 }), P("Рўйхатга олиш учун синовлар якуни бўйича хулоса ва тавсиялар", { bold: true, align: "center", size: BODY, after: 140 }),
-        P("Восита савдо номи – " + (meta.tradeName || meta.preparatName) + " (" + meta.applicationRate + ")", { size: BODY }),
-        P("Таъсир этувчи моддаси – " + meta.activeIngredients, { size: BODY }),
-        P("Синовни ўтказган ташкилот – " + institute, { size: BODY }),
-        P("Синов жойи ва муддати – " + meta.site + ", " + meta.trialDate, { size: BODY, after: 140 }));
-      ch.push(TABLE([
-        new D.TableRow({ tableHeader: true, children: [CELL("Зарарли организм", { bold: true, shade: "e8e8e8" }), CELL("Сарф меъёри", { bold: true, shade: "e8e8e8" }), CELL("Биол. самарадорлик, %", { bold: true, shade: "e8e8e8" }), CELL("Қўллаш усули", { bold: true, shade: "e8e8e8" }), CELL("Кутиш вақти, кун", { bold: true, shade: "e8e8e8" }), CELL("Фитотоксиклик", { bold: true, shade: "e8e8e8" })] }),
-        new D.TableRow({ children: [CELL(meta.targetOrganism, { align: "left" }), CELL(meta.applicationRate), CELL(fmt(overallBest, 1)), CELL(meta.applicationMethod || "пуркаш"), CELL(meta.waitingPeriod || "—"), CELL(meta.phytotoxicity || "Кузатилмади")] })
-      ]));
-      ch.push(P("Тавсия: " + meta.preparatName + " " + meta.applicationRate + " сарф-меъёрда " + meta.targetOrganism + "га қарши қўллаш учун «Рўйхат»га киритиш тавсия этилади.", { indent: true, after: 300 }));
+      // 8. 1-форма — рўйхатга олиш бўйича хулоса ва тавсиялар
+      ch.push(new D.Paragraph({ children: [new D.PageBreak()] }), P("1-форма", { align: "right", after: 40 }),
+        P("Рўйхатга олиш учун синовлар якуни бўйича хулоса ва тавсиялар", { bold: true, align: "center", size: BODY, after: 160 }),
+        P("1. Ўсимликларни ҳимоя қилиш воситасининг савдо номи – " + (meta.tradeName || meta.preparatName), { indent: true, after: 40 }),
+        P("2. Таъсир этувчи моддаси – " + meta.activeIngredients + ".", { indent: true, after: 40 }),
+        P("3. Рўйхатга олиш учун талабгор ташкилотнинг номи, давлати – " + (meta.applicantOrg || meta.manufacturer || "—") + (meta.country ? ", " + meta.country : "") + ".", { indent: true, after: 40 }),
+        P("4. Рўйхатга олиш учун синовларни ўтказган ташкилотнинг номи – " + institute + ".", { indent: true, after: 40 }),
+        P("5. Рўйхатга олиш учун синов ўтказилган жой ва муддати – " + meta.site + "да " + meta.trialDate + ".", { indent: true, after: 160 }));
+
+      // Расмий 9 устунли жадвал (устун кенгликлари билан)
+      var recText = "«" + meta.preparatName + "» " + meta.applicationRate + " сарф-меъёрда " + meta.crop + " экинида " + meta.targetOrganism + "га қарши рўйхатга олишга тавсия этилсин.";
+      var tavHead = "Тавсиялар: «рўйхатга олишга тавсия этилсин (сарф меъёри ва бошқалар)». «Рўйхатга олиш учун синовлар давом эттирилсин» (сарф меъёри ва бошқалар). «Кейинги рўйхатга олиш учун синовлар рад этилсин» (сабаблари кўрсатилади).";
+      var cw = [700, 900, 1000, 1050, 1550, 950, 850, 850, 1789];
+      ch.push(new D.Table({
+        width: { size: 100, type: "pct" }, borders: TBORDERS, columnWidths: cw,
+        rows: [
+          new D.TableRow({ tableHeader: true, children: [
+            CELL("Экин тури", { bold: true, shade: "e8e8e8", width: cw[0] }),
+            CELL("Зарарли организм номи", { bold: true, shade: "e8e8e8", width: cw[1] }),
+            CELL("Воситани синовдан ўтган сарф меъёрлари, л(кг)/га", { bold: true, shade: "e8e8e8", width: cw[2] }),
+            CELL("Биологик самарадорлик (%), ҳисоб куни", { bold: true, shade: "e8e8e8", width: cw[3] }),
+            CELL("Воситани қўллаш усули", { bold: true, shade: "e8e8e8", width: cw[4] }),
+            CELL("Қўллаш такрорийлиги", { bold: true, shade: "e8e8e8", width: cw[5] }),
+            CELL("Кутиш муддати, кун", { bold: true, shade: "e8e8e8", width: cw[6] }),
+            CELL("Фитотоксиклик хусусияти", { bold: true, shade: "e8e8e8", width: cw[7] }),
+            CELL(tavHead, { bold: true, shade: "e8e8e8", width: cw[8], align: "left" })
+          ] }),
+          new D.TableRow({ children: [
+            CELL(meta.crop, { width: cw[0] }),
+            CELL(meta.targetOrganism, { width: cw[1] }),
+            CELL(meta.applicationRate, { width: cw[2] }),
+            CELL(fmt(overallBest, 1), { width: cw[3] }),
+            CELL(meta.applicationMethod || "пуркаш", { width: cw[4], align: "left" }),
+            CELL(meta.maxTreatments ? ("мавсумда " + meta.maxTreatments + " марта") : "мавсумда 1 марта", { width: cw[5] }),
+            CELL(meta.waitingPeriod || "—", { width: cw[6] }),
+            CELL(meta.phytotoxicity || "Йўқ", { width: cw[7] }),
+            CELL(recText, { width: cw[8], align: "left" })
+          ] })
+        ]
+      }));
+      ch.push(P("", { after: 200 }));
 
       // Имзолар
       ch.push(new D.Table({
