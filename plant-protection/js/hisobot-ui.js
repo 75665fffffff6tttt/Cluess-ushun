@@ -8,9 +8,10 @@
   var META_KEYS = ["preparatName", "activeIngredients", "preparatForm", "manufacturer", "country",
     "crop", "variety", "targetOrganism", "applicationRate", "referenceName", "workingSolution",
     "site", "trialDate", "laboratory", "staff", "weather",
-    "institute", "director", "protocolNumber", "applicantOrg", "tradeName", "testEquipment",
+    "institute", "director", "reportCity", "scientificSecretary", "deputyDirector",
+    "protocolNumber", "applicantOrg", "tradeName", "testEquipment",
     "applicationMethod", "experimentType", "referenceFullDesc", "labConclusion",
-    "maxTreatments", "waitingPeriod", "phytotoxicity", "cropPhase", "actDate", "references"];
+    "maxTreatments", "waitingPeriod", "phytotoxicity", "cropPhase", "references"];
 
   function $(id) { return document.getElementById(id); }
   function num(s) { if (s == null) return null; s = String(s).trim().replace(",", "."); if (s === "") return null; var v = Number(s); return isFinite(v) ? v : null; }

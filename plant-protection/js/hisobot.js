@@ -282,23 +282,46 @@
   }
 
   // ===================== .DOCX ЯРАТИШ =====================
+  // Расмий шаблон (Flurog_40) бўйича: Times New Roman 14 pt (size 28),
+  // асосий матн икки томонга текисланган (justify), сатр оралиғи 1,5.
   var D = null; // docx global
+  var FONT = "Times New Roman";
+  var BODY = 28;   // 14 pt — асосий матн
+  var TBL = 24;    // 12 pt — жадвал катаклари
+  var HEAD = 28;   // 14 pt — бўлим сарлавҳалари
+  var LINE = 360;  // 1,5 сатр оралиғи
+
   function P(text, o) {
     o = o || {};
-    return new D.Paragraph({ alignment: o.align, spacing: { after: o.after == null ? 120 : o.after, line: 276 }, indent: o.indent ? { firstLine: 480 } : undefined,
-      children: [new D.TextRun({ text: text, bold: o.bold, italics: o.italics, font: "Times New Roman", size: o.size || 24 })] });
+    // асосий матн бандлари икки томонга текисланади; марказ/ўнг талаб қилинса — берилади
+    var align = o.align || (o.indent ? "both" : "left");
+    return new D.Paragraph({ alignment: align, spacing: { before: o.before || 0, after: o.after == null ? 120 : o.after, line: o.line || LINE }, indent: o.indent ? { firstLine: 709 } : undefined,
+      children: [new D.TextRun({ text: text, bold: o.bold, italics: o.italics, font: FONT, size: o.size || BODY })] });
   }
-  function H(text) { return new D.Paragraph({ spacing: { before: 220, after: 140 }, children: [new D.TextRun({ text: text, bold: true, font: "Times New Roman", size: 26 })] }); }
-  function FLD(nnum, label, value) { return new D.Paragraph({ spacing: { after: 80, line: 276 }, children: [new D.TextRun({ text: nnum + " " + label + " – ", font: "Times New Roman", size: 24 }), new D.TextRun({ text: value || "—", bold: true, font: "Times New Roman", size: 24 })] }); }
+  function H(text) { return new D.Paragraph({ alignment: "center", spacing: { before: 260, after: 160 }, keepNext: true, children: [new D.TextRun({ text: text, bold: true, font: FONT, size: HEAD })] }); }
+  function FLD(nnum, label, value) { return new D.Paragraph({ alignment: "both", spacing: { after: 80, line: LINE }, children: [new D.TextRun({ text: nnum + " " + label + " – ", font: FONT, size: BODY }), new D.TextRun({ text: value || "—", bold: true, font: FONT, size: BODY })] }); }
   function CELL(text, o) {
     o = o || {};
     var b = { top: { style: "single", size: 4, color: "000000" }, bottom: { style: "single", size: 4, color: "000000" }, left: { style: "single", size: 4, color: "000000" }, right: { style: "single", size: 4, color: "000000" } };
-    return new D.TableCell({ borders: b, columnSpan: o.colSpan, rowSpan: o.rowSpan, shading: o.shade ? { fill: o.shade } : undefined, verticalAlign: "center", margins: { top: 30, bottom: 30, left: 60, right: 60 },
-      children: [new D.Paragraph({ alignment: o.align || "center", spacing: { after: 0, line: 240 }, children: [new D.TextRun({ text: text, bold: o.bold, font: "Times New Roman", size: o.size || 20 })] })] });
+    return new D.TableCell({ borders: b, columnSpan: o.colSpan, rowSpan: o.rowSpan, shading: o.shade ? { fill: o.shade } : undefined, verticalAlign: "center", margins: { top: 40, bottom: 40, left: 80, right: 80 },
+      children: [new D.Paragraph({ alignment: o.align || "center", spacing: { after: 0, line: 240 }, children: [new D.TextRun({ text: text, bold: o.bold, font: FONT, size: o.size || TBL })] })] });
   }
-  function TABLE(rows) { return new D.Table({ width: { size: 100, type: "pct" }, rows: rows }); }
+  var TBORDERS = {
+    top: { style: "single", size: 4, color: "000000" }, bottom: { style: "single", size: 4, color: "000000" },
+    left: { style: "single", size: 4, color: "000000" }, right: { style: "single", size: 4, color: "000000" },
+    insideHorizontal: { style: "single", size: 4, color: "000000" }, insideVertical: { style: "single", size: 4, color: "000000" }
+  };
+  function TABLE(rows) { return new D.Table({ width: { size: 100, type: "pct" }, borders: TBORDERS, rows: rows }); }
   function IMG(u8, w, h) { return new D.Paragraph({ alignment: "center", spacing: { before: 100, after: 140 }, children: [new D.ImageRun({ type: "png", data: u8, transformation: { width: w || 540, height: h || 300 } })] }); }
-  function CAP(text) { return new D.Paragraph({ alignment: "center", spacing: { after: 140 }, children: [new D.TextRun({ text: text, italics: true, font: "Times New Roman", size: 20 })] }); }
+  function CAP(text) { return new D.Paragraph({ alignment: "center", spacing: { after: 160 }, children: [new D.TextRun({ text: text, italics: true, font: FONT, size: TBL })] }); }
+  // Мундарижа қатори — нуқтали чизиқ (dot leader) ва ўнгда бет рақами
+  function TOCLINE(text, page) {
+    return new D.Paragraph({
+      tabStops: [{ type: "right", position: 9600, leader: "dot" }],
+      spacing: { after: 60, line: 276 },
+      children: [new D.TextRun({ text: text, font: FONT, size: BODY }), new D.TextRun({ text: "\t" + (page || ""), font: FONT, size: BODY })]
+    });
+  }
 
   function detailTable(rep) {
     var d = rep.detailed, nv = d.nonControlVariants, rows = [];
@@ -349,27 +372,50 @@
     var nonControl = rep.detailed ? rep.detailed.nonControlVariants : [];
     var overallBest = rep.detailed ? rep.detailed.overallMeanRow.byVariant[bestNonControl(rep)].pct : (rep.efficacyRows.filter(function (r) { return !r.isControl && r.mean != null; }).sort(function (a, b) { return (b.mean || 0) - (a.mean || 0); })[0] || {}).mean;
 
-    // Титул
-    ch.push(P(meta.committee || "ЎЗБЕКИСТОН РЕСПУБЛИКАСИ ОЗИҚ-ОВҚАТ ХАВФСИЗЛИГИ ҚЎМИТАСИ", { align: "center", bold: true }),
-      P("ЎСИМЛИКЛАР КАРАНТИНИ ВА ҲИМОЯСИ АГЕНТЛИГИ", { align: "center", bold: true }),
-      P(institute, { align: "center", bold: true, after: 400 }),
-      P("«ТАСДИҚЛАЙМАН»", { align: "right", bold: true }),
-      P(institute + " директори", { align: "right", size: 22 }),
-      P("________________ " + (meta.director || "________________"), { align: "right", size: 22 }),
-      P("«___»__________ 2026 йил", { align: "right", size: 22, after: 500 }),
-      P("ИЛМИЙ ҲИСОБОТ", { align: "center", bold: true, size: 32, after: 300 }),
-      P(meta.crop + " экинида " + meta.targetOrganism + "га қарши " + meta.preparatName + " препаратининг биологик самарадорлигини аниқлаш.", { align: "center", size: 26, after: 500 }),
-      P("Синовда иштирок этган илмий ходимлар:", { bold: true, after: 100 }));
-    (meta.staff || "").split(/[,;\n]+/).map(function (s) { return s.trim(); }).filter(Boolean).forEach(function (s) { ch.push(P(s, { align: "center", size: 22, after: 40 })); });
-    ch.push(P("Тошкент – 2026", { align: "center", bold: true, after: 300 }),
-      P(institute + " илмий кенгашида кўриб чиқилди ва тасдиқланди.", { align: "center", size: 22 }),
-      P("Баённома №" + (meta.protocolNumber || "____") + "  «___»________ 2026 й.", { align: "center", size: 22 }),
+    // ===== Титул варағи (расмий шаблон бўйича) =====
+    var city = (meta.reportCity && meta.reportCity.trim()) || "Тошкент";
+    var staffList = (meta.staff || "").split(/[,;\n]+/).map(function (s) { return s.trim(); }).filter(Boolean);
+    ch.push(P(meta.committee || "ЎЗБЕКИСТОН РЕСПУБЛИКАСИ ОЗИҚ-ОВҚАТ МАҲСУЛОТЛАРИ ХАВФСИЗЛИГИ ҚЎМИТАСИ", { align: "center", bold: true, after: 60 }),
+      P("ЎСИМЛИКЛАР КАРАНТИНИ ВА ҲИМОЯСИ АГЕНТЛИГИ", { align: "center", bold: true, after: 60 }),
+      P(institute, { align: "center", bold: true, after: 360 }),
+      // Тасдиқлаш блоки — марказда (шаблондагидек)
+      P("«ТАСДИҚЛАЙМАН»", { align: "center", bold: true, after: 40 }),
+      P(institute + " директори", { align: "center", after: 40 }),
+      P("________________ " + (meta.director || "____________"), { align: "center", after: 40 }),
+      P("«___»__________ 2026 йил", { align: "center", after: 500 }),
+      P("ИЛМИЙ ҲИСОБОТ", { align: "center", bold: true, size: 32, after: 260 }),
+      P(meta.crop + " экинида " + meta.targetOrganism + "га қарши " + meta.preparatName + " препаратининг биологик самарадорлигини рўйхатга олиш учун синов натижалари", { align: "center", after: 600 }));
+    // Маъсул ижрочи / Ижрочилар
+    if (staffList.length) {
+      ch.push(new D.Table({
+        width: { size: 100, type: "pct" },
+        borders: { top: { style: "none" }, bottom: { style: "none" }, left: { style: "none" }, right: { style: "none" }, insideHorizontal: { style: "none" }, insideVertical: { style: "none" } },
+        columnWidths: [3000, 6600],
+        rows: [
+          new D.TableRow({ children: [
+            new D.TableCell({ borders: {}, verticalAlign: "top", children: [P("Маъсул ижрочи:", { after: 0 })] }),
+            new D.TableCell({ borders: {}, verticalAlign: "top", children: [P(staffList[0], { after: 0 })] })
+          ] }),
+          new D.TableRow({ children: [
+            new D.TableCell({ borders: {}, verticalAlign: "top", children: [P(staffList.length > 1 ? "Ижрочилар:" : "", { after: 0 })] }),
+            new D.TableCell({ borders: {}, verticalAlign: "top", children: staffList.slice(1).map(function (s) { return P(s, { after: 0 }); }) })
+          ] })
+        ]
+      }));
+    }
+    ch.push(P(city + " – 2026 й.", { align: "center", bold: true, before: 300, after: 400 }),
+      P(institute + " илмий кенгашида №___-сонли баённома, «___»________ 2026 йилда кўриб чиқилди.", { align: "center", after: 200 }),
+      P("Илмий котиб, қ.х.ф.д.                                        " + (meta.scientificSecretary || "____________"), { align: "center" }),
       new D.Paragraph({ children: [new D.PageBreak()] }));
 
-    // Мундарижа
-    ch.push(P("МУНДАРИЖА", { align: "center", bold: true, size: 26, after: 160 }));
-    var toc = ["Кириш", "Адабиётлар шарҳи", "Синов баёномаси", "Синов ўтказиш жойи ва услублари (методикаси)", "Тажриба (тадқиқот) натижалари", "Хулоса ва тавсиялар", "Фойдаланилган адабиётлар рўйхати", "Рўйхатга киритиш бўйича хулоса"];
-    ch.push(TABLE(toc.map(function (t, i) { return new D.TableRow({ children: [CELL((i + 1) + ".", { size: 22 }), CELL(t, { align: "left", size: 22 })] }); })));
+    // ===== Мундарижа (нуқтали чизиқ + бет рақами) =====
+    ch.push(P("МУНДАРИЖА", { align: "center", bold: true, size: HEAD, after: 200 }));
+    var toc = [
+      ["Кириш", "3"], ["1. Адабиётлар шарҳи", "3"], ["2. Синов баённомаси", "5"],
+      ["3. Синов ўтказиш жойи ва услублари (методикаси)", "6"], ["4. Тажриба (тадқиқот) натижалари", "7"],
+      ["5. Хулоса ва тавсиялар", "8"], ["6. Фойдаланилган адабиётлар рўйхати", "9"], ["7. Рўйхатга киритиш бўйича хулоса", "10"]
+    ];
+    toc.forEach(function (t) { ch.push(TOCLINE(t[0], t[1])); });
     ch.push(new D.Paragraph({ children: [new D.PageBreak()] }));
 
     // 1. Кириш (тахминан 1 бет)
@@ -416,17 +462,17 @@
     ch.push(H("4. Синов ўтказиш жойи ва услублари (методикаси)"),
       P(meta.preparatName + " препарати биологик самарадорлиги давлат синов методикаси, ҳосилдорлик Б.А.Доспехов (1985) усулида олиб борилди. Ҳисоблаш методикаси: " + rep.efficacyMethodLabel + ".", { indent: true }),
       P("Тажриба тизими:", { bold: true, after: 60 }));
-    rep.efficacyRows.forEach(function (r, i) { var lb = r.isControl ? "(ишлов ўтказилмаган)" : (r.isReference ? "(андоза)" : ""); ch.push(P((i + 1) + ". " + r.variant + " " + lb, { size: 22, after: 40 })); });
+    rep.efficacyRows.forEach(function (r, i) { var lb = r.isControl ? "(ишлов ўтказилмаган)" : (r.isReference ? "(андоза)" : ""); ch.push(P((i + 1) + ". " + r.variant + " " + lb, { size: BODY, after: 40 })); });
     if (rep.organisms && rep.organisms.length) {
-      ch.push(P("1-жадвал", { align: "right", size: 20, after: 40 }), P("Тажриба майдонларида учрайдиган асосий " + meta.targetOrganism.toLowerCase(), { bold: true, align: "center", size: 22 }));
+      ch.push(P("1-жадвал", { align: "right", size: TBL, after: 40 }), P("Тажриба майдонларида учрайдиган асосий " + meta.targetOrganism.toLowerCase(), { bold: true, align: "center", size: BODY }));
       var orows = [new D.TableRow({ tableHeader: true, children: [CELL("№", { bold: true, shade: "e8e8e8" }), CELL("Организм номи", { bold: true, shade: "e8e8e8", align: "left" }), CELL("1 м² даги сони (ишловгача)", { bold: true, shade: "e8e8e8" })] })];
       rep.organisms.forEach(function (o, i) { orows.push(new D.TableRow({ children: [CELL(String(i + 1)), CELL(o.name, { align: "left" }), CELL(fmt(o.before, 1))] })); });
       ch.push(TABLE(orows));
     }
 
     // 5. Натижалар
-    ch.push(H("5. Тажриба (тадқиқот) натижалари"), P("2-жадвал", { align: "right", size: 20, after: 40 }),
-      P(meta.preparatName + " препаратининг " + meta.targetOrganism + "га қарши биологик самарадорлиги", { bold: true, align: "center", size: 22 }));
+    ch.push(H("5. Тажриба (тадқиқот) натижалари"), P("2-жадвал", { align: "right", size: TBL, after: 40 }),
+      P(meta.preparatName + " препаратининг " + meta.targetOrganism + "га қарши биологик самарадорлиги", { bold: true, align: "center", size: BODY }));
     ch.push(rep.detailed && rep.detailed.periods.length ? detailTable(rep) : effTable(rep));
 
     return { children: ch, institute: institute, nonControl: nonControl, overallBest: overallBest };
@@ -460,7 +506,7 @@
 
       // 3-жадвал ҳосилдорлик
       if (rep.yieldRows && rep.yieldRows.length) {
-        ch.push(P("3-жадвал", { align: "right", size: 20, after: 40 }), P(meta.preparatName + " препаратининг " + meta.crop + " ҳосилдорлигига таъсири", { bold: true, align: "center", size: 22 }));
+        ch.push(P("3-жадвал", { align: "right", size: TBL, after: 40 }), P(meta.preparatName + " препаратининг " + meta.crop + " ҳосилдорлигига таъсири", { bold: true, align: "center", size: BODY }));
         var ctrl = rep.yieldRows.filter(function (r) { return r.isControl; })[0], cMean = ctrl ? ctrl.mean : null;
         var yrows = [new D.TableRow({ tableHeader: true, children: [CELL("Вариант", { bold: true, shade: "e8e8e8", align: "left" }), CELL("Ҳосилдорлик, " + (rep.yieldUnit || "ц/га"), { bold: true, shade: "e8e8e8" }), CELL("Қўшимча ҳосил", { bold: true, shade: "e8e8e8" })] })];
         rep.yieldRows.forEach(function (r) { var ex = (r.isControl || cMean == null || r.mean == null) ? null : r.mean - cMean; yrows.push(new D.TableRow({ children: [CELL(r.variant, { align: "left", bold: r.isControl }), CELL(fmt(r.mean, 1)), CELL(r.isControl ? "—" : fmt(ex, 1))] })); });
@@ -482,36 +528,33 @@
       // 7. Адабиётлар
       ch.push(H("7. Фойдаланилган адабиётлар рўйхати"));
       var refs = (meta.references || "").split(/\n+/).map(function (s) { return s.trim(); }).filter(Boolean);
-      if (refs.length) refs.forEach(function (r, i) { ch.push(P(/^\d/.test(r) ? r : (i + 1) + ". " + r, { size: 22, after: 40 })); });
-      else ["Доспехов Б.А. Методика полевого опыта. – Москва, 1985.", "Методические указания по государственным испытаниям гербицидов. – Ташкент, 2007.", "EPPO Standards PP1 — Efficacy evaluation of plant protection products."].forEach(function (r, i) { ch.push(P((i + 1) + ". " + r, { size: 22, after: 40 })); });
+      if (refs.length) refs.forEach(function (r, i) { ch.push(P(/^\d/.test(r) ? r : (i + 1) + ". " + r, { size: BODY, after: 40 })); });
+      else ["Доспехов Б.А. Методика полевого опыта. – Москва, 1985.", "Методические указания по государственным испытаниям гербицидов. – Ташкент, 2007.", "EPPO Standards PP1 — Efficacy evaluation of plant protection products."].forEach(function (r, i) { ch.push(P((i + 1) + ". " + r, { size: BODY, after: 40 })); });
 
       // 8. Рўйхат хулосаси
-      ch.push(new D.Paragraph({ children: [new D.PageBreak()] }), P("Ўтказилган давлат синовлари якуни бўйича хулоса ва тавсиялар", { bold: true, align: "center", size: 24, after: 140 }),
-        P("Восита савдо номи – " + (meta.tradeName || meta.preparatName) + " (" + meta.applicationRate + ")", { size: 22 }),
-        P("Таъсир этувчи моддаси – " + meta.activeIngredients, { size: 22 }),
-        P("Синовни ўтказган ташкилот – " + institute, { size: 22 }),
-        P("Синов жойи ва муддати – " + meta.site + ", " + meta.trialDate, { size: 22, after: 140 }));
+      ch.push(new D.Paragraph({ children: [new D.PageBreak()] }), P("1-форма", { align: "right", after: 40 }), P("Рўйхатга олиш учун синовлар якуни бўйича хулоса ва тавсиялар", { bold: true, align: "center", size: BODY, after: 140 }),
+        P("Восита савдо номи – " + (meta.tradeName || meta.preparatName) + " (" + meta.applicationRate + ")", { size: BODY }),
+        P("Таъсир этувчи моддаси – " + meta.activeIngredients, { size: BODY }),
+        P("Синовни ўтказган ташкилот – " + institute, { size: BODY }),
+        P("Синов жойи ва муддати – " + meta.site + ", " + meta.trialDate, { size: BODY, after: 140 }));
       ch.push(TABLE([
         new D.TableRow({ tableHeader: true, children: [CELL("Зарарли организм", { bold: true, shade: "e8e8e8" }), CELL("Сарф меъёри", { bold: true, shade: "e8e8e8" }), CELL("Биол. самарадорлик, %", { bold: true, shade: "e8e8e8" }), CELL("Қўллаш усули", { bold: true, shade: "e8e8e8" }), CELL("Кутиш вақти, кун", { bold: true, shade: "e8e8e8" }), CELL("Фитотоксиклик", { bold: true, shade: "e8e8e8" })] }),
         new D.TableRow({ children: [CELL(meta.targetOrganism, { align: "left" }), CELL(meta.applicationRate), CELL(fmt(overallBest, 1)), CELL(meta.applicationMethod || "пуркаш"), CELL(meta.waitingPeriod || "—"), CELL(meta.phytotoxicity || "Кузатилмади")] })
       ]));
-      ch.push(P("Тавсия: " + meta.preparatName + " " + meta.applicationRate + " сарф-меъёрда " + meta.targetOrganism + "га қарши қўллаш учун «Рўйхат»га киритиш тавсия этилади.", { indent: true, after: 200 }));
+      ch.push(P("Тавсия: " + meta.preparatName + " " + meta.applicationRate + " сарф-меъёрда " + meta.targetOrganism + "га қарши қўллаш учун «Рўйхат»га киритиш тавсия этилади.", { indent: true, after: 300 }));
 
-      // Далолатнома
-      ch.push(new D.Paragraph({ children: [new D.PageBreak()] }),
-        P("ЎСИМЛИКЛАРНИ ҲИМОЯ ҚИЛИШ ВОСИТАСИНИНГ СИНОВ НАТИЖАЛАРИ БЎЙИЧА", { bold: true, align: "center", size: 24 }),
-        P("ДАЛОЛАТНОМА", { bold: true, align: "center", size: 26, after: 160 }),
-        P("Сана: " + (meta.actDate || meta.trialDate), { size: 22 }),
-        P("Препарат номи ва шакли: " + meta.preparatName + ", " + meta.preparatForm + " (" + meta.activeIngredients + ")", { size: 22 }),
-        P("Синов ўтказилган экин тури: " + meta.crop + (meta.variety ? ", " + meta.variety : ""), { size: 22 }),
-        P("Зарарли организм тури: " + meta.targetOrganism, { size: 22 }),
-        P("Сарф меъёри ва ишчи эритма: " + meta.applicationRate + (meta.workingSolution ? "; " + meta.workingSolution : ""), { size: 22 }),
-        P("Қўллаш усули ва жиҳоз: " + (meta.applicationMethod || "пуркаш") + (meta.testEquipment ? ", " + meta.testEquipment : ""), { size: 22 }),
-        P("Экиннинг ривожланиш фазаси: " + (meta.cropPhase || "—"), { size: 22 }),
-        P("Препаратнинг биологик самарадорлиги (%): " + fmt(overallBest, 1) + "%", { size: 22 }),
-        P("Хулосалар, камчиликлар: камчиликлар кузатилмади", { size: 22, after: 200 }),
-        P("Далолатномани тузувчилар (Ф.И.Ш., имзоси):", { bold: true, after: 100 }));
-      (meta.staff || "").split(/[,;\n]+/).map(function (s) { return s.trim(); }).filter(Boolean).forEach(function (s) { ch.push(P(s + "   ___________________", { size: 22, after: 80 })); });
+      // Имзолар
+      ch.push(new D.Table({
+        width: { size: 100, type: "pct" },
+        borders: { top: { style: "none" }, bottom: { style: "none" }, left: { style: "none" }, right: { style: "none" }, insideHorizontal: { style: "none" }, insideVertical: { style: "none" } },
+        rows: [new D.TableRow({ children: [
+          new D.TableCell({ borders: {}, children: [P("Директор ўринбосари", { bold: true, after: 0 })] }),
+          new D.TableCell({ borders: {}, children: [P(meta.deputyDirector || "____________", { bold: true, align: "right", after: 0 })] })
+        ] }), new D.TableRow({ children: [
+          new D.TableCell({ borders: {}, children: [P("Маъсул ижрочи", { bold: true, before: 200, after: 0 })] }),
+          new D.TableCell({ borders: {}, children: [P((((meta.staff || "").split(/[,;\n]+/)[0]) || "").trim() || "____________", { bold: true, align: "right", before: 200, after: 0 })] })
+        ] })]
+      }));
 
       var doc = new D.Document({ creator: institute, title: meta.preparatName + " — давлат синови ҳисоботи", sections: [{ properties: { page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 850 } } }, children: ch }] });
       return D.Packer.toBlob(doc);
