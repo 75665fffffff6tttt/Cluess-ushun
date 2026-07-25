@@ -419,6 +419,17 @@
     return best;
   }
 
+  // Титул сарлавҳаси учун препаратдан кейинги «(ишлаб чиқарувчи, давлат)» қисми
+  function titleMaker(meta) {
+    var m = (meta.manufacturer || meta.applicantOrg || "").trim();
+    var c = (meta.country || "").trim();
+    if (!m && !c) return "";
+    var inside = "";
+    if (m) inside += /["«»“”]/.test(m) ? m : "«" + m + "»";
+    if (c) inside += (m ? ", " : "") + c;
+    return " (" + inside + ")";
+  }
+
   function buildReport(rep, meta) {
     D = window.docx;
     var ch = [], institute = meta.institute || "ЎСИМЛИКЛАР КАРАНТИНИ ВА ҲИМОЯСИ ИЛМИЙ-ТАДҚИҚОТ ИНСТИТУТИ";
@@ -437,7 +448,7 @@
       P("________________ " + (meta.director || "____________"), { align: "right", after: 40 }),
       P("«___»__________ 2026 йил", { align: "right", after: 500 }),
       P("ИЛМИЙ ҲИСОБОТ", { align: "center", bold: true, size: 32, after: 260 }),
-      P(meta.crop + " экинида " + meta.targetOrganism + "га қарши " + meta.preparatName + " препаратининг биологик самарадорлигини рўйхатга олиш учун синов натижалари", { align: "center", after: 600 }));
+      P(meta.crop + " экинида " + meta.targetOrganism + "га қарши " + meta.preparatName + titleMaker(meta) + " препаратининг биологик самарадорлигини рўйхатга олиш учун синов натижалари", { align: "center", after: 600 }));
     // Маъсул ижрочи / Ижрочилар
     if (staffList.length) {
       ch.push(new D.Table({
