@@ -725,7 +725,7 @@
         borders: { top: { style: "none" }, bottom: { style: "none" }, left: { style: "none" }, right: { style: "none" }, insideHorizontal: { style: "none" }, insideVertical: { style: "none" } },
         rows: [new D.TableRow({ children: [
           new D.TableCell({ borders: {}, children: [P("Директор ўринбосари", { bold: true, after: 0 })] }),
-          new D.TableCell({ borders: {}, children: [P(meta.deputyDirector || "____________", { bold: true, align: "right", after: 0 })] })
+          new D.TableCell({ borders: {}, children: [P(meta.deputyDirector || "Н.Қурбонова", { bold: true, align: "right", after: 0 })] })
         ] }), new D.TableRow({ children: [
           new D.TableCell({ borders: {}, children: [P("Маъсул ижрочи", { bold: true, before: 200, after: 0 })] }),
           new D.TableCell({ borders: {}, children: [P((((meta.staff || "").split(/[,;\n]+/)[0]) || "").trim() || "____________", { bold: true, align: "right", before: 200, after: 0 })] })
