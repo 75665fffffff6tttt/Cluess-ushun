@@ -16,10 +16,10 @@
   "use strict";
 
   var AUTH = {
-    user: "admin",
-    // SHA-256("AgroHimoya2026") — паролни ўзгартиргач, бу хешни ҳам янгиланг
-    hash: "d3d9c975491a13dff4f7fb294e1e2a07267af51c8f8a89ba0740d0309d868967",
-    key: "agrohimoya_auth_v1"
+    user: "agrohimoya",
+    // SHA-256("Himoya2026!") — паролни ўзгартиргач, бу хешни ҳам янгиланг
+    hash: "5b739daf3ac90d37593fe43751c34b98b3ccc3049877e3acdbb72a2f869ffaa2",
+    key: "agrohimoya_auth_v2"
   };
 
   // Аллақачон кирган бўлса — ҳеч нарса қилмаймиз
