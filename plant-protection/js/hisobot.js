@@ -444,8 +444,8 @@
       P(institute, { align: "center", bold: true, after: 360 }),
       // Тасдиқлаш блоки — ўнг бурчакда
       P("«ТАСДИҚЛАЙМАН»", { align: "right", bold: true, after: 40 }),
-      P(institute + " директори", { align: "right", after: 40 }),
-      P("________________ " + (meta.director || "____________"), { align: "right", after: 40 }),
+      P(institute + " директори" + (meta.director ? ", " + meta.director : ""), { align: "right", after: 40 }),
+      P("________________ ____________", { align: "right", after: 40 }),
       P("«___»__________ 2026 йил", { align: "right", after: 500 }),
       P("ИЛМИЙ ҲИСОБОТ", { align: "center", bold: true, size: 32, after: 260 }),
       P(meta.crop + " экинида " + meta.targetOrganism + "га қарши " + meta.preparatName + titleMaker(meta) + " препаратининг биологик самарадорлигини рўйхатга олиш учун синов натижалари", { align: "center", after: 600 }));
