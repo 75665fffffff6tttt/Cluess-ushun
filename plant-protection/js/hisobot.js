@@ -432,7 +432,7 @@
 
   function buildReport(rep, meta) {
     D = window.docx;
-    var ch = [], institute = meta.institute || "ЎСИМЛИКЛАР КАРАНТИНИ ВА ҲИМОЯСИ ИЛМИЙ-ТАДҚИҚОТ ИНСТИТУТИ";
+    var ch = [], institute = meta.institute || "Ўсимликлар карантини ва ҳимояси илмий-тадқиқот институти";
     var nonControl = rep.detailed ? rep.detailed.nonControlVariants : [];
     var overallBest = rep.detailed ? rep.detailed.overallMeanRow.byVariant[bestNonControl(rep)].pct : (rep.efficacyRows.filter(function (r) { return !r.isControl && r.mean != null; }).sort(function (a, b) { return (b.mean || 0) - (a.mean || 0); })[0] || {}).mean;
 
