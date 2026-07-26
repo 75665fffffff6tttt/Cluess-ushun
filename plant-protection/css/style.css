@@ -566,3 +566,5 @@ form.contact-form { display: grid; gap: 14px; }
 .weather-status-loading::before { content: "⏳ "; }
 .weather-status-success { color: var(--green-700); font-weight: 600; }
 .weather-status-error { color: var(--red-600); font-weight: 600; }
+.external-forecast-link { margin: 10px 0 0; font-size: 0.9rem; color: var(--ink-600); }
+.external-forecast-link a { font-weight: 600; }
