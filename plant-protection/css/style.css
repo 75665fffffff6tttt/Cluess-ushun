@@ -950,3 +950,13 @@ textarea.hb-inp { resize: vertical; }
 .fen-note { margin-top: 10px; font-size: 0.8rem; color: var(--ink-600, #778); }
 @media (max-width: 900px) { .fen-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 520px) { .fen-grid { grid-template-columns: 1fr; } }
+
+/* Ташқи портал линки (dala.efito.uz) — Прогноз саҳифаси */
+.ext-portal-card{display:flex;align-items:center;gap:14px;text-decoration:none;
+  background:linear-gradient(135deg,var(--green-50,#e8f5e9),#fff);
+  border:1px solid var(--green-200,#a5d6a7);border-left:4px solid var(--green-600,#2e7d32);
+  border-radius:12px;padding:14px 16px;margin-bottom:18px;transition:box-shadow .15s,transform .15s}
+.ext-portal-card:hover{box-shadow:0 6px 18px rgba(46,125,50,.18);transform:translateY(-1px)}
+.ext-portal-ico{font-size:30px;line-height:1}
+.ext-portal-txt b{display:block;color:var(--green-800,#1b5e20);font-size:15px;margin-bottom:2px}
+.ext-portal-txt small{color:#5f6b61;font-size:13px}
