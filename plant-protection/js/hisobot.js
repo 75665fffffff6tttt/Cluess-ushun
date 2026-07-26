@@ -444,7 +444,7 @@
       P(institute, { align: "center", bold: true, after: 360 }),
       // Тасдиқлаш блоки — ўнг бурчакда
       P("«ТАСДИҚЛАЙМАН»", { align: "right", bold: true, after: 40 }),
-      P(institute + " директори" + (meta.director ? ", " + meta.director : ""), { align: "right", after: 40 }),
+      P(institute + " директори, " + (meta.director || "А.Анорбаев"), { align: "right", after: 40 }),
       P("________________ ____________", { align: "right", after: 40 }),
       P("«___»__________ 2026 йил", { align: "right", after: 500 }),
       P("ИЛМИЙ ҲИСОБОТ", { align: "center", bold: true, size: 32, after: 260 }),
@@ -471,7 +471,7 @@
       // Кенгаш баённомаси + Илмий котиб — алоҳида 2-варақда
       new D.Paragraph({ children: [new D.PageBreak()] }),
       P(institute + " илмий кенгашида №___-сонли баённома, «___»________ 2026 йилда кўриб чиқилди.", { align: "center", after: 200 }),
-      P("Илмий котиб, қ.х.ф.д.                                        " + (meta.scientificSecretary || "____________"), { align: "center" }),
+      P("Илмий котиб, қ.х.ф.д.                                        " + (meta.scientificSecretary || "О.Сулаймонов"), { align: "center" }),
       new D.Paragraph({ children: [new D.PageBreak()] }));
 
     // ===== Мундарижа (нуқтали чизиқ + бет рақами) =====
