@@ -961,6 +961,17 @@ textarea.hb-inp { resize: vertical; }
 .ext-portal-txt b{display:block;color:var(--green-800,#1b5e20);font-size:15px;margin-bottom:2px}
 .ext-portal-txt small{color:#5f6b61;font-size:13px}
 
+/* Бош саҳифа — бўлимларга линк карточкалари */
+.home-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin:8px 0 4px}
+.home-card{display:flex;align-items:center;gap:14px;text-decoration:none;
+  background:linear-gradient(135deg,var(--green-50,#e8f5e9),#fff);
+  border:1px solid var(--green-200,#a5d6a7);border-left:4px solid var(--green-600,#2e7d32);
+  border-radius:12px;padding:16px 18px;transition:box-shadow .15s,transform .15s}
+.home-card:hover{box-shadow:0 6px 18px rgba(46,125,50,.18);transform:translateY(-1px)}
+.home-card-ico{font-size:30px;line-height:1}
+.home-card-txt b{display:block;color:var(--green-800,#1b5e20);font-size:16px;margin-bottom:2px}
+.home-card-txt small{color:#5f6b61;font-size:13px}
+
 /* Сайт таги (footer) — лаборатория номи */
 .site-footer{
   text-align:center;padding:22px 16px;margin-top:8px;
