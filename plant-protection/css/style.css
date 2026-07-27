@@ -960,3 +960,11 @@ textarea.hb-inp { resize: vertical; }
 .ext-portal-ico{font-size:30px;line-height:1}
 .ext-portal-txt b{display:block;color:var(--green-800,#1b5e20);font-size:15px;margin-bottom:2px}
 .ext-portal-txt small{color:#5f6b61;font-size:13px}
+
+/* Сайт таги (footer) — лаборатория номи */
+.site-footer{
+  text-align:center;padding:22px 16px;margin-top:8px;
+  border-top:1px solid var(--green-200,#c8e6c9);
+  color:var(--green-800,#1b5e20);font-weight:600;font-size:0.95rem;
+  background:var(--green-50,#f1f8f2);
+}
