@@ -968,3 +968,12 @@ textarea.hb-inp { resize: vertical; }
   color:var(--green-800,#1b5e20);font-weight:600;font-size:0.95rem;
   background:var(--green-50,#f1f8f2);
 }
+
+/* Тест режими баннери — сайт тепасида */
+.test-banner{
+  position:sticky;top:0;z-index:200;
+  text-align:center;padding:7px 14px;
+  background:#b45309;color:#fff;
+  font-size:0.9rem;font-weight:700;letter-spacing:.02em;
+  box-shadow:0 1px 4px rgba(0,0,0,.2);
+}
