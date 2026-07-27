@@ -934,7 +934,7 @@ textarea.hb-inp { resize: vertical; }
 .rez-princ li { margin-bottom: 8px; }
 .rez-note { margin-top: 12px; font-size: 0.8rem; color: var(--ink-600, #778); }
 
-/* ============ Degree-Day / фенологик прогноз ============ */
+/* ============ Фенологик прогноз ============ */
 .fen-form { background: var(--card, #fff); border: 1px solid var(--border, #e2e6e3); border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; }
 .fen-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
 .fen-field { display: flex; flex-direction: column; font-size: 0.88rem; }
