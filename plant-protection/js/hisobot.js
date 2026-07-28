@@ -335,7 +335,7 @@
     var mg = o.compact ? { top: 20, bottom: 20, left: 50, right: 50 } : { top: 40, bottom: 40, left: 80, right: 80 };
     // Жадвал катакларида фон ранги ишлатилмайди (оқ фон)
     return new D.TableCell({ borders: b, width: o.width ? { size: o.width, type: "dxa" } : undefined, columnSpan: o.colSpan, rowSpan: o.rowSpan, verticalAlign: "center", margins: mg,
-      children: [new D.Paragraph({ alignment: o.align || "center", spacing: { after: 0, line: o.compact ? 200 : 240 }, children: [new D.TextRun({ text: text, bold: o.bold, font: FONT, size: o.size || TBL })] })] });
+      children: [new D.Paragraph({ alignment: o.align || "center", spacing: { after: 0, line: o.compact ? 260 : 240 }, children: [new D.TextRun({ text: text, bold: o.bold, font: FONT, size: o.size || TBL })] })] });
   }
   var TBORDERS = {
     top: { style: "single", size: 4, color: "000000" }, bottom: { style: "single", size: 4, color: "000000" },
@@ -756,26 +756,26 @@
         width: { size: 15400, type: "dxa" }, borders: TBORDERS, columnWidths: cw,
         rows: [
           new D.TableRow({ cantSplit: true, tableHeader: true, children: [
-            CELL(tr("Экин тури", "Вид культуры"), { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[0] }),
-            CELL(tr("Зарарли организм номи", "Наименование вредного организма"), { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[1] }),
-            CELL(tr("Воситани синовдан ўтган сарф меъёрлари, л(кг)/га", "Испытанные нормы расхода средства, л(кг)/га"), { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[2] }),
-            CELL(tr("Биологик самарадорлик (%), ҳисоб куни", "Биологическая эффективность (%), день учёта"), { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[3] }),
-            CELL(tr("Воситани қўллаш усули", "Способ применения средства"), { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[4] }),
-            CELL(tr("Қўллаш такрорийлиги", "Кратность применения"), { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[5] }),
-            CELL(tr("Кутиш муддати, кун", "Срок ожидания, суток"), { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[6] }),
-            CELL(tr("Фитотоксиклик хусусияти", "Фитотоксичность"), { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[7] }),
-            CELL(tavHead, { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[8] })
+            CELL(tr("Экин тури", "Вид культуры"), { bold: true, shade: "e8e8e8", compact: true, size: 22, width: cw[0] }),
+            CELL(tr("Зарарли организм номи", "Наименование вредного организма"), { bold: true, shade: "e8e8e8", compact: true, size: 22, width: cw[1] }),
+            CELL(tr("Воситани синовдан ўтган сарф меъёрлари, л(кг)/га", "Испытанные нормы расхода средства, л(кг)/га"), { bold: true, shade: "e8e8e8", compact: true, size: 22, width: cw[2] }),
+            CELL(tr("Биологик самарадорлик (%), ҳисоб куни", "Биологическая эффективность (%), день учёта"), { bold: true, shade: "e8e8e8", compact: true, size: 22, width: cw[3] }),
+            CELL(tr("Воситани қўллаш усули", "Способ применения средства"), { bold: true, shade: "e8e8e8", compact: true, size: 22, width: cw[4] }),
+            CELL(tr("Қўллаш такрорийлиги", "Кратность применения"), { bold: true, shade: "e8e8e8", compact: true, size: 22, width: cw[5] }),
+            CELL(tr("Кутиш муддати, кун", "Срок ожидания, суток"), { bold: true, shade: "e8e8e8", compact: true, size: 22, width: cw[6] }),
+            CELL(tr("Фитотоксиклик хусусияти", "Фитотоксичность"), { bold: true, shade: "e8e8e8", compact: true, size: 22, width: cw[7] }),
+            CELL(tavHead, { bold: true, shade: "e8e8e8", compact: true, size: 22, width: cw[8] })
           ] }),
           new D.TableRow({ cantSplit: true, children: [
-            CELL(meta.crop, { compact: true, size: 18, width: cw[0] }),
-            CELL(meta.targetOrganism, { compact: true, size: 18, width: cw[1] }),
-            CELL(meta.applicationRate, { compact: true, size: 18, width: cw[2] }),
-            CELL(fmt(overallBest, 1), { compact: true, size: 18, width: cw[3] }),
-            CELL(meta.applicationMethod || tr("пуркаш", "опрыскивание"), { compact: true, size: 18, width: cw[4] }),
-            CELL(meta.maxTreatments ? tr("мавсумда " + meta.maxTreatments + " марта", meta.maxTreatments + " раза за сезон") : tr("мавсумда 1 марта", "1 раз за сезон"), { compact: true, size: 18, width: cw[5] }),
-            CELL(meta.waitingPeriod || "—", { compact: true, size: 18, width: cw[6] }),
-            CELL(meta.phytotoxicity || tr("Йўқ", "Нет"), { compact: true, size: 18, width: cw[7] }),
-            CELL(recText, { compact: true, size: 18, width: cw[8] })
+            CELL(meta.crop, { compact: true, size: 22, width: cw[0] }),
+            CELL(meta.targetOrganism, { compact: true, size: 22, width: cw[1] }),
+            CELL(meta.applicationRate, { compact: true, size: 22, width: cw[2] }),
+            CELL(fmt(overallBest, 1), { compact: true, size: 22, width: cw[3] }),
+            CELL(meta.applicationMethod || tr("пуркаш", "опрыскивание"), { compact: true, size: 22, width: cw[4] }),
+            CELL(meta.maxTreatments ? tr("мавсумда " + meta.maxTreatments + " марта", meta.maxTreatments + " раза за сезон") : tr("мавсумда 1 марта", "1 раз за сезон"), { compact: true, size: 22, width: cw[5] }),
+            CELL(meta.waitingPeriod || "—", { compact: true, size: 22, width: cw[6] }),
+            CELL(meta.phytotoxicity || tr("Йўқ", "Нет"), { compact: true, size: 22, width: cw[7] }),
+            CELL(recText, { compact: true, size: 22, width: cw[8] })
           ] })
         ]
       }));
