@@ -316,11 +316,15 @@
       });
       h += '</tbody></table></div>';
     } else {
+      var beforeByVar = {}, hasBefore = false;
+      if (rep.countRows) rep.countRows.forEach(function (cr) { beforeByVar[cr.variant] = cr.before; if (cr.before != null) hasBefore = true; });
       h += '<h3 class="hb-h3">Биологик самарадорлик, %</h3><div class="hb-scroll"><table class="hb-table"><thead><tr><th>Вариант</th>';
+      if (hasBefore) h += '<th>Ишловгача</th>';
       rep.days.forEach(function (d) { h += '<th>' + d + '-кун</th>'; });
       h += '<th>Ўртача</th></tr></thead><tbody>';
       rep.efficacyRows.forEach(function (r) {
         h += '<tr' + (r.isControl ? ' class="hb-ctrl"' : '') + '><td class="hb-td-name">' + escHtml(r.variant) + (r.isReference ? ' (эталон)' : '') + '</td>';
+        if (hasBefore) h += '<td>' + (beforeByVar[r.variant] == null ? "—" : beforeByVar[r.variant]) + '</td>';
         rep.days.forEach(function (d) { h += '<td>' + (r.isControl ? "—" : (r.byDay[d] == null ? "—" : r.byDay[d])) + '</td>'; });
         h += '<td><b>' + (r.isControl ? "—" : (r.mean == null ? "—" : r.mean)) + '</b></td></tr>';
       });
