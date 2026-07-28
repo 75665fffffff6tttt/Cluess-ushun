@@ -507,14 +507,14 @@
         columnWidths: [3000, 2600, 4000],
         rows: [
           new D.TableRow({ children: [
-            new D.TableCell(Object.assign({}, noB, { children: [P(tr("Маъсул ижрочи:", "Ответственный исполнитель:"), { after: 160 })] })),
-            new D.TableCell(Object.assign({}, noB, { children: [P(SIG, { after: 160 })] })),
-            new D.TableCell(Object.assign({}, noB, { children: [P(staffList[0], { after: 160 })] }))
+            new D.TableCell(Object.assign({}, noB, { children: [P(tr("Маъсул ижрочи:", "Ответственный исполнитель:"), { after: 480 })] })),
+            new D.TableCell(Object.assign({}, noB, { children: [P(SIG, { after: 480 })] })),
+            new D.TableCell(Object.assign({}, noB, { children: [P(staffList[0], { after: 480 })] }))
           ] }),
           new D.TableRow({ children: [
-            new D.TableCell(Object.assign({}, noB, { children: [P(staffList.length > 1 ? tr("Ижрочилар:", "Исполнители:") : "", { after: 160 })] })),
-            new D.TableCell(Object.assign({}, noB, { children: staffList.slice(1).map(function () { return P(SIG, { after: 160 }); }) })),
-            new D.TableCell(Object.assign({}, noB, { children: staffList.slice(1).map(function (s) { return P(s, { after: 160 }); }) }))
+            new D.TableCell(Object.assign({}, noB, { children: [P(staffList.length > 1 ? tr("Ижрочилар:", "Исполнители:") : "", { after: 480 })] })),
+            new D.TableCell(Object.assign({}, noB, { children: staffList.slice(1).map(function () { return P(SIG, { after: 480 }); }) })),
+            new D.TableCell(Object.assign({}, noB, { children: staffList.slice(1).map(function (s) { return P(s, { after: 480 }); }) }))
           ] })
         ]
       }));
