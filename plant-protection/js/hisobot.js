@@ -784,8 +784,8 @@
       // Имзолар — марказда, лавозим ва Ф.И.Ш. орасида имзо чекишга бўш жой
       form1.push(new D.Table({
         alignment: "center",
-        width: { size: 9200, type: "dxa" },
-        columnWidths: [3400, 3000, 2800],
+        width: { size: 10400, type: "dxa" },
+        columnWidths: [3400, 4200, 2800],
         borders: { top: { style: "none" }, bottom: { style: "none" }, left: { style: "none" }, right: { style: "none" }, insideHorizontal: { style: "none" }, insideVertical: { style: "none" } },
         rows: [new D.TableRow({ children: [
           new D.TableCell({ borders: {}, children: [P(tr("Директор ўринбосари", "Заместитель директора"), { bold: true, after: 0 })] }),
