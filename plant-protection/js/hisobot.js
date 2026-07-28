@@ -479,7 +479,6 @@
 
     // ===== Титул варағи (расмий шаблон бўйича) =====
     var city = (meta.reportCity && meta.reportCity.trim()) || tr("Тошкент", "Ташкент");
-    var protoNo = (meta.protocolNumber && String(meta.protocolNumber).trim()) || "___";
     var reportYear = (String(meta.trialDate || "").match(/\b(?:19|20)\d{2}\b/) || [String(new Date().getFullYear())])[0];
     var staffList = (meta.staff || "").split(/[,;\n]+/).map(function (s) { return s.trim(); }).filter(Boolean);
     ch.push(P(meta.committee || tr("ЎЗБЕКИСТОН РЕСПУБЛИКАСИ ОЗИҚ-ОВҚАТ МАҲСУЛОТЛАРИ ХАВФСИЗЛИГИ ҚЎМИТАСИ", "КОМИТЕТ ПО БЕЗОПАСНОСТИ ПИЩЕВОЙ ПРОДУКЦИИ РЕСПУБЛИКИ УЗБЕКИСТАН"), { align: "center", bold: true, after: 60 }),
@@ -525,7 +524,7 @@
     ch.push(P(tr(city + " – " + reportYear + " й.", city + " – " + reportYear + " г."), { align: "center", bold: true, before: 3200, after: 0 }),
       // Кенгаш баённомаси + Илмий котиб — алоҳида 2-варақда
       new D.Paragraph({ children: [new D.PageBreak()] }),
-      P(tr(institute + " илмий кенгашида №" + protoNo + "-сонли баённома, «___»________ " + reportYear + " йилда кўриб чиқилди.", "Рассмотрено на учёном совете " + ruGenitive(institute) + ", протокол №" + protoNo + " от «___»________ " + reportYear + " г."), { align: "center", after: 200 }),
+      P(tr(institute + " илмий кенгашида №___-сонли баённома, «___»________ " + reportYear + " йилда кўриб чиқилди.", "Рассмотрено на учёном совете " + ruGenitive(institute) + ", протокол №___ от «___»________ " + reportYear + " г."), { align: "center", after: 200 }),
       P(tr("Илмий котиб", "Учёный секретарь") + "                                        " + (meta.scientificSecretary || "О.Сулаймонов"), { align: "center" }),
       new D.Paragraph({ children: [new D.PageBreak()] }));
 
