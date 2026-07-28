@@ -483,7 +483,7 @@
     var staffList = (meta.staff || "").split(/[,;\n]+/).map(function (s) { return s.trim(); }).filter(Boolean);
     ch.push(P(meta.committee || tr("ЎЗБЕКИСТОН РЕСПУБЛИКАСИ ОЗИҚ-ОВҚАТ МАҲСУЛОТЛАРИ ХАВФСИЗЛИГИ ҚЎМИТАСИ", "КОМИТЕТ ПО БЕЗОПАСНОСТИ ПИЩЕВОЙ ПРОДУКЦИИ РЕСПУБЛИКИ УЗБЕКИСТАН"), { align: "center", bold: true, after: 60 }),
       P(tr("ЎСИМЛИКЛАР КАРАНТИНИ ВА ҲИМОЯСИ АГЕНТЛИГИ", "АГЕНТСТВО ПО КАРАНТИНУ И ЗАЩИТЕ РАСТЕНИЙ"), { align: "center", bold: true, after: 60 }),
-      P(institute, { align: "center", bold: true, after: 360 }),
+      P(institute.toUpperCase(), { align: "center", bold: true, after: 360 }),
       // Тасдиқлаш блоки — саҳифанинг ўнг ярмида, марказга текисланган
       P(tr("“ТАСДИҚЛАЙМАН”", "“УТВЕРЖДАЮ”"), { indentLeft: 4200, align: "center", bold: true, after: 40 }),
       // «илмий-тадқиқот» бир бутун қолиши учун дефисни узилмас дефисга алмаштирамиз (сатр ундан олдин узилади)
