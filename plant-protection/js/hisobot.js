@@ -693,7 +693,7 @@
 
       // 3-жадвал ҳосилдорлик
       if (rep.yieldRows && rep.yieldRows.length) {
-        ch.push(P(tr("3-жадвал", "Таблица 3"), { align: "right", size: TBL, after: 40 }), P(tr(meta.preparatName + " препаратининг " + meta.crop + " ҳосилдорлигига таъсири", "Влияние препарата " + meta.preparatName + " на урожайность " + meta.crop), { bold: true, align: "center", size: BODY }));
+        ch.push(P(tr("3-жадвал", "Таблица 3"), { align: "right", size: TBL, after: 40 }), P(tr(meta.preparatName + " препаратининг " + lcFirst(meta.crop) + " ҳосилдорлигига таъсири", "Влияние препарата " + meta.preparatName + " на урожайность " + lcFirst(meta.crop)), { bold: true, align: "center", size: BODY }));
         var ctrl = rep.yieldRows.filter(function (r) { return r.isControl; })[0], cMean = ctrl ? ctrl.mean : null;
         var yrows = [new D.TableRow({ tableHeader: true, children: [CELL(tr("Вариант", "Вариант"), { bold: true, shade: "e8e8e8", align: "left" }), CELL(tr("Ҳосилдорлик, ", "Урожайность, ") + (rep.yieldUnit || "ц/га"), { bold: true, shade: "e8e8e8" }), CELL(tr("Қўшимча ҳосил", "Прибавка урожая"), { bold: true, shade: "e8e8e8" })] })];
         rep.yieldRows.forEach(function (r) { var ex = (r.isControl || cMean == null || r.mean == null) ? null : r.mean - cMean; yrows.push(new D.TableRow({ children: [CELL(r.variant, { align: "left", bold: r.isControl }), CELL(fmt(r.mean, 1)), CELL(r.isControl ? "—" : fmt(ex, 1))] })); });
