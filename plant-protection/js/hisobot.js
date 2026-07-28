@@ -764,18 +764,18 @@
             CELL(tr("Қўллаш такрорийлиги", "Кратность применения"), { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[5] }),
             CELL(tr("Кутиш муддати, кун", "Срок ожидания, суток"), { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[6] }),
             CELL(tr("Фитотоксиклик хусусияти", "Фитотоксичность"), { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[7] }),
-            CELL(tavHead, { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[8], align: "left" })
+            CELL(tavHead, { bold: true, shade: "e8e8e8", compact: true, size: 18, width: cw[8] })
           ] }),
           new D.TableRow({ cantSplit: true, children: [
             CELL(meta.crop, { compact: true, size: 18, width: cw[0] }),
             CELL(meta.targetOrganism, { compact: true, size: 18, width: cw[1] }),
             CELL(meta.applicationRate, { compact: true, size: 18, width: cw[2] }),
             CELL(fmt(overallBest, 1), { compact: true, size: 18, width: cw[3] }),
-            CELL(meta.applicationMethod || tr("пуркаш", "опрыскивание"), { compact: true, size: 18, width: cw[4], align: "left" }),
+            CELL(meta.applicationMethod || tr("пуркаш", "опрыскивание"), { compact: true, size: 18, width: cw[4] }),
             CELL(meta.maxTreatments ? tr("мавсумда " + meta.maxTreatments + " марта", meta.maxTreatments + " раза за сезон") : tr("мавсумда 1 марта", "1 раз за сезон"), { compact: true, size: 18, width: cw[5] }),
             CELL(meta.waitingPeriod || "—", { compact: true, size: 18, width: cw[6] }),
             CELL(meta.phytotoxicity || tr("Йўқ", "Нет"), { compact: true, size: 18, width: cw[7] }),
-            CELL(recText, { compact: true, size: 18, width: cw[8], align: "left" })
+            CELL(recText, { compact: true, size: 18, width: cw[8] })
           ] })
         ]
       }));
