@@ -43,11 +43,6 @@
   // ===================== САМАРАДОРЛИК =====================
   function safeDiv(a, b) { return (b === 0 || b == null) ? null : a / b; }
   function abbott(cA, tA) { var r = safeDiv(cA - tA, cA); return r == null ? null : r * 100; }
-  function hendersonTilton(cB, cA, tB, tA) {
-    var a = safeDiv(tA, tB), b = safeDiv(cB, cA);
-    if (a == null || b == null) return null;
-    return (1 - a * b) * 100;
-  }
   function diseaseBioEff(cI, tI) { var r = safeDiv(cI - tI, cI); return r == null ? null : r * 100; }
   function weedBioEff(cD, tD) { var r = safeDiv(cD - tD, cD); return r == null ? null : r * 100; }
 
@@ -145,7 +140,6 @@
 
   function methodLabel(k) {
     var M = {
-      henderson_tilton: "Henderson–Tilton (1955)",
       abbott: "Abbott (1925)",
       disease: tr("Касаллик ривожланиш индекси бўйича (EPPO / давлат методикаси)", "По индексу развития болезни (EPPO / государственная методика)"),
       weed: tr("Бегона ўтлар зичлиги бўйича (давлат гербицид синов методикаси)", "По плотности сорняков (государственная методика испытания гербицидов)"),
@@ -182,15 +176,13 @@
         return { variant: v.name, isControl: !!v.isControl || v.name === control, before: c.before != null ? c.before : null, byDay: bd };
       });
       var ctrl = control ? A.counts[control] : null;
-      var useHT = ctrl && ctrl.before != null && input.variants.some(function (v) { return v.name !== control && A.counts[v.name] && A.counts[v.name].before != null; });
-      methodKey = useHT ? "henderson_tilton" : "abbott";
+      methodKey = "abbott";
       input.variants.forEach(function (v) {
         var isC = !!v.isControl || v.name === control, c = A.counts[v.name], bd = {};
         days.forEach(function (d) {
           if (isC) { bd[d] = null; return; }
           var tA = c && c.byDay[d] != null ? c.byDay[d] : null, cA = ctrl && ctrl.byDay[d] != null ? ctrl.byDay[d] : null, eff = null;
-          if (useHT && c && c.before != null && ctrl && ctrl.before != null) { if (tA != null && cA != null) eff = hendersonTilton(ctrl.before, cA, c.before, tA); }
-          else if (cA != null && tA != null) eff = abbott(cA, tA);
+          if (cA != null && tA != null) eff = abbott(cA, tA);
           bd[d] = round(eff);
         });
         efficacyRows.push({ variant: v.name, isControl: isC, isReference: !!v.isReference, byDay: bd, mean: isC ? null : avg(days.map(function (d) { return bd[d]; })) });
