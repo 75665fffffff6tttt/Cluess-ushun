@@ -884,6 +884,8 @@
       function pageFooter() {
         return new D.Footer({ children: [new D.Paragraph({ alignment: "center", spacing: { before: 0, after: 0 }, children: [new D.TextRun({ children: [D.PageNumber.CURRENT], font: FONT, size: TBL })] })] });
       }
+      // ИЛОВА — 1-формадан сўнг алоҳида тик варақ (тепада марказда сарлавҳа)
+      var appendix = [P(tr("ИЛОВА", "ПРИЛОЖЕНИЕ"), { align: "center", bold: true, size: 32, after: 200 })];
       var doc = new D.Document({
         creator: institute, title: meta.preparatName + tr(" — давлат синови ҳисоботи", " — отчёт государственного испытания"),
         features: { updateFields: true }, // Word очганда МУНДАРИЖА майдонини янгилайди
@@ -891,7 +893,9 @@
           // Асосий ҳисобот — тик (portrait)
           { properties: { page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 850 } } }, footers: { default: pageFooter() }, children: ch },
           // 1-форма — албом (landscape)
-          { properties: { page: { size: { orientation: "landscape", width: 11906, height: 16838 }, margin: { top: 720, bottom: 720, left: 720, right: 720 } } }, footers: { default: pageFooter() }, children: form1 }
+          { properties: { page: { size: { orientation: "landscape", width: 11906, height: 16838 }, margin: { top: 720, bottom: 720, left: 720, right: 720 } } }, footers: { default: pageFooter() }, children: form1 },
+          // ИЛОВА — тик (portrait), янги варақ
+          { properties: { page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 850 } } }, footers: { default: pageFooter() }, children: appendix }
         ]
       });
       return D.Packer.toBlob(doc);
