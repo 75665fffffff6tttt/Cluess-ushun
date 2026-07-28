@@ -283,7 +283,8 @@
 
   // ===================== ГРАФИК (SVG → PNG) =====================
   function svgEsc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-  function barSvg(title, labels, values, maxY) {
+  function barSvg(title, labels, values, maxY, unit) {
+    unit = unit || "";
     var W = 720, H = 400, pl = 58, pr = 24, pt = 54, pb = 52, aw = W - pl - pr, ah = H - pt - pb;
     maxY = maxY || 100; var n = labels.length, slot = aw / n, bw = Math.min(slot * 0.5, 88), r = Math.min(bw / 2, 7), parts = [];
     // орқа фон + чизиш майдони
@@ -302,7 +303,7 @@
         var bh = Math.max(r, Math.max(0, v) / maxY * ah), y = pt + ah - bh;
         // юқори бурчаклари юмалоқ устун (path)
         parts.push('<path d="M' + x.toFixed(1) + ' ' + (pt + ah) + ' V' + (y + r).toFixed(1) + ' a' + r + ' ' + r + ' 0 0 1 ' + r + ' -' + r + ' h' + (bw - 2 * r).toFixed(1) + ' a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + r + ' V' + (pt + ah) + ' Z" fill="url(#barGrad)"/>');
-        parts.push('<text x="' + cx + '" y="' + (y - 7) + '" font-family="Arial" font-size="12.5" font-weight="bold" fill="#1b5e20" text-anchor="middle">' + v.toFixed(1) + '</text>');
+        parts.push('<text x="' + cx + '" y="' + (y - 7) + '" font-family="Arial" font-size="12.5" font-weight="bold" fill="#1b5e20" text-anchor="middle">' + v.toFixed(1) + unit + '</text>');
       }
       parts.push('<text x="' + cx + '" y="' + (pt + ah + 20) + '" font-family="Arial" font-size="12" fill="#44524a" text-anchor="middle">' + svgEsc(lb) + '</text>');
     });
@@ -683,7 +684,7 @@
     var best = rep.efficacyRows.filter(function (r) { return !r.isControl && r.mean != null; }).sort(function (a, b) { return (b.mean || 0) - (a.mean || 0); })[0];
 
     var chartPromises = [];
-    if (best && rep.days.length && !rep.storage) chartPromises.push(svgToPng(barSvg(tr("Биологик самарадорлик — ", "Биологическая эффективность — ") + best.variant + ", %", rep.days.map(function (d) { return tr(d + "-кун", d + " сут."); }), rep.days.map(function (d) { return best.byDay[d]; }), 100)).then(function (png) { return { type: "eff", png: png, variant: best.variant }; }));
+    if (best && rep.days.length && !rep.storage) chartPromises.push(svgToPng(barSvg(tr("Биологик самарадорлик — ", "Биологическая эффективность — ") + best.variant + ", %", rep.days.map(function (d) { return tr(d + "-кун", d + " сут."); }), rep.days.map(function (d) { return best.byDay[d]; }), 100, "%")).then(function (png) { return { type: "eff", png: png, variant: best.variant }; }));
     if (rep.yieldRows && rep.yieldRows.length) {
       var ymax = Math.max.apply(null, rep.yieldRows.map(function (r) { return r.mean || 0; })) * 1.2 || 1;
       chartPromises.push(svgToPng(barSvg(tr("Ҳосилдорлик, ", "Урожайность, ") + (rep.yieldUnit || tr("ц/га", "ц/га")), rep.yieldRows.map(function (r) { return r.variant.length > 14 ? r.variant.slice(0, 13) + "…" : r.variant; }), rep.yieldRows.map(function (r) { return r.mean || 0; }), ymax)).then(function (png) { return { type: "yield", png: png }; }));
