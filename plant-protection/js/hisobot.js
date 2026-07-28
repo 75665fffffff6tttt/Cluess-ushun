@@ -778,8 +778,28 @@
           "HRAC. Global Herbicide Mode of Action Classification / Herbicide Resistance Action Committee. – 2022."
         ]
       };
-      // Ўзак [1–7] аввал (тур мустақил, барқарор рақамлаш), тур-специфик манбалар охирида [8+]
-      var gostField = gostCore.concat(gostExtra[rep.methodKey] || []);
+      // Экин / организм / т.э.м. калит сўзлари бўйича мос реал адабиётлар (жаҳон) — автоматик қўшилади
+      var kw = ((meta.crop || "") + " " + (meta.targetOrganism || "") + " " + (meta.activeIngredients || "")).toLowerCase();
+      function kwHas(arr) { return arr.some(function (w) { return kw.indexOf(w) >= 0; }); }
+      var litType = {
+        weed: ["Rao, V. S. Principles of Weed Science / V. S. Rao. – 2nd ed. – Enfield (NH) : Science Publishers, 2000. – 555 p."],
+        disease: ["Agrios, G. N. Plant Pathology / G. N. Agrios. – 5th ed. – Amsterdam : Elsevier Academic Press, 2005. – 922 p."],
+        abbott: ["Dent, D. Insect Pest Management / D. Dent. – 2nd ed. – Wallingford : CABI Publishing, 2000. – 410 p."]
+      };
+      var litCrop = [
+        { k: ["ғўза", "гўза", "пахта", "cotton", "хлопч", "хлопок"], r: "Oosterhuis, D. M. Physiology of Cotton / D. M. Oosterhuis, J. T. Cothren. – Dordrecht : Springer, 2010. – 563 p." },
+        { k: ["буғдой", "бугдой", "пшениц", "wheat", "ғалла"], r: "Curtis, B. C. Bread Wheat : Improvement and Production / B. C. Curtis, S. Rajaram, H. Gómez Macpherson. – Rome : FAO, 2002. – 554 p." },
+        { k: ["сабзавот", "помидор", "бодринг", "картошка", "картофел", "овощ", "томат", "sabzavot"], r: "Rubatzky, V. E. World Vegetables : Principles, Production and Nutritive Values / V. E. Rubatzky, M. Yamaguchi. – 2nd ed. – New York : Chapman & Hall, 1997. – 843 p." },
+        { k: ["мева", "олма", "узум", "ток", "боғ", "fruit", "плод", "яблон", "виноград"], r: "Westwood, M. N. Temperate-Zone Pomology : Physiology and Culture / M. N. Westwood. – 3rd ed. – Portland : Timber Press, 1993. – 523 p." }
+      ];
+      var litAuto = (litType[rep.methodKey] || []).slice();
+      litCrop.forEach(function (c) { if (kwHas(c.k)) litAuto.push(c.r); });
+      // Ўзбекистон манбаси — инсектицид/фунгицид синовлари учун (услубий кўрсатмалар шу турларни қамрайди)
+      if (rep.methodKey === "abbott" || rep.methodKey === "disease") {
+        litAuto.push(tr("Хўжаев Ш.Т. Ўсимликларни ҳимоя қилишда қўлланиладиган инсектицид, акарицид, биологик фаол моддалар ва фунгицидларни синаш бўйича услубий кўрсатмалар / Ш.Т. Хўжаев. – Тошкент, 2004.", "Ходжаев Ш.Т. Методические указания по испытанию инсектицидов, акарицидов, биологически активных веществ и фунгицидов, применяемых в защите растений / Ш.Т. Ходжаев. – Ташкент, 2004."));
+      }
+      // Ўзак [1–7] аввал (тур мустақил, барқарор рақамлаш), сўнг тур-специфик [8+], сўнг калит сўзли адабиётлар
+      var gostField = gostCore.concat(gostExtra[rep.methodKey] || []).concat(litAuto);
       var gostStorage = [
         "Kader, A. A. Postharvest Technology of Horticultural Crops / A. A. Kader. – 3rd ed. – Oakland : University of California, Agriculture and Natural Resources, 2002. – 535 p.",
         "Snowdon, A. L. A Colour Atlas of Post-harvest Diseases and Disorders of Fruits and Vegetables. Vol. 1 : General Introduction and Fruits / A. L. Snowdon. – London : Wolfe Scientific, 1990. – 302 p.",
