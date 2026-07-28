@@ -324,10 +324,11 @@
     o = o || {};
     // асосий матн бандлари икки томонга текисланади; марказ/ўнг талаб қилинса — берилади
     var align = o.align || (o.indent ? "both" : "left");
-    return new D.Paragraph({ alignment: align, spacing: { before: o.before || 0, after: o.after == null ? 120 : o.after, line: o.line || LINE }, indent: o.indentLeft ? { left: o.indentLeft } : (o.indent ? { firstLine: 709 } : undefined),
+    return new D.Paragraph({ heading: o.heading, alignment: align, spacing: { before: o.before || 0, after: o.after == null ? 120 : o.after, line: o.line || LINE }, indent: o.indentLeft ? { left: o.indentLeft } : (o.indent ? { firstLine: 709 } : undefined),
       children: [new D.TextRun({ text: text, bold: o.bold, italics: o.italics, font: FONT, size: o.size || BODY })] });
   }
-  function H(text) { return new D.Paragraph({ alignment: "center", spacing: { before: 260, after: 160 }, keepNext: true, children: [new D.TextRun({ text: text, bold: true, font: FONT, size: HEAD })] }); }
+  // Бўлим сарлавҳаси — Heading1 услуби (авто-МУНДАРИЖА йиғиши учун)
+  function H(text) { return new D.Paragraph({ heading: D.HeadingLevel.HEADING_1, alignment: "center", spacing: { before: 260, after: 160 }, keepNext: true, children: [new D.TextRun({ text: text, bold: true, font: FONT, size: HEAD, color: "000000" })] }); }
   function FLD(nnum, label, value) { return new D.Paragraph({ alignment: "both", spacing: { after: 80, line: LINE }, children: [new D.TextRun({ text: nnum + " " + label + " – ", font: FONT, size: BODY }), new D.TextRun({ text: value || "—", bold: true, font: FONT, size: BODY })] }); }
   function CELL(text, o) {
     o = o || {};
@@ -528,18 +529,9 @@
       P(tr("Илмий котиб", "Учёный секретарь") + "                                        " + (meta.scientificSecretary || "О.Сулаймонов"), { align: "center" }),
       new D.Paragraph({ children: [new D.PageBreak()] }));
 
-    // ===== Мундарижа (нуқтали чизиқ + бет рақами) =====
+    // ===== Мундарижа — ҳақиқий авто-жадвал (Word очганда бет рақами ўзи тўлади) =====
     ch.push(P(tr("МУНДАРИЖА", "СОДЕРЖАНИЕ"), { align: "center", bold: true, size: HEAD, after: 200 }));
-    var toc = LANG === "ru" ? [
-      ["Введение", "4"], ["1. Обзор литературы", "4"], ["2. Протокол испытания", "5"],
-      ["3. Место и методы (методика) проведения испытания", "6"], ["4. Результаты опыта (исследования)", "7"],
-      ["5. Выводы и рекомендации", "8"], ["6. Список использованной литературы", "9"], ["7. Выводы и рекомендации по итогам испытания", "10"]
-    ] : [
-      ["Кириш", "4"], ["1. Адабиётлар шарҳи", "4"], ["2. Синов баённомаси", "5"],
-      ["3. Синов ўтказиш жойи ва услублари (методикаси)", "6"], ["4. Тажриба (тадқиқот) натижалари", "7"],
-      ["5. Хулоса ва тавсиялар", "8"], ["6. Фойдаланилган адабиётлар рўйхати", "9"], ["7. Синов якуни бўйича хулоса ва тавсиялар", "10"]
-    ];
-    toc.forEach(function (t) { ch.push(TOCLINE(t[0], t[1])); });
+    ch.push(new D.TableOfContents(tr("Мундарижа", "Содержание"), { hyperlink: true, headingStyleRange: "1-1" }));
     ch.push(new D.Paragraph({ children: [new D.PageBreak()] }));
 
     // 1. Кириш — синов турига қараб (сақлаш ёки дала)
@@ -741,7 +733,7 @@
       var form1 = [];
       var L = { align: "left", after: 30, line: 240, size: TBL };  // ихчам банд
       form1.push(P(tr("1-форма", "Форма 1"), { align: "right", after: 30 }),
-        P(tr("Рўйхатга олиш учун синовлар якуни бўйича хулоса ва тавсиялар", "Выводы и рекомендации по итогам испытаний для регистрации"), { bold: true, align: "center", size: BODY, after: 120 }),
+        P(tr("Рўйхатга олиш учун синовлар якуни бўйича хулоса ва тавсиялар", "Выводы и рекомендации по итогам испытаний для регистрации"), { heading: D.HeadingLevel.HEADING_1, bold: true, align: "center", size: BODY, after: 120 }),
         P(tr("1. Ўсимликларни ҳимоя қилиш воситасининг савдо номи – " + (meta.tradeName || meta.preparatName), "1. Торговое наименование средства защиты растений – " + (meta.tradeName || meta.preparatName)), L),
         P(tr("2. Таъсир этувчи моддаси – " + meta.activeIngredients + ".", "2. Действующее вещество – " + meta.activeIngredients + "."), L),
         P(tr("3. Рўйхатга олиш учун талабгор ташкилотнинг номи, давлати – " + (meta.applicantOrg || meta.manufacturer || "—") + (meta.country ? ", " + meta.country : "") + ".", "3. Наименование и страна организации-заявителя для регистрации – " + (meta.applicantOrg || meta.manufacturer || "—") + (meta.country ? ", " + meta.country : "") + "."), L),
@@ -798,13 +790,18 @@
         ] })]
       }));
 
+      // Футерда автоматик бет рақами (марказда)
+      function pageFooter() {
+        return new D.Footer({ children: [new D.Paragraph({ alignment: "center", spacing: { before: 0, after: 0 }, children: [new D.TextRun({ children: [D.PageNumber.CURRENT], font: FONT, size: TBL })] })] });
+      }
       var doc = new D.Document({
         creator: institute, title: meta.preparatName + tr(" — давлат синови ҳисоботи", " — отчёт государственного испытания"),
+        features: { updateFields: true }, // Word очганда МУНДАРИЖА майдонини янгилайди
         sections: [
           // Асосий ҳисобот — тик (portrait)
-          { properties: { page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 850 } } }, children: ch },
+          { properties: { page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 850 } } }, footers: { default: pageFooter() }, children: ch },
           // 1-форма — албом (landscape)
-          { properties: { page: { size: { orientation: "landscape", width: 11906, height: 16838 }, margin: { top: 720, bottom: 720, left: 720, right: 720 } } }, children: form1 }
+          { properties: { page: { size: { orientation: "landscape", width: 11906, height: 16838 }, margin: { top: 720, bottom: 720, left: 720, right: 720 } } }, footers: { default: pageFooter() }, children: form1 }
         ]
       });
       return D.Packer.toBlob(doc);
