@@ -336,6 +336,7 @@
   var TBL = 24;    // 12 pt — жадвал катаклари
   var HEAD = 28;   // 14 pt — бўлим сарлавҳалари
   var LINE = 360;  // 1,5 сатр оралиғи
+  var tocEntries = [], tocSeq = 0; // статик Мундарижа учун бўлим сарлавҳалари йиғилади
 
   function P(text, o) {
     o = o || {};
@@ -345,7 +346,11 @@
       children: [new D.TextRun({ text: text, bold: o.bold, italics: o.italics, font: FONT, size: o.size || BODY })] });
   }
   // Бўлим сарлавҳаси — Heading1 услуби (авто-МУНДАРИЖА йиғиши учун)
-  function H(text) { return new D.Paragraph({ heading: D.HeadingLevel.HEADING_1, alignment: "center", spacing: { before: 260, after: 160 }, keepNext: true, children: [new D.TextRun({ text: text, bold: true, font: FONT, size: HEAD, color: "000000" })] }); }
+  function H(text) {
+    var id = "_Toc" + (tocSeq++);
+    tocEntries.push({ id: id, title: text });
+    return new D.Paragraph({ heading: D.HeadingLevel.HEADING_1, alignment: "center", spacing: { before: 260, after: 160 }, keepNext: true, children: [new D.Bookmark({ id: id, children: [new D.TextRun({ text: text, bold: true, font: FONT, size: HEAD, color: "000000" })] })] });
+  }
   function FLD(nnum, label, value) { return new D.Paragraph({ alignment: "both", spacing: { after: 80, line: LINE }, children: [new D.TextRun({ text: nnum + " " + label + " – ", font: FONT, size: BODY }), new D.TextRun({ text: value || "—", font: FONT, size: BODY })] }); }
   function CELL(text, o) {
     o = o || {};
@@ -490,6 +495,7 @@
   function buildReport(rep, meta) {
     D = window.docx;
     LANG = detectLang();
+    tocEntries = []; tocSeq = 0; // ҳар генерацияда Мундарижа қайтадан йиғилади
     var ch = [], institute = meta.institute || tr("Ўсимликлар карантини ва ҳимояси илмий-тадқиқот институти", "Научно-исследовательский институт карантина и защиты растений");
     var nonControl = rep.detailed ? rep.detailed.nonControlVariants : [];
     var overallBest = rep.detailed ? rep.detailed.overallMeanRow.byVariant[bestNonControl(rep)].pct : (rep.efficacyRows.filter(function (r) { return !r.isControl && r.mean != null; }).sort(function (a, b) { return (b.mean || 0) - (a.mean || 0); })[0] || {}).mean;
@@ -547,7 +553,7 @@
 
     // ===== Мундарижа — ҳақиқий авто-жадвал (Word очганда бет рақами ўзи тўлади) =====
     ch.push(P(tr("МУНДАРИЖА", "СОДЕРЖАНИЕ"), { align: "center", bold: true, size: HEAD, after: 200 }));
-    ch.push(new D.TableOfContents(tr("Мундарижа", "Содержание"), { hyperlink: true, headingStyleRange: "1-1" }));
+    var tocIndex = ch.length; // статик Мундарижа қаторлари кейин шу ерга қўшилади
     ch.push(new D.Paragraph({ children: [new D.PageBreak()] }));
 
     // 1. Кириш — синов турига қараб (сақлаш ёки дала)
@@ -672,7 +678,7 @@
       ch.push(rep.detailed && rep.detailed.periods.length ? detailTable(rep) : effTable(rep));
     }
 
-    return { children: ch, institute: institute, nonControl: nonControl, overallBest: overallBest };
+    return { children: ch, institute: institute, nonControl: nonControl, overallBest: overallBest, tocIndex: tocIndex };
   }
 
   // асосий: тўлиқ ҳужжат (график билан, async)
@@ -884,6 +890,21 @@
       function pageFooter() {
         return new D.Footer({ children: [new D.Paragraph({ alignment: "center", spacing: { before: 0, after: 0 }, children: [new D.TextRun({ children: [D.PageNumber.CURRENT], font: FONT, size: TBL })] })] });
       }
+      // Статик Мундарижа қаторлари — H() йиққан бўлимлардан. Ном ва ҳаволалар доим кўринади;
+      // бет рақами PAGEREF майдони орқали Word очганда/F9 да автоматик тўлади.
+      var tocRows = tocEntries.map(function (e) {
+        return new D.Paragraph({
+          tabStops: [{ type: D.TabStopType.RIGHT, position: 9350, leader: D.LeaderType.DOTS }],
+          spacing: { after: 80, line: LINE },
+          children: [
+            new D.InternalHyperlink({ anchor: e.id, children: [new D.TextRun({ text: e.title, font: FONT, size: BODY })] }),
+            new D.TextRun({ text: "\t", font: FONT, size: BODY }),
+            new D.PageReference(e.id, { hyperlink: true })
+          ]
+        });
+      });
+      Array.prototype.splice.apply(ch, [built.tocIndex, 0].concat(tocRows));
+
       // ИЛОВА — 1-формадан сўнг алоҳида тик варақ (тепада марказда сарлавҳа)
       var appendix = [P(tr("ИЛОВА", "ПРИЛОЖЕНИЕ"), { align: "center", bold: true, size: 32, after: 200 })];
       var doc = new D.Document({
