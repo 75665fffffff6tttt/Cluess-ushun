@@ -525,7 +525,7 @@
       // Кенгаш баённомаси + Илмий котиб — алоҳида 2-варақда
       new D.Paragraph({ children: [new D.PageBreak()] }),
       P(tr(institute + " илмий кенгашида №___-сонли баённома, «___»________ " + reportYear + " йилда кўриб чиқилди.", "Рассмотрено на учёном совете " + ruGenitive(institute) + ", протокол №___ от «___»________ " + reportYear + " г."), { align: "center", after: 200 }),
-      P(tr("Илмий котиб", "Учёный секретарь") + "                                        " + (meta.scientificSecretary || "О.Сулаймонов"), { align: "center" }),
+      P(tr("Илмий котиб", "Учёный секретарь") + "                                        " + (meta.scientificSecretary || "О.Сулаймонов"), { align: "center", before: 720 }),
       new D.Paragraph({ children: [new D.PageBreak()] }));
 
     // ===== Мундарижа — ҳақиқий авто-жадвал (Word очганда бет рақами ўзи тўлади) =====
