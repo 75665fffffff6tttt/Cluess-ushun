@@ -455,6 +455,9 @@
     return (words.join(" ") + " " + rest).trim();
   }
 
+  // Жумла ўртасидаги ном учун биринчи ҳарфни кичик қилиш (масалан «Икки паллали...» → «икки паллали...»)
+  function lcFirst(s) { return s ? s.charAt(0).toLowerCase() + s.slice(1) : s; }
+
   // Титул сарлавҳаси учун препаратдан кейинги «(ишлаб чиқарувчи, давлат)» қисми
   function titleMaker(meta) {
     var m = (meta.manufacturer || meta.applicantOrg || "").trim();
@@ -487,10 +490,12 @@
       P(tr(institute.replace(/-/g, "‑") + " директори", "Директор " + ruGenitive(institute).replace(/-/g, "‑")), { indentLeft: 4200, align: "center", after: 40 }),
       P("___________" + (meta.director || "А.Анорбаев"), { indentLeft: 4200, align: "center", after: 40 }),
       P(tr("«___»___________ " + reportYear + " йил.", "«___»___________ " + reportYear + " г."), { indentLeft: 4200, align: "center", after: 500 }),
-      P(tr("ИЛМИЙ ҲИСОБОТ", "НАУЧНЫЙ ОТЧЁТ"), { align: "center", bold: true, size: 32, after: 260 }),
-      P(tr(
-        meta.crop + " экинида " + meta.targetOrganism + "га қарши " + meta.preparatName + titleMaker(meta) + " препаратининг биологик самарадорлигини рўйхатга олиш учун синов натижалари",
-        "Результаты испытаний для регистрации биологической эффективности препарата " + meta.preparatName + titleMaker(meta) + " против " + meta.targetOrganism + " на культуре " + meta.crop
+      P(tr("ИЛМИЙ ҲИСОБОТ", "НАУЧНЫЙ ОТЧЁТ"), { align: "center", bold: true, size: 32, after: 260 }));
+    // Титул жумласи ўртасида организм номи кичик ҳарфдан бошланади
+    var orgTitle = lcFirst(meta.targetOrganism);
+    ch.push(P(tr(
+        meta.crop + " экинида " + orgTitle + "га қарши " + meta.preparatName + titleMaker(meta) + " препаратининг биологик самарадорлигини рўйхатга олиш учун синов натижалари",
+        "Результаты испытаний для регистрации биологической эффективности препарата " + meta.preparatName + titleMaker(meta) + " против " + orgTitle + " на культуре " + meta.crop
       ), { align: "center", after: 600 }));
     // Маъсул ижрочи / Ижрочилар
     if (staffList.length) {
@@ -533,7 +538,7 @@
     ch.push(new D.Paragraph({ children: [new D.PageBreak()] }));
 
     // 1. Кириш — синов турига қараб (сақлаш ёки дала)
-    var org = meta.targetOrganism, crop = meta.crop, prep = meta.preparatName, ai = meta.activeIngredients;
+    var org = lcFirst(meta.targetOrganism), crop = meta.crop, prep = meta.preparatName, ai = meta.activeIngredients;
     var tl = rep.typeNameUz.toLowerCase();
     if (tl === "аниқланмаган") tl = tr("аниқланмаган препарат", "препарат");
     var variety = meta.variety || "—";
@@ -617,7 +622,7 @@
       storageTables(ch, rep, meta);
     } else {
       ch.push(P(tr("2-жадвал", "Таблица 2"), { align: "right", size: TBL, after: 40 }),
-        P(tr(meta.preparatName + " препаратининг " + meta.targetOrganism + "га қарши биологик самарадорлиги", "Биологическая эффективность препарата " + meta.preparatName + " против " + meta.targetOrganism), { bold: true, align: "center", size: BODY }));
+        P(tr(meta.preparatName + " препаратининг " + lcFirst(meta.targetOrganism) + "га қарши биологик самарадорлиги", "Биологическая эффективность препарата " + meta.preparatName + " против " + lcFirst(meta.targetOrganism)), { bold: true, align: "center", size: BODY }));
       ch.push(rep.detailed && rep.detailed.periods.length ? detailTable(rep) : effTable(rep));
     }
 
@@ -685,10 +690,10 @@
         ch.push(P(tr((n + 1) + ". " + meta.crop + " маҳсулотини сақлашда " + meta.preparatName + " (" + meta.applicationRate + ") воситаси қўлланганда касалланмаган мевалар улуши " + fmt(sBest ? sBest.healthy : overallBest, 1) + "%, мевалар турғорлиги " + (sBest ? fmt(sBest.firmness, 2) + " кг/см²" : "юқори даражада") + " бўлди; " + disTxt + ".", (n + 1) + ". При применении средства " + meta.preparatName + " (" + meta.applicationRate + ") при хранении продукции " + meta.crop + " доля здоровых плодов составила " + fmt(sBest ? sBest.healthy : overallBest, 1) + "%, твёрдость плодов — " + (sBest ? fmt(sBest.firmness, 2) + " кг/см²" : "на высоком уровне") + "; " + disTxt + "."), { indent: true })); n++;
         if (sCtrl) { ch.push(P(tr((n + 1) + ". Назорат вариантида (ишлов берилмаган) касалланмаган мевалар улуши атиги " + fmt(sCtrl.healthy, 1) + "% ни ташкил этди — бу восита сақлаш давомида микробиологик фаолликни пасайтириши ва маҳсулот сифатини сақлашга ёрдам беришини кўрсатади.", (n + 1) + ". В контрольном варианте (без обработки) доля здоровых плодов составила лишь " + fmt(sCtrl.healthy, 1) + "% — это свидетельствует о том, что средство снижает микробиологическую активность при хранении и способствует сохранению качества продукции."), { indent: true })); n++; }
         ch.push(P(tr((n + 1) + ". Восита мақбул меъёрда қўлланганда фитотоксик таъсир, ёт ҳид ёки қолдиқ модда кузатилмади; уни қўллаш технологияси оддий ва иқтисодий жиҳатдан мақбул.", (n + 1) + ". При применении средства в оптимальной норме фитотоксического действия, постороннего запаха или остаточных веществ не наблюдалось; технология его применения проста и экономически приемлема."), { indent: true })); n++;
-        ch.push(P(tr((n + 1) + ". Тажриба натижаларидан келиб чиққан ҳолда " + meta.preparatName + " (" + meta.applicationRate + ") воситасини " + meta.crop + " маҳсулотини сақлашда " + meta.targetOrganism + "нинг олдини олиш учун Давлат рўйхатига киритиш тавсия этилади.", (n + 1) + ". Исходя из результатов опыта, рекомендуется включить средство " + meta.preparatName + " (" + meta.applicationRate + ") в Государственный реестр для предотвращения " + meta.targetOrganism + " при хранении продукции " + meta.crop + "."), { indent: true }));
+        ch.push(P(tr((n + 1) + ". Тажриба натижаларидан келиб чиққан ҳолда " + meta.preparatName + " (" + meta.applicationRate + ") воситасини " + meta.crop + " маҳсулотини сақлашда " + lcFirst(meta.targetOrganism) + "нинг олдини олиш учун Давлат рўйхатига киритиш тавсия этилади.", (n + 1) + ". Исходя из результатов опыта, рекомендуется включить средство " + meta.preparatName + " (" + meta.applicationRate + ") в Государственный реестр для предотвращения " + lcFirst(meta.targetOrganism) + " при хранении продукции " + meta.crop + "."), { indent: true }));
       } else {
         // ——— Дала синови учун хулоса ———
-        ch.push(P(tr("1. Олиб борилган тажриба натижаларига кўра " + meta.preparatName + " (" + meta.applicationRate + ") препарати " + meta.targetOrganism + "га қарши " + fmt(overallBest, 1) + "% биологик самарадорлик кўрсатди.", "1. По результатам проведённого опыта препарат " + meta.preparatName + " (" + meta.applicationRate + ") показал биологическую эффективность против " + meta.targetOrganism + " на уровне " + fmt(overallBest, 1) + "%."), { indent: true }),
+        ch.push(P(tr("1. Олиб борилган тажриба натижаларига кўра " + meta.preparatName + " (" + meta.applicationRate + ") препарати " + lcFirst(meta.targetOrganism) + "га қарши " + fmt(overallBest, 1) + "% биологик самарадорлик кўрсатди.", "1. По результатам проведённого опыта препарат " + meta.preparatName + " (" + meta.applicationRate + ") показал биологическую эффективность против " + lcFirst(meta.targetOrganism) + " на уровне " + fmt(overallBest, 1) + "%."), { indent: true }),
           P(tr("2. Препарат мақбул меъёрда қўлланганда токсик (фитотоксик) ҳолатлар кузатилмади.", "2. При применении препарата в оптимальной норме токсических (фитотоксических) явлений не наблюдалось."), { indent: true }));
         if (rep.yieldRows) { var ctrl2 = rep.yieldRows.filter(function (r) { return r.isControl; })[0], trow = rep.yieldRows.filter(function (r) { return !r.isControl && r.increaseVsControlPct != null; })[0]; if (ctrl2 && trow && ctrl2.mean != null && trow.mean != null) ch.push(P(tr("3. Назоратга нисбатан қўшимча " + fmt(trow.mean - ctrl2.mean, 1) + " " + (rep.yieldUnit || "ц/га") + " ҳосил олинди.", "3. По сравнению с контролем получена дополнительная прибавка урожая " + fmt(trow.mean - ctrl2.mean, 1) + " " + (rep.yieldUnit || "ц/га") + "."), { indent: true })); }
         ch.push(P(tr("4. Тажриба натижаларидан келиб чиққан ҳолда " + meta.preparatName + " (" + meta.applicationRate + ") препаратини Давлат рўйхатига киритиш тавсия этилади.", "4. Исходя из результатов опыта, рекомендуется включить препарат " + meta.preparatName + " (" + meta.applicationRate + ") в Государственный реестр."), { indent: true }));
@@ -739,7 +744,7 @@
         P(tr("5. Рўйхатга олиш учун синов ўтказилган жой ва муддати – " + meta.site + "да " + meta.trialDate + ".", "5. Место и срок проведения испытания для регистрации – " + meta.site + ", " + meta.trialDate + "."), { align: "left", after: 120, line: 240, size: TBL }));
 
       // Расмий 9 устунли жадвал — албом бетга ихчам жойлашади
-      var recText = tr("«" + meta.preparatName + "» " + meta.applicationRate + " сарф-меъёрда " + meta.crop + " экинида " + meta.targetOrganism + "га қарши рўйхатга олишга тавсия этилсин.", "Рекомендовать «" + meta.preparatName + "» к регистрации при норме расхода " + meta.applicationRate + " против " + meta.targetOrganism + " на культуре " + meta.crop + ".");
+      var recText = tr("«" + meta.preparatName + "» " + meta.applicationRate + " сарф-меъёрда " + meta.crop + " экинида " + lcFirst(meta.targetOrganism) + "га қарши рўйхатга олишга тавсия этилсин.", "Рекомендовать «" + meta.preparatName + "» к регистрации при норме расхода " + meta.applicationRate + " против " + lcFirst(meta.targetOrganism) + " на культуре " + meta.crop + ".");
       var tavHead = tr("Тавсиялар: «рўйхатга олишга тавсия этилсин (сарф меъёри ва бошқалар)». «Рўйхатга олиш учун синовлар давом эттирилсин». «Кейинги синовлар рад этилсин» (сабаблари кўрсатилади).", "Рекомендации: «рекомендовать к регистрации (норма расхода и др.)». «Продолжить испытания для регистрации». «Отклонить дальнейшие испытания» (с указанием причин).");
       var cw = [950, 1320, 1600, 1650, 2750, 1480, 1320, 1380, 2950]; // сумма ≈ 15400 (албом эни)
       form1.push(new D.Table({
