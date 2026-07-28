@@ -284,31 +284,30 @@
   // ===================== ГРАФИК (SVG → PNG) =====================
   function svgEsc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
   function barSvg(title, labels, values, maxY) {
-    var W = 720, H = 400, pl = 55, pr = 20, pt = 46, pb = 50, aw = W - pl - pr, ah = H - pt - pb;
-    maxY = maxY || 100; var n = labels.length, slot = aw / n, bw = slot * 0.55, parts = [];
-    parts.push('<rect width="' + W + '" height="' + H + '" fill="#fff"/>');
-    parts.push('<text x="' + (W / 2) + '" y="26" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle">' + svgEsc(title) + '</text>');
-    for (var t = 0; t <= 5; t++) { var yv = maxY * t / 5, y = pt + ah - (yv / maxY) * ah; parts.push('<line x1="' + pl + '" y1="' + y + '" x2="' + (W - pr) + '" y2="' + y + '" stroke="#e0e0e0"/>'); parts.push('<text x="' + (pl - 6) + '" y="' + (y + 4) + '" font-family="Arial" font-size="12" text-anchor="end" fill="#555">' + Math.round(yv) + '</text>'); }
-    labels.forEach(function (lb, i) { var v = values[i], cx = pl + slot * i + slot / 2; if (v != null) { var bh = Math.max(0, v) / maxY * ah, y = pt + ah - bh; parts.push('<rect x="' + (cx - bw / 2) + '" y="' + y + '" width="' + bw + '" height="' + bh + '" fill="#2e7d32"/>'); parts.push('<text x="' + cx + '" y="' + (y - 5) + '" font-family="Arial" font-size="12" text-anchor="middle">' + v.toFixed(1) + '</text>'); } parts.push('<text x="' + cx + '" y="' + (pt + ah + 18) + '" font-family="Arial" font-size="11" text-anchor="middle">' + svgEsc(lb) + '</text>'); });
-    parts.push('<line x1="' + pl + '" y1="' + (pt + ah) + '" x2="' + (W - pr) + '" y2="' + (pt + ah) + '" stroke="#333"/>');
-    return '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '">' + parts.join("") + '</svg>';
-  }
-  // Чизиқли график — вақт (ҳисоб кунлари) бўйича динамика учун
-  function lineSvg(title, labels, values, maxY) {
-    var W = 720, H = 400, pl = 55, pr = 20, pt = 46, pb = 50, aw = W - pl - pr, ah = H - pt - pb;
-    maxY = maxY || 100; var n = labels.length, parts = [];
-    parts.push('<rect width="' + W + '" height="' + H + '" fill="#fff"/>');
-    parts.push('<text x="' + (W / 2) + '" y="26" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle">' + svgEsc(title) + '</text>');
-    for (var t = 0; t <= 5; t++) { var yv = maxY * t / 5, y = pt + ah - (yv / maxY) * ah; parts.push('<line x1="' + pl + '" y1="' + y + '" x2="' + (W - pr) + '" y2="' + y + '" stroke="#e0e0e0"/>'); parts.push('<text x="' + (pl - 6) + '" y="' + (y + 4) + '" font-family="Arial" font-size="12" text-anchor="end" fill="#555">' + Math.round(yv) + '</text>'); }
-    function px(i) { return n > 1 ? pl + (aw * i / (n - 1)) : pl + aw / 2; }
-    function py(v) { return pt + ah - Math.max(0, v) / maxY * ah; }
-    // синиқ чизиқ (мавжуд қийматлар бўйича)
-    var pts = [];
-    labels.forEach(function (lb, i) { if (values[i] != null) pts.push({ x: px(i), y: py(values[i]) }); });
-    if (pts.length > 1) parts.push('<polyline fill="none" stroke="#2e7d32" stroke-width="2.5" points="' + pts.map(function (p) { return p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(" ") + '"/>');
-    // нуқталар + қийматлар + Х ўқи белгилари
-    labels.forEach(function (lb, i) { var v = values[i], cx = px(i); if (v != null) { var cy = py(v); parts.push('<circle cx="' + cx + '" cy="' + cy + '" r="4" fill="#2e7d32"/>'); parts.push('<text x="' + cx + '" y="' + (cy - 9) + '" font-family="Arial" font-size="12" text-anchor="middle">' + v.toFixed(1) + '</text>'); } parts.push('<text x="' + cx + '" y="' + (pt + ah + 18) + '" font-family="Arial" font-size="11" text-anchor="middle">' + svgEsc(lb) + '</text>'); });
-    parts.push('<line x1="' + pl + '" y1="' + (pt + ah) + '" x2="' + (W - pr) + '" y2="' + (pt + ah) + '" stroke="#333"/>');
+    var W = 720, H = 400, pl = 58, pr = 24, pt = 54, pb = 52, aw = W - pl - pr, ah = H - pt - pb;
+    maxY = maxY || 100; var n = labels.length, slot = aw / n, bw = Math.min(slot * 0.5, 88), r = Math.min(bw / 2, 7), parts = [];
+    // орқа фон + чизиш майдони
+    parts.push('<rect width="' + W + '" height="' + H + '" rx="14" fill="#ffffff"/>');
+    parts.push('<rect x="' + pl + '" y="' + pt + '" width="' + aw + '" height="' + ah + '" rx="8" fill="#f6faf6"/>');
+    // градиент устунлар учун
+    parts.push('<defs><linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5cba5f"/><stop offset="1" stop-color="#2e7d32"/></linearGradient></defs>');
+    // сарлавҳа + пастида нозик чизиқ
+    parts.push('<text x="' + (W / 2) + '" y="30" font-family="Arial" font-size="18" font-weight="bold" fill="#1b5e20" text-anchor="middle">' + svgEsc(title) + '</text>');
+    // тўр чизиқлари + Y ўқи қийматлари
+    for (var t = 0; t <= 5; t++) { var yv = maxY * t / 5, y = pt + ah - (yv / maxY) * ah; parts.push('<line x1="' + pl + '" y1="' + y + '" x2="' + (W - pr) + '" y2="' + y + '" stroke="#e3ece3" stroke-width="1"/>'); parts.push('<text x="' + (pl - 8) + '" y="' + (y + 4) + '" font-family="Arial" font-size="12" text-anchor="end" fill="#6b7c6b">' + Math.round(yv) + '</text>'); }
+    // устунлар (юмалоқ юқори бурчакли), қиймат ёзуви, Х белгилари
+    labels.forEach(function (lb, i) {
+      var v = values[i], cx = pl + slot * i + slot / 2, x = cx - bw / 2;
+      if (v != null) {
+        var bh = Math.max(r, Math.max(0, v) / maxY * ah), y = pt + ah - bh;
+        // юқори бурчаклари юмалоқ устун (path)
+        parts.push('<path d="M' + x.toFixed(1) + ' ' + (pt + ah) + ' V' + (y + r).toFixed(1) + ' a' + r + ' ' + r + ' 0 0 1 ' + r + ' -' + r + ' h' + (bw - 2 * r).toFixed(1) + ' a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + r + ' V' + (pt + ah) + ' Z" fill="url(#barGrad)"/>');
+        parts.push('<text x="' + cx + '" y="' + (y - 7) + '" font-family="Arial" font-size="12.5" font-weight="bold" fill="#1b5e20" text-anchor="middle">' + v.toFixed(1) + '</text>');
+      }
+      parts.push('<text x="' + cx + '" y="' + (pt + ah + 20) + '" font-family="Arial" font-size="12" fill="#44524a" text-anchor="middle">' + svgEsc(lb) + '</text>');
+    });
+    // асосий (Х) ўқ чизиғи
+    parts.push('<line x1="' + pl + '" y1="' + (pt + ah) + '" x2="' + (W - pr) + '" y2="' + (pt + ah) + '" stroke="#9bb09b" stroke-width="1.5"/>');
     return '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '">' + parts.join("") + '</svg>';
   }
   function svgToPng(svg) {
@@ -684,7 +683,7 @@
     var best = rep.efficacyRows.filter(function (r) { return !r.isControl && r.mean != null; }).sort(function (a, b) { return (b.mean || 0) - (a.mean || 0); })[0];
 
     var chartPromises = [];
-    if (best && rep.days.length && !rep.storage) chartPromises.push(svgToPng(lineSvg(tr("Биологик самарадорлик — ", "Биологическая эффективность — ") + best.variant + ", %", rep.days.map(function (d) { return tr(d + "-кун", d + " сут."); }), rep.days.map(function (d) { return best.byDay[d]; }), 100)).then(function (png) { return { type: "eff", png: png, variant: best.variant }; }));
+    if (best && rep.days.length && !rep.storage) chartPromises.push(svgToPng(barSvg(tr("Биологик самарадорлик — ", "Биологическая эффективность — ") + best.variant + ", %", rep.days.map(function (d) { return tr(d + "-кун", d + " сут."); }), rep.days.map(function (d) { return best.byDay[d]; }), 100)).then(function (png) { return { type: "eff", png: png, variant: best.variant }; }));
     if (rep.yieldRows && rep.yieldRows.length) {
       var ymax = Math.max.apply(null, rep.yieldRows.map(function (r) { return r.mean || 0; })) * 1.2 || 1;
       chartPromises.push(svgToPng(barSvg(tr("Ҳосилдорлик, ", "Урожайность, ") + (rep.yieldUnit || tr("ц/га", "ц/га")), rep.yieldRows.map(function (r) { return r.variant.length > 14 ? r.variant.slice(0, 13) + "…" : r.variant; }), rep.yieldRows.map(function (r) { return r.mean || 0; }), ymax)).then(function (png) { return { type: "yield", png: png }; }));
