@@ -502,9 +502,10 @@
       var noB = { borders: {}, verticalAlign: "top" };
       var SIG = ""; // имзо чекишга бўш жой (чизиқсиз)
       ch.push(new D.Table({
-        width: { size: 100, type: "pct" },
+        alignment: "center",
+        width: { size: 6600, type: "dxa" },
         borders: { top: { style: "none" }, bottom: { style: "none" }, left: { style: "none" }, right: { style: "none" }, insideHorizontal: { style: "none" }, insideVertical: { style: "none" } },
-        columnWidths: [3000, 2600, 4000],
+        columnWidths: [2900, 1200, 2500],
         rows: [
           new D.TableRow({ children: [
             new D.TableCell(Object.assign({}, noB, { children: [P(tr("Маъсул ижрочи:", "Ответственный исполнитель:"), { after: 480 })] })),
