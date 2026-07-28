@@ -329,7 +329,7 @@
   }
   // Бўлим сарлавҳаси — Heading1 услуби (авто-МУНДАРИЖА йиғиши учун)
   function H(text) { return new D.Paragraph({ heading: D.HeadingLevel.HEADING_1, alignment: "center", spacing: { before: 260, after: 160 }, keepNext: true, children: [new D.TextRun({ text: text, bold: true, font: FONT, size: HEAD, color: "000000" })] }); }
-  function FLD(nnum, label, value) { return new D.Paragraph({ alignment: "both", spacing: { after: 80, line: LINE }, children: [new D.TextRun({ text: nnum + " " + label + " – ", font: FONT, size: BODY }), new D.TextRun({ text: value || "—", bold: true, font: FONT, size: BODY })] }); }
+  function FLD(nnum, label, value) { return new D.Paragraph({ alignment: "both", spacing: { after: 80, line: LINE }, children: [new D.TextRun({ text: nnum + " " + label + " – ", font: FONT, size: BODY }), new D.TextRun({ text: value || "—", font: FONT, size: BODY })] }); }
   function CELL(text, o) {
     o = o || {};
     var b = { top: { style: "single", size: 4, color: "000000" }, bottom: { style: "single", size: 4, color: "000000" }, left: { style: "single", size: 4, color: "000000" }, right: { style: "single", size: 4, color: "000000" } };
