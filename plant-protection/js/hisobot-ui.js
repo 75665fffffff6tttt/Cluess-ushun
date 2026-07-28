@@ -8,7 +8,7 @@
   var META_KEYS = ["preparatName", "activeIngredients", "preparatForm", "manufacturer", "country",
     "crop", "variety", "targetOrganism", "applicationRate", "referenceName", "workingSolution",
     "site", "trialDate", "laboratory", "staff", "weather",
-    "institute", "director", "reportCity", "scientificSecretary", "secretaryDegree", "deputyDirector",
+    "institute", "director", "reportCity", "scientificSecretary", "deputyDirector",
     "protocolNumber", "applicantOrg", "tradeName", "testEquipment",
     "applicationMethod", "experimentType", "referenceFullDesc", "labConclusion",
     "maxTreatments", "waitingPeriod", "phytotoxicity", "cropPhase", "references"];

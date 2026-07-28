@@ -514,7 +514,7 @@
       // Кенгаш баённомаси + Илмий котиб — алоҳида 2-варақда
       new D.Paragraph({ children: [new D.PageBreak()] }),
       P(tr(institute + " илмий кенгашида №" + protoNo + "-сонли баённома, «___»________ " + reportYear + " йилда кўриб чиқилди.", "Рассмотрено на учёном совете " + ruGenitive(institute) + ", протокол №" + protoNo + " от «___»________ " + reportYear + " г."), { align: "center", after: 200 }),
-      P(tr("Илмий котиб, ", "Учёный секретарь, ") + ((meta.secretaryDegree && meta.secretaryDegree.trim()) || tr("қ.х.ф.д.", "д.с.-х.н.")) + "                                        " + (meta.scientificSecretary || "О.Сулаймонов"), { align: "center" }),
+      P(tr("Илмий котиб", "Учёный секретарь") + "                                        " + (meta.scientificSecretary || "О.Сулаймонов"), { align: "center" }),
       new D.Paragraph({ children: [new D.PageBreak()] }));
 
     // ===== Мундарижа (нуқтали чизиқ + бет рақами) =====
