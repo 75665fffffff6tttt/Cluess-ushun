@@ -754,19 +754,31 @@
       // 7. Адабиётлар — ГОСТ 7.1-2003 талабида, синов турига мос
       ch.push(H(tr("6. Фойдаланилган адабиётлар рўйхати", "6. Список использованной литературы")));
       var refs = (meta.references || "").split(/\n+/).map(function (s) { return s.trim(); }).filter(Boolean);
-      var gostField = [
-        "Abbott, W. S. A method of computing the effectiveness of an insecticide / W. S. Abbott // Journal of Economic Entomology. – 1925. – Vol. 18, № 2. – P. 265–267.",
-        "Schneider-Orelli, O. Entomologisches Praktikum / O. Schneider-Orelli. – Aarau : Sauerländer, 1947. – 237 S.",
+      // Умумий ўзак — барча дала синовлари учун
+      var gostCore = [
         "Доспехов, Б. А. Методика полевого опыта (с основами статистической обработки результатов исследований) / Б. А. Доспехов. – 5-е изд., перераб. и доп. – Москва : Агропромиздат, 1985. – 351 с.",
         "EPPO Standard PP 1/152 (4). Design and analysis of efficacy evaluation trials // EPPO Bulletin. – Paris : EPPO, 2012. – Vol. 42, № 3. – P. 367–381.",
         "EPPO Standard PP 1/181 (5). Conduct and reporting of efficacy evaluation trials, including good experimental practice // EPPO Bulletin. – Paris : EPPO, 2021.",
         "FAO. International Code of Conduct on Pesticide Management. – Rome : Food and Agriculture Organization of the United Nations, 2014. – 44 p.",
         "Codex Alimentarius. Pesticide Residues in Food and Feed : Maximum Residue Limits (MRLs). – Rome : FAO/WHO, 2021.",
-        "IRAC. Mode of Action Classification Scheme. Version 10.4 / Insecticide Resistance Action Committee. – 2023. – 32 p.",
-        "FRAC. FRAC Code List : Fungicides sorted by mode of action / Fungicide Resistance Action Committee. – 2023.",
-        "HRAC. Global Herbicide Mode of Action Classification / Herbicide Resistance Action Committee. – 2022.",
+        tr("Ўсимликларни ҳимоя қилиш воситаларини рўйхатга олиш бўйича давлат синовларини ўтказиш услубий кўрсатмалари. – Тошкент : Ўсимликлар карантини ва ҳимояси агентлиги, 2020.", "Методические указания по проведению государственных испытаний средств защиты растений для регистрации. – Ташкент : Агентство по карантину и защите растений, 2020."),
         "ГОСТ 7.1–2003. Библиографическая запись. Библиографическое описание. Общие требования и правила составления. – Москва : Изд-во стандартов, 2004. – 48 с."
       ];
+      // Синов турига хос манбалар (methodKey бўйича)
+      var gostExtra = {
+        abbott: [
+          "Abbott, W. S. A method of computing the effectiveness of an insecticide / W. S. Abbott // Journal of Economic Entomology. – 1925. – Vol. 18, № 2. – P. 265–267.",
+          "Schneider-Orelli, O. Entomologisches Praktikum / O. Schneider-Orelli. – Aarau : Sauerländer, 1947. – 237 S.",
+          "IRAC. Mode of Action Classification Scheme. Version 10.4 / Insecticide Resistance Action Committee. – 2023. – 32 p."
+        ],
+        disease: [
+          "FRAC. FRAC Code List : Fungicides sorted by mode of action / Fungicide Resistance Action Committee. – 2023."
+        ],
+        weed: [
+          "HRAC. Global Herbicide Mode of Action Classification / Herbicide Resistance Action Committee. – 2022."
+        ]
+      };
+      var gostField = (gostExtra[rep.methodKey] || []).concat(gostCore);
       var gostStorage = [
         "Kader, A. A. Postharvest Technology of Horticultural Crops / A. A. Kader. – 3rd ed. – Oakland : University of California, Agriculture and Natural Resources, 2002. – 535 p.",
         "Snowdon, A. L. A Colour Atlas of Post-harvest Diseases and Disorders of Fruits and Vegetables. Vol. 1 : General Introduction and Fruits / A. L. Snowdon. – London : Wolfe Scientific, 1990. – 302 p.",
