@@ -494,7 +494,7 @@
     // Титул жумласи ўртасида организм номи кичик ҳарфдан бошланади
     var orgTitle = lcFirst(meta.targetOrganism);
     ch.push(P(tr(
-        meta.crop + " экинида " + orgTitle + "га қарши " + meta.preparatName + titleMaker(meta) + " препаратининг биологик самарадорлигини рўйхатга олиш учун синов натижалари",
+        meta.crop + " экинида " + orgTitle + "га қарши " + meta.preparatName + titleMaker(meta) + " препаратининг биологик самарадорлиги бўйича рўйхатга олиш учун синов натижалари",
         "Результаты испытаний для регистрации биологической эффективности препарата " + meta.preparatName + titleMaker(meta) + " против " + orgTitle + " на культуре " + meta.crop
       ), { align: "center", after: 600 }));
     // Маъсул ижрочи / Ижрочилар — ном ёнида имзо чекишга жой (чизиқ)
