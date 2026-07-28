@@ -250,8 +250,12 @@
         diseases.forEach(function (dis) {
           var cur = d.byDisease[dis] || { severity: null, massLost: null };
           var ctrlSev = (ctrlS && ctrlS.byDisease[dis]) ? ctrlS.byDisease[dis].severity : null;
+          var ctrlMass = (ctrlS && ctrlS.byDisease[dis]) ? ctrlS.byDisease[dis].massLost : null;
+          // Даража (степень поражения) бўйича самарадорлик — 1-жадвал/хулоса учун
           var eff = (!isC && ctrlSev != null && ctrlSev > 0 && cur.severity != null) ? round((ctrlSev - cur.severity) / ctrlSev * 100) : null;
-          perD[dis] = { severity: cur.severity, massLost: cur.massLost, efficacyPct: eff };
+          // Касалланган мевалар оғирлиги бўйича самарадорлик — 2-жадвал учун
+          var massEff = (!isC && ctrlMass != null && ctrlMass > 0 && cur.massLost != null) ? round((ctrlMass - cur.massLost) / ctrlMass * 100) : null;
+          perD[dis] = { severity: cur.severity, massLost: cur.massLost, efficacyPct: eff, massEfficacyPct: massEff };
         });
         return { variant: v.name, isControl: isC, isReference: !!v.isReference, firmness: d.firmness, healthy: d.healthy, byDisease: perD };
       });
@@ -415,11 +419,11 @@
     ch.push(P("", { after: 120 }), P(tr("2-жадвал", "Таблица 2"), { align: "right", size: TBL, after: 40 }),
       P(tr(meta.crop + " маҳсулотини сақлашда касалланган мевалар оғирлиги ва биологик самарадорлик", "Масса поражённых плодов и биологическая эффективность при хранении продукции " + meta.crop), { bold: true, align: "center", size: BODY }));
     var h2 = [CELL(tr("Вариантлар", "Варианты"), { bold: true, shade: "e8e8e8", align: "left" })];
-    dis.forEach(function (d) { h2.push(CELL(tr("Касалланган мевалар, кг (" + d + ")", "Поражённые плоды, кг (" + d + ")"), { bold: true, shade: "e8e8e8" })); h2.push(CELL(tr("Самарадорлик, % (" + d + ")", "Эффективность, % (" + d + ")"), { bold: true, shade: "e8e8e8" })); });
+    dis.forEach(function (d) { h2.push(CELL(tr("Касалланган мевалар, кг (" + d + ")", "Поражённые плоды, кг (" + d + ")"), { bold: true, shade: "e8e8e8" })); h2.push(CELL(tr("Самарадорлик (оғирлик б-ча), % (" + d + ")", "Эффективность (по массе), % (" + d + ")"), { bold: true, shade: "e8e8e8" })); });
     var r2 = [new D.TableRow({ tableHeader: true, children: h2 })];
     rows.forEach(function (r) {
       var c = [CELL(r.variant + vSuffix(r), { align: "left", bold: r.isControl })];
-      dis.forEach(function (d) { c.push(CELL(fmt(r.byDisease[d].massLost, 2))); c.push(CELL(r.isControl ? "—" : fmt(r.byDisease[d].efficacyPct, 1))); });
+      dis.forEach(function (d) { c.push(CELL(fmt(r.byDisease[d].massLost, 2))); c.push(CELL(r.isControl ? "—" : fmt(r.byDisease[d].massEfficacyPct, 1))); });
       r2.push(new D.TableRow({ children: c }));
     });
     ch.push(TABLE(r2));
