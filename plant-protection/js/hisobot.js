@@ -497,20 +497,24 @@
         meta.crop + " экинида " + orgTitle + "га қарши " + meta.preparatName + titleMaker(meta) + " препаратининг биологик самарадорлигини рўйхатга олиш учун синов натижалари",
         "Результаты испытаний для регистрации биологической эффективности препарата " + meta.preparatName + titleMaker(meta) + " против " + orgTitle + " на культуре " + meta.crop
       ), { align: "center", after: 600 }));
-    // Маъсул ижрочи / Ижрочилар
+    // Маъсул ижрочи / Ижрочилар — ном ёнида имзо чекишга жой (чизиқ)
     if (staffList.length) {
+      var noB = { borders: {}, verticalAlign: "top" };
+      var SIG = "____________"; // имзо чизиғи
       ch.push(new D.Table({
         width: { size: 100, type: "pct" },
         borders: { top: { style: "none" }, bottom: { style: "none" }, left: { style: "none" }, right: { style: "none" }, insideHorizontal: { style: "none" }, insideVertical: { style: "none" } },
-        columnWidths: [3000, 6600],
+        columnWidths: [3000, 2600, 4000],
         rows: [
           new D.TableRow({ children: [
-            new D.TableCell({ borders: {}, verticalAlign: "top", children: [P(tr("Маъсул ижрочи:", "Ответственный исполнитель:"), { after: 0 })] }),
-            new D.TableCell({ borders: {}, verticalAlign: "top", children: [P(staffList[0], { after: 0 })] })
+            new D.TableCell(Object.assign({}, noB, { children: [P(tr("Маъсул ижрочи:", "Ответственный исполнитель:"), { after: 160 })] })),
+            new D.TableCell(Object.assign({}, noB, { children: [P(SIG, { after: 160 })] })),
+            new D.TableCell(Object.assign({}, noB, { children: [P(staffList[0], { after: 160 })] }))
           ] }),
           new D.TableRow({ children: [
-            new D.TableCell({ borders: {}, verticalAlign: "top", children: [P(staffList.length > 1 ? tr("Ижрочилар:", "Исполнители:") : "", { after: 0 })] }),
-            new D.TableCell({ borders: {}, verticalAlign: "top", children: staffList.slice(1).map(function (s) { return P(s, { after: 0 }); }) })
+            new D.TableCell(Object.assign({}, noB, { children: [P(staffList.length > 1 ? tr("Ижрочилар:", "Исполнители:") : "", { after: 160 })] })),
+            new D.TableCell(Object.assign({}, noB, { children: staffList.slice(1).map(function () { return P(SIG, { after: 160 }); }) })),
+            new D.TableCell(Object.assign({}, noB, { children: staffList.slice(1).map(function (s) { return P(s, { after: 160 }); }) }))
           ] })
         ]
       }));
