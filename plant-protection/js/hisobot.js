@@ -483,7 +483,8 @@
       P(institute, { align: "center", bold: true, after: 360 }),
       // Тасдиқлаш блоки — саҳифанинг ўнг ярмида, марказга текисланган
       P(tr("“ТАСДИҚЛАЙМАН”", "“УТВЕРЖДАЮ”"), { indentLeft: 4200, align: "center", bold: true, after: 40 }),
-      P(tr(institute + " директори", "Директор " + ruGenitive(institute)), { indentLeft: 4200, align: "center", after: 40 }),
+      // «илмий-тадқиқот» бир бутун қолиши учун дефисни узилмас дефисга алмаштирамиз (сатр ундан олдин узилади)
+      P(tr(institute.replace(/-/g, "‑") + " директори", "Директор " + ruGenitive(institute).replace(/-/g, "‑")), { indentLeft: 4200, align: "center", after: 40 }),
       P("___________" + (meta.director || "А.Анорбаев"), { indentLeft: 4200, align: "center", after: 40 }),
       P(tr("«___»___________ " + reportYear + " йил.", "«___»___________ " + reportYear + " г."), { indentLeft: 4200, align: "center", after: 500 }),
       P(tr("ИЛМИЙ ҲИСОБОТ", "НАУЧНЫЙ ОТЧЁТ"), { align: "center", bold: true, size: 32, after: 260 }),
