@@ -781,16 +781,17 @@
       }));
       form1.push(P("", { after: 120 }));
 
-      // Имзолар
+      // Имзолар — тор жадвал, фамилия лавозим ёнида (альбом четида эмас)
       form1.push(new D.Table({
-        width: { size: 100, type: "pct" },
+        width: { size: 7400, type: "dxa" },
+        columnWidths: [4200, 3200],
         borders: { top: { style: "none" }, bottom: { style: "none" }, left: { style: "none" }, right: { style: "none" }, insideHorizontal: { style: "none" }, insideVertical: { style: "none" } },
         rows: [new D.TableRow({ children: [
           new D.TableCell({ borders: {}, children: [P(tr("Директор ўринбосари", "Заместитель директора"), { bold: true, after: 0 })] }),
-          new D.TableCell({ borders: {}, children: [P(meta.deputyDirector || "Н.Қурбонова", { bold: true, align: "right", after: 0 })] })
+          new D.TableCell({ borders: {}, children: [P(meta.deputyDirector || "Н.Қурбонова", { bold: true, align: "left", after: 0 })] })
         ] }), new D.TableRow({ children: [
           new D.TableCell({ borders: {}, children: [P(tr("Маъсул ижрочи", "Ответственный исполнитель"), { bold: true, before: 200, after: 0 })] }),
-          new D.TableCell({ borders: {}, children: [P((((meta.staff || "").split(/[,;\n]+/)[0]) || "").trim() || "____________", { bold: true, align: "right", before: 200, after: 0 })] })
+          new D.TableCell({ borders: {}, children: [P((((meta.staff || "").split(/[,;\n]+/)[0]) || "").trim() || "____________", { bold: true, align: "left", before: 200, after: 0 })] })
         ] })]
       }));
 
