@@ -749,7 +749,7 @@
         P(tr("5. Рўйхатга олиш учун синов ўтказилган жой ва муддати – " + meta.site + "да " + meta.trialDate + ".", "5. Место и срок проведения испытания для регистрации – " + meta.site + ", " + meta.trialDate + "."), { align: "left", after: 120, line: 240, size: TBL }));
 
       // Расмий 9 устунли жадвал — албом бетга ихчам жойлашади
-      var recText = tr("«" + meta.preparatName + "» " + meta.applicationRate + " сарф-меъёрда " + meta.crop + " экинида " + lcFirst(meta.targetOrganism) + "га қарши рўйхатга олишга тавсия этилсин.", "Рекомендовать «" + meta.preparatName + "» к регистрации при норме расхода " + meta.applicationRate + " против " + lcFirst(meta.targetOrganism) + " на культуре " + meta.crop + ".");
+      var recText = tr("«" + meta.preparatName + "» " + meta.applicationRate + " сарф-меъёрда " + lcFirst(meta.crop) + " экинида " + lcFirst(meta.targetOrganism) + "га қарши рўйхатга олишга тавсия этилсин.", "Рекомендовать «" + meta.preparatName + "» к регистрации при норме расхода " + meta.applicationRate + " против " + lcFirst(meta.targetOrganism) + " на культуре " + lcFirst(meta.crop) + ".");
       var tavHead = tr("Тавсиялар: «рўйхатга олишга тавсия этилсин (сарф меъёри ва бошқалар)». «Рўйхатга олиш учун синовлар давом эттирилсин». «Кейинги синовлар рад этилсин» (сабаблари кўрсатилади).", "Рекомендации: «рекомендовать к регистрации (норма расхода и др.)». «Продолжить испытания для регистрации». «Отклонить дальнейшие испытания» (с указанием причин).");
       var cw = [950, 1320, 1600, 1650, 2750, 1480, 1320, 1380, 2950]; // сумма ≈ 15400 (албом эни)
       form1.push(new D.Table({
