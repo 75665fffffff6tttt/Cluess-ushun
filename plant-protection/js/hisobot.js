@@ -287,28 +287,25 @@
     unit = unit || "";
     var W = 720, H = 400, pl = 58, pr = 24, pt = 54, pb = 52, aw = W - pl - pr, ah = H - pt - pb;
     maxY = maxY || 100; var n = labels.length, slot = aw / n, bw = Math.min(slot * 0.5, 88), r = Math.min(bw / 2, 7), parts = [];
-    // орқа фон + чизиш майдони
-    parts.push('<rect width="' + W + '" height="' + H + '" rx="14" fill="#ffffff"/>');
-    parts.push('<rect x="' + pl + '" y="' + pt + '" width="' + aw + '" height="' + ah + '" rx="8" fill="#f6faf6"/>');
-    // градиент устунлар учун
-    parts.push('<defs><linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5cba5f"/><stop offset="1" stop-color="#2e7d32"/></linearGradient></defs>');
-    // сарлавҳа + пастида нозик чизиқ
-    parts.push('<text x="' + (W / 2) + '" y="30" font-family="Arial" font-size="18" font-weight="bold" fill="#1b5e20" text-anchor="middle">' + svgEsc(title) + '</text>');
-    // тўр чизиқлари + Y ўқи қийматлари
-    for (var t = 0; t <= 5; t++) { var yv = maxY * t / 5, y = pt + ah - (yv / maxY) * ah; parts.push('<line x1="' + pl + '" y1="' + y + '" x2="' + (W - pr) + '" y2="' + y + '" stroke="#e3ece3" stroke-width="1"/>'); parts.push('<text x="' + (pl - 8) + '" y="' + (y + 4) + '" font-family="Arial" font-size="12" text-anchor="end" fill="#6b7c6b">' + Math.round(yv) + '</text>'); }
-    // устунлар (юмалоқ юқори бурчакли), қиймат ёзуви, Х белгилари
+    // орқа фон (оқ) — рангсиз
+    parts.push('<rect width="' + W + '" height="' + H + '" fill="#ffffff"/>');
+    // сарлавҳа — қора, Times New Roman
+    parts.push('<text x="' + (W / 2) + '" y="30" font-family="Times New Roman, serif" font-size="18" font-weight="bold" fill="#000000" text-anchor="middle">' + svgEsc(title) + '</text>');
+    // тўр чизиқлари (нозик кулранг) + Y ўқи қийматлари (қора)
+    for (var t = 0; t <= 5; t++) { var yv = maxY * t / 5, y = pt + ah - (yv / maxY) * ah; parts.push('<line x1="' + pl + '" y1="' + y + '" x2="' + (W - pr) + '" y2="' + y + '" stroke="#cccccc" stroke-width="1"/>'); parts.push('<text x="' + (pl - 8) + '" y="' + (y + 4) + '" font-family="Times New Roman, serif" font-size="12" text-anchor="end" fill="#000000">' + Math.round(yv) + '</text>'); }
+    // устунлар (юмалоқ юқори бурчакли, қора контурли оқ) — қиймат ёзуви, Х белгилари
     labels.forEach(function (lb, i) {
       var v = values[i], cx = pl + slot * i + slot / 2, x = cx - bw / 2;
       if (v != null) {
         var bh = Math.max(r, Math.max(0, v) / maxY * ah), y = pt + ah - bh;
-        // юқори бурчаклари юмалоқ устун (path)
-        parts.push('<path d="M' + x.toFixed(1) + ' ' + (pt + ah) + ' V' + (y + r).toFixed(1) + ' a' + r + ' ' + r + ' 0 0 1 ' + r + ' -' + r + ' h' + (bw - 2 * r).toFixed(1) + ' a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + r + ' V' + (pt + ah) + ' Z" fill="url(#barGrad)"/>');
-        parts.push('<text x="' + cx + '" y="' + (y - 7) + '" font-family="Arial" font-size="12.5" font-weight="bold" fill="#1b5e20" text-anchor="middle">' + v.toFixed(1) + unit + '</text>');
+        // юқори бурчаклари юмалоқ устун (path) — оқ тўлдириш, қора контур
+        parts.push('<path d="M' + x.toFixed(1) + ' ' + (pt + ah) + ' V' + (y + r).toFixed(1) + ' a' + r + ' ' + r + ' 0 0 1 ' + r + ' -' + r + ' h' + (bw - 2 * r).toFixed(1) + ' a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + r + ' V' + (pt + ah) + ' Z" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>');
+        parts.push('<text x="' + cx + '" y="' + (y - 7) + '" font-family="Times New Roman, serif" font-size="12.5" font-weight="bold" fill="#000000" text-anchor="middle">' + v.toFixed(1) + unit + '</text>');
       }
-      parts.push('<text x="' + cx + '" y="' + (pt + ah + 20) + '" font-family="Arial" font-size="12" fill="#44524a" text-anchor="middle">' + svgEsc(lb) + '</text>');
+      parts.push('<text x="' + cx + '" y="' + (pt + ah + 20) + '" font-family="Times New Roman, serif" font-size="12" fill="#000000" text-anchor="middle">' + svgEsc(lb) + '</text>');
     });
     // асосий (Х) ўқ чизиғи
-    parts.push('<line x1="' + pl + '" y1="' + (pt + ah) + '" x2="' + (W - pr) + '" y2="' + (pt + ah) + '" stroke="#9bb09b" stroke-width="1.5"/>');
+    parts.push('<line x1="' + pl + '" y1="' + (pt + ah) + '" x2="' + (W - pr) + '" y2="' + (pt + ah) + '" stroke="#000000" stroke-width="1.5"/>');
     return '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '">' + parts.join("") + '</svg>';
   }
   function svgToPng(svg) {
