@@ -481,10 +481,14 @@
     ch.push(P(meta.committee || tr("ЎЗБЕКИСТОН РЕСПУБЛИКАСИ ОЗИҚ-ОВҚАТ МАҲСУЛОТЛАРИ ХАВФСИЗЛИГИ ҚЎМИТАСИ", "КОМИТЕТ ПО БЕЗОПАСНОСТИ ПИЩЕВОЙ ПРОДУКЦИИ РЕСПУБЛИКИ УЗБЕКИСТАН"), { align: "center", bold: true, after: 60 }),
       P(tr("ЎСИМЛИКЛАР КАРАНТИНИ ВА ҲИМОЯСИ АГЕНТЛИГИ", "АГЕНТСТВО ПО КАРАНТИНУ И ЗАЩИТЕ РАСТЕНИЙ"), { align: "center", bold: true, after: 60 }),
       P(institute, { align: "center", bold: true, after: 360 }),
-      // Тасдиқлаш блоки — саҳифанинг ўнг ярмида (чапдан индент, ичкарида чапга текис)
+      // Тасдиқлаш блоки — саҳифанинг ўнг ярмида (лавозим → имзо чизиғи + Ф.И.Ш. → сана)
       P(tr("«ТАСДИҚЛАЙМАН»", "«УТВЕРЖДАЮ»"), { indentLeft: 4800, bold: true, after: 40 }),
-      P(tr(institute + " директори, " + (meta.director || "А.Анорбаев"), "Директор " + ruGenitive(institute) + ", " + (meta.director || "А.Анорбаев")), { indentLeft: 4800, after: 40 }),
-      P("________________ ____________", { indentLeft: 4800, after: 40 }),
+      P(tr(institute + " директори", "Директор " + ruGenitive(institute)), { indentLeft: 4800, after: 120 }),
+      new D.Paragraph({
+        alignment: "left", spacing: { after: 40, line: LINE }, indent: { left: 4800 },
+        tabStops: [{ type: "right", position: 9639 }],
+        children: [new D.TextRun({ text: "______________\t" + (meta.director || "А.Анорбаев"), font: FONT, size: BODY })]
+      }),
       P(tr("«___»__________ " + reportYear + " йил", "«___»__________ " + reportYear + " г."), { indentLeft: 4800, after: 500 }),
       P(tr("ИЛМИЙ ҲИСОБОТ", "НАУЧНЫЙ ОТЧЁТ"), { align: "center", bold: true, size: 32, after: 260 }),
       P(tr(
