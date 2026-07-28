@@ -15,6 +15,8 @@
 
   function $(id) { return document.getElementById(id); }
   function num(s) { if (s == null) return null; s = String(s).trim().replace(",", "."); if (s === "") return null; var v = Number(s); return isFinite(v) ? v : null; }
+  var IS_RU = (document.documentElement.lang || "").toLowerCase().indexOf("ru") === 0;
+  function T(u, r) { return IS_RU ? r : u; }
 
   var vid = 0;
   function nid() { return "v" + (++vid); }
@@ -335,28 +337,59 @@
       rep.yieldRows.forEach(function (r) { h += '<tr><td class="hb-td-name">' + escHtml(r.variant) + '</td><td>' + (r.mean == null ? "—" : r.mean) + '</td><td>' + (r.increaseVsControlPct == null ? "—" : "+" + r.increaseVsControlPct) + '</td></tr>'; });
       h += '</tbody></table></div>';
     }
-    if (rep.yieldAnova) { var a = rep.yieldAnova; h += '<div class="hb-anova">Дисперсион таҳлил (ANOVA): НСР₀.₀₅ = ' + a.lsd05 + '; CV% = ' + a.cvPct + '; F = ' + a.fValue + '; P = ' + a.pValue + '; ' + (a.significant ? "фарқ ишончли (P<0.05)" : "фарқ ишончли эмас") + '</div>'; }
+    if (rep.yieldAnova) {
+      var a = rep.yieldAnova;
+      var fv = (a.fValue == null || !isFinite(a.fValue)) ? "—" : a.fValue;
+      var concl = a.zeroError ? "хатолик дисперсияси ≈ 0 — маълумотни текширинг" : (a.significant ? "фарқ ишончли (P<0.05)" : "фарқ ишончли эмас");
+      h += '<div class="hb-anova">Дисперсион таҳлил (ANOVA): НСР₀.₀₅ = ' + a.lsd05 + '; CV% = ' + a.cvPct + '; F = ' + fv + '; P = ' + a.pValue + '; ' + concl + '</div>';
+    }
     box.innerHTML = h;
   }
 
   function setStatus(msg, kind) { var s = $("status"); s.textContent = msg || ""; s.className = "hb-status" + (kind ? " hb-status-" + kind : ""); }
 
+  // ---------- валидация ----------
+  function validate(input) {
+    var msgs = [], m = input.meta, A = input.assessment;
+    if (!m.preparatName) msgs.push(T("Препарат номи киритилмаган.", "Не указано название препарата."));
+    if (!m.crop) msgs.push(T("Экин тури киритилмаган.", "Не указан вид культуры."));
+    if (!m.targetOrganism) msgs.push(T("Зарарли организм киритилмаган.", "Не указан вредный организм."));
+    if (input.variants.length < 2) msgs.push(T("Камида 2 та вариант керак.", "Требуется минимум 2 варианта."));
+    if (!input.variants.some(function (v) { return v.isControl; })) msgs.push(T("Назорат варианти белгиланмаган.", "Не отмечен контрольный вариант."));
+    if (!input.variants.some(function (v) { return v.isReference; })) msgs.push(T("Эталон варианти белгиланмаган (ихтиёрий).", "Не отмечен эталонный вариант (необязательно)."));
+    // дала маълумотлари киритилганми
+    var hasData = false;
+    if (A.counts) hasData = Object.keys(A.counts).some(function (k) { var c = A.counts[k]; return c && (c.before != null || Object.keys(c.byDay || {}).length); });
+    else if (A.disease) hasData = Object.keys(A.disease).some(function (k) { return Object.keys(A.disease[k].byDayIndex || {}).length; });
+    else if (A.storage) hasData = Object.keys(A.storage.data || {}).some(function (k) { var s = A.storage.data[k]; return s && (s.healthy != null || s.firmness != null); });
+    else if (A.weeds) hasData = Object.keys(A.weeds.density || {}).length > 0 && Object.keys(A.weeds.before || {}).length > 0;
+    if (!hasData) msgs.push(T("Дала ўлчов маълумотлари киритилмаган.", "Не введены полевые данные измерений."));
+    return msgs;
+  }
+
   function doCompute() {
-    setStatus("Ҳисобланмоқда…", "info");
-    try { var rep = window.Hisobot.computeReport(buildInput()); renderPreview(rep); setStatus("", ""); }
-    catch (e) { setStatus("Хатолик: " + e.message, "err"); }
+    setStatus(T("Ҳисобланмоқда…", "Идёт расчёт…"), "info");
+    try {
+      var input = buildInput();
+      var vmsgs = validate(input);
+      var rep = window.Hisobot.computeReport(input);
+      rep.warnings = vmsgs.concat(rep.warnings || []);
+      renderPreview(rep);
+      setStatus(vmsgs.length ? T("Диққат: " + vmsgs.length + " та эслатма — пастга қаранг.", "Внимание: " + vmsgs.length + " замечаний — см. ниже.") : "", vmsgs.length ? "warn" : "");
+    }
+    catch (e) { setStatus(T("Хатолик: ", "Ошибка: ") + e.message, "err"); }
   }
   function doDownload() {
-    setStatus("Ҳужжат яратилмоқда…", "info");
+    setStatus(T("Ҳужжат яратилмоқда…", "Создаётся документ…"), "info");
     try {
       var input = buildInput(), rep = window.Hisobot.computeReport(input);
       window.Hisobot.generateDocx(rep, input.meta).then(function (blob) {
         var url = URL.createObjectURL(blob), a = document.createElement("a");
         a.href = url; a.download = (input.meta.preparatName || "hisobot").replace(/\s+/g, "_") + "_davlat_sinov_hisoboti.docx";
         document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-        setStatus("Тайёр — ҳужжат юклаб олинди.", "ok");
-      }).catch(function (e) { setStatus("Хатолик: " + e.message, "err"); });
-    } catch (e) { setStatus("Хатолик: " + e.message, "err"); }
+        setStatus(T("Тайёр — ҳужжат юклаб олинди.", "Готово — документ загружен."), "ok");
+      }).catch(function (e) { setStatus(T("Хатолик: ", "Ошибка: ") + e.message, "err"); });
+    } catch (e) { setStatus(T("Хатолик: ", "Ошибка: ") + e.message, "err"); }
   }
 
   // ---------- init ----------

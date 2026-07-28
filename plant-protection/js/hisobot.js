@@ -86,7 +86,7 @@
       lsd05: round(lsd, 2), seMean: round(seMean, 3), seDiff: round(seDiff, 3),
       cvPct: round(cv, 2), precisionPct: round(prec, 2),
       fValue: isFinite(F) ? round(F, 3) : F, pValue: round(P, 4),
-      variantMeans: vm, significant: P < alpha
+      variantMeans: vm, significant: msE > 0 && P < alpha, zeroError: !(msE > 0)
     };
   }
 
@@ -642,7 +642,10 @@
         if (yChart && yChart.png) { ch.push(IMG(yChart.png)); ch.push(CAP(tr("2-расм. Вариантлар бўйича ўртача ҳосилдорлик.", "Рисунок 2. Средняя урожайность по вариантам."))); }
         if (rep.yieldAnova) {
           var a = rep.yieldAnova;
-          ch.push(P(tr("Дисперсион таҳлил (ANOVA): НСР₀.₀₅ = " + fmt(a.lsd05, 2) + "; CV% = " + fmt(a.cvPct, 2) + "; F = " + fmt(a.fValue, 2) + "; P = " + fmt(a.pValue, 4) + ". " + (a.significant ? "Вариантлар фарқи статистик ишончли (P<0,05)." : "Фарқ статистик ишончли эмас."), "Дисперсионный анализ (ANOVA): НСР₀.₀₅ = " + fmt(a.lsd05, 2) + "; CV% = " + fmt(a.cvPct, 2) + "; F = " + fmt(a.fValue, 2) + "; P = " + fmt(a.pValue, 4) + ". " + (a.significant ? "Различия между вариантами статистически достоверны (P<0,05)." : "Различия статистически недостоверны.")), { indent: true }));
+          var concl = a.zeroError
+            ? tr("Хатолик дисперсияси ≈ 0 (такрорлар айнан бир хил) — F ва НСР ишончли баҳоланмади; дала маълумотларини текширинг.", "Дисперсия ошибки ≈ 0 (повторности практически совпадают) — F и НСР оценить достоверно нельзя; проверьте полевые данные.")
+            : (a.significant ? tr("Вариантлар фарқи статистик ишончли (P<0,05).", "Различия между вариантами статистически достоверны (P<0,05).") : tr("Фарқ статистик ишончли эмас.", "Различия статистически недостоверны."));
+          ch.push(P(tr("Дисперсион таҳлил (ANOVA): НСР₀.₀₅ = " + fmt(a.lsd05, 2) + "; CV% = " + fmt(a.cvPct, 2) + "; F = " + fmt(a.fValue, 2) + "; P = " + fmt(a.pValue, 4) + ". " + concl, "Дисперсионный анализ (ANOVA): НСР₀.₀₅ = " + fmt(a.lsd05, 2) + "; CV% = " + fmt(a.cvPct, 2) + "; F = " + fmt(a.fValue, 2) + "; P = " + fmt(a.pValue, 4) + ". " + concl), { indent: true }));
         }
       }
 

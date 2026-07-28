@@ -872,6 +872,7 @@ textarea.hb-inp { resize: vertical; }
 .hb-status-info { color: #1565c0; }
 .hb-status-ok { color: var(--green-700, #2e7d32); }
 .hb-status-err { color: #c62828; }
+.hb-status-warn { color: #b45309; }
 .hb-warn { color: #9a6a00; font-size: 0.9rem; }
 .hb-preview { border-color: #bcd7f0; }
 .hb-h2 { margin: 0 0 12px; font-size: 1.1rem; font-weight: 700; color: #1565c0; }
