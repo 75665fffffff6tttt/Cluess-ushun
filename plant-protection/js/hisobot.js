@@ -289,8 +289,8 @@
     maxY = maxY || 100; var n = labels.length, slot = aw / n, bw = Math.min(slot * 0.5, 88), r = Math.min(bw / 2, 7), parts = [];
     // орқа фон (оқ)
     parts.push('<rect width="' + W + '" height="' + H + '" fill="#ffffff"/>');
-    // устунлар учун тўқ (қорамтир) яшил градиент
-    parts.push('<defs><linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f6b30"/><stop offset="1" stop-color="#173f19"/></linearGradient></defs>');
+    // устунлар учун қора градиент
+    parts.push('<defs><linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#555555"/><stop offset="1" stop-color="#0a0a0a"/></linearGradient></defs>');
     // сарлавҳа — қора, Times New Roman
     parts.push('<text x="' + (W / 2) + '" y="30" font-family="Times New Roman, serif" font-size="18" font-weight="bold" fill="#000000" text-anchor="middle">' + svgEsc(title) + '</text>');
     // тўр чизиқлари (нозик кулранг) + Y ўқи қийматлари (қора)
