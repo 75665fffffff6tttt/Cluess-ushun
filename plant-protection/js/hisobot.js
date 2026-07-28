@@ -821,7 +821,7 @@
         "ГОСТ 7.1–2003. Библиографическая запись. Библиографическое описание. Общие требования и правила составления. – Москва : Изд-во стандартов, 2004. – 48 с."
       ];
       var refList = refs.length ? refs : (rep.storage ? gostStorage : gostField);
-      refList.forEach(function (r, i) { ch.push(P(/^\d+\.\s/.test(r) ? r : (i + 1) + ". " + r, { size: BODY, after: 60 })); });
+      refList.forEach(function (r, i) { ch.push(P(/^\d+\.\s/.test(r) ? r : (i + 1) + ". " + r, { indent: true, align: "left", size: BODY, after: 80 })); });
 
       // 8. 1-форма — рўйхатга олиш бўйича хулоса ва тавсиялар (АЛБОМ бўлими)
       var form1 = [];
