@@ -579,23 +579,23 @@
 
     // 3. Синов баёномаси
     ch.push(H(tr("2. Синов баённомаси", "2. Протокол испытания")),
-      FLD("3.1.", tr("Талабгор ташкилот номи, давлати", "Наименование и страна организации-заявителя"), (meta.applicantOrg || meta.manufacturer) + (meta.country ? ", " + meta.country : "")),
-      FLD("3.2.", tr("Савдо номи", "Торговое наименование"), meta.tradeName || meta.preparatName),
-      FLD("3.3.", tr("Таъсир этувчи моддаси", "Действующее вещество"), meta.activeIngredients),
-      FLD("3.4.", tr("Препарат шакли", "Препаративная форма"), meta.preparatForm),
-      FLD("3.5.", tr("Зарарли организм номи", "Наименование вредного организма"), meta.targetOrganism),
-      FLD("3.6.", tr("Синов жойи ва хўжалик номи", "Место испытания и наименование хозяйства"), meta.site),
-      FLD("3.7.", tr("Синов ўтказилган муддат", "Срок проведения испытания"), meta.trialDate),
-      FLD("3.8.", tr("Экин тури, нави", "Вид культуры, сорт"), meta.crop + (meta.variety ? ", " + meta.variety : "")),
-      FLD("3.9.", tr("Лаборатория хулосаси", "Заключение лаборатории"), meta.labConclusion || "—"),
-      FLD("3.10.", tr("Андоза (эталон)", "Эталон"), meta.referenceFullDesc || meta.referenceName),
-      FLD("3.11.", tr("Сарф меъёри (ишчи эритма)", "Норма расхода (рабочий раствор)"), meta.applicationRate + (meta.workingSolution ? "; " + meta.workingSolution : "")),
-      FLD("3.12.", tr("Тажриба тури", "Тип опыта"), meta.experimentType || tr("кичик дала тажрибаси", "мелкоделяночный полевой опыт")),
-      FLD("3.13.", tr("Жиҳоз/ускуна", "Оборудование/аппаратура"), meta.testEquipment || "—"),
-      FLD("3.14.", tr("Қўллаш усули", "Способ применения"), meta.applicationMethod || tr("пуркаш", "опрыскивание")),
-      FLD("3.15.", tr("Ҳаво ҳарорати, намлик", "Температура воздуха, влажность"), meta.weather));
-    if (meta.laboratory && meta.laboratory.trim()) ch.push(FLD("3.16.", tr("Лаборатория", "Лаборатория"), meta.laboratory));
-    if (meta.cropPhase && meta.cropPhase.trim()) ch.push(FLD("3.17.", tr("Экин ривожланиш фазаси", "Фаза развития культуры"), meta.cropPhase));
+      FLD("2.1.", tr("Талабгор ташкилот номи, давлати", "Наименование и страна организации-заявителя"), (meta.applicantOrg || meta.manufacturer) + (meta.country ? ", " + meta.country : "")),
+      FLD("2.2.", tr("Савдо номи", "Торговое наименование"), meta.tradeName || meta.preparatName),
+      FLD("2.3.", tr("Таъсир этувчи моддаси", "Действующее вещество"), meta.activeIngredients),
+      FLD("2.4.", tr("Препарат шакли", "Препаративная форма"), meta.preparatForm),
+      FLD("2.5.", tr("Зарарли организм номи", "Наименование вредного организма"), meta.targetOrganism),
+      FLD("2.6.", tr("Синов жойи ва хўжалик номи", "Место испытания и наименование хозяйства"), meta.site),
+      FLD("2.7.", tr("Синов ўтказилган муддат", "Срок проведения испытания"), meta.trialDate),
+      FLD("2.8.", tr("Экин тури, нави", "Вид культуры, сорт"), meta.crop + (meta.variety ? ", " + meta.variety : "")),
+      FLD("2.9.", tr("Лаборатория хулосаси", "Заключение лаборатории"), meta.labConclusion || "—"),
+      FLD("2.10.", tr("Андоза (эталон)", "Эталон"), meta.referenceFullDesc || meta.referenceName),
+      FLD("2.11.", tr("Сарф меъёри (ишчи эритма)", "Норма расхода (рабочий раствор)"), meta.applicationRate + (meta.workingSolution ? "; " + meta.workingSolution : "")),
+      FLD("2.12.", tr("Тажриба тури", "Тип опыта"), meta.experimentType || tr("кичик дала тажрибаси", "мелкоделяночный полевой опыт")),
+      FLD("2.13.", tr("Жиҳоз/ускуна", "Оборудование/аппаратура"), meta.testEquipment || "—"),
+      FLD("2.14.", tr("Қўллаш усули", "Способ применения"), meta.applicationMethod || tr("пуркаш", "опрыскивание")),
+      FLD("2.15.", tr("Ҳаво ҳарорати, намлик", "Температура воздуха, влажность"), meta.weather));
+    if (meta.laboratory && meta.laboratory.trim()) ch.push(FLD("2.16.", tr("Лаборатория", "Лаборатория"), meta.laboratory));
+    if (meta.cropPhase && meta.cropPhase.trim()) ch.push(FLD("2.17.", tr("Экин ривожланиш фазаси", "Фаза развития культуры"), meta.cropPhase));
 
     // 4. Методика
     ch.push(H(tr("3. Синов ўтказиш жойи ва услублари (методикаси)", "3. Место и методы (методика) проведения испытания")),
