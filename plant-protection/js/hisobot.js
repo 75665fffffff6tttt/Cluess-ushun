@@ -433,6 +433,28 @@
     return best;
   }
 
+  // Русча: институт номини қаратқич келишигига («институт» → «института») ўтказиш
+  function ruAdjGen(w) {
+    return w
+      .replace(/ский$/, "ского").replace(/ская$/, "ской")
+      .replace(/цкий$/, "цкого")
+      .replace(/ный$/, "ного").replace(/ная$/, "ной")
+      .replace(/ой$/, "ого")
+      .replace(/ий$/, "ого").replace(/ый$/, "ого");
+  }
+  function ruGenitive(name) {
+    var s = (name || "").trim();
+    if (!s) return s;
+    s = s.charAt(0).toLowerCase() + s.slice(1);
+    var idx = s.indexOf("институт");
+    if (idx < 0) return s; // «институт» топилмаса — ўзгартирмаймиз
+    var head = s.slice(0, idx).replace(/\s+$/, "");
+    // Эслатма: JS regex'да \b кирилл ҳарфлар билан ишламайди — шунинг учун lookahead
+    var rest = s.slice(idx).replace(/^институт(?=\s|,|\.|$)/, "института");
+    var words = head ? head.split(/\s+/).map(ruAdjGen) : [];
+    return (words.join(" ") + " " + rest).trim();
+  }
+
   // Титул сарлавҳаси учун препаратдан кейинги «(ишлаб чиқарувчи, давлат)» қисми
   function titleMaker(meta) {
     var m = (meta.manufacturer || meta.applicantOrg || "").trim();
@@ -454,15 +476,16 @@
     // ===== Титул варағи (расмий шаблон бўйича) =====
     var city = (meta.reportCity && meta.reportCity.trim()) || tr("Тошкент", "Ташкент");
     var protoNo = (meta.protocolNumber && String(meta.protocolNumber).trim()) || "___";
+    var reportYear = (String(meta.trialDate || "").match(/\b(?:19|20)\d{2}\b/) || [String(new Date().getFullYear())])[0];
     var staffList = (meta.staff || "").split(/[,;\n]+/).map(function (s) { return s.trim(); }).filter(Boolean);
     ch.push(P(meta.committee || tr("ЎЗБЕКИСТОН РЕСПУБЛИКАСИ ОЗИҚ-ОВҚАТ МАҲСУЛОТЛАРИ ХАВФСИЗЛИГИ ҚЎМИТАСИ", "КОМИТЕТ ПО БЕЗОПАСНОСТИ ПИЩЕВОЙ ПРОДУКЦИИ РЕСПУБЛИКИ УЗБЕКИСТАН"), { align: "center", bold: true, after: 60 }),
       P(tr("ЎСИМЛИКЛАР КАРАНТИНИ ВА ҲИМОЯСИ АГЕНТЛИГИ", "АГЕНТСТВО ПО КАРАНТИНУ И ЗАЩИТЕ РАСТЕНИЙ"), { align: "center", bold: true, after: 60 }),
       P(institute, { align: "center", bold: true, after: 360 }),
       // Тасдиқлаш блоки — ўнг бурчакда
       P(tr("«ТАСДИҚЛАЙМАН»", "«УТВЕРЖДАЮ»"), { align: "right", bold: true, after: 40 }),
-      P(tr(institute + " директори, " + (meta.director || "А.Анорбаев"), "Директор " + institute.charAt(0).toLowerCase() + institute.slice(1) + ", " + (meta.director || "А.Анорбаев")), { align: "right", after: 40 }),
+      P(tr(institute + " директори, " + (meta.director || "А.Анорбаев"), "Директор " + ruGenitive(institute) + ", " + (meta.director || "А.Анорбаев")), { align: "right", after: 40 }),
       P("________________ ____________", { align: "right", after: 40 }),
-      P(tr("«___»__________ 2026 йил", "«___»__________ 2026 г."), { align: "right", after: 500 }),
+      P(tr("«___»__________ " + reportYear + " йил", "«___»__________ " + reportYear + " г."), { align: "right", after: 500 }),
       P(tr("ИЛМИЙ ҲИСОБОТ", "НАУЧНЫЙ ОТЧЁТ"), { align: "center", bold: true, size: 32, after: 260 }),
       P(tr(
         meta.crop + " экинида " + meta.targetOrganism + "га қарши " + meta.preparatName + titleMaker(meta) + " препаратининг биологик самарадорлигини рўйхатга олиш учун синов натижалари",
@@ -486,10 +509,10 @@
         ]
       }));
     }
-    ch.push(P(tr(city + " – 2026 й.", city + " – 2026 г."), { align: "center", bold: true, before: 4800, after: 0 }),
+    ch.push(P(tr(city + " – " + reportYear + " й.", city + " – " + reportYear + " г."), { align: "center", bold: true, before: 4800, after: 0 }),
       // Кенгаш баённомаси + Илмий котиб — алоҳида 2-варақда
       new D.Paragraph({ children: [new D.PageBreak()] }),
-      P(tr(institute + " илмий кенгашида №" + protoNo + "-сонли баённома, «___»________ 2026 йилда кўриб чиқилди.", "Рассмотрено на учёном совете " + institute.charAt(0).toLowerCase() + institute.slice(1) + ", протокол №" + protoNo + " от «___»________ 2026 г."), { align: "center", after: 200 }),
+      P(tr(institute + " илмий кенгашида №" + protoNo + "-сонли баённома, «___»________ " + reportYear + " йилда кўриб чиқилди.", "Рассмотрено на учёном совете " + ruGenitive(institute) + ", протокол №" + protoNo + " от «___»________ " + reportYear + " г."), { align: "center", after: 200 }),
       P(tr("Илмий котиб, қ.х.ф.д.                                        ", "Учёный секретарь, д.с.-х.н.                                        ") + (meta.scientificSecretary || "О.Сулаймонов"), { align: "center" }),
       new D.Paragraph({ children: [new D.PageBreak()] }));
 
