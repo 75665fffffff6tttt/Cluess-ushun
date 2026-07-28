@@ -452,6 +452,7 @@
 
     // ===== Титул варағи (расмий шаблон бўйича) =====
     var city = (meta.reportCity && meta.reportCity.trim()) || tr("Тошкент", "Ташкент");
+    var protoNo = (meta.protocolNumber && String(meta.protocolNumber).trim()) || "___";
     var staffList = (meta.staff || "").split(/[,;\n]+/).map(function (s) { return s.trim(); }).filter(Boolean);
     ch.push(P(meta.committee || tr("ЎЗБЕКИСТОН РЕСПУБЛИКАСИ ОЗИҚ-ОВҚАТ МАҲСУЛОТЛАРИ ХАВФСИЗЛИГИ ҚЎМИТАСИ", "КОМИТЕТ ПО БЕЗОПАСНОСТИ ПИЩЕВОЙ ПРОДУКЦИИ РЕСПУБЛИКИ УЗБЕКИСТАН"), { align: "center", bold: true, after: 60 }),
       P(tr("ЎСИМЛИКЛАР КАРАНТИНИ ВА ҲИМОЯСИ АГЕНТЛИГИ", "АГЕНТСТВО ПО КАРАНТИНУ И ЗАЩИТЕ РАСТЕНИЙ"), { align: "center", bold: true, after: 60 }),
@@ -487,7 +488,7 @@
     ch.push(P(tr(city + " – 2026 й.", city + " – 2026 г."), { align: "center", bold: true, before: 4800, after: 0 }),
       // Кенгаш баённомаси + Илмий котиб — алоҳида 2-варақда
       new D.Paragraph({ children: [new D.PageBreak()] }),
-      P(tr(institute + " илмий кенгашида №___-сонли баённома, «___»________ 2026 йилда кўриб чиқилди.", "Рассмотрено на учёном совете " + institute.charAt(0).toLowerCase() + institute.slice(1) + ", протокол №___ от «___»________ 2026 г."), { align: "center", after: 200 }),
+      P(tr(institute + " илмий кенгашида №" + protoNo + "-сонли баённома, «___»________ 2026 йилда кўриб чиқилди.", "Рассмотрено на учёном совете " + institute.charAt(0).toLowerCase() + institute.slice(1) + ", протокол №" + protoNo + " от «___»________ 2026 г."), { align: "center", after: 200 }),
       P(tr("Илмий котиб, қ.х.ф.д.                                        ", "Учёный секретарь, д.с.-х.н.                                        ") + (meta.scientificSecretary || "О.Сулаймонов"), { align: "center" }),
       new D.Paragraph({ children: [new D.PageBreak()] }));
 
@@ -566,6 +567,8 @@
       FLD("3.13.", tr("Жиҳоз/ускуна", "Оборудование/аппаратура"), meta.testEquipment || "—"),
       FLD("3.14.", tr("Қўллаш усули", "Способ применения"), meta.applicationMethod || tr("пуркаш", "опрыскивание")),
       FLD("3.15.", tr("Ҳаво ҳарорати, намлик", "Температура воздуха, влажность"), meta.weather));
+    if (meta.laboratory && meta.laboratory.trim()) ch.push(FLD("3.16.", tr("Лаборатория", "Лаборатория"), meta.laboratory));
+    if (meta.cropPhase && meta.cropPhase.trim()) ch.push(FLD("3.17.", tr("Экин ривожланиш фазаси", "Фаза развития культуры"), meta.cropPhase));
 
     // 4. Методика
     ch.push(H(tr("3. Синов ўтказиш жойи ва услублари (методикаси)", "3. Место и методы (методика) проведения испытания")),

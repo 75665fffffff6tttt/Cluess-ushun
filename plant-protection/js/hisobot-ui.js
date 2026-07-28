@@ -43,6 +43,36 @@
     return m;
   }
 
+  // ---------- localStorage авто-сақлаш ----------
+  var LSKEY = "hisobot_state_v1", saveT;
+  function persist() {
+    try {
+      var metaVals = {}; META_KEYS.forEach(function (k) { var el = $("m_" + k); if (el) metaVals[k] = el.value; });
+      localStorage.setItem(LSKEY, JSON.stringify({
+        v: 1, state: state, meta: metaVals,
+        days: ($("days-input") || {}).value, yieldUnit: ($("yield-unit") || {}).value,
+        explicitType: ($("explicit-type") || {}).value
+      }));
+    } catch (e) {}
+  }
+  function persistSoon() { clearTimeout(saveT); saveT = setTimeout(persist, 400); }
+  function restore() {
+    try {
+      var raw = localStorage.getItem(LSKEY); if (!raw) return;
+      var d = JSON.parse(raw); if (!d || !d.state) return;
+      if (d.meta) META_KEYS.forEach(function (k) { var el = $("m_" + k); if (el && d.meta[k] != null) el.value = d.meta[k]; });
+      if (d.days != null && $("days-input")) $("days-input").value = d.days;
+      if (d.yieldUnit != null && $("yield-unit")) $("yield-unit").value = d.yieldUnit;
+      if (d.explicitType != null && $("explicit-type")) $("explicit-type").value = d.explicitType;
+      Object.keys(d.state).forEach(function (k) { state[k] = d.state[k]; });
+      var maxId = 0; (state.variants || []).forEach(function (v) { var n = parseInt(String(v.id).replace(/\D/g, ""), 10); if (isFinite(n) && n > maxId) maxId = n; });
+      vid = maxId;
+      if ($("yield-reps")) $("yield-reps").value = state.yieldReps || 4;
+      if ($("mode-select")) $("mode-select").value = state.mode || "counts";
+    } catch (e) {}
+  }
+  function clearSaved() { try { localStorage.removeItem(LSKEY); } catch (e) {} }
+
   // ---------- вариантлар ----------
   function renderVariants() {
     var box = $("variants-list"); box.innerHTML = "";
@@ -188,6 +218,7 @@
   function td(text) { var c = document.createElement("td"); c.className = "hb-td-name"; c.textContent = text; return c; }
   function btn(text, on) { var b = document.createElement("button"); b.className = "hb-btn-sm"; b.textContent = text; b.addEventListener("click", on); return b; }
   function escAttr(s) { return String(s).replace(/"/g, "&quot;"); }
+  function escHtml(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
   function renderAll() { renderVariants(); renderFieldData(); renderYield(); }
 
@@ -212,8 +243,14 @@
   // ---------- input қуриш ----------
   function buildInput() {
     var meta = getMeta(), days = getDays();
-    var nameById = {}; state.variants.forEach(function (v) { nameById[v.id] = v.name; });
-    var variants = state.variants.map(function (v) { return { name: v.name, isControl: v.isControl, isReference: v.isReference }; });
+    // Вариант номлари ноёб бўлиши шарт (ном калит сифатида ишлатилади) — такрор бўлса суффикс қўшилади
+    var nameById = {}, usedNames = {};
+    state.variants.forEach(function (v) {
+      var base = (v.name || "").trim() || "Вариант", nm = base, k = 2;
+      while (usedNames[nm]) { nm = base + " (" + (k++) + ")"; }
+      usedNames[nm] = 1; nameById[v.id] = nm;
+    });
+    var variants = state.variants.map(function (v) { return { name: nameById[v.id], isControl: v.isControl, isReference: v.isReference }; });
     var assessment = { days: days };
     if (state.mode === "counts") {
       var c = {};
@@ -262,17 +299,17 @@
   function renderPreview(rep) {
     var box = $("preview"); box.style.display = "block";
     var h = '<h2 class="hb-h2">Ҳисоблаш натижаси</h2>';
-    h += '<div class="hb-tags"><span class="hb-tag hb-tag-g">Тури: ' + rep.typeNameUz + '</span>';
-    h += '<span class="hb-tag">Методика: ' + rep.efficacyMethodLabel + '</span>';
-    h += '<span class="hb-tag">Назорат: ' + (rep.controlVariant || "—") + '</span></div>';
-    if (rep.warnings.length) { h += '<ul class="hb-warnbox">'; rep.warnings.forEach(function (w) { h += '<li>' + w + '</li>'; }); h += '</ul>'; }
+    h += '<div class="hb-tags"><span class="hb-tag hb-tag-g">Тури: ' + escHtml(rep.typeNameUz) + '</span>';
+    h += '<span class="hb-tag">Методика: ' + escHtml(rep.efficacyMethodLabel) + '</span>';
+    h += '<span class="hb-tag">Назорат: ' + escHtml(rep.controlVariant || "—") + '</span></div>';
+    if (rep.warnings.length) { h += '<ul class="hb-warnbox">'; rep.warnings.forEach(function (w) { h += '<li>' + escHtml(w) + '</li>'; }); h += '</ul>'; }
     if (rep.storage) {
       var dz = rep.storage.diseases;
       h += '<h3 class="hb-h3">Сақлаш синови натижалари</h3><div class="hb-scroll"><table class="hb-table"><thead><tr><th>Вариант</th><th>Турғорлик, кг/см²</th><th>Касалланмаган, %</th>';
-      dz.forEach(function (d) { h += '<th>' + d + ' даража, %</th><th>' + d + ' самар., %</th>'; });
+      dz.forEach(function (d) { h += '<th>' + escHtml(d) + ' даража, %</th><th>' + escHtml(d) + ' самар., %</th>'; });
       h += '</tr></thead><tbody>';
       rep.storage.rows.forEach(function (r) {
-        h += '<tr' + (r.isControl ? ' class="hb-ctrl"' : '') + '><td class="hb-td-name">' + r.variant + (r.isReference ? ' (эталон)' : '') + '</td>';
+        h += '<tr' + (r.isControl ? ' class="hb-ctrl"' : '') + '><td class="hb-td-name">' + escHtml(r.variant) + (r.isReference ? ' (эталон)' : '') + '</td>';
         h += '<td>' + (r.firmness == null ? "—" : r.firmness) + '</td><td><b>' + (r.healthy == null ? "—" : r.healthy) + '</b></td>';
         dz.forEach(function (d) { h += '<td>' + (r.byDisease[d].severity == null ? "—" : r.byDisease[d].severity) + '</td><td>' + (r.isControl ? "—" : (r.byDisease[d].efficacyPct == null ? "—" : r.byDisease[d].efficacyPct)) + '</td>'; });
         h += '</tr>';
@@ -283,7 +320,7 @@
       rep.days.forEach(function (d) { h += '<th>' + d + '-кун</th>'; });
       h += '<th>Ўртача</th></tr></thead><tbody>';
       rep.efficacyRows.forEach(function (r) {
-        h += '<tr' + (r.isControl ? ' class="hb-ctrl"' : '') + '><td class="hb-td-name">' + r.variant + (r.isReference ? ' (эталон)' : '') + '</td>';
+        h += '<tr' + (r.isControl ? ' class="hb-ctrl"' : '') + '><td class="hb-td-name">' + escHtml(r.variant) + (r.isReference ? ' (эталон)' : '') + '</td>';
         rep.days.forEach(function (d) { h += '<td>' + (r.isControl ? "—" : (r.byDay[d] == null ? "—" : r.byDay[d])) + '</td>'; });
         h += '<td><b>' + (r.isControl ? "—" : (r.mean == null ? "—" : r.mean)) + '</b></td></tr>';
       });
@@ -291,7 +328,7 @@
     }
     if (rep.yieldRows && rep.yieldRows.length) {
       h += '<h3 class="hb-h3">Ҳосилдорлик (' + (rep.yieldUnit || "") + ')</h3><div class="hb-scroll"><table class="hb-table"><thead><tr><th>Вариант</th><th>Ўртача</th><th>Назоратга нисбатан, %</th></tr></thead><tbody>';
-      rep.yieldRows.forEach(function (r) { h += '<tr><td class="hb-td-name">' + r.variant + '</td><td>' + (r.mean == null ? "—" : r.mean) + '</td><td>' + (r.increaseVsControlPct == null ? "—" : "+" + r.increaseVsControlPct) + '</td></tr>'; });
+      rep.yieldRows.forEach(function (r) { h += '<tr><td class="hb-td-name">' + escHtml(r.variant) + '</td><td>' + (r.mean == null ? "—" : r.mean) + '</td><td>' + (r.increaseVsControlPct == null ? "—" : "+" + r.increaseVsControlPct) + '</td></tr>'; });
       h += '</tbody></table></div>';
     }
     if (rep.yieldAnova) { var a = rep.yieldAnova; h += '<div class="hb-anova">Дисперсион таҳлил (ANOVA): НСР₀.₀₅ = ' + a.lsd05 + '; CV% = ' + a.cvPct + '; F = ' + a.fValue + '; P = ' + a.pValue + '; ' + (a.significant ? "фарқ ишончли (P<0.05)" : "фарқ ишончли эмас") + '</div>'; }
@@ -321,15 +358,26 @@
   // ---------- init ----------
   document.addEventListener("DOMContentLoaded", function () {
     if (!$("variants-list")) return; // бу саҳифа эмас
+    restore();
     renderAll();
     updateDetect();
     var dbnc; $("m_activeIngredients").addEventListener("input", function () { clearTimeout(dbnc); dbnc = setTimeout(updateDetect, 350); });
     $("explicit-type").addEventListener("change", updateDetect);
-    $("add-variant").addEventListener("click", function () { state.variants.push({ id: nid(), name: "Вариант " + (state.variants.length + 1), isControl: false, isReference: false }); renderAll(); });
+    $("add-variant").addEventListener("click", function () { state.variants.push({ id: nid(), name: "Вариант " + (state.variants.length + 1), isControl: false, isReference: false }); renderAll(); persist(); });
     $("days-input").addEventListener("input", function () { renderFieldData(); });
-    $("mode-select").addEventListener("change", function () { state.manualMode = true; state.mode = $("mode-select").value; renderFieldData(); });
-    $("yield-reps").addEventListener("input", function () { var n = parseInt($("yield-reps").value, 10); state.yieldReps = Math.max(2, Math.min(8, isFinite(n) ? n : 4)); renderYield(); });
+    $("mode-select").addEventListener("change", function () { state.manualMode = true; state.mode = $("mode-select").value; renderFieldData(); persist(); });
+    $("yield-reps").addEventListener("input", function () { var n = parseInt($("yield-reps").value, 10); state.yieldReps = Math.max(2, Math.min(8, isFinite(n) ? n : 4)); renderYield(); persist(); });
     $("btn-compute").addEventListener("click", doCompute);
     $("btn-download").addEventListener("click", doDownload);
+    // Ҳар қандай киритиш/ўзгаришда авто-сақлаш (форма контейнери)
+    var app = document.querySelector(".hb-app");
+    if (app) { app.addEventListener("input", persistSoon); app.addEventListener("change", persistSoon); }
+    // Тозалаш тугмаси (агар мавжуд бўлса)
+    var clr = $("btn-clear");
+    if (clr) clr.addEventListener("click", function () {
+      var isRu = (document.documentElement.lang || "").toLowerCase().indexOf("ru") === 0;
+      if (!confirm(isRu ? "Очистить все введённые данные?" : "Барча киритилган маълумотлар ўчирилсинми?")) return;
+      clearSaved(); location.reload();
+    });
   });
 })();
