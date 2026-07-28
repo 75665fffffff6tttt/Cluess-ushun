@@ -324,7 +324,7 @@
     o = o || {};
     // асосий матн бандлари икки томонга текисланади; марказ/ўнг талаб қилинса — берилади
     var align = o.align || (o.indent ? "both" : "left");
-    return new D.Paragraph({ alignment: align, spacing: { before: o.before || 0, after: o.after == null ? 120 : o.after, line: o.line || LINE }, indent: o.indent ? { firstLine: 709 } : undefined,
+    return new D.Paragraph({ alignment: align, spacing: { before: o.before || 0, after: o.after == null ? 120 : o.after, line: o.line || LINE }, indent: o.indentLeft ? { left: o.indentLeft } : (o.indent ? { firstLine: 709 } : undefined),
       children: [new D.TextRun({ text: text, bold: o.bold, italics: o.italics, font: FONT, size: o.size || BODY })] });
   }
   function H(text) { return new D.Paragraph({ alignment: "center", spacing: { before: 260, after: 160 }, keepNext: true, children: [new D.TextRun({ text: text, bold: true, font: FONT, size: HEAD })] }); }
@@ -481,11 +481,11 @@
     ch.push(P(meta.committee || tr("ЎЗБЕКИСТОН РЕСПУБЛИКАСИ ОЗИҚ-ОВҚАТ МАҲСУЛОТЛАРИ ХАВФСИЗЛИГИ ҚЎМИТАСИ", "КОМИТЕТ ПО БЕЗОПАСНОСТИ ПИЩЕВОЙ ПРОДУКЦИИ РЕСПУБЛИКИ УЗБЕКИСТАН"), { align: "center", bold: true, after: 60 }),
       P(tr("ЎСИМЛИКЛАР КАРАНТИНИ ВА ҲИМОЯСИ АГЕНТЛИГИ", "АГЕНТСТВО ПО КАРАНТИНУ И ЗАЩИТЕ РАСТЕНИЙ"), { align: "center", bold: true, after: 60 }),
       P(institute, { align: "center", bold: true, after: 360 }),
-      // Тасдиқлаш блоки — ўнг бурчакда
-      P(tr("«ТАСДИҚЛАЙМАН»", "«УТВЕРЖДАЮ»"), { align: "right", bold: true, after: 40 }),
-      P(tr(institute + " директори, " + (meta.director || "А.Анорбаев"), "Директор " + ruGenitive(institute) + ", " + (meta.director || "А.Анорбаев")), { align: "right", after: 40 }),
-      P("________________ ____________", { align: "right", after: 40 }),
-      P(tr("«___»__________ " + reportYear + " йил", "«___»__________ " + reportYear + " г."), { align: "right", after: 500 }),
+      // Тасдиқлаш блоки — саҳифанинг ўнг ярмида (чапдан индент, ичкарида чапга текис)
+      P(tr("«ТАСДИҚЛАЙМАН»", "«УТВЕРЖДАЮ»"), { indentLeft: 4800, bold: true, after: 40 }),
+      P(tr(institute + " директори, " + (meta.director || "А.Анорбаев"), "Директор " + ruGenitive(institute) + ", " + (meta.director || "А.Анорбаев")), { indentLeft: 4800, after: 40 }),
+      P("________________ ____________", { indentLeft: 4800, after: 40 }),
+      P(tr("«___»__________ " + reportYear + " йил", "«___»__________ " + reportYear + " г."), { indentLeft: 4800, after: 500 }),
       P(tr("ИЛМИЙ ҲИСОБОТ", "НАУЧНЫЙ ОТЧЁТ"), { align: "center", bold: true, size: 32, after: 260 }),
       P(tr(
         meta.crop + " экинида " + meta.targetOrganism + "га қарши " + meta.preparatName + titleMaker(meta) + " препаратининг биологик самарадорлигини рўйхатга олиш учун синов натижалари",
@@ -509,11 +509,12 @@
         ]
       }));
     }
-    ch.push(P(tr(city + " – " + reportYear + " й.", city + " – " + reportYear + " г."), { align: "center", bold: true, before: 4800, after: 0 }),
+    // Шаҳар/йил — саҳифа пастига яқин (қатъий эмас; узун ном/кўп ижрочида ошиб кетмаслиги учун мўътадил оралиқ)
+    ch.push(P(tr(city + " – " + reportYear + " й.", city + " – " + reportYear + " г."), { align: "center", bold: true, before: 3200, after: 0 }),
       // Кенгаш баённомаси + Илмий котиб — алоҳида 2-варақда
       new D.Paragraph({ children: [new D.PageBreak()] }),
       P(tr(institute + " илмий кенгашида №" + protoNo + "-сонли баённома, «___»________ " + reportYear + " йилда кўриб чиқилди.", "Рассмотрено на учёном совете " + ruGenitive(institute) + ", протокол №" + protoNo + " от «___»________ " + reportYear + " г."), { align: "center", after: 200 }),
-      P(tr("Илмий котиб, қ.х.ф.д.                                        ", "Учёный секретарь, д.с.-х.н.                                        ") + (meta.scientificSecretary || "О.Сулаймонов"), { align: "center" }),
+      P(tr("Илмий котиб, ", "Учёный секретарь, ") + ((meta.secretaryDegree && meta.secretaryDegree.trim()) || tr("қ.х.ф.д.", "д.с.-х.н.")) + "                                        " + (meta.scientificSecretary || "О.Сулаймонов"), { align: "center" }),
       new D.Paragraph({ children: [new D.PageBreak()] }));
 
     // ===== Мундарижа (нуқтали чизиқ + бет рақами) =====
