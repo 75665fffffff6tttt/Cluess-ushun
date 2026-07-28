@@ -287,8 +287,10 @@
     unit = unit || "";
     var W = 720, H = 400, pl = 58, pr = 24, pt = 54, pb = 52, aw = W - pl - pr, ah = H - pt - pb;
     maxY = maxY || 100; var n = labels.length, slot = aw / n, bw = Math.min(slot * 0.5, 88), r = Math.min(bw / 2, 7), parts = [];
-    // орқа фон (оқ) — рангсиз
+    // орқа фон (оқ)
     parts.push('<rect width="' + W + '" height="' + H + '" fill="#ffffff"/>');
+    // устунлар учун тўқ (қорамтир) яшил градиент
+    parts.push('<defs><linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f6b30"/><stop offset="1" stop-color="#173f19"/></linearGradient></defs>');
     // сарлавҳа — қора, Times New Roman
     parts.push('<text x="' + (W / 2) + '" y="30" font-family="Times New Roman, serif" font-size="18" font-weight="bold" fill="#000000" text-anchor="middle">' + svgEsc(title) + '</text>');
     // тўр чизиқлари (нозик кулранг) + Y ўқи қийматлари (қора)
@@ -299,7 +301,7 @@
       if (v != null) {
         var bh = Math.max(r, Math.max(0, v) / maxY * ah), y = pt + ah - bh;
         // юқори бурчаклари юмалоқ устун (path) — оқ тўлдириш, қора контур
-        parts.push('<path d="M' + x.toFixed(1) + ' ' + (pt + ah) + ' V' + (y + r).toFixed(1) + ' a' + r + ' ' + r + ' 0 0 1 ' + r + ' -' + r + ' h' + (bw - 2 * r).toFixed(1) + ' a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + r + ' V' + (pt + ah) + ' Z" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>');
+        parts.push('<path d="M' + x.toFixed(1) + ' ' + (pt + ah) + ' V' + (y + r).toFixed(1) + ' a' + r + ' ' + r + ' 0 0 1 ' + r + ' -' + r + ' h' + (bw - 2 * r).toFixed(1) + ' a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + r + ' V' + (pt + ah) + ' Z" fill="url(#barGrad)"/>');
         parts.push('<text x="' + cx + '" y="' + (y - 7) + '" font-family="Times New Roman, serif" font-size="12.5" font-weight="bold" fill="#000000" text-anchor="middle">' + v.toFixed(1) + unit + '</text>');
       }
       parts.push('<text x="' + cx + '" y="' + (pt + ah + 20) + '" font-family="Times New Roman, serif" font-size="12" fill="#000000" text-anchor="middle">' + svgEsc(lb) + '</text>');
