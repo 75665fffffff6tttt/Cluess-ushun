@@ -529,6 +529,9 @@
     D = window.docx;
     LANG = detectLang();
     tocEntries = []; tocSeq = 0; // ҳар генерацияда Мундарижа қайтадан йиғилади
+    // Ихтиёрий майдонлар undefined бўлса — бўш сатрга (матнда «undefined» чиқмаслиги учун;
+    // «||» фолбэклар бўш сатрда ҳам ишлайверади, чунки "" — falsy)
+    ["applicantOrg", "manufacturer", "country", "referenceName", "referenceFullDesc", "variety", "workingSolution", "weather", "site", "trialDate", "laboratory", "cropPhase", "testEquipment", "applicationMethod", "experimentType", "maxTreatments", "waitingPeriod", "phytotoxicity", "labConclusion", "tradeName", "reportCity", "scientificSecretary", "deputyDirector", "director", "committee", "preparatForm", "replications", "plotArea", "plotLayout", "actDate", "references", "staff", "institute"].forEach(function (k) { if (meta[k] == null) meta[k] = ""; });
     var ch = [], institute = meta.institute || tr("Ўсимликлар карантини ва ҳимояси илмий-тадқиқот институти", "Научно-исследовательский институт карантина и защиты растений");
     var nonControl = rep.detailed ? rep.detailed.nonControlVariants : [];
     var overallBest = rep.detailed ? rep.detailed.overallMeanRow.byVariant[bestNonControl(rep)].pct : (rep.efficacyRows.filter(function (r) { return !r.isControl && r.mean != null; }).sort(function (a, b) { return (b.mean || 0) - (a.mean || 0); })[0] || {}).mean;
@@ -865,7 +868,7 @@
         P(tr("2. Таъсир этувчи моддаси – " + meta.activeIngredients + ".", "2. Действующее вещество – " + meta.activeIngredients + "."), L),
         P(tr("3. Рўйхатга олиш учун талабгор ташкилотнинг номи, давлати – " + (meta.applicantOrg || meta.manufacturer || "—") + (meta.country ? ", " + meta.country : "") + ".", "3. Наименование и страна организации-заявителя для регистрации – " + (meta.applicantOrg || meta.manufacturer || "—") + (meta.country ? ", " + meta.country : "") + "."), L),
         P(tr("4. Рўйхатга олиш учун синовларни ўтказган ташкилотнинг номи – " + institute + ".", "4. Наименование организации, проводившей испытания для регистрации – " + institute + "."), L),
-        P(tr("5. Рўйхатга олиш учун синов ўтказилган жой ва муддати – " + meta.site + "да " + meta.trialDate + ".", "5. Место и срок проведения испытания для регистрации – " + meta.site + ", " + meta.trialDate + "."), { align: "left", after: 120, line: 240, size: TBL }));
+        P(tr("5. Рўйхатга олиш учун синов ўтказилган жой ва муддати – " + ((meta.site ? meta.site + "да" : "") + (meta.site && meta.trialDate ? " " : "") + (meta.trialDate || "") || "—") + ".", "5. Место и срок проведения испытания для регистрации – " + ([meta.site, meta.trialDate].filter(Boolean).join(", ") || "—") + "."), { align: "left", after: 120, line: 240, size: TBL }));
 
       // Расмий 9 устунли жадвал — албом бетга ихчам жойлашади
       var recText = recommend
