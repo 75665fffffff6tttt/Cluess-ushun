@@ -503,9 +503,9 @@
       var SIG = ""; // имзо чекишга бўш жой (чизиқсиз)
       ch.push(new D.Table({
         alignment: "center",
-        width: { size: 6600, type: "dxa" },
+        width: { size: 7900, type: "dxa" },
         borders: { top: { style: "none" }, bottom: { style: "none" }, left: { style: "none" }, right: { style: "none" }, insideHorizontal: { style: "none" }, insideVertical: { style: "none" } },
-        columnWidths: [2900, 1200, 2500],
+        columnWidths: [2900, 2500, 2500],
         rows: [
           new D.TableRow({ children: [
             new D.TableCell(Object.assign({}, noB, { children: [P(tr("Маъсул ижрочи:", "Ответственный исполнитель:"), { after: 480 })] })),
