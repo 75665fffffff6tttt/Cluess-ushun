@@ -11,7 +11,8 @@
     "institute", "director", "reportCity", "scientificSecretary", "deputyDirector",
     "applicantOrg", "tradeName", "testEquipment",
     "applicationMethod", "experimentType", "referenceFullDesc", "labConclusion",
-    "maxTreatments", "waitingPeriod", "phytotoxicity", "cropPhase", "references"];
+    "maxTreatments", "waitingPeriod", "phytotoxicity", "cropPhase",
+    "replications", "plotArea", "plotLayout", "references"];
 
   function $(id) { return document.getElementById(id); }
   function num(s) { if (s == null) return null; s = String(s).trim().replace(",", "."); if (s === "") return null; var v = Number(s); return isFinite(v) ? v : null; }

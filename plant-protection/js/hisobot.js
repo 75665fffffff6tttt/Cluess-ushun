@@ -628,6 +628,14 @@
       var joinR = dd.length > 1 ? dd.slice(0, -1).join(", ") + " и " + dd[dd.length - 1] : dd[0];
       ch.push(P(tr("Биологик самарадорлик ишлов берилгандан кейин " + joinU + "-кунлари аниқланди.", "Биологическая эффективность определялась на " + joinR + "-е сутки после обработки."), { indent: true }));
     }
+    // Тажриба шароити — форма майдонларидан (фақат тўлдирилганлари)
+    (function () {
+      var pu = [], pr = [];
+      if (meta.replications) { pu.push("такрорлар сони — " + meta.replications); pr.push("повторность — " + meta.replications + "-кратная"); }
+      if (meta.plotArea) { pu.push("делянка майдони — " + meta.plotArea + " м²"); pr.push("площадь делянки — " + meta.plotArea + " м²"); }
+      if (meta.plotLayout) { pu.push("жойлаштириш усули — " + meta.plotLayout); pr.push("размещение делянок — " + meta.plotLayout); }
+      if (pu.length) ch.push(P(tr("Тажриба шароити: " + pu.join("; ") + ".", "Условия опыта: " + pr.join("; ") + "."), { indent: true }));
+    })();
     ch.push(P(tr("Тажриба тизими:", "Схема опыта:"), { bold: true, after: 60 }));
     rep.efficacyRows.forEach(function (r, i) { var lb = r.isControl ? tr("(ишлов ўтказилмаган)", "(без обработки)") : (r.isReference ? tr("(андоза)", "(эталон)") : ""); ch.push(P((i + 1) + ". " + r.variant + " " + lb, { size: BODY, after: 40 })); });
     if (rep.organisms && rep.organisms.length) {
