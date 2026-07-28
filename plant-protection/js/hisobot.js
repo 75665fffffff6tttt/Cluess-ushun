@@ -483,7 +483,7 @@
       P(institute, { align: "center", bold: true, after: 360 }),
       // Тасдиқлаш блоки — саҳифанинг ўнг ярмида (лавозим → имзо чизиғи + Ф.И.Ш. → сана)
       P(tr("«ТАСДИҚЛАЙМАН»", "«УТВЕРЖДАЮ»"), { indentLeft: 4800, bold: true, after: 40 }),
-      P(tr(institute + " директори", "Директор " + ruGenitive(institute)), { indentLeft: 4800, after: 120 }),
+      P(tr("Институт директори", "Директор института"), { indentLeft: 4800, after: 120 }),
       new D.Paragraph({
         alignment: "left", spacing: { after: 40, line: LINE }, indent: { left: 4800 },
         tabStops: [{ type: "right", position: 9639 }],
