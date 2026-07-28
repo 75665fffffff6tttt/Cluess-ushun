@@ -495,7 +495,7 @@
     var orgTitle = lcFirst(meta.targetOrganism);
     ch.push(P(tr(
         meta.crop + " экинида " + orgTitle + "га қарши " + meta.preparatName + titleMaker(meta) + " препаратининг биологик самарадорлиги бўйича рўйхатга олиш учун синов натижалари",
-        "Результаты испытаний для регистрации биологической эффективности препарата " + meta.preparatName + titleMaker(meta) + " против " + orgTitle + " на культуре " + meta.crop
+        "Результаты испытаний для регистрации биологической эффективности препарата " + meta.preparatName + titleMaker(meta) + " против " + orgTitle + " на культуре " + lcFirst(meta.crop)
       ), { align: "center", after: 600 }));
     // Маъсул ижрочи / Ижрочилар — ном ёнида имзо чекишга жой (чизиқ)
     if (staffList.length) {
