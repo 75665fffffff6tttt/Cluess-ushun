@@ -781,16 +781,19 @@
       }));
       form1.push(P("", { after: 120 }));
 
-      // Имзолар — тор жадвал, фамилия лавозим ёнида (альбом четида эмас)
+      // Имзолар — марказда, лавозим ва Ф.И.Ш. орасида имзо чекишга бўш жой
       form1.push(new D.Table({
-        width: { size: 7400, type: "dxa" },
-        columnWidths: [4200, 3200],
+        alignment: "center",
+        width: { size: 8200, type: "dxa" },
+        columnWidths: [3400, 2000, 2800],
         borders: { top: { style: "none" }, bottom: { style: "none" }, left: { style: "none" }, right: { style: "none" }, insideHorizontal: { style: "none" }, insideVertical: { style: "none" } },
         rows: [new D.TableRow({ children: [
           new D.TableCell({ borders: {}, children: [P(tr("Директор ўринбосари", "Заместитель директора"), { bold: true, after: 0 })] }),
+          new D.TableCell({ borders: {}, children: [P("", { after: 0 })] }),
           new D.TableCell({ borders: {}, children: [P(meta.deputyDirector || "Н.Қурбонова", { bold: true, align: "left", after: 0 })] })
         ] }), new D.TableRow({ children: [
           new D.TableCell({ borders: {}, children: [P(tr("Маъсул ижрочи", "Ответственный исполнитель"), { bold: true, before: 200, after: 0 })] }),
+          new D.TableCell({ borders: {}, children: [P("", { before: 200, after: 0 })] }),
           new D.TableCell({ borders: {}, children: [P((((meta.staff || "").split(/[,;\n]+/)[0]) || "").trim() || "____________", { bold: true, align: "left", before: 200, after: 0 })] })
         ] })]
       }));
