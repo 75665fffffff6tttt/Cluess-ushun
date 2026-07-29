@@ -338,7 +338,8 @@
       var beforeByVar = {}, hasBefore = false;
       if (rep.countRows) rep.countRows.forEach(function (cr) { beforeByVar[cr.variant] = cr.before; if (cr.before != null) hasBefore = true; });
       var isDefol = rep.methodKey === "defol";
-      h += '<h3 class="hb-h3">' + (isDefol ? 'Дефолиация даражаси, %' : 'Биологик самарадорлик, %') + '</h3><div class="hb-scroll"><table class="hb-table"><thead><tr><th>Вариант</th>';
+      var dW = rep.defolWord ? (rep.defolWord.charAt(0).toUpperCase() + rep.defolWord.slice(1)) : 'Дефолиация';
+      h += '<h3 class="hb-h3">' + (isDefol ? dW + ' даражаси, %' : 'Биологик самарадорлик, %') + '</h3><div class="hb-scroll"><table class="hb-table"><thead><tr><th>Вариант</th>';
       if (hasBefore) h += '<th>Ишловгача</th>';
       rep.days.forEach(function (d) { h += '<th>' + d + '-кун</th>'; });
       h += '<th>Ўртача</th></tr></thead><tbody>';
