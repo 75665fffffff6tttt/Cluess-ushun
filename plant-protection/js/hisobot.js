@@ -1006,7 +1006,7 @@
         new D.Paragraph({ children: [new D.PageBreak()] }),
         P(tr("ЎСИМЛИКЛАРНИ ҲИМОЯ ҚИЛИШ ВОСИТАСИНИНГ СИНОВ", "АКТ ПО РЕЗУЛЬТАТАМ ИСПЫТАНИЯ"), { align: "center", bold: true, size: 28, after: 0 }),
         P(tr("НАТИЖАЛАРИ БЎЙИЧА ДАЛОЛАТНОМА", "СРЕДСТВА ЗАЩИТЫ РАСТЕНИЙ"), { align: "center", bold: true, size: 28, after: 160 }),
-        P(tr("«___»________202__й.", "«___»________202__г."), { align: "center", after: 300 })];
+        P(tr("«___»________202__й.", "«___»________202__г."), { align: "right", after: 300 })];
       // Бандлар қиймати (маълумот бўлса — тўлдирилади, бўлмаса — чизиқ)
       var actBlank = "______________________________________";
       function actVal(v) { v = (v == null ? "" : String(v)).trim(); return v || actBlank; }
