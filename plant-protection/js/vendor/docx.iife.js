@@ -17024,7 +17024,7 @@ MAX: 9026 };
 	*/
 	var Bookmark = class {
 		constructor(options) {
-			_defineProperty(this, "bookmarkUniqueNumericId", bookmarkUniqueNumericIdGen());
+			_defineProperty(this, "bookmarkUniqueNumericId", bookmarkUniqueNumericIdGen.__shared || (bookmarkUniqueNumericIdGen.__shared = bookmarkUniqueNumericIdGen()));
 			_defineProperty(this, "start", void 0);
 			_defineProperty(this, "children", void 0);
 			_defineProperty(this, "end", void 0);
