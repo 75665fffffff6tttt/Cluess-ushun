@@ -145,6 +145,7 @@
       weed: tr("Бегона ўтлар зичлиги бўйича (давлат гербицид синов методикаси)", "По плотности сорняков (государственная методика испытания гербицидов)"),
       population: tr("Популяция камайиши бўйича", "По снижению популяции"),
       defoliation: tr("Барг тўкилиши / қуриш даражаси бўйича", "По степени дефолиации / подсыхания"),
+      defol: tr("Эришилган дефолиация (қуриш) даражаси бўйича, %", "По достигнутой степени дефолиации (подсыхания), %"),
       storage_scale: tr("Касаллик ривожланиш даражаси шкаласи бўйича (сақлаш синови методикаси)", "По шкале степени развития болезни (методика испытания при хранении)")
     };
     return M[k] || k;
@@ -198,6 +199,14 @@
           bd[d] = (ci != null && ti != null) ? round(diseaseBioEff(ci, ti)) : null;
         });
         efficacyRows.push({ variant: v.name, isControl: isC, isReference: !!v.isReference, byDay: bd, mean: isC ? null : avg(days.map(function (d) { return bd[d]; })) });
+      });
+    } else if (A.defol) {
+      // Дефолиант/десикант: эришилган дефолиация (қуриш) даражаси % — тўғридан-тўғри, назорат ҳам кўрсатилади
+      methodKey = "defol";
+      input.variants.forEach(function (v) {
+        var isC = !!v.isControl || v.name === control, d1 = A.defol[v.name], bd = {};
+        days.forEach(function (d) { var val = d1 && d1.byDay[d] != null ? d1.byDay[d] : null; bd[d] = round(val); });
+        efficacyRows.push({ variant: v.name, isControl: isC, isReference: !!v.isReference, byDay: bd, mean: avg(days.map(function (d) { return bd[d]; })) });
       });
     } else if (A.weeds) {
       methodKey = "weed";
@@ -400,6 +409,7 @@
   }
   function effTable(rep) {
     var rows = [];
+    var isDefol = rep.methodKey === "defol"; // дефолиацияда назорат ҳам ўз қийматини кўрсатади
     // Зараркунанда режимида «ишловгача» (бошланғич зичлик) сонлари бўлса — уларни устун қилиб кўрсатамиз
     var beforeByVar = {}, hasBefore = false;
     if (rep.countRows) rep.countRows.forEach(function (cr) { beforeByVar[cr.variant] = cr.before; if (cr.before != null) hasBefore = true; });
@@ -411,8 +421,8 @@
     rep.efficacyRows.forEach(function (r) {
       var c = [CELL(r.variant + (r.isReference ? tr(" (андоза)", " (эталон)") : ""), { align: "left" })];
       if (hasBefore) c.push(CELL(fmt(beforeByVar[r.variant], 1)));
-      rep.days.forEach(function (dd) { c.push(CELL(r.isControl ? "—" : fmt(r.byDay[dd], 1))); });
-      c.push(CELL(r.isControl ? "—" : fmt(r.mean, 1)));
+      rep.days.forEach(function (dd) { c.push(CELL((r.isControl && !isDefol) ? "—" : fmt(r.byDay[dd], 1))); });
+      c.push(CELL((r.isControl && !isDefol) ? "—" : fmt(r.mean, 1)));
       rows.push(new D.TableRow({ children: c }));
     });
     return TABLE(rows);
@@ -710,7 +720,9 @@
       storageTables(ch, rep, meta);
     } else {
       ch.push(P(tr("2-жадвал", "Таблица 2"), { align: "right", size: TBL, after: 40 }),
-        P(tr(meta.preparatName + " препаратининг " + lcFirst(meta.targetOrganism) + "га қарши биологик самарадорлиги", "Биологическая эффективность препарата " + meta.preparatName + " против " + lcFirst(meta.targetOrganism)), { bold: true, align: "center", size: BODY }));
+        P(rep.methodKey === "defol"
+          ? tr(meta.preparatName + " препаратининг " + cropMid(meta.crop) + " экинида эришилган дефолиация (қуриш) даражаси, %", "Достигнутая степень дефолиации (подсыхания) на культуре " + cropMid(meta.crop) + " при применении препарата " + meta.preparatName + ", %")
+          : tr(meta.preparatName + " препаратининг " + lcFirst(meta.targetOrganism) + "га қарши биологик самарадорлиги", "Биологическая эффективность препарата " + meta.preparatName + " против " + lcFirst(meta.targetOrganism)), { bold: true, align: "center", size: BODY }));
       ch.push(rep.detailed && rep.detailed.periods.length ? detailTable(rep) : effTable(rep));
     }
 
@@ -725,7 +737,7 @@
     var best = rep.efficacyRows.filter(function (r) { return !r.isControl && r.mean != null; }).sort(function (a, b) { return (b.mean || 0) - (a.mean || 0); })[0];
 
     var chartPromises = [];
-    if (best && rep.days.length && !rep.storage) chartPromises.push(svgToPng(barSvg(tr("Биологик самарадорлик — ", "Биологическая эффективность — ") + best.variant + ", %", rep.days.map(function (d) { return tr(d + "-кун", d + " сут."); }), rep.days.map(function (d) { return best.byDay[d]; }), 100, "%")).then(function (png) { return { type: "eff", png: png, variant: best.variant }; }));
+    if (best && rep.days.length && !rep.storage) chartPromises.push(svgToPng(barSvg((rep.methodKey === "defol" ? tr("Дефолиация — ", "Дефолиация — ") : tr("Биологик самарадорлик — ", "Биологическая эффективность — ")) + best.variant + ", %", rep.days.map(function (d) { return tr(d + "-кун", d + " сут."); }), rep.days.map(function (d) { return best.byDay[d]; }), 100, "%")).then(function (png) { return { type: "eff", png: png, variant: best.variant }; }));
     if (rep.yieldRows && rep.yieldRows.length) {
       var ymax = Math.max.apply(null, rep.yieldRows.map(function (r) { return r.mean || 0; })) * 1.2 || 1;
       chartPromises.push(svgToPng(barSvg(tr("Ҳосилдорлик, ", "Урожайность, ") + (rep.yieldUnit || tr("ц/га", "ц/га")), rep.yieldRows.map(function (r) { return r.variant.length > 14 ? r.variant.slice(0, 13) + "…" : r.variant; }), rep.yieldRows.map(function (r) { return r.mean || 0; }), ymax)).then(function (png) { return { type: "yield", png: png }; }));
@@ -734,7 +746,7 @@
     return Promise.all(chartPromises).then(function (charts) {
       var effChart = charts.filter(function (c) { return c.type === "eff"; })[0];
       var yChart = charts.filter(function (c) { return c.type === "yield"; })[0];
-      if (effChart && effChart.png) { ch.push(IMG(effChart.png)); ch.push(CAP(tr("1-расм. «" + effChart.variant + "» варианти бўйича биологик самарадорлик динамикаси.", "Рисунок 1. Динамика биологической эффективности по варианту «" + effChart.variant + "»."))); }
+      if (effChart && effChart.png) { ch.push(IMG(effChart.png)); ch.push(CAP(rep.methodKey === "defol" ? tr("1-расм. «" + effChart.variant + "» варианти бўйича дефолиация даражаси динамикаси.", "Рисунок 1. Динамика степени дефолиации по варианту «" + effChart.variant + "».") : tr("1-расм. «" + effChart.variant + "» варианти бўйича биологик самарадорлик динамикаси.", "Рисунок 1. Динамика биологической эффективности по варианту «" + effChart.variant + "»."))); }
 
       // матнли таҳлил
       if (rep.detailed) {
@@ -785,7 +797,9 @@
           : tr((n + 1) + ". Самарадорлик кўрсаткичи 60% дан паст (" + fmt(overallBest, 1) + "%) бўлгани сабабли " + meta.preparatName + " воситасини Давлат рўйхатига киритиш ушбу синов натижалари асосида тавсия этилмайди; синовларни такрорлаш ёки давом эттириш тавсия этилади.", (n + 1) + ". Поскольку показатель эффективности ниже 60% (" + fmt(overallBest, 1) + "%), включение средства " + meta.preparatName + " в Государственный реестр по результатам данного испытания не рекомендуется; рекомендуется повторить или продолжить испытания."), { indent: true }));
       } else {
         // ——— Дала синови учун хулоса ———
-        ch.push(P(tr("1. Олиб борилган тажриба натижаларига кўра " + meta.preparatName + " (" + meta.applicationRate + ") препарати " + lcFirst(meta.targetOrganism) + "га қарши " + fmt(overallBest, 1) + "% биологик самарадорлик кўрсатди.", "1. По результатам проведённого опыта препарат " + meta.preparatName + " (" + meta.applicationRate + ") показал биологическую эффективность против " + lcFirst(meta.targetOrganism) + " на уровне " + fmt(overallBest, 1) + "%."), { indent: true }),
+        ch.push(P(rep.methodKey === "defol"
+          ? tr("1. Олиб борилган тажриба натижаларига кўра " + meta.preparatName + " (" + meta.applicationRate + ") препарати қўлланганда ўртача " + fmt(overallBest, 1) + "% дефолиация (қуриш) даражасига эришилди.", "1. По результатам проведённого опыта при применении препарата " + meta.preparatName + " (" + meta.applicationRate + ") достигнута средняя степень дефолиации (подсыхания) " + fmt(overallBest, 1) + "%.")
+          : tr("1. Олиб борилган тажриба натижаларига кўра " + meta.preparatName + " (" + meta.applicationRate + ") препарати " + lcFirst(meta.targetOrganism) + "га қарши " + fmt(overallBest, 1) + "% биологик самарадорлик кўрсатди.", "1. По результатам проведённого опыта препарат " + meta.preparatName + " (" + meta.applicationRate + ") показал биологическую эффективность против " + lcFirst(meta.targetOrganism) + " на уровне " + fmt(overallBest, 1) + "%."), { indent: true }),
           P(tr("2. Препарат мақбул меъёрда қўлланганда токсик (фитотоксик) ҳолатлар кузатилмади.", "2. При применении препарата в оптимальной норме токсических (фитотоксических) явлений не наблюдалось."), { indent: true }));
         if (rep.yieldRows) { var ctrl2 = rep.yieldRows.filter(function (r) { return r.isControl; })[0], trow = rep.yieldRows.filter(function (r) { return !r.isControl && r.increaseVsControlPct != null; })[0]; if (ctrl2 && trow && ctrl2.mean != null && trow.mean != null) ch.push(P(tr("3. Назоратга нисбатан қўшимча " + fmt(trow.mean - ctrl2.mean, 1) + " " + (rep.yieldUnit || "ц/га") + " ҳосил олинди.", "3. По сравнению с контролем получена дополнительная прибавка урожая " + fmt(trow.mean - ctrl2.mean, 1) + " " + (rep.yieldUnit || "ц/га") + "."), { indent: true })); }
         ch.push(P(recommend

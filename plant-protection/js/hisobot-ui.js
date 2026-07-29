@@ -29,7 +29,7 @@
     ],
     species: ["Курмак", "Шўра"],
     mode: "counts", manualMode: false, detection: null,
-    counts: {}, disease: {}, weeds: {}, weedBefore: {}, yieldData: {}, yieldReps: 4,
+    counts: {}, disease: {}, defol: {}, weeds: {}, weedBefore: {}, yieldData: {}, yieldReps: 4,
     storageDiseases: ["Кулранг чириш", "Антракноз"], storage: {}
   };
 
@@ -137,6 +137,15 @@
         tbl2.body.appendChild(tr);
       });
       box.appendChild(tbl2.table);
+    } else if (state.mode === "defol") {
+      var tblD = mkTable(["Вариант"].concat(days.map(function (d) { return d + "-кун (дефолиация %)"; })));
+      state.variants.forEach(function (v) {
+        state.defol[v.id] = state.defol[v.id] || {};
+        var tr = document.createElement("tr"); tr.appendChild(td(v.name));
+        days.forEach(function (d) { var c = document.createElement("td"); c.appendChild(cellInput(state.defol[v.id][d], function (val) { state.defol[v.id][d] = val; })); tr.appendChild(c); });
+        tblD.body.appendChild(tr);
+      });
+      box.appendChild(tblD.table);
     } else {
       // weeds
       var spWrap = document.createElement("div"); spWrap.className = "hb-species-row";
@@ -238,7 +247,7 @@
     }
     if (!state.manualMode) {
       var m = det.meta.method;
-      var mode = m === "disease" ? "disease" : (m === "weed" ? "weeds" : "counts");
+      var mode = m === "disease" ? "disease" : (m === "weed" ? "weeds" : (m === "defoliation" ? "defol" : "counts"));
       if (mode !== state.mode) { state.mode = mode; $("mode-select").value = mode; renderFieldData(); }
     }
   }
@@ -270,6 +279,13 @@
         dz[nameById[v.id]] = { byDayIndex: bd };
       });
       assessment.disease = dz;
+    } else if (state.mode === "defol") {
+      var df = {};
+      state.variants.forEach(function (v) {
+        var bd = {}; days.forEach(function (d) { var n = num((state.defol[v.id] || {})[d]); if (n != null) bd[d] = n; });
+        df[nameById[v.id]] = { byDay: bd };
+      });
+      assessment.defol = df;
     } else if (state.mode === "storage") {
       var sdata = {}, sdis = state.storageDiseases.filter(function (s) { return s.trim(); });
       state.variants.forEach(function (v) {
@@ -321,15 +337,17 @@
     } else {
       var beforeByVar = {}, hasBefore = false;
       if (rep.countRows) rep.countRows.forEach(function (cr) { beforeByVar[cr.variant] = cr.before; if (cr.before != null) hasBefore = true; });
-      h += '<h3 class="hb-h3">Биологик самарадорлик, %</h3><div class="hb-scroll"><table class="hb-table"><thead><tr><th>Вариант</th>';
+      var isDefol = rep.methodKey === "defol";
+      h += '<h3 class="hb-h3">' + (isDefol ? 'Дефолиация даражаси, %' : 'Биологик самарадорлик, %') + '</h3><div class="hb-scroll"><table class="hb-table"><thead><tr><th>Вариант</th>';
       if (hasBefore) h += '<th>Ишловгача</th>';
       rep.days.forEach(function (d) { h += '<th>' + d + '-кун</th>'; });
       h += '<th>Ўртача</th></tr></thead><tbody>';
       rep.efficacyRows.forEach(function (r) {
+        var blank = r.isControl && !isDefol;
         h += '<tr' + (r.isControl ? ' class="hb-ctrl"' : '') + '><td class="hb-td-name">' + escHtml(r.variant) + (r.isReference ? ' (эталон)' : '') + '</td>';
         if (hasBefore) h += '<td>' + (beforeByVar[r.variant] == null ? "—" : beforeByVar[r.variant]) + '</td>';
-        rep.days.forEach(function (d) { h += '<td>' + (r.isControl ? "—" : (r.byDay[d] == null ? "—" : r.byDay[d])) + '</td>'; });
-        h += '<td><b>' + (r.isControl ? "—" : (r.mean == null ? "—" : r.mean)) + '</b></td></tr>';
+        rep.days.forEach(function (d) { h += '<td>' + (blank ? "—" : (r.byDay[d] == null ? "—" : r.byDay[d])) + '</td>'; });
+        h += '<td><b>' + (blank ? "—" : (r.mean == null ? "—" : r.mean)) + '</b></td></tr>';
       });
       h += '</tbody></table></div>';
     }
@@ -362,6 +380,7 @@
     var hasData = false;
     if (A.counts) hasData = Object.keys(A.counts).some(function (k) { var c = A.counts[k]; return c && (c.before != null || Object.keys(c.byDay || {}).length); });
     else if (A.disease) hasData = Object.keys(A.disease).some(function (k) { return Object.keys(A.disease[k].byDayIndex || {}).length; });
+    else if (A.defol) hasData = Object.keys(A.defol).some(function (k) { return Object.keys(A.defol[k].byDay || {}).length; });
     else if (A.storage) hasData = Object.keys(A.storage.data || {}).some(function (k) { var s = A.storage.data[k]; return s && (s.healthy != null || s.firmness != null); });
     else if (A.weeds) hasData = Object.keys(A.weeds.density || {}).length > 0 && Object.keys(A.weeds.before || {}).length > 0;
     if (!hasData) msgs.push(T("Дала ўлчов маълумотлари киритилмаган.", "Не введены полевые данные измерений."));
