@@ -926,6 +926,10 @@
       function pageFooter() {
         return new D.Footer({ children: [new D.Paragraph({ alignment: "center", spacing: { before: 0, after: 0 }, children: [new D.TextRun({ children: [D.PageNumber.CURRENT], font: FONT, size: TBL })] })] });
       }
+      // Бўш футер — титул варағида бет рақами кўринмаслиги учун
+      function emptyFooter() {
+        return new D.Footer({ children: [new D.Paragraph({ spacing: { before: 0, after: 0 } })] });
+      }
       // Статик Мундарижа қаторлари — H() йиққан бўлимлардан. Ном ва ҳаволалар доим кўринади;
       // бет рақами PAGEREF майдони орқали Word очганда/F9 да автоматик тўлади.
       var tocRows = tocEntries.map(function (e) {
@@ -947,8 +951,8 @@
         creator: institute, title: meta.preparatName + tr(" — давлат синови ҳисоботи", " — отчёт государственного испытания"),
         features: { updateFields: true }, // Word очганда МУНДАРИЖА майдонини янгилайди
         sections: [
-          // Асосий ҳисобот — тик (portrait)
-          { properties: { page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 850 } } }, footers: { default: pageFooter() }, children: ch },
+          // Асосий ҳисобот — тик (portrait). titlePage: true — биринчи (титул) варағида бет рақами кўринмайди
+          { properties: { titlePage: true, page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 850 } } }, footers: { default: pageFooter(), first: emptyFooter() }, children: ch },
           // 1-форма — албом (landscape)
           { properties: { page: { size: { orientation: "landscape", width: 11906, height: 16838 }, margin: { top: 720, bottom: 720, left: 720, right: 720 } } }, footers: { default: pageFooter() }, children: form1 },
           // ИЛОВА — тик (portrait), янги варақ
