@@ -403,16 +403,16 @@
     // Зараркунанда режимида «ишловгача» (бошланғич зичлик) сонлари бўлса — уларни устун қилиб кўрсатамиз
     var beforeByVar = {}, hasBefore = false;
     if (rep.countRows) rep.countRows.forEach(function (cr) { beforeByVar[cr.variant] = cr.before; if (cr.before != null) hasBefore = true; });
-    var h = [CELL(tr("Вариант", "Вариант"), { bold: true, shade: "e8e8e8", align: "left" })];
-    if (hasBefore) h.push(CELL(tr("Ишловгача, 1 м²", "До обработки, 1 м²"), { bold: true, shade: "e8e8e8" }));
-    rep.days.forEach(function (dd) { h.push(CELL(tr(dd + "-кун, %", dd + "-е сут., %"), { bold: true, shade: "e8e8e8" })); });
-    h.push(CELL(tr("Ўртача, %", "Среднее, %"), { bold: true, shade: "e8e8e8" }));
+    var h = [CELL(tr("Вариант", "Вариант"), { align: "left" })];
+    if (hasBefore) h.push(CELL(tr("Ишловгача, 1 м²", "До обработки, 1 м²"), {}));
+    rep.days.forEach(function (dd) { h.push(CELL(tr(dd + "-кун, %", dd + "-е сут., %"), {})); });
+    h.push(CELL(tr("Ўртача, %", "Среднее, %"), {}));
     rows.push(new D.TableRow({ tableHeader: true, children: h }));
     rep.efficacyRows.forEach(function (r) {
-      var c = [CELL(r.variant + (r.isReference ? tr(" (андоза)", " (эталон)") : ""), { align: "left", bold: r.isControl })];
+      var c = [CELL(r.variant + (r.isReference ? tr(" (андоза)", " (эталон)") : ""), { align: "left" })];
       if (hasBefore) c.push(CELL(fmt(beforeByVar[r.variant], 1)));
       rep.days.forEach(function (dd) { c.push(CELL(r.isControl ? "—" : fmt(r.byDay[dd], 1))); });
-      c.push(CELL(r.isControl ? "—" : fmt(r.mean, 1), { bold: true }));
+      c.push(CELL(r.isControl ? "—" : fmt(r.mean, 1)));
       rows.push(new D.TableRow({ children: c }));
     });
     return TABLE(rows);
