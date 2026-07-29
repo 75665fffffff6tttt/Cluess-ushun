@@ -1014,7 +1014,7 @@
         }),
         P(tr(
           "Мазкур далолатнома «" + institute + "» томонидан " + meta.preparatName + " (таъсир этувчи модда – " + meta.activeIngredients + ") препаратининг " + cropMid(meta.crop) + " экинида " + lcFirst(meta.targetOrganism) + "га қарши биологик самарадорлигини аниқлаш мақсадида " + meta.site + "да " + meta.trialDate + " санасида дала синови ўтказилганлиги тўғрисида тузилди.",
-          "Настоящий акт составлен о том, что организацией «" + institute + "» проведено полевое испытание препарата " + meta.preparatName + " (действующее вещество – " + meta.activeIngredients + ") для определения биологической эффективности против " + lcFirst(meta.targetOrganism) + " на культуре " + cropMid(meta.crop) + ", в " + meta.site + ", " + meta.trialDate + "."
+          "Настоящий акт составлен о том, что организацией «" + institute + "» проведено полевое испытание препарата " + meta.preparatName + " (действующее вещество – " + meta.activeIngredients + ") для определения биологической эффективности против " + lcFirst(meta.targetOrganism) + " на культуре " + cropMid(meta.crop) + ", в " + meta.site + ", " + meta.trialDate.replace(/\.\s*$/, "") + "."
         ), { indent: true }),
         P(tr(
           "Синов " + meta.applicationRate + " сарф меъёрида, " + (meta.experimentType || "кичик дала тажрибаси") + " шароитида, белгиланган методика асосида олиб борилди. Синов натижалари ушбу илмий ҳисоботда акс эттирилган.",
