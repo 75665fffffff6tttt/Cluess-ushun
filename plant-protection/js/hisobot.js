@@ -1000,37 +1000,54 @@
       Array.prototype.splice.apply(ch, [built.tocIndex, 0].concat(tocRows));
 
       // ИЛОВА — 1-формадан сўнг алоҳида тик варақ (тепада марказда сарлавҳа)
-      var appCity = (meta.reportCity && meta.reportCity.trim()) || tr("Тошкент", "Ташкент");
-      var appYear = (String(meta.trialDate || "").match(/\b(?:19|20)\d{2}\b/) || [String(new Date().getFullYear())])[0];
       var actStaff = (meta.staff || "").split(/[,;\n]+/).map(function (s) { return s.trim(); }).filter(Boolean);
       var appendix = [P(tr("ИЛОВА", "ПРИЛОЖЕНИЕ"), { align: "center", bold: true, size: 32, after: 200 }),
-        // ——— Далолатнома — ИЛОВАдан сўнг алоҳида варақ ———
+        // ——— Расмий 12 бандли ДАЛОЛАТНОМА — ИЛОВАдан сўнг алоҳида варақ ———
         new D.Paragraph({ children: [new D.PageBreak()] }),
-        P(tr("ДАЛОЛАТНОМА", "АКТ"), { align: "center", bold: true, size: 32, after: 160 }),
-        new D.Paragraph({
-          tabStops: [{ type: "right", position: 9600 }], spacing: { after: 240, line: LINE },
-          children: [new D.TextRun({ text: appCity + tr(" ш.", " г."), font: FONT, size: BODY }),
-            new D.TextRun({ text: "\t" + tr("«___» ____________ " + appYear + " йил", "«___» ____________ " + appYear + " г."), font: FONT, size: BODY })]
-        }),
-        P(tr(
-          "Мазкур далолатнома «" + institute + "» томонидан " + meta.preparatName + " (таъсир этувчи модда – " + meta.activeIngredients + ") препаратининг " + cropMid(meta.crop) + " экинида " + lcFirst(meta.targetOrganism) + "га қарши биологик самарадорлигини аниқлаш мақсадида " + meta.site + "да " + meta.trialDate + " санасида дала синови ўтказилганлиги тўғрисида тузилди.",
-          "Настоящий акт составлен о том, что организацией «" + institute + "» проведено полевое испытание препарата " + meta.preparatName + " (действующее вещество – " + meta.activeIngredients + ") для определения биологической эффективности против " + lcFirst(meta.targetOrganism) + " на культуре " + cropMid(meta.crop) + ", в " + meta.site + ", " + meta.trialDate.replace(/\.\s*$/, "") + "."
-        ), { indent: true }),
-        P(tr(
-          "Синов " + meta.applicationRate + " сарф меъёрида, " + (meta.experimentType || "кичик дала тажрибаси") + " шароитида, белгиланган методика асосида олиб борилди. Синов натижалари ушбу илмий ҳисоботда акс эттирилган.",
-          "Испытание проведено при норме расхода " + meta.applicationRate + ", в условиях " + (meta.experimentType || "мелкоделяночного опыта") + ", на основе установленной методики. Результаты испытания отражены в настоящем научном отчёте."
-        ), { indent: true, after: 320 }),
-        P(tr("Комиссия аъзолари:", "Члены комиссии:"), { bold: true, after: 160 })];
-      var actRows = actStaff.map(function (s) {
+        P(tr("ЎСИМЛИКЛАРНИ ҲИМОЯ ҚИЛИШ ВОСИТАСИНИНГ СИНОВ", "АКТ ПО РЕЗУЛЬТАТАМ ИСПЫТАНИЯ"), { align: "center", bold: true, size: 28, after: 0 }),
+        P(tr("НАТИЖАЛАРИ БЎЙИЧА ДАЛОЛАТНОМА", "СРЕДСТВА ЗАЩИТЫ РАСТЕНИЙ"), { align: "center", bold: true, size: 28, after: 160 }),
+        P(tr("«___»________202__й.", "«___»________202__г."), { align: "center", after: 300 })];
+      // Бандлар қиймати (маълумот бўлса — тўлдирилади, бўлмаса — чизиқ)
+      var actBlank = "______________________________________";
+      function actVal(v) { v = (v == null ? "" : String(v)).trim(); return v || actBlank; }
+      function actItem(num, label, value) {
+        return new D.Paragraph({
+          spacing: { after: 160, line: LINE }, alignment: "both",
+          children: [
+            new D.TextRun({ text: num + ". " + label + ": ", font: FONT, size: BODY }),
+            new D.TextRun({ text: actVal(value), font: FONT, size: BODY })
+          ]
+        });
+      }
+      var actPName = (meta.preparatName || "").trim(), actPForm = (meta.preparatForm || "").trim();
+      var actField2 = actPName + (actPForm && actPName.toLowerCase().indexOf(actPForm.toLowerCase()) === -1 ? ", " + actPForm : "");
+      var actField3 = [meta.trialDate, meta.site].map(function (s) { return (s || "").trim(); }).filter(Boolean).join(", ");
+      var actField4 = (meta.crop || "").trim() + (meta.variety && meta.variety.trim() ? ", " + meta.variety.trim() + tr("-нав", "") : "");
+      var actField5 = (meta.targetOrganism || "").trim();
+      var actField7 = (meta.applicationRate || "").trim() + (meta.workingSolution && meta.workingSolution.trim() ? "; " + meta.workingSolution.trim() : "");
+      var actField8 = [meta.testEquipment, meta.applicationMethod].map(function (s) { return (s || "").trim(); }).filter(Boolean).join(", ");
+      var actField10 = tr("тавсия этилган усулда қўлланилди", "применён рекомендованным способом");
+      var actField11 = (overallBest != null) ? fmt(overallBest, 1) + " %" : "";
+      appendix.push(
+        actItem("1", tr("Ушбу далолатномани тузувчилар Ф.И.О", "Составители настоящего акта Ф.И.О"), ""),
+        actItem("2", tr("Препарат номи ва шакли", "Название и форма препарата"), actField2),
+        actItem("3", tr("Препарат пуркалган муддат, манзили, хўжалик номи, майдони(га)", "Дата обработки, адрес, название хозяйства, площадь (га)"), actField3),
+        actItem("4", tr("Синов ўтказилган экин тури", "Культура, на которой проведено испытание"), actField4),
+        actItem("5", tr("Зарарли организм тури, синовдан олдинги ўртача миқдори", "Вид вредного организма, средняя численность до испытания"), actField5),
+        actItem("7", tr("Препаратнинг сарф меъёри ва ишчи эритма л/га", "Норма расхода препарата и рабочего раствора, л/га"), actField7),
+        actItem("8", tr("Препаратни қўллашдаги техник жиҳози ва қўллаш усули", "Техническое оснащение и способ применения препарата"), actField8),
+        actItem("9", tr("Экининг агротехник холати, ривожланиш фазаси", "Агротехническое состояние культуры, фаза развития"), meta.cropPhase),
+        actItem("10", tr("Препаратни тавсия этилган усулларда қўлланилганлиги", "Применение препарата рекомендованными способами"), actField10),
+        actItem("11", tr("Препаратнинг биологик самарадорлиги (%)", "Биологическая эффективность препарата (%)"), actField11),
+        actItem("12", tr("Хулосалар, камчиликлар ва тавсиялар", "Выводы, недостатки и рекомендации"), ""),
+        P(tr("Синовда иштирок этганлар (Ф.И.Ш., имзоси):", "Участники испытания (Ф.И.О., подпись):"), { bold: true, before: 240, after: 160 }));
+      var actParts = actStaff.length ? actStaff : ["", "", ""];
+      var actRows = actParts.map(function (s) {
         return new D.TableRow({ children: [
-          new D.TableCell({ borders: {}, children: [P(s, { after: 300 })] }),
+          new D.TableCell({ borders: {}, children: [P(s || "________________________", { after: 300 })] }),
           new D.TableCell({ borders: {}, children: [P("____________", { align: "right", after: 300 })] })
         ] });
       });
-      actRows.push(new D.TableRow({ children: [
-        new D.TableCell({ borders: {}, children: [P(tr("Институт директори", "Директор института") + "  " + (meta.director || "А.Анорбаев"), { before: 200 })] }),
-        new D.TableCell({ borders: {}, children: [P("____________", { align: "right", before: 200 })] })
-      ] }));
       appendix.push(new D.Table({
         alignment: "center", width: { size: 9200, type: "dxa" }, columnWidths: [6000, 3200],
         borders: { top: { style: "none" }, bottom: { style: "none" }, left: { style: "none" }, right: { style: "none" }, insideHorizontal: { style: "none" }, insideVertical: { style: "none" } },
