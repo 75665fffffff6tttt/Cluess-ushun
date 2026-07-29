@@ -343,7 +343,7 @@
     // асосий матн бандлари икки томонга текисланади; марказ/ўнг талаб қилинса — берилади
     var align = o.align || (o.indent ? "both" : "left");
     return new D.Paragraph({ heading: o.heading, alignment: align, spacing: { before: o.before || 0, after: o.after == null ? 120 : o.after, line: o.line || LINE }, indent: o.indentLeft ? { left: o.indentLeft } : (o.indent ? { firstLine: 709 } : undefined),
-      children: [new D.TextRun({ text: text, bold: o.bold, italics: o.italics, font: FONT, size: o.size || BODY })] });
+      children: [new D.TextRun({ text: text, bold: o.bold, italics: o.italics, color: o.color, font: FONT, size: o.size || BODY })] });
   }
   // Бўлим сарлавҳаси — Heading1 услуби (авто-МУНДАРИЖА йиғиши учун)
   function H(text) {
@@ -863,7 +863,7 @@
       var form1 = [];
       var L = { align: "left", after: 30, line: 240, size: TBL };  // ихчам банд
       form1.push(P(tr("1-форма", "Форма 1"), { align: "right", after: 30 }),
-        P(tr("Рўйхатга олиш учун синовлар якуни бўйича хулоса ва тавсиялар", "Выводы и рекомендации по итогам испытаний для регистрации"), { heading: D.HeadingLevel.HEADING_1, bold: true, align: "center", size: BODY, after: 120 }),
+        P(tr("Рўйхатга олиш учун синовлар якуни бўйича хулоса ва тавсиялар", "Выводы и рекомендации по итогам испытаний для регистрации"), { heading: D.HeadingLevel.HEADING_1, bold: true, align: "center", size: BODY, after: 120, color: "000000" }),
         P(tr("1. Ўсимликларни ҳимоя қилиш воситасининг савдо номи – " + (meta.tradeName || meta.preparatName), "1. Торговое наименование средства защиты растений – " + (meta.tradeName || meta.preparatName)), L),
         P(tr("2. Таъсир этувчи моддаси – " + meta.activeIngredients + ".", "2. Действующее вещество – " + meta.activeIngredients + "."), L),
         P(tr("3. Рўйхатга олиш учун талабгор ташкилотнинг номи, давлати – " + (meta.applicantOrg || meta.manufacturer || "—") + (meta.country ? ", " + meta.country : "") + ".", "3. Наименование и страна организации-заявителя для регистрации – " + (meta.applicantOrg || meta.manufacturer || "—") + (meta.country ? ", " + meta.country : "") + "."), L),
