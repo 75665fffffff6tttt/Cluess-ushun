@@ -1000,7 +1000,42 @@
       Array.prototype.splice.apply(ch, [built.tocIndex, 0].concat(tocRows));
 
       // ИЛОВА — 1-формадан сўнг алоҳида тик варақ (тепада марказда сарлавҳа)
-      var appendix = [P(tr("ИЛОВА", "ПРИЛОЖЕНИЕ"), { align: "center", bold: true, size: 32, after: 200 })];
+      var appCity = (meta.reportCity && meta.reportCity.trim()) || tr("Тошкент", "Ташкент");
+      var appYear = (String(meta.trialDate || "").match(/\b(?:19|20)\d{2}\b/) || [String(new Date().getFullYear())])[0];
+      var actStaff = (meta.staff || "").split(/[,;\n]+/).map(function (s) { return s.trim(); }).filter(Boolean);
+      var appendix = [P(tr("ИЛОВА", "ПРИЛОЖЕНИЕ"), { align: "center", bold: true, size: 32, after: 200 }),
+        // ——— Далолатнома — ИЛОВАдан сўнг алоҳида варақ ———
+        new D.Paragraph({ children: [new D.PageBreak()] }),
+        P(tr("ДАЛОЛАТНОМА", "АКТ"), { align: "center", bold: true, size: 32, after: 160 }),
+        new D.Paragraph({
+          tabStops: [{ type: "right", position: 9600 }], spacing: { after: 240, line: LINE },
+          children: [new D.TextRun({ text: appCity + tr(" ш.", " г."), font: FONT, size: BODY }),
+            new D.TextRun({ text: "\t" + tr("«___» ____________ " + appYear + " йил", "«___» ____________ " + appYear + " г."), font: FONT, size: BODY })]
+        }),
+        P(tr(
+          "Мазкур далолатнома «" + institute + "» томонидан " + meta.preparatName + " (таъсир этувчи модда – " + meta.activeIngredients + ") препаратининг " + cropMid(meta.crop) + " экинида " + lcFirst(meta.targetOrganism) + "га қарши биологик самарадорлигини аниқлаш мақсадида " + meta.site + "да " + meta.trialDate + " санасида дала синови ўтказилганлиги тўғрисида тузилди.",
+          "Настоящий акт составлен о том, что организацией «" + institute + "» проведено полевое испытание препарата " + meta.preparatName + " (действующее вещество – " + meta.activeIngredients + ") для определения биологической эффективности против " + lcFirst(meta.targetOrganism) + " на культуре " + cropMid(meta.crop) + ", в " + meta.site + ", " + meta.trialDate + "."
+        ), { indent: true }),
+        P(tr(
+          "Синов " + meta.applicationRate + " сарф меъёрида, " + (meta.experimentType || "кичик дала тажрибаси") + " шароитида, белгиланган методика асосида олиб борилди. Синов натижалари ушбу илмий ҳисоботда акс эттирилган.",
+          "Испытание проведено при норме расхода " + meta.applicationRate + ", в условиях " + (meta.experimentType || "мелкоделяночного опыта") + ", на основе установленной методики. Результаты испытания отражены в настоящем научном отчёте."
+        ), { indent: true, after: 320 }),
+        P(tr("Комиссия аъзолари:", "Члены комиссии:"), { bold: true, after: 160 })];
+      var actRows = actStaff.map(function (s) {
+        return new D.TableRow({ children: [
+          new D.TableCell({ borders: {}, children: [P(s, { after: 300 })] }),
+          new D.TableCell({ borders: {}, children: [P("____________", { align: "right", after: 300 })] })
+        ] });
+      });
+      actRows.push(new D.TableRow({ children: [
+        new D.TableCell({ borders: {}, children: [P(tr("Институт директори", "Директор института") + "  " + (meta.director || "А.Анорбаев"), { before: 200 })] }),
+        new D.TableCell({ borders: {}, children: [P("____________", { align: "right", before: 200 })] })
+      ] }));
+      appendix.push(new D.Table({
+        alignment: "center", width: { size: 9200, type: "dxa" }, columnWidths: [6000, 3200],
+        borders: { top: { style: "none" }, bottom: { style: "none" }, left: { style: "none" }, right: { style: "none" }, insideHorizontal: { style: "none" }, insideVertical: { style: "none" } },
+        rows: actRows
+      }));
       var doc = new D.Document({
         creator: institute, title: meta.preparatName + tr(" — давлат синови ҳисоботи", " — отчёт государственного испытания"),
         features: { updateFields: true }, // Word очганда МУНДАРИЖА майдонини янгилайди
