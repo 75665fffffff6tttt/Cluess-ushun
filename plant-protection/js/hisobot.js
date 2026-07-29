@@ -146,6 +146,7 @@
       population: tr("Популяция камайиши бўйича", "По снижению популяции"),
       defoliation: tr("Барг тўкилиши / қуриш даражаси бўйича", "По степени дефолиации / подсыхания"),
       defol: tr("Эришилган дефолиация (қуриш) даражаси бўйича, %", "По достигнутой степени дефолиации (подсыхания), %"),
+      fert: tr("Ҳосилдорлик ошиши бўйича (назоратга нисбатан, %)", "По прибавке урожайности (относительно контроля, %)"),
       storage_scale: tr("Касаллик ривожланиш даражаси шкаласи бўйича (сақлаш синови методикаси)", "По шкале степени развития болезни (методика испытания при хранении)")
     };
     return M[k] || k;
@@ -163,7 +164,7 @@
     LANG = detectLang();
     var warnings = [];
     var det = detectType(input.meta.activeIngredients, input.explicitType);
-    var days = input.assessment.days.slice().sort(function (a, b) { return a - b; });
+    var days = (input.assessment.days || []).slice().sort(function (a, b) { return a - b; });
     var control = findControl(input);
     if (!control) warnings.push(tr("Назорат (ишловсиз) варианти аниқланмади — камида битта вариантни назорат деб белгиланг.", "Контрольный (необработанный) вариант не определён — отметьте хотя бы один вариант как контроль."));
 
@@ -263,6 +264,10 @@
       storage = { diseases: diseases, rows: srows, controlVariant: control };
       // энг яхши вариантни аниқлаш учун efficacyRows (mean = касалланмаган %)
       srows.forEach(function (r) { efficacyRows.push({ variant: r.variant, isControl: r.isControl, isReference: r.isReference, byDay: {}, mean: r.isControl ? null : r.healthy }); });
+      days = [];
+    } else if (A.fert) {
+      // Микробиологик ўғит / биостимулятор — самарадорлик ҳосилдорлик ошиши бўйича баҳоланади (пестицид жадвали йўқ)
+      methodKey = "fert";
       days = [];
     } else {
       warnings.push(tr("Дала ҳисоблари киритилмаган — самарадорлик жадвали бўш.", "Полевые учёты не введены — таблица эффективности пуста."));
@@ -552,6 +557,10 @@
     var ch = [], institute = meta.institute || tr("Ўсимликлар карантини ва ҳимояси илмий-тадқиқот институти", "Научно-исследовательский институт карантина и защиты растений");
     var nonControl = rep.detailed ? rep.detailed.nonControlVariants : [];
     var overallBest = rep.detailed ? rep.detailed.overallMeanRow.byVariant[bestNonControl(rep)].pct : (rep.efficacyRows.filter(function (r) { return !r.isControl && r.mean != null; }).sort(function (a, b) { return (b.mean || 0) - (a.mean || 0); })[0] || {}).mean;
+    // Микробиологик ўғит: «энг яхши натижа» = энг юқори ҳосилдорлик ошиши %
+    if (rep.methodKey === "fert" && rep.yieldRows) {
+      overallBest = (rep.yieldRows.filter(function (r) { return !r.isControl && r.increaseVsControlPct != null; }).sort(function (a, b) { return (b.increaseVsControlPct || 0) - (a.increaseVsControlPct || 0); })[0] || {}).increaseVsControlPct;
+    }
 
     // ===== Титул варағи (расмий шаблон бўйича) =====
     var city = (meta.reportCity && meta.reportCity.trim()) || tr("Тошкент", "Ташкент");
@@ -723,7 +732,9 @@
 
     // 5. Натижалар
     ch.push(H(tr("4. Тажриба (тадқиқот) натижалари", "4. Результаты опыта (исследования)")));
-    if (rep.storage) {
+    if (rep.methodKey === "fert") {
+      ch.push(P(tr("Микробиологик ўғит самарадорлиги ҳосилдорлик кўрсаткичи бўйича баҳоланди. Натижалар қуйидаги ҳосилдорлик жадвалида келтирилган.", "Эффективность микробиологического удобрения оценивалась по показателю урожайности. Результаты приведены в таблице урожайности ниже."), { indent: true }));
+    } else if (rep.storage) {
       storageTables(ch, rep, meta);
     } else {
       ch.push(P(tr("2-жадвал", "Таблица 2"), { align: "right", size: TBL, after: 40 }),
@@ -789,7 +800,10 @@
       // 6. Хулоса — синов турига мос
       ch.push(H(tr("5. Хулоса ва тавсиялар", "5. Выводы и рекомендации")));
       // Тавсия шарти: биологик самарадорлик 60% дан паст бўлса — рўйхатга тавсия этилмайди
-      var recommend = (overallBest != null && overallBest >= 60);
+      // Пестицид: самарадорлик ≥60% → тавсия. Микроб ўғит: ҳосилдорлик ижобий (мумкин бўлса — статистик ишончли) ошса → тавсия
+      var recommend = rep.methodKey === "fert"
+        ? (overallBest != null && overallBest > 0 && (!rep.yieldAnova || rep.yieldAnova.zeroError || rep.yieldAnova.significant))
+        : (overallBest != null && overallBest >= 60);
       if (rep.storage) {
         // ——— Сақлаш синови учун хулоса ———
         var sBest = rep.storage.rows.filter(function (r) { return !r.isControl; }).sort(function (a, b) { return (b.healthy || 0) - (a.healthy || 0); })[0];
@@ -804,12 +818,20 @@
           : tr((n + 1) + ". Самарадорлик кўрсаткичи 60% дан паст (" + fmt(overallBest, 1) + "%) бўлгани сабабли " + meta.preparatName + " воситасини Давлат рўйхатига киритиш ушбу синов натижалари асосида тавсия этилмайди; синовларни такрорлаш ёки давом эттириш тавсия этилади.", (n + 1) + ". Поскольку показатель эффективности ниже 60% (" + fmt(overallBest, 1) + "%), включение средства " + meta.preparatName + " в Государственный реестр по результатам данного испытания не рекомендуется; рекомендуется повторить или продолжить испытания."), { indent: true }));
       } else {
         // ——— Дала синови учун хулоса ———
-        ch.push(P(rep.methodKey === "defol"
+        ch.push(P(rep.methodKey === "fert"
+          ? tr("1. Олиб борилган тажриба натижаларига кўра " + meta.preparatName + " (" + meta.applicationRate + ") микробиологик ўғити ҳосилдорликни назоратга нисбатан " + fmt(overallBest, 1) + "% оширди.", "1. По результатам проведённого опыта микробиологическое удобрение " + meta.preparatName + " (" + meta.applicationRate + ") повысило урожайность относительно контроля на " + fmt(overallBest, 1) + "%.")
+          : rep.methodKey === "defol"
           ? tr("1. Олиб борилган тажриба натижаларига кўра " + meta.preparatName + " (" + meta.applicationRate + ") препарати қўлланганда ўртача " + fmt(overallBest, 1) + "% " + rep.defolWord + " (қуриш) даражасига эришилди.", "1. По результатам проведённого опыта при применении препарата " + meta.preparatName + " (" + meta.applicationRate + ") достигнута средняя степень " + rep.defolWord.replace(/ция$/, "ции") + " (подсыхания) " + fmt(overallBest, 1) + "%.")
           : tr("1. Олиб борилган тажриба натижаларига кўра " + meta.preparatName + " (" + meta.applicationRate + ") препарати " + lcFirst(meta.targetOrganism) + "га қарши " + fmt(overallBest, 1) + "% биологик самарадорлик кўрсатди.", "1. По результатам проведённого опыта препарат " + meta.preparatName + " (" + meta.applicationRate + ") показал биологическую эффективность против " + lcFirst(meta.targetOrganism) + " на уровне " + fmt(overallBest, 1) + "%."), { indent: true }),
-          P(tr("2. Препарат мақбул меъёрда қўлланганда токсик (фитотоксик) ҳолатлар кузатилмади.", "2. При применении препарата в оптимальной норме токсических (фитотоксических) явлений не наблюдалось."), { indent: true }));
+          P(rep.methodKey === "fert"
+            ? tr("2. Ўғит қўлланганда ўсимликка фитотоксик ёки салбий таъсир кузатилмади.", "2. При применении удобрения фитотоксического или отрицательного воздействия на растение не наблюдалось.")
+            : tr("2. Препарат мақбул меъёрда қўлланганда токсик (фитотоксик) ҳолатлар кузатилмади.", "2. При применении препарата в оптимальной норме токсических (фитотоксических) явлений не наблюдалось."), { indent: true }));
         if (rep.yieldRows) { var ctrl2 = rep.yieldRows.filter(function (r) { return r.isControl; })[0], trow = rep.yieldRows.filter(function (r) { return !r.isControl && r.increaseVsControlPct != null; })[0]; if (ctrl2 && trow && ctrl2.mean != null && trow.mean != null) ch.push(P(tr("3. Назоратга нисбатан қўшимча " + fmt(trow.mean - ctrl2.mean, 1) + " " + (rep.yieldUnit || "ц/га") + " ҳосил олинди.", "3. По сравнению с контролем получена дополнительная прибавка урожая " + fmt(trow.mean - ctrl2.mean, 1) + " " + (rep.yieldUnit || "ц/га") + "."), { indent: true })); }
-        ch.push(P(recommend
+        ch.push(P(rep.methodKey === "fert"
+          ? (recommend
+            ? tr("4. Тажриба натижаларидан келиб чиққан ҳолда " + meta.preparatName + " (" + meta.applicationRate + ") микробиологик ўғитини Давлат рўйхатига киритиш тавсия этилади.", "4. Исходя из результатов опыта, рекомендуется включить микробиологическое удобрение " + meta.preparatName + " (" + meta.applicationRate + ") в Государственный реестр.")
+            : tr("4. " + meta.preparatName + " ўғити ҳосилдорликка ишончли ижобий таъсир кўрсатмагани сабабли ушбу синов натижалари асосида Давлат рўйхатига киритиш тавсия этилмайди; синовларни такрорлаш ёки давом эттириш тавсия этилади.", "4. Поскольку удобрение " + meta.preparatName + " не оказало достоверного положительного влияния на урожайность, его включение в Государственный реестр по результатам данного испытания не рекомендуется; рекомендуется повторить или продолжить испытания."))
+          : recommend
           ? tr("4. Тажриба натижаларидан келиб чиққан ҳолда " + meta.preparatName + " (" + meta.applicationRate + ") препаратини Давлат рўйхатига киритиш тавсия этилади.", "4. Исходя из результатов опыта, рекомендуется включить препарат " + meta.preparatName + " (" + meta.applicationRate + ") в Государственный реестр.")
           : tr("4. Биологик самарадорлик 60% дан паст (" + fmt(overallBest, 1) + "%) бўлгани сабабли " + meta.preparatName + " препаратини Давлат рўйхатига киритиш ушбу синов натижалари асосида тавсия этилмайди; синовларни такрорлаш ёки давом эттириш тавсия этилади.", "4. Поскольку биологическая эффективность ниже 60% (" + fmt(overallBest, 1) + "%), включение препарата " + meta.preparatName + " в Государственный реестр по результатам данного испытания не рекомендуется; рекомендуется повторить или продолжить испытания."), { indent: true }));
       }
@@ -892,7 +914,11 @@
         P(tr("5. Рўйхатга олиш учун синов ўтказилган жой ва муддати – " + ((meta.site ? meta.site + "да" : "") + (meta.site && meta.trialDate ? " " : "") + (meta.trialDate || "") || "—") + ".", "5. Место и срок проведения испытания для регистрации – " + ([meta.site, meta.trialDate].filter(Boolean).join(", ") || "—") + "."), { align: "left", after: 120, line: 240, size: TBL }));
 
       // Расмий 9 устунли жадвал — албом бетга ихчам жойлашади
-      var recText = recommend
+      var recText = rep.methodKey === "fert"
+        ? (recommend
+          ? tr("«" + meta.preparatName + "» ўғити " + meta.applicationRate + " меъёрда " + cropMid(meta.crop) + " экинида ҳосилдорликни ошириш учун рўйхатга олишга тавсия этилсин.", "Рекомендовать удобрение «" + meta.preparatName + "» к регистрации при норме " + meta.applicationRate + " для повышения урожайности культуры " + cropMid(meta.crop) + ".")
+          : tr("Ҳосилдорликка ишончли ижобий таъсир кўрсатилмагани сабабли рўйхатга олишга тавсия этилмайди; синовлар давом эттирилсин.", "Поскольку не выявлено достоверного положительного влияния на урожайность, к регистрации не рекомендуется; продолжить испытания."))
+        : recommend
         ? tr("«" + meta.preparatName + "» " + meta.applicationRate + " сарф-меъёрда " + cropMid(meta.crop) + " экинида " + lcFirst(meta.targetOrganism) + "га қарши рўйхатга олишга тавсия этилсин.", "Рекомендовать «" + meta.preparatName + "» к регистрации при норме расхода " + meta.applicationRate + " против " + lcFirst(meta.targetOrganism) + " на культуре " + cropMid(meta.crop) + ".")
         : tr("Биологик самарадорлик 60% дан паст (" + fmt(overallBest, 1) + "%) бўлгани сабабли рўйхатга олишга тавсия этилмайди; рўйхатга олиш учун синовлар давом эттирилсин.", "Поскольку биологическая эффективность ниже 60% (" + fmt(overallBest, 1) + "%), к регистрации не рекомендуется; продолжить испытания для регистрации.");
       var tavHead = tr("Тавсиялар: «рўйхатга олишга тавсия этилсин (сарф меъёри ва бошқалар)». «Рўйхатга олиш учун синовлар давом эттирилсин». «Кейинги синовлар рад этилсин» (сабаблари кўрсатилади).", "Рекомендации: «рекомендовать к регистрации (норма расхода и др.)». «Продолжить испытания для регистрации». «Отклонить дальнейшие испытания» (с указанием причин).");

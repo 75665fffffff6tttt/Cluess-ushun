@@ -113,6 +113,7 @@
 
   function renderFieldData() {
     var box = $("fielddata"); box.innerHTML = "";
+    if (state.mode === "fert") { box.innerHTML = '<p class="hb-note">Микробиологик ўғит / биостимулятор учун зараркунанда ўлчови талаб этилмайди. Самарадорлик ҳосилдорлик ошиши бўйича баҳоланади — маълумотни қуйидаги <b>5. Ҳосилдорлик</b> бўлимига киритинг.</p>'; return; }
     if (state.mode === "storage") { renderStorage(box); return; }
     var days = getDays();
     if (!days.length) { box.innerHTML = '<p class="hb-warn">Аввал кузатиш кунларини киритинг.</p>'; return; }
@@ -286,6 +287,8 @@
         df[nameById[v.id]] = { byDay: bd };
       });
       assessment.defol = df;
+    } else if (state.mode === "fert") {
+      assessment.fert = true;
     } else if (state.mode === "storage") {
       var sdata = {}, sdis = state.storageDiseases.filter(function (s) { return s.trim(); });
       state.variants.forEach(function (v) {
@@ -334,6 +337,8 @@
         h += '</tr>';
       });
       h += '</tbody></table></div>';
+    } else if (rep.methodKey === "fert") {
+      h += '<p class="hb-note">Микробиологик ўғит — самарадорлик ҳосилдорлик бўйича баҳоланади (қуйида).</p>';
     } else {
       var beforeByVar = {}, hasBefore = false;
       if (rep.countRows) rep.countRows.forEach(function (cr) { beforeByVar[cr.variant] = cr.before; if (cr.before != null) hasBefore = true; });
@@ -373,7 +378,7 @@
     var msgs = [], m = input.meta, A = input.assessment;
     if (!m.preparatName) msgs.push(T("Препарат номи киритилмаган.", "Не указано название препарата."));
     if (!m.crop) msgs.push(T("Экин тури киритилмаган.", "Не указан вид культуры."));
-    if (!m.targetOrganism) msgs.push(T("Зарарли организм киритилмаган.", "Не указан вредный организм."));
+    if (!m.targetOrganism && !A.fert) msgs.push(T("Зарарли организм киритилмаган.", "Не указан вредный организм."));
     if (input.variants.length < 2) msgs.push(T("Камида 2 та вариант керак.", "Требуется минимум 2 варианта."));
     if (!input.variants.some(function (v) { return v.isControl; })) msgs.push(T("Назорат варианти белгиланмаган.", "Не отмечен контрольный вариант."));
     if (!input.variants.some(function (v) { return v.isReference; })) msgs.push(T("Эталон варианти белгиланмаган (ихтиёрий).", "Не отмечен эталонный вариант (необязательно)."));
@@ -382,6 +387,7 @@
     if (A.counts) hasData = Object.keys(A.counts).some(function (k) { var c = A.counts[k]; return c && (c.before != null || Object.keys(c.byDay || {}).length); });
     else if (A.disease) hasData = Object.keys(A.disease).some(function (k) { return Object.keys(A.disease[k].byDayIndex || {}).length; });
     else if (A.defol) hasData = Object.keys(A.defol).some(function (k) { return Object.keys(A.defol[k].byDay || {}).length; });
+    else if (A.fert) hasData = !!(input.yieldData && Object.keys(input.yieldData).length);
     else if (A.storage) hasData = Object.keys(A.storage.data || {}).some(function (k) { var s = A.storage.data[k]; return s && (s.healthy != null || s.firmness != null); });
     else if (A.weeds) hasData = Object.keys(A.weeds.density || {}).length > 0 && Object.keys(A.weeds.before || {}).length > 0;
     if (!hasData) msgs.push(T("Дала ўлчов маълумотлари киритилмаган.", "Не введены полевые данные измерений."));
