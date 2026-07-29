@@ -553,7 +553,7 @@
     tocEntries = []; tocSeq = 0; // ҳар генерацияда Мундарижа қайтадан йиғилади
     // Ихтиёрий майдонлар undefined бўлса — бўш сатрга (матнда «undefined» чиқмаслиги учун;
     // «||» фолбэклар бўш сатрда ҳам ишлайверади, чунки "" — falsy)
-    ["applicantOrg", "manufacturer", "country", "referenceName", "referenceFullDesc", "variety", "workingSolution", "weather", "site", "trialDate", "laboratory", "cropPhase", "testEquipment", "applicationMethod", "experimentType", "maxTreatments", "waitingPeriod", "phytotoxicity", "labConclusion", "tradeName", "reportCity", "scientificSecretary", "deputyDirector", "director", "committee", "preparatForm", "replications", "plotArea", "plotLayout", "actDate", "references", "staff", "institute"].forEach(function (k) { if (meta[k] == null) meta[k] = ""; });
+    ["applicantOrg", "manufacturer", "country", "referenceName", "referenceFullDesc", "variety", "workingSolution", "weather", "site", "farm", "trialDate", "laboratory", "cropPhase", "testEquipment", "applicationMethod", "experimentType", "maxTreatments", "waitingPeriod", "phytotoxicity", "labConclusion", "tradeName", "reportCity", "scientificSecretary", "deputyDirector", "director", "committee", "preparatForm", "replications", "plotArea", "plotLayout", "actDate", "references", "staff", "institute"].forEach(function (k) { if (meta[k] == null) meta[k] = ""; });
     var ch = [], institute = meta.institute || tr("Ўсимликлар карантини ва ҳимояси илмий-тадқиқот институти", "Научно-исследовательский институт карантина и защиты растений");
     var nonControl = rep.detailed ? rep.detailed.nonControlVariants : [];
     var overallBest = rep.detailed ? rep.detailed.overallMeanRow.byVariant[bestNonControl(rep)].pct : (rep.efficacyRows.filter(function (r) { return !r.isControl && r.mean != null; }).sort(function (a, b) { return (b.mean || 0) - (a.mean || 0); })[0] || {}).mean;
@@ -1022,7 +1022,7 @@
       }
       var actPName = (meta.preparatName || "").trim(), actPForm = (meta.preparatForm || "").trim();
       var actField2 = actPName + (actPForm && actPName.toLowerCase().indexOf(actPForm.toLowerCase()) === -1 ? ", " + actPForm : "");
-      var actField3 = [meta.trialDate, meta.site].map(function (s) { return (s || "").trim(); }).filter(Boolean).join(", ");
+      var actField3 = [meta.trialDate, meta.site, meta.farm].map(function (s) { return (s || "").trim(); }).filter(Boolean).join(", ");
       var actField4 = (meta.crop || "").trim() + (meta.variety && meta.variety.trim() ? ", " + meta.variety.trim() + tr("-нав", "") : "");
       var actField5 = (meta.targetOrganism || "").trim();
       var actField7 = (meta.applicationRate || "").trim() + (meta.workingSolution && meta.workingSolution.trim() ? "; " + meta.workingSolution.trim() : "");
@@ -1054,6 +1054,14 @@
           new D.TableCell({ borders: {}, children: [P("____________", { align: "right", after: 300 })] })
         ] });
       });
+      // Синов ўтказилган фермер (деҳқон) хўжалиги вакили — имзо қаторига
+      var actFarm = (meta.farm || "").trim();
+      if (actFarm) {
+        actRows.push(new D.TableRow({ children: [
+          new D.TableCell({ borders: {}, children: [P(tr("Фермер (деҳқон) хўжалиги вакили — ", "Представитель фермерского (дехканского) хозяйства — ") + actFarm, { before: 120, after: 300 })] }),
+          new D.TableCell({ borders: {}, children: [P("____________", { align: "right", before: 120, after: 300 })] })
+        ] }));
+      }
       appendix.push(new D.Table({
         alignment: "center", width: { size: 9200, type: "dxa" }, columnWidths: [6000, 3200],
         borders: { top: { style: "none" }, bottom: { style: "none" }, left: { style: "none" }, right: { style: "none" }, insideHorizontal: { style: "none" }, insideVertical: { style: "none" } },
