@@ -14,6 +14,9 @@
     detail: "Подробно", company: "Производитель", rate: "Норма расхода", solution: "Рабочий раствор",
     reg: "Рег. номер", expiry: "Срок регистрации", hazard: "Класс опасности", waiting: "Срок ожидания",
     close: "Закрыть", nores: "Ничего не найдено",
+    calc_title: "💧 Калькулятор дозы", calc_area: "Площадь, га", calc_rate: "Норма расхода /га",
+    calc_sol: "Рабочий раствор, л/га", calc_need: "Требуется препарата", calc_water: "Требуется рабочего раствора (воды)",
+    calc_hint: "Значения можно редактировать. Расчёт выполняется только из введённых норм — сверяйте с официальной этикеткой.",
     types: { insecticide: "Инсектицид", fungicide: "Фунгицид", herbicide: "Гербицид", acaricide: "Акарицид", biopreparat: "Биопрепарат", defoliant: "Дефолиант" }
   } : {
     search: "Қидирув: ном, модда, экин, зараркунанда...",
@@ -23,8 +26,16 @@
     detail: "Батафсил", company: "Ишлаб чиқарувчи", rate: "Сарф меъёри", solution: "Ишчи эритма",
     reg: "Рўйхат рақами", expiry: "Рўйхат муддати", hazard: "Хавфлилик синфи", waiting: "Кутиш вақти",
     close: "Ёпиш", nores: "Ҳеч нарса топилмади",
+    calc_title: "💧 Доза калькулятори", calc_area: "Майдон, га", calc_rate: "Сарф меъёри /га",
+    calc_sol: "Ишчи эритма, л/га", calc_need: "Керакли препарат", calc_water: "Керакли ишчи эритма (сув)",
+    calc_hint: "Қийматларни таҳрирлаш мумкин. Ҳисоб фақат киритилган меъёрлардан бажарилади — расмий этикеткага солиштиринг.",
     types: { insecticide: "Инсектицид", fungicide: "Фунгицид", herbicide: "Гербицид", acaricide: "Акарицид", biopreparat: "Биопрепарат", defoliant: "Дефолиант" }
   };
+
+  // Сарф меъёри/эритма қаторидан сон ва бирликни ажратиш (масалан «1,0–1,5 л/га» → 1.0, «л»)
+  function firstNum(s) { var m = String(s == null ? "" : s).replace(/,/g, ".").match(/\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : null; }
+  function rateUnit(s) { return /кг|кг\s*\/\s*га|g\/|г\/га|кг\/га/i.test(String(s || "")) ? (LANG === "ru" ? "кг" : "кг") : (LANG === "ru" ? "л" : "л"); }
+  function fmtNum(n) { if (n == null || !isFinite(n)) return "—"; var r = Math.round(n * 1000) / 1000; return String(r).replace(".", ","); }
 
   function tradeName(p) { return LANG === "ru" ? p.trade_ru : p.trade_uz; }
   function cropName(p) { return LANG === "ru" ? p.crop_ru : p.crop_uz; }
@@ -108,9 +119,50 @@
           kv(T.expiry, p.expiry) +
           moaRow(p) +
         "</table>" +
+        calcBlock(p) +
       "</div>";
     modal.style.display = "flex";
     document.getElementById("reg-close").addEventListener("click", function () { modal.style.display = "none"; });
+    wireCalc(p);
+  }
+
+  // Доза калькулятори — препарат меъёридан майдонга кўра умумий сарфни ҳисоблайди
+  function calcBlock(p) {
+    var unit = rateUnit(p.rate);
+    var rate0 = firstNum(p.rate), sol0 = firstNum(p.solution);
+    var inp = "style=\"width:90px;padding:6px 8px;border:1px solid #cfd8dc;border-radius:8px;font:inherit\"";
+    return '<div class="reg-calc" style="margin-top:16px;padding:14px;border:1px solid #d7e3d7;border-radius:12px;background:#f5f9f5">' +
+      '<div style="font-weight:600;margin-bottom:10px">' + esc(T.calc_title) + '</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end">' +
+        '<label style="display:flex;flex-direction:column;gap:4px;font-size:13px">' + esc(T.calc_area) + '<input id="cx-area" type="number" min="0" step="0.1" value="1" ' + inp + '></label>' +
+        '<label style="display:flex;flex-direction:column;gap:4px;font-size:13px">' + esc(T.calc_rate) + ' (' + esc(unit) + ')<input id="cx-rate" type="number" min="0" step="0.01" value="' + (rate0 != null ? rate0 : "") + '" ' + inp + '></label>' +
+        '<label style="display:flex;flex-direction:column;gap:4px;font-size:13px">' + esc(T.calc_sol) + '<input id="cx-sol" type="number" min="0" step="1" value="' + (sol0 != null ? sol0 : "") + '" ' + inp + '></label>' +
+      '</div>' +
+      '<div id="cx-out" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:10px"></div>' +
+      '<div style="margin-top:8px;font-size:11.5px;color:#607d8b;line-height:1.4">' + esc(T.calc_hint) + '</div>' +
+    '</div>';
+  }
+  function wireCalc(p) {
+    var unit = rateUnit(p.rate);
+    var aEl = document.getElementById("cx-area"), rEl = document.getElementById("cx-rate"), sEl = document.getElementById("cx-sol"), out = document.getElementById("cx-out");
+    if (!aEl) return;
+    function card(label, val, u) {
+      return '<div style="flex:1;min-width:150px;background:#fff;border:1px solid #dbe7db;border-radius:10px;padding:10px 12px">' +
+        '<div style="font-size:12px;color:#607d8b">' + esc(label) + '</div>' +
+        '<div style="font-size:20px;font-weight:700;color:#2e7d32">' + esc(fmtNum(val)) + ' <span style="font-size:13px;font-weight:600;color:#455a64">' + esc(u) + '</span></div>' +
+      '</div>';
+    }
+    function recompute() {
+      var a = parseFloat(aEl.value), r = parseFloat(rEl.value), s = parseFloat(sEl.value);
+      var html = "";
+      if (isFinite(a) && a > 0 && isFinite(r) && r > 0) html += card(T.calc_need, a * r, unit);
+      if (isFinite(a) && a > 0 && isFinite(s) && s > 0) html += card(T.calc_water, a * s, "л");
+      out.innerHTML = html || '<span style="color:#90a4ae;font-size:13px">—</span>';
+    }
+    aEl.addEventListener("input", recompute);
+    rEl.addEventListener("input", recompute);
+    sEl.addEventListener("input", recompute);
+    recompute();
   }
   function kv(k, v) { return "<tr><th>" + esc(k) + "</th><td>" + esc(v || "—") + "</td></tr>"; }
   function moaRow(p) {
