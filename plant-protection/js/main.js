@@ -1,3 +1,20 @@
+/* ——— GoatCounter — реал (глобал) ташриф ҳисоблагичи ———
+ * РОСТЛАШ (1 дақиқа): https://www.goatcounter.com/ да бепул рўйхатдан ўтиб,
+ * ўзингизга код (субдомен) оласиз. Масалан «agrohimoya» ни танласангиз —
+ * ҳисоблагич дарҳол ишлайди. Кодни қуйига ёзинг. Бўш ("") қолдирсангиз — ўчади.
+ * Махфийликка зарарсиз: cookie ишлатмайди, шахсий маълумот тўпламайди. */
+(function () {
+  var GOATCOUNTER_CODE = "agrohimoya"; // ← ўз кодингизга алмаштиринг
+  if (!GOATCOUNTER_CODE) return;
+  var h = location.hostname;
+  if (location.protocol === "file:" || h === "localhost" || h === "127.0.0.1") return; // локал синовда санамаймиз
+  var s = document.createElement("script");
+  s.async = true;
+  s.src = "//gc.zgo.at/count.js";
+  s.setAttribute("data-goatcounter", "https://" + GOATCOUNTER_CODE + ".goatcounter.com/count");
+  (document.head || document.documentElement).appendChild(s);
+})();
+
 document.addEventListener("DOMContentLoaded", function () {
   var toggle = document.getElementById("sidebar-toggle");
   var sidebar = document.getElementById("sidebar");
