@@ -17,6 +17,7 @@
     calc_title: "💧 Калькулятор дозы", calc_area: "Площадь, га", calc_rate: "Норма расхода /га",
     calc_sol: "Рабочий раствор, л/га", calc_need: "Требуется препарата", calc_water: "Требуется рабочего раствора (воды)",
     calc_hint: "Значения можно редактировать. Расчёт выполняется только из введённых норм — сверяйте с официальной этикеткой.",
+    sc_pick: "Препарат (необязательно — заполнит нормы)", sc_none: "— ручной ввод —", sc_unit: "Единица",
     types: { insecticide: "Инсектицид", fungicide: "Фунгицид", herbicide: "Гербицид", acaricide: "Акарицид", biopreparat: "Биопрепарат", defoliant: "Дефолиант" }
   } : {
     search: "Қидирув: ном, модда, экин, зараркунанда...",
@@ -29,6 +30,7 @@
     calc_title: "💧 Доза калькулятори", calc_area: "Майдон, га", calc_rate: "Сарф меъёри /га",
     calc_sol: "Ишчи эритма, л/га", calc_need: "Керакли препарат", calc_water: "Керакли ишчи эритма (сув)",
     calc_hint: "Қийматларни таҳрирлаш мумкин. Ҳисоб фақат киритилган меъёрлардан бажарилади — расмий этикеткага солиштиринг.",
+    sc_pick: "Препарат (ихтиёрий — меъёрни тўлдиради)", sc_none: "— қўлда киритиш —", sc_unit: "Бирлик",
     types: { insecticide: "Инсектицид", fungicide: "Фунгицид", herbicide: "Гербицид", acaricide: "Акарицид", biopreparat: "Биопрепарат", defoliant: "Дефолиант" }
   };
 
@@ -46,7 +48,25 @@
   var typeColors = { insecticide: "#c62828", fungicide: "#1565c0", herbicide: "#2e7d32", acaricide: "#6a1b9a", biopreparat: "#00838f", defoliant: "#ef6c00" };
 
   // UI
+  var inpS = "padding:7px 9px;border:1px solid #cfd8dc;border-radius:8px;font:inherit";
+  var prepOpts = window.PREPARATLAR.map(function (p, i) { return '<option value="' + i + '">' + esc(tradeName(p)) + '</option>'; }).join("");
+  var standalone =
+    '<div class="reg-calc-standalone" style="margin-bottom:18px;padding:18px;border:1px solid #cfe0cf;border-radius:14px;background:#f3f8f3">' +
+      '<div style="font-weight:700;font-size:17px;margin-bottom:12px">' + esc(T.calc_title) + '</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end">' +
+        '<label style="display:flex;flex-direction:column;gap:4px;font-size:13px;flex:1;min-width:220px">' + esc(T.sc_pick) +
+          '<select id="sc-prep" style="' + inpS + '"><option value="">' + esc(T.sc_none) + '</option>' + prepOpts + '</select></label>' +
+        '<label style="display:flex;flex-direction:column;gap:4px;font-size:13px">' + esc(T.calc_area) + '<input id="sc-area" type="number" min="0" step="0.1" value="1" style="width:100px;' + inpS + '"></label>' +
+        '<label style="display:flex;flex-direction:column;gap:4px;font-size:13px">' + esc(T.calc_rate) +
+          '<span style="display:flex;gap:4px"><input id="sc-rate" type="number" min="0" step="0.01" style="width:90px;' + inpS + '">' +
+          '<select id="sc-unit" style="' + inpS + '"><option value="л">л</option><option value="кг">кг</option></select></span></label>' +
+        '<label style="display:flex;flex-direction:column;gap:4px;font-size:13px">' + esc(T.calc_sol) + '<input id="sc-sol" type="number" min="0" step="1" value="300" style="width:100px;' + inpS + '"></label>' +
+      '</div>' +
+      '<div id="sc-out" style="margin-top:14px;display:flex;flex-wrap:wrap;gap:10px"></div>' +
+      '<div style="margin-top:8px;font-size:11.5px;color:#607d8b;line-height:1.4">' + esc(T.calc_hint) + '</div>' +
+    '</div>';
   root.innerHTML =
+    standalone +
     '<div class="reg-controls">' +
       '<input id="reg-q" class="reg-inp" placeholder="' + esc(T.search) + '">' +
       '<select id="reg-type" class="reg-inp reg-sel"><option value="">' + esc(T.all_types) + '</option></select>' +
@@ -182,6 +202,39 @@
     showDetail(window.PREPARATLAR[+tr.getAttribute("data-i")]);
   });
   modal.addEventListener("click", function (e) { if (e.target === modal) modal.style.display = "none"; });
+
+  // Стандалон доза калькулятори (қидирувдан юқорида, препарат танлаш ихтиёрий)
+  (function () {
+    var prepEl = document.getElementById("sc-prep"), aEl = document.getElementById("sc-area"),
+        rEl = document.getElementById("sc-rate"), uEl = document.getElementById("sc-unit"),
+        sEl = document.getElementById("sc-sol"), out = document.getElementById("sc-out");
+    if (!aEl) return;
+    function scCard(label, val, u) {
+      return '<div style="flex:1;min-width:160px;background:#fff;border:1px solid #dbe7db;border-radius:10px;padding:12px 14px">' +
+        '<div style="font-size:12px;color:#607d8b">' + esc(label) + '</div>' +
+        '<div style="font-size:22px;font-weight:700;color:#2e7d32">' + esc(fmtNum(val)) + ' <span style="font-size:14px;font-weight:600;color:#455a64">' + esc(u) + '</span></div>' +
+      '</div>';
+    }
+    function scRecompute() {
+      var a = parseFloat(aEl.value), r = parseFloat(rEl.value), s = parseFloat(sEl.value), u = uEl.value || "л";
+      var html = "";
+      if (isFinite(a) && a > 0 && isFinite(r) && r > 0) html += scCard(T.calc_need, a * r, u);
+      if (isFinite(a) && a > 0 && isFinite(s) && s > 0) html += scCard(T.calc_water, a * s, "л");
+      out.innerHTML = html || '<span style="color:#90a4ae;font-size:13px">—</span>';
+    }
+    prepEl.addEventListener("change", function () {
+      var v = prepEl.value;
+      if (v === "") return; // қўлда киритиш — тегмаймиз
+      var p = window.PREPARATLAR[+v];
+      var r0 = firstNum(p.rate), s0 = firstNum(p.solution);
+      if (r0 != null) rEl.value = r0;
+      if (s0 != null) sEl.value = s0;
+      uEl.value = rateUnit(p.rate);
+      scRecompute();
+    });
+    [aEl, rEl, sEl, uEl].forEach(function (el) { el.addEventListener("input", scRecompute); el.addEventListener("change", scRecompute); });
+    scRecompute();
+  })();
 
   render();
 })();
