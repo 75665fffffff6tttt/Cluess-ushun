@@ -660,20 +660,13 @@ document.addEventListener("DOMContentLoaded", function () {
     var wrap = document.createElement("div");
     wrap.className = "table-scroll";
     var table = document.createElement("table");
-    table.style.width = "100%";
-    table.style.borderCollapse = "collapse";
-    table.style.tableLayout = "fixed";
+    table.className = "bilingual-columns";
     var tr = document.createElement("tr");
     var leftTd = document.createElement("td");
-    leftTd.style.width = "50%";
-    leftTd.style.verticalAlign = "top";
-    leftTd.style.padding = "0 14px 0 0";
-    leftTd.style.borderRight = "1px solid var(--border)";
+    leftTd.className = "bilingual-col left";
     leftTd.appendChild(leftEl);
     var rightTd = document.createElement("td");
-    rightTd.style.width = "50%";
-    rightTd.style.verticalAlign = "top";
-    rightTd.style.padding = "0 0 0 14px";
+    rightTd.className = "bilingual-col right";
     rightTd.appendChild(rightEl);
     tr.appendChild(leftTd);
     tr.appendChild(rightTd);
@@ -737,9 +730,9 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!lastParts) return;
       var p = lastParts;
       var twoColHtml = "<table style='width:100%; border-collapse:collapse; table-layout:fixed;'><tr>" +
-        "<td style='width:50%; vertical-align:top; padding:0 14px 0 0; border-right:1px solid #999;'>" +
+        "<td style='width:50%; vertical-align:top; padding:0 24px 0 0; border-right:1px solid #999;'>" +
         languageColumnToHtmlString(p.titleEn, p.dateLineEn, p.bodyEn, p.signatureData, "en") + "</td>" +
-        "<td style='width:50%; vertical-align:top; padding:0 0 0 14px;'>" +
+        "<td style='width:50%; vertical-align:top; padding:0 0 0 24px;'>" +
         languageColumnToHtmlString(p.titleRu, p.dateLineRu, p.bodyRu, p.signatureData, "ru") + "</td>" +
         "</tr></table>";
       var html = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>" +
