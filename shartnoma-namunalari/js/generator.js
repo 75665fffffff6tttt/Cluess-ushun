@@ -176,7 +176,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return lines.join("\n");
   }
 
-  function buildContractText() {
+  function buildContractParts() {
     var fNo = val("fNo") || "___";
     var joy = val("fJoy") || "Qibray tumani";
     var sanaText = formatDateUz(document.getElementById("fSana").value);
@@ -199,11 +199,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var firstPreparat = rows.length ? rows[0].querySelector(".f-preparat").value : "____________";
 
+    var title = "SHARTNOMA № " + fNo;
+    var dateLine = joy + "   " + sanaText;
+
     var text = [];
-    text.push("SHARTNOMA № " + fNo);
-    text.push("");
-    text.push(joy + "                                                             " + sanaText);
-    text.push("");
     text.push(val("bMuassasa") + " korxona Nizomi asosida faoliyat yurituvchi direktori " + val("bDirektor") +
       " “Bajaruvchi” bir tomondan va " + (val("oNomi") || "____________________") + ", nizomi asosida harakat qiluvchi direktori " +
       (val("oDirektor") || "____________________") + " “Buyurtmachi” ikkinchi tomondan ushbu shartnomani quyidagilar to‘g‘risida tuzdilar.");
@@ -260,28 +259,50 @@ document.addEventListener("DOMContentLoaded", function () {
     text.push("");
     text.push(buildSignatureBlock());
 
-    return text.join("\n");
+    return { title: title, dateLine: dateLine, body: text.join("\n") };
   }
+
+  var lastParts = null;
 
   generateBtn.addEventListener("click", function () {
     recalcAll();
-    contractOutput.textContent = buildContractText();
+    lastParts = buildContractParts();
+    contractOutput.innerHTML = "";
+    var titleEl = document.createElement("div");
+    titleEl.style.textAlign = "center";
+    titleEl.style.fontWeight = "700";
+    titleEl.textContent = lastParts.title;
+    var dateEl = document.createElement("div");
+    dateEl.style.textAlign = "center";
+    dateEl.style.marginBottom = "1em";
+    dateEl.textContent = lastParts.dateLine;
+    var bodyEl = document.createElement("div");
+    bodyEl.textContent = lastParts.body;
+    contractOutput.appendChild(titleEl);
+    contractOutput.appendChild(dateEl);
+    contractOutput.appendChild(bodyEl);
     outputSection.classList.remove("results-hidden");
     outputSection.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
+  function escapeHtml(s) {
+    return s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
   if (downloadBtn) {
     downloadBtn.addEventListener("click", function () {
-      var text = contractOutput.textContent;
-      if (!text) return;
-      var escaped = text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/\n/g, "<br>");
+      if (!lastParts) return;
+      var bodyHtml = escapeHtml(lastParts.body).replace(/\n/g, "<br>");
       var html = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>" +
         "<head><meta charset='utf-8'><title>Shartnoma</title></head>" +
-        "<body style=\"font-family:'Times New Roman',serif; font-size:13pt; white-space:pre-wrap;\">" + escaped + "</body></html>";
+        "<body style=\"font-family:'Times New Roman',serif; font-size:13pt;\">" +
+        "<p align='center' style='font-weight:bold; margin:0;'>" + escapeHtml(lastParts.title) + "</p>" +
+        "<p align='center' style='margin:0 0 1em;'>" + escapeHtml(lastParts.dateLine) + "</p>" +
+        "<div style=\"white-space:pre-wrap;\">" + bodyHtml + "</div>" +
+        "</body></html>";
       var blob = new Blob(['﻿', html], { type: "application/msword" });
       var url = URL.createObjectURL(blob);
       var a = document.createElement("a");
