@@ -49,6 +49,13 @@ document.addEventListener("DOMContentLoaded", function () {
     return Math.round(n).toLocaleString("ru-RU").replace(/,/g, " ");
   }
 
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
   function rowTemplate(data) {
     rowSeq++;
     var tr = document.createElement("tr");
@@ -128,33 +135,97 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function val(id) { return document.getElementById(id).value.trim(); }
 
-  function buildSignatureBlock() {
-    return [
-      '“BAJARUVCHI”                                                    “BUYURTMACHI”',
-      val("bMuassasa"),
-      'Manzil: ' + val("bManzil"),
-      'Bank: ' + val("bBank"),
-      'H/r: ' + val("bXr"),
-      'Sh.x.r: ' + val("bShxr"),
-      'MFO: ' + val("bMfo") + '   STIR: ' + val("bInn"),
-      'Tel: ' + val("bTel"),
-      '',
-      'Direktor _______________ ' + val("bDirektor"),
-      '',
-      (val("oNomi") || "____________________ MCHJ, O‘zbekiston"),
-      'Manzil: ' + (val("oManzil") || "____________________"),
-      'Bank: ' + (val("oBank") || "____________________"),
-      'H/r: ' + (val("oXr") || "____________________"),
-      'MFO: ' + (val("oMfo") || "____________________") + '   STIR: ' + (val("oInn") || "____________________"),
-      'OKED: ' + (val("oOked") || "____________________"),
-      'Tel: ' + (val("oTel") || "____________________"),
-      '',
-      'Direktor _______________ ' + (val("oDirektor") || "____________________"),
-    ].join("\n");
+  function buildSignatureData() {
+    return {
+      bajaruvchi: {
+        label: "“BAJARUVCHI”",
+        name: val("bMuassasa"),
+        manzil: val("bManzil"),
+        bank: val("bBank"),
+        xr: val("bXr"),
+        shxr: val("bShxr"),
+        mfo: val("bMfo"),
+        inn: val("bInn"),
+        tel: val("bTel"),
+        direktor: val("bDirektor")
+      },
+      buyurtmachi: {
+        label: "“BUYURTMACHI”",
+        name: val("oNomi") || "____________________ MCHJ, O‘zbekiston",
+        manzil: val("oManzil") || "____________________",
+        bank: val("oBank") || "____________________",
+        xr: val("oXr") || "____________________",
+        mfo: val("oMfo") || "____________________",
+        inn: val("oInn") || "____________________",
+        oked: val("oOked") || "____________________",
+        tel: val("oTel") || "____________________",
+        direktor: val("oDirektor") || "____________________"
+      }
+    };
   }
 
-  var CALC_HEADERS = ["№", "Preparat", "Ekin turi", "Ob'ekt", "Sarf me'yori",
-    "1 me'yor bo'yicha sinov bahosi (so‘m)", "Qo'shimcha me'yor (%)", "Jami baho (so‘m)"];
+  function signatureCellLines(p) {
+    var lines = [p.label, p.name, "Manzil: " + p.manzil, "Bank: " + p.bank, "H/r: " + p.xr];
+    if (p.shxr) lines.push("Sh.x.r: " + p.shxr);
+    lines.push("MFO: " + p.mfo + "   STIR: " + p.inn);
+    if (p.oked) lines.push("OKED: " + p.oked);
+    lines.push("Tel: " + p.tel);
+    lines.push("");
+    lines.push("Direktor _______________ " + p.direktor);
+    return lines;
+  }
+
+  function buildSignatureTableEl(sig) {
+    var wrap = document.createElement("div");
+    wrap.className = "table-scroll";
+    var table = document.createElement("table");
+    table.style.width = "100%";
+    table.style.borderCollapse = "collapse";
+    table.style.margin = "18px 0";
+    var tr = document.createElement("tr");
+    [sig.bajaruvchi, sig.buyurtmachi].forEach(function (p) {
+      var td = document.createElement("td");
+      td.style.verticalAlign = "top";
+      td.style.width = "50%";
+      td.style.padding = "8px 14px";
+      signatureCellLines(p).forEach(function (line, i) {
+        var lineEl = document.createElement("div");
+        lineEl.style.fontSize = "0.92em";
+        if (i === 0) {
+          lineEl.style.fontWeight = "700";
+          lineEl.style.textAlign = "center";
+        } else if (i === 1) {
+          lineEl.style.fontWeight = "700";
+        }
+        lineEl.innerHTML = line ? escapeHtml(line) : "&nbsp;";
+        td.appendChild(lineEl);
+      });
+      tr.appendChild(td);
+    });
+    table.appendChild(tr);
+    wrap.appendChild(table);
+    return wrap;
+  }
+
+  function signatureTableToHtmlString(sig) {
+    function cellHtml(p) {
+      return signatureCellLines(p).map(function (line, i) {
+        var style = "font-size:11pt;";
+        if (i === 0) style += "font-weight:bold; text-align:center;";
+        else if (i === 1) style += "font-weight:bold;";
+        return "<div style='" + style + "'>" + (line ? escapeHtml(line) : "&nbsp;") + "</div>";
+      }).join("");
+    }
+    return "<table style='width:100%; border-collapse:collapse; margin:18px 0;'><tr>" +
+      "<td style='vertical-align:top; width:50%; padding:8px 14px;'>" + cellHtml(sig.bajaruvchi) + "</td>" +
+      "<td style='vertical-align:top; width:50%; padding:8px 14px;'>" + cellHtml(sig.buyurtmachi) + "</td>" +
+      "</tr></table>";
+  }
+
+  var CALC_HEADERS = ["№", "Preparat", "Ekin turi", "Ob'ekt",
+    "Preparat sarf me'yori, l/kg/ga va l/kg/t",
+    "1 preparat, 1 ekin, 1 ob'ekt, 1 me'yor bo'yicha sinov bahosi (so‘m)",
+    "Qo'shimcha me'yor (ob'ekt uchun, %)", "Jami bahosi (so‘m)"];
 
   function getCalcRowsData() {
     var trs = calcRows.querySelectorAll("tr");
@@ -181,6 +252,11 @@ document.addEventListener("DOMContentLoaded", function () {
     return { rows: rows, total: total };
   }
 
+  function calcRowCells(r) {
+    return [r.n, r.preparat, r.ekin, r.obyekt, r.meyor,
+      formatNumber(r.baho), r.pct + "% (" + formatNumber(r.qoshimcha) + ")", formatNumber(r.jami)];
+  }
+
   function buildCalcTableEl(calcData) {
     var wrap = document.createElement("div");
     wrap.className = "table-scroll";
@@ -199,9 +275,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var tbody = document.createElement("tbody");
     calcData.rows.forEach(function (r) {
       var tr = document.createElement("tr");
-      var cells = [r.n, r.preparat, r.ekin, r.obyekt, r.meyor,
-        formatNumber(r.baho), r.pct + "% (" + formatNumber(r.qoshimcha) + ")", formatNumber(r.jami)];
-      cells.forEach(function (c, i) {
+      calcRowCells(r).forEach(function (c, i) {
         var td = document.createElement("td");
         td.textContent = c;
         if (i >= 5) td.style.textAlign = "right";
@@ -230,21 +304,52 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function calcTableToHtmlString(calcData) {
-    var html = "<table style=\"border-collapse:collapse; width:100%;\">";
+    var html = "<table style=\"border-collapse:collapse; width:100%; font-size:9pt;\">";
     html += "<tr>" + CALC_HEADERS.map(function (h) {
-      return "<th style=\"border:1px solid #999; padding:6px 8px; background:#eee;\">" + escapeHtml(h) + "</th>";
+      return "<th style=\"border:1px solid #999; padding:5px 7px; background:#eee;\">" + escapeHtml(h) + "</th>";
     }).join("") + "</tr>";
     calcData.rows.forEach(function (r) {
-      var cells = [r.n, r.preparat, r.ekin, r.obyekt, r.meyor,
-        formatNumber(r.baho), r.pct + "% (" + formatNumber(r.qoshimcha) + ")", formatNumber(r.jami)];
-      html += "<tr>" + cells.map(function (c) {
-        return "<td style=\"border:1px solid #999; padding:6px 8px;\">" + escapeHtml(String(c)) + "</td>";
+      html += "<tr>" + calcRowCells(r).map(function (c) {
+        return "<td style=\"border:1px solid #999; padding:5px 7px;\">" + escapeHtml(c) + "</td>";
       }).join("") + "</tr>";
     });
-    html += "<tr><td colspan=\"" + (CALC_HEADERS.length - 1) + "\" style=\"border:1px solid #999; padding:6px 8px; text-align:right; font-weight:bold;\">Jami:</td>" +
-      "<td style=\"border:1px solid #999; padding:6px 8px; font-weight:bold;\">" + formatNumber(calcData.total) + " so‘m</td></tr>";
+    html += "<tr><td colspan=\"" + (CALC_HEADERS.length - 1) + "\" style=\"border:1px solid #999; padding:5px 7px; text-align:right; font-weight:bold;\">Jami:</td>" +
+      "<td style=\"border:1px solid #999; padding:5px 7px; font-weight:bold;\">" + formatNumber(calcData.total) + " so‘m</td></tr>";
     html += "</table>";
     return html;
+  }
+
+  // A line is a section heading ("1. Title") if it starts with "N. " but is not
+  // a numbered clause ("1.1. text").
+  function isHeadingLine(line) {
+    return /^\d+\.\s/.test(line) && !/^\d+\.\d/.test(line);
+  }
+
+  function renderParagraphsInto(container, text) {
+    text.split("\n").forEach(function (line) {
+      if (!line.trim()) return;
+      var p = document.createElement("div");
+      if (isHeadingLine(line)) {
+        p.style.textAlign = "center";
+        p.style.fontWeight = "700";
+        p.style.margin = "18px 0 8px";
+      } else {
+        p.style.textAlign = "justify";
+        p.style.textIndent = "28px";
+        p.style.margin = "0 0 8px";
+      }
+      p.textContent = line;
+      container.appendChild(p);
+    });
+  }
+
+  function paragraphsToHtmlString(text) {
+    return text.split("\n").filter(function (l) { return l.trim(); }).map(function (line) {
+      if (isHeadingLine(line)) {
+        return "<p align='center' style='font-weight:bold; margin:18px 0 8px;'>" + escapeHtml(line) + "</p>";
+      }
+      return "<p align='justify' style='text-indent:28px; margin:0 0 8px;'>" + escapeHtml(line) + "</p>";
+    }).join("");
   }
 
   function buildContractParts() {
@@ -310,22 +415,16 @@ document.addEventListener("DOMContentLoaded", function () {
     text.push("8.2. Taraflar o‘zaro kelisha olmagan nizolar qonun hujjatlarida belgilangan tartibda Iqtisodiy sud tomonidan hal qilinadi.");
     text.push("");
     text.push("9. Taraflarning yuridik manzillari va bank rekvizitlari");
-    text.push("");
-    text.push(buildSignatureBlock());
-    text.push("");
-    text.push("————————————————————————————————");
-    text.push("");
-    text.push(sanaText + " dagi № " + fNo + "-sonli shartnomaga ILOVA");
-    text.push("");
-    text.push("KALKULYATSIYA");
-    text.push("registratsiya sinovlari xarajatlarining hisob-kitobi, " + (val("oNomi") || "“Buyurtmachi”") + " preparatlari bo‘yicha, " + fNo + "-sonli shartnomaga muvofiq");
 
     return {
       title: title,
       dateLine: dateLine,
       bodyBefore: text.join("\n"),
-      calcData: calcData,
-      bodyAfter: buildSignatureBlock()
+      signatureData: buildSignatureData(),
+      ilovaRef: sanaText + " dagi\n№ " + fNo + "-sonli shartnomaga\nIlova",
+      kalkTitle: "KALKULYATSIYA",
+      kalkDesc: "registratsiya sinovlari xarajatlarining hisob-kitobi, " + (val("oNomi") || "“Buyurtmachi”") + " preparatlari bo‘yicha, " + fNo + "-sonli shartnomaga muvofiq",
+      calcData: calcData
     };
   }
 
@@ -335,49 +434,84 @@ document.addEventListener("DOMContentLoaded", function () {
     recalcAll();
     lastParts = buildContractParts();
     contractOutput.innerHTML = "";
+
     var titleEl = document.createElement("div");
     titleEl.style.textAlign = "center";
     titleEl.style.fontWeight = "700";
     titleEl.textContent = lastParts.title;
+    contractOutput.appendChild(titleEl);
+
     var dateEl = document.createElement("div");
     dateEl.style.textAlign = "center";
     dateEl.style.marginBottom = "1em";
     dateEl.textContent = lastParts.dateLine;
-    var bodyBeforeEl = document.createElement("div");
-    bodyBeforeEl.textContent = lastParts.bodyBefore;
-    var tableEl = buildCalcTableEl(lastParts.calcData);
-    tableEl.style.margin = "14px 0";
-    var bodyAfterEl = document.createElement("div");
-    bodyAfterEl.textContent = lastParts.bodyAfter;
-    contractOutput.appendChild(titleEl);
     contractOutput.appendChild(dateEl);
+
+    var bodyBeforeEl = document.createElement("div");
+    renderParagraphsInto(bodyBeforeEl, lastParts.bodyBefore);
     contractOutput.appendChild(bodyBeforeEl);
+
+    contractOutput.appendChild(buildSignatureTableEl(lastParts.signatureData));
+
+    var sepEl = document.createElement("div");
+    sepEl.style.textAlign = "center";
+    sepEl.style.margin = "18px 0";
+    sepEl.textContent = "————————————————————————————————";
+    contractOutput.appendChild(sepEl);
+
+    var ilovaEl = document.createElement("div");
+    ilovaEl.style.textAlign = "right";
+    ilovaEl.style.fontSize = "0.92em";
+    ilovaEl.style.margin = "0 0 18px";
+    lastParts.ilovaRef.split("\n").forEach(function (line) {
+      var d = document.createElement("div");
+      d.textContent = line;
+      ilovaEl.appendChild(d);
+    });
+    contractOutput.appendChild(ilovaEl);
+
+    var kalkTitleEl = document.createElement("div");
+    kalkTitleEl.style.textAlign = "center";
+    kalkTitleEl.style.fontWeight = "700";
+    kalkTitleEl.textContent = lastParts.kalkTitle;
+    contractOutput.appendChild(kalkTitleEl);
+
+    var kalkDescEl = document.createElement("div");
+    kalkDescEl.style.textAlign = "center";
+    kalkDescEl.style.margin = "0 0 10px";
+    kalkDescEl.style.fontSize = "0.92em";
+    kalkDescEl.textContent = lastParts.kalkDesc;
+    contractOutput.appendChild(kalkDescEl);
+
+    var tableEl = buildCalcTableEl(lastParts.calcData);
+    tableEl.style.margin = "10px 0 18px";
     contractOutput.appendChild(tableEl);
-    contractOutput.appendChild(bodyAfterEl);
+
+    contractOutput.appendChild(buildSignatureTableEl(lastParts.signatureData));
+
     outputSection.classList.remove("results-hidden");
     outputSection.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
-  function escapeHtml(s) {
-    return s
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-  }
-
   if (downloadBtn) {
     downloadBtn.addEventListener("click", function () {
       if (!lastParts) return;
-      var bodyBeforeHtml = escapeHtml(lastParts.bodyBefore).replace(/\n/g, "<br>");
-      var bodyAfterHtml = escapeHtml(lastParts.bodyAfter).replace(/\n/g, "<br>");
+      var sigHtml = signatureTableToHtmlString(lastParts.signatureData);
+      var ilovaHtml = "<p align='right' style='font-size:10pt; margin:0 0 18px;'>" +
+        lastParts.ilovaRef.split("\n").map(escapeHtml).join("<br>") + "</p>";
       var html = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>" +
         "<head><meta charset='utf-8'><title>Shartnoma</title></head>" +
         "<body style=\"font-family:'Times New Roman',serif; font-size:13pt;\">" +
         "<p align='center' style='font-weight:bold; margin:0;'>" + escapeHtml(lastParts.title) + "</p>" +
         "<p align='center' style='margin:0 0 1em;'>" + escapeHtml(lastParts.dateLine) + "</p>" +
-        "<div style=\"white-space:pre-wrap;\">" + bodyBeforeHtml + "</div>" +
-        "<div style=\"margin:14px 0; font-size:10pt;\">" + calcTableToHtmlString(lastParts.calcData) + "</div>" +
-        "<div style=\"white-space:pre-wrap;\">" + bodyAfterHtml + "</div>" +
+        paragraphsToHtmlString(lastParts.bodyBefore) +
+        sigHtml +
+        "<p align='center' style='margin:18px 0;'>————————————————————————————————</p>" +
+        ilovaHtml +
+        "<p align='center' style='font-weight:bold; margin:0;'>" + escapeHtml(lastParts.kalkTitle) + "</p>" +
+        "<p align='center' style='font-size:10pt; margin:0 0 10px;'>" + escapeHtml(lastParts.kalkDesc) + "</p>" +
+        "<div style=\"margin:0 0 18px;\">" + calcTableToHtmlString(lastParts.calcData) + "</div>" +
+        sigHtml +
         "</body></html>";
       var blob = new Blob(['﻿', html], { type: "application/msword" });
       var url = URL.createObjectURL(blob);
