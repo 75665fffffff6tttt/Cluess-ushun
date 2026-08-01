@@ -50,6 +50,10 @@ a { color: inherit; }
   padding: 0 20px;
 }
 
+.container.container-wide {
+  max-width: 1520px;
+}
+
 /* Header */
 .site-header {
   position: sticky;
@@ -401,16 +405,27 @@ form.contact-form { display: grid; gap: 14px; }
 .template-box-actions { display: flex; gap: 8px; }
 .template-text {
   margin: 0;
-  padding: 20px 22px;
+  padding: 26px 34px;
   white-space: pre-wrap;
   font-family: "Consolas", "Menlo", monospace;
-  font-size: 0.88rem;
-  line-height: 1.7;
+  font-size: 0.9rem;
+  line-height: 1.75;
   color: var(--ink-900);
-  max-height: 520px;
+  max-height: 640px;
   overflow-y: auto;
 }
 .copy-feedback { font-size: 0.82rem; color: var(--navy-700); font-weight: 600; }
+
+/* Side-by-side bilingual contract columns */
+.bilingual-columns { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.bilingual-col { vertical-align: top; width: 50%; }
+.bilingual-col.left { padding-right: 36px; border-right: 1px solid var(--border); }
+.bilingual-col.right { padding-left: 36px; }
+@media (max-width: 760px) {
+  .bilingual-columns, .bilingual-columns tbody, .bilingual-columns tr, .bilingual-col { display: block; width: 100%; }
+  .bilingual-col.left { padding-right: 0; border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 20px; }
+  .bilingual-col.right { padding-left: 0; }
+}
 
 /* Footer */
 .site-footer {
