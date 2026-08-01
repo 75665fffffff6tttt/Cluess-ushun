@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var addRowBtn = document.getElementById("add-row-btn");
   var generateBtn = document.getElementById("generate-btn");
   var downloadBtn = document.getElementById("download-doc-btn");
+  var downloadXlsBtn = document.getElementById("download-xls-btn");
   var outputSection = document.getElementById("output-section");
   var contractOutput = document.getElementById("contract-output");
   if (!calcRows || !document.getElementById("cName")) return; // not the foreign-contract generator page
@@ -807,6 +808,82 @@ document.addEventListener("DOMContentLoaded", function () {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    });
+  }
+
+  if (downloadXlsBtn) {
+    downloadXlsBtn.addEventListener("click", function () {
+      if (!lastParts) return;
+      var p = lastParts;
+      var rows = [];
+
+      function biRow(enVal, ruVal, style) {
+        rows.push([
+          { value: enVal || "", style: style, merge: 3 },
+          null, null, null,
+          { value: ruVal || "", style: style, merge: 3 }
+        ]);
+      }
+
+      biRow(p.titleEn, p.titleRu, "CenterBold");
+      biRow(p.dateLineEn, p.dateLineRu, "Center");
+      rows.push(null);
+
+      for (var i = 0; i < p.linesEn.length; i++) {
+        var enLine = p.linesEn[i] || "", ruLine = p.linesRu[i] || "";
+        if (!enLine.trim() && !ruLine.trim()) { rows.push(null); continue; }
+        var isHeading = /^\d+\.\s/.test(enLine) && !/^\d+\.\d/.test(enLine);
+        biRow(enLine, ruLine, isHeading ? "CenterBold" : "Default");
+      }
+      rows.push(null);
+
+      function biFieldRows(linesEn, linesRu) {
+        var n = Math.max(linesEn.length, linesRu.length);
+        for (var j = 0; j < n; j++) {
+          var boldStyle = (j === 0 || j === 1) ? "Bold" : "Default";
+          biRow(linesEn[j] || "", linesRu[j] || "", boldStyle);
+        }
+      }
+      var sig = p.signatureData;
+      biRow(sig.contractor.labelEn, sig.contractor.labelRu, "CenterBold");
+      biRow(sig.contractor.nameEn, sig.contractor.nameRu, "Bold");
+      biFieldRows(contractorLines("en"), contractorLines("ru"));
+      biRow("Director: _______________ " + sig.contractor.direktor, "Директор: _______________ " + sig.contractor.direktor, "Default");
+      rows.push(null);
+      biRow(sig.client.labelEn, sig.client.labelRu, "CenterBold");
+      biRow(sig.client.nameEn, sig.client.nameRu, "Bold");
+      biFieldRows(clientLines(), clientLines());
+      biRow("Representative: _______________ " + sig.client.direktor, "Представитель: _______________ " + sig.client.direktor, "Default");
+      rows.push(null);
+
+      rows.push([{ value: "————————————————————————————————", style: "Center", merge: 7 }]);
+      rows.push(null);
+      rows.push([{ value: p.annexRefRu + " / " + p.annexRefEn, style: "Center", merge: 7 }]);
+      rows.push([{ value: p.kalkTitle, style: "CenterBold", merge: 7 }]);
+      rows.push([{ value: p.kalkDescRu, style: "Center", merge: 7 }]);
+      rows.push([{ value: p.kalkDescEn, style: "Center", merge: 7 }]);
+      rows.push(null);
+
+      rows.push(CALC_HEADERS.map(function (h) { return { value: h, style: "Header" }; }));
+      p.calcData.rows.forEach(function (r) {
+        rows.push(calcRowCells(r).map(function (c) { return { value: c, style: "Cell" }; }));
+      });
+      var jamiRow = [{ value: "Итого / Total:", style: "Cell", merge: CALC_HEADERS.length - 2 }];
+      for (var k = 1; k < CALC_HEADERS.length - 1; k++) jamiRow.push(null);
+      jamiRow.push({ value: "$" + formatNumber(p.calcData.total), style: "Cell" });
+      rows.push(jamiRow);
+      rows.push(null);
+
+      // Final signature block pairs Contractor | Client (each cell already
+      // bilingual), unlike the rows above which pair English | Russian.
+      var finalLeft = { label: sig.contractor.labelRu + "/ CONTRACTOR " + sig.contractor.labelEn, name: sig.contractor.nameRu + " / " + sig.contractor.nameEn, dir: val("bDirektorShort"), dirLabel: "Director / Директор:" };
+      var finalRight = { label: sig.client.labelRu + "/ " + sig.client.labelEn, name: sig.client.nameRu + " / " + sig.client.nameEn, dir: val("cRepNameShort"), dirLabel: "Representative / Специалист:" };
+      biRow(finalLeft.label, finalRight.label, "CenterBold");
+      biRow(finalLeft.name, finalRight.name, "Bold");
+      biRow(finalLeft.dirLabel + " _______________ " + finalLeft.dir, finalRight.dirLabel + " _______________ " + finalRight.dir, "Default");
+
+      var xml = buildSpreadsheetXml("Contract", rows, [130, 65, 65, 65, 130, 100, 90, 90]);
+      downloadXlsFile("contract-" + (val("fNo") || "1") + ".xls", xml);
     });
   }
 });
