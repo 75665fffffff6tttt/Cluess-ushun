@@ -472,34 +472,77 @@ document.addEventListener("DOMContentLoaded", function () {
     return /^\d+\.\s/.test(line) && !/^\d+\.\d/.test(line);
   }
 
-  function renderParagraphsInto(container, text) {
-    text.split("\n").forEach(function (line) {
-      if (!line.trim()) return;
-      var p = document.createElement("div");
-      if (isHeadingLine(line)) {
-        p.style.textAlign = "center";
-        p.style.fontWeight = "700";
-        p.style.margin = "18px 0 8px";
-      } else {
-        p.style.textAlign = "justify";
-        p.style.textIndent = "28px";
-        p.style.margin = "0 0 8px";
-      }
-      p.textContent = line;
-      container.appendChild(p);
-    });
+  // linesEn/linesRu are built in lockstep (same push order in both language
+  // branches), so pairing them by index keeps every clause on the same row -
+  // instead of two independently-flowing columns that drift apart once the
+  // Russian wording runs longer than the English.
+  function clauseParagraphEl(line) {
+    var p = document.createElement("div");
+    if (isHeadingLine(line)) {
+      p.style.textAlign = "center";
+      p.style.fontWeight = "700";
+    } else {
+      p.style.textAlign = "justify";
+      p.style.textIndent = "28px";
+    }
+    p.textContent = line;
+    return p;
   }
 
-  function paragraphsToHtmlString(text) {
-    return text.split("\n").filter(function (l) { return l.trim(); }).map(function (line) {
-      if (isHeadingLine(line)) {
-        return "<p align='center' style='font-weight:bold; margin:18px 0 8px;'>" + escapeHtml(line) + "</p>";
+  function buildParallelClauseTableEl(linesEn, linesRu) {
+    var wrap = document.createElement("div");
+    wrap.className = "table-scroll";
+    var table = document.createElement("table");
+    table.className = "bilingual-columns bilingual-rows";
+    var tbody = document.createElement("tbody");
+    for (var i = 0; i < linesEn.length; i++) {
+      var enLine = linesEn[i] || "", ruLine = linesRu[i] || "";
+      var tr = document.createElement("tr");
+      if (!enLine.trim() && !ruLine.trim()) {
+        var spacer = document.createElement("td");
+        spacer.colSpan = 2;
+        spacer.className = "bilingual-row-spacer";
+        tr.appendChild(spacer);
+        tbody.appendChild(tr);
+        continue;
       }
-      return "<p align='justify' style='text-indent:28px; margin:0 0 8px;'>" + escapeHtml(line) + "</p>";
-    }).join("");
+      var tdEn = document.createElement("td");
+      tdEn.className = "bilingual-col left";
+      tdEn.appendChild(clauseParagraphEl(enLine));
+      var tdRu = document.createElement("td");
+      tdRu.className = "bilingual-col right";
+      tdRu.appendChild(clauseParagraphEl(ruLine));
+      tr.appendChild(tdEn);
+      tr.appendChild(tdRu);
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    return wrap;
   }
 
-  function buildContractText(lang, ctx) {
+  function parallelClauseTableToHtmlString(linesEn, linesRu) {
+    function cellHtml(line) {
+      if (!line.trim()) return "&nbsp;";
+      if (isHeadingLine(line)) return "<p align='center' style='font-weight:bold; margin:0;'>" + escapeHtml(line) + "</p>";
+      return "<p align='justify' style='text-indent:28px; margin:0;'>" + escapeHtml(line) + "</p>";
+    }
+    var rows = [];
+    for (var i = 0; i < linesEn.length; i++) {
+      var enLine = linesEn[i] || "", ruLine = linesRu[i] || "";
+      if (!enLine.trim() && !ruLine.trim()) {
+        rows.push("<tr><td colspan='2' style='height:10px;'>&nbsp;</td></tr>");
+        continue;
+      }
+      rows.push("<tr>" +
+        "<td style='width:50%; vertical-align:top; padding:6px 24px 6px 0; border-right:1px solid #999;'>" + cellHtml(enLine) + "</td>" +
+        "<td style='width:50%; vertical-align:top; padding:6px 0 6px 24px;'>" + cellHtml(ruLine) + "</td>" +
+        "</tr>");
+    }
+    return "<table style='width:100%; border-collapse:collapse; table-layout:fixed;'>" + rows.join("") + "</table>";
+  }
+
+  function buildContractLines(lang, ctx) {
     var isEn = lang === "en";
     var fNo = ctx.fNo, total = ctx.total, totalWords = ctx.totalWords, tolovKun = ctx.tolovKun,
       preparatKun = ctx.preparatKun, penyaKun = ctx.penyaKun, penyaMax = ctx.penyaMax, muddatText = ctx.muddatText;
@@ -581,7 +624,7 @@ document.addEventListener("DOMContentLoaded", function () {
       text.push("8.2. Споры, не урегулированные сторонами, разрешаются в Экономическом суде.");
       text.push("9. Юридические адреса и банковские реквизиты сторон");
     }
-    return text.join("\n");
+    return text;
   }
 
   function buildContractParts() {
@@ -614,10 +657,10 @@ document.addEventListener("DOMContentLoaded", function () {
     return {
       titleEn: "CONTRACT № " + fNo,
       dateLineEn: joyEn + ", " + dateBi.en,
-      bodyEn: buildContractText("en", ctxEn),
+      linesEn: buildContractLines("en", ctxEn),
       titleRu: "ДОГОВОР № " + fNo,
       dateLineRu: joyRu + " " + dateBi.ru,
-      bodyRu: buildContractText("ru", ctxRu),
+      linesRu: buildContractLines("ru", ctxRu),
       signatureData: signatureData(),
       annexRefEn: "Appendix No. " + fNo,
       annexRefRu: "Приложение №" + fNo,
@@ -645,17 +688,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return d;
   }
 
-  function buildLanguageColumn(title, dateLine, body, sig, lang) {
-    var col = document.createElement("div");
-    col.appendChild(headingEl(title));
-    col.appendChild(sublineEl(dateLine));
-    var bodyEl = document.createElement("div");
-    renderParagraphsInto(bodyEl, body);
-    col.appendChild(bodyEl);
-    col.appendChild(buildSignatureStackEl(sig, lang));
-    return col;
-  }
-
   function buildTwoColumnLayoutEl(leftEl, rightEl) {
     var wrap = document.createElement("div");
     wrap.className = "table-scroll";
@@ -678,9 +710,19 @@ document.addEventListener("DOMContentLoaded", function () {
   function renderContract(parts) {
     contractOutput.innerHTML = "";
 
-    var enCol = buildLanguageColumn(parts.titleEn, parts.dateLineEn, parts.bodyEn, parts.signatureData, "en");
-    var ruCol = buildLanguageColumn(parts.titleRu, parts.dateLineRu, parts.bodyRu, parts.signatureData, "ru");
-    contractOutput.appendChild(buildTwoColumnLayoutEl(enCol, ruCol));
+    var titleCol = document.createElement("div");
+    titleCol.appendChild(headingEl(parts.titleEn));
+    titleCol.appendChild(sublineEl(parts.dateLineEn));
+    var titleColRu = document.createElement("div");
+    titleColRu.appendChild(headingEl(parts.titleRu));
+    titleColRu.appendChild(sublineEl(parts.dateLineRu));
+    contractOutput.appendChild(buildTwoColumnLayoutEl(titleCol, titleColRu));
+
+    contractOutput.appendChild(buildParallelClauseTableEl(parts.linesEn, parts.linesRu));
+
+    var sigEn = buildSignatureStackEl(parts.signatureData, "en");
+    var sigRu = buildSignatureStackEl(parts.signatureData, "ru");
+    contractOutput.appendChild(buildTwoColumnLayoutEl(sigEn, sigRu));
 
     var sep2 = document.createElement("div");
     sep2.style.textAlign = "center";
@@ -718,27 +760,32 @@ document.addEventListener("DOMContentLoaded", function () {
     outputSection.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
-  function languageColumnToHtmlString(title, dateLine, body, sig, lang) {
-    return "<p align='center' style='font-weight:bold; margin:0;'>" + escapeHtml(title) + "</p>" +
-      "<p align='center' style='margin:0 0 1em;'>" + escapeHtml(dateLine) + "</p>" +
-      paragraphsToHtmlString(body) +
-      signatureStackToHtmlString(sig, lang);
+  function twoColHtmlWrap(leftHtml, rightHtml) {
+    return "<table style='width:100%; border-collapse:collapse; table-layout:fixed;'><tr>" +
+      "<td style='width:50%; vertical-align:top; padding:0 24px 0 0; border-right:1px solid #999;'>" + leftHtml + "</td>" +
+      "<td style='width:50%; vertical-align:top; padding:0 0 0 24px;'>" + rightHtml + "</td>" +
+      "</tr></table>";
   }
 
   if (downloadBtn) {
     downloadBtn.addEventListener("click", function () {
       if (!lastParts) return;
       var p = lastParts;
-      var twoColHtml = "<table style='width:100%; border-collapse:collapse; table-layout:fixed;'><tr>" +
-        "<td style='width:50%; vertical-align:top; padding:0 24px 0 0; border-right:1px solid #999;'>" +
-        languageColumnToHtmlString(p.titleEn, p.dateLineEn, p.bodyEn, p.signatureData, "en") + "</td>" +
-        "<td style='width:50%; vertical-align:top; padding:0 0 0 24px;'>" +
-        languageColumnToHtmlString(p.titleRu, p.dateLineRu, p.bodyRu, p.signatureData, "ru") + "</td>" +
-        "</tr></table>";
+      var titleHtml = twoColHtmlWrap(
+        "<p align='center' style='font-weight:bold; margin:0;'>" + escapeHtml(p.titleEn) + "</p>" +
+        "<p align='center' style='margin:0 0 1em;'>" + escapeHtml(p.dateLineEn) + "</p>",
+        "<p align='center' style='font-weight:bold; margin:0;'>" + escapeHtml(p.titleRu) + "</p>" +
+        "<p align='center' style='margin:0 0 1em;'>" + escapeHtml(p.dateLineRu) + "</p>"
+      );
+      var clauseTableHtml = parallelClauseTableToHtmlString(p.linesEn, p.linesRu);
+      var sigHtml = twoColHtmlWrap(
+        signatureStackToHtmlString(p.signatureData, "en"),
+        signatureStackToHtmlString(p.signatureData, "ru")
+      );
       var html = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>" +
         "<head><meta charset='utf-8'><title>Contract</title></head>" +
         "<body style=\"font-family:'Times New Roman',serif; font-size:11pt;\">" +
-        twoColHtml +
+        titleHtml + clauseTableHtml + sigHtml +
         "<p align='center' style='margin:24px 0;'>————————————————————————————————</p>" +
         "<p align='center' style='margin:0 0 10px;'>" + escapeHtml(p.annexRefRu + " / " + p.annexRefEn) + "</p>" +
         "<p align='center' style='font-weight:bold; margin:0;'>" + escapeHtml(p.kalkTitle) + "</p>" +
