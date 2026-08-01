@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var addRowBtn = document.getElementById("add-row-btn");
   var generateBtn = document.getElementById("generate-btn");
   var downloadBtn = document.getElementById("download-doc-btn");
+  var downloadXlsBtn = document.getElementById("download-xls-btn");
   var outputSection = document.getElementById("output-section");
   var contractOutput = document.getElementById("contract-output");
   if (!calcRows) return; // not the generator page
@@ -526,6 +527,63 @@ document.addEventListener("DOMContentLoaded", function () {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    });
+  }
+
+  if (downloadXlsBtn) {
+    downloadXlsBtn.addEventListener("click", function () {
+      if (!lastParts) return;
+      var rows = [];
+      rows.push([{ value: lastParts.title, style: "CenterBold", merge: 7 }]);
+      rows.push([{ value: lastParts.dateLine, style: "Center", merge: 7 }]);
+      rows.push(null);
+
+      lastParts.bodyBefore.split("\n").forEach(function (line) {
+        if (!line.trim()) { rows.push(null); return; }
+        var isHeading = /^\d+\.\s/.test(line) && !/^\d+\.\d/.test(line);
+        rows.push([{ value: line, style: isHeading ? "CenterBold" : "Default", merge: 7 }]);
+      });
+      rows.push(null);
+
+      function signatureRows(sig) {
+        var left = signatureCellLines(sig.bajaruvchi);
+        var right = signatureCellLines(sig.buyurtmachi);
+        var n = Math.max(left.length, right.length);
+        for (var i = 0; i < n; i++) {
+          var boldStyle = (i === 0 || i === 1) ? "Bold" : "Default";
+          rows.push([
+            { value: left[i] || "", style: boldStyle, merge: 3 },
+            null, null, null,
+            { value: right[i] || "", style: boldStyle, merge: 3 }
+          ]);
+        }
+      }
+      signatureRows(lastParts.signatureData);
+      rows.push(null);
+      rows.push([{ value: "————————————————————————————————", style: "Center", merge: 7 }]);
+      rows.push(null);
+      lastParts.ilovaRef.split("\n").forEach(function (line) {
+        rows.push([{ value: line, style: "Right", merge: 7 }]);
+      });
+      rows.push(null);
+      rows.push([{ value: lastParts.kalkTitle, style: "CenterBold", merge: 7 }]);
+      rows.push([{ value: lastParts.kalkDesc, style: "Center", merge: 7 }]);
+      rows.push(null);
+
+      rows.push(CALC_HEADERS.map(function (h) { return { value: h, style: "Header" }; }));
+      lastParts.calcData.rows.forEach(function (r) {
+        rows.push(calcRowCells(r).map(function (c) { return { value: c, style: "Cell" }; }));
+      });
+      var jamiRow = [{ value: "Jami:", style: "Cell", merge: CALC_HEADERS.length - 2 }];
+      for (var k = 1; k < CALC_HEADERS.length - 1; k++) jamiRow.push(null);
+      jamiRow.push({ value: formatNumber(lastParts.calcData.total) + " so‘m", style: "Cell" });
+      rows.push(jamiRow);
+      rows.push(null);
+
+      signatureRows(lastParts.signatureData);
+
+      var xml = buildSpreadsheetXml("Shartnoma", rows, [260, 90, 90, 90, 90, 130, 110, 110]);
+      downloadXlsFile("shartnoma-" + (val("fNo") || "1") + ".xls", xml);
     });
   }
 });
