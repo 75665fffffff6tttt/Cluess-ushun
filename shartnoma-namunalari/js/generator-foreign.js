@@ -301,92 +301,119 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ---------- signature blocks ----------
+  function contractorLines(lang) {
+    if (lang === "en") {
+      return [
+        "TIN: " + val("bTin"),
+        "Address: " + val("bAddressEn"),
+        "Correspondent account: " + val("bCorrAcc"),
+        "Beneficiary: " + val("bBeneficiary"),
+        "BIC code: " + val("bBic"),
+        "Bank address: " + val("bBankAddress"),
+        "Recipient's bank: " + val("bRecipientBank"),
+        "SWIFT code: " + val("bSwift"),
+        "Correspondent bank: " + val("bCorrBank"),
+        "Correspondent account: " + val("bCorrBankAcc"),
+        "SWIFT code: " + val("bCorrBankSwift"),
+        "Another correspondent account: " + val("bAltCorrAcc"),
+        "Payment details:",
+        "Treasury account: " + val("bTreasuryAcc"),
+        "(in US dollars)"
+      ];
+    }
+    return [
+      "ИНН: " + val("bTin"),
+      "Адрес: " + val("bAddressRu"),
+      "Корреспондентский счёт: " + val("bCorrAcc"),
+      "Бенефициар: " + val("bBeneficiary"),
+      "БИК-код: " + val("bBic"),
+      "Адрес: " + val("bBankAddress"),
+      "Банк получателя: " + val("bRecipientBank"),
+      "SWIFT-код: " + val("bSwift"),
+      "Банк-корреспондент: " + val("bCorrBank"),
+      "Корреспондентский счёт: " + val("bCorrBankAcc"),
+      "SWIFT-код: " + val("bCorrBankSwift"),
+      "Корреспондентский счёт: " + val("bAltCorrAcc"),
+      "Назначение платежа:",
+      "Казначейский счёт: " + val("bTreasuryAcc"),
+      "(в долларах США)"
+    ];
+  }
+
+  function clientLines() {
+    return [
+      "Address: " + val("cAddress"),
+      "Tel: " + val("cTel"),
+      "Bank name: " + val("cBankName"),
+      "Bank address: " + val("cBankAddress"),
+      "Account number (IBAN): " + val("cIban"),
+      "SWIFT: " + val("cSwift")
+    ];
+  }
+
   function signatureData() {
     return {
       contractor: {
         labelEn: "EXECUTOR", labelRu: "ИСПОЛНИТЕЛЬ",
         nameEn: val("bMuassasaEn"), nameRu: val("bMuassasaRu"),
-        lines: [
-          "TIN: " + val("bTin"),
-          "Address: " + val("bAddressEn"),
-          "Correspondent account: " + val("bCorrAcc"),
-          "Beneficiary: " + val("bBeneficiary"),
-          "BIC code: " + val("bBic"),
-          "Bank address: " + val("bBankAddress"),
-          "Recipient's bank: " + val("bRecipientBank"),
-          "SWIFT code: " + val("bSwift"),
-          "Correspondent bank: " + val("bCorrBank"),
-          "Correspondent account: " + val("bCorrBankAcc"),
-          "SWIFT code: " + val("bCorrBankSwift"),
-          "Another correspondent account: " + val("bAltCorrAcc"),
-          "Treasury account: " + val("bTreasuryAcc") + " (in US dollars)"
-        ],
         direktor: val("bDirektorShort")
       },
       client: {
         labelEn: "CLIENT", labelRu: "ЗАКАЗЧИК",
         nameEn: '"' + val("cName") + '" (' + val("cCountryEn") + ")",
         nameRu: '«' + val("cName") + '» (' + val("cCountryRu") + ")",
-        lines: [
-          "Address: " + val("cAddress"),
-          "Tel: " + val("cTel"),
-          "Bank name: " + val("cBankName"),
-          "Bank address: " + val("cBankAddress"),
-          "Account number (IBAN): " + val("cIban"),
-          "SWIFT: " + val("cSwift")
-        ],
         direktor: val("cRepNameShort")
       }
     };
   }
 
-  function sigCellLines(p, lang) {
+  // Contractor and client blocks stack vertically within each language
+  // column (matching the source document), unlike the final bilingual
+  // signature block which places them side by side.
+  function sigBlockLines(p, lang, lines, signLabel) {
     var label = lang === "en" ? p.labelEn : p.labelRu;
     var name = lang === "en" ? p.nameEn : p.nameRu;
-    return [label, name].concat(p.lines).concat(["", (lang === "en" ? "Director / Representative: _______________ " : "Директор/представитель: _______________ ") + p.direktor]);
+    return [label, name].concat(lines).concat(["", signLabel + " _______________ " + p.direktor]);
   }
 
-  function buildSignatureTableEl(sig, lang) {
+  function buildSignatureStackEl(sig, lang) {
     var wrap = document.createElement("div");
-    wrap.className = "table-scroll";
-    var table = document.createElement("table");
-    table.style.width = "100%";
-    table.style.borderCollapse = "collapse";
-    table.style.margin = "18px 0";
-    var tr = document.createElement("tr");
-    [sig.contractor, sig.client].forEach(function (p) {
-      var td = document.createElement("td");
-      td.style.verticalAlign = "top";
-      td.style.width = "50%";
-      td.style.padding = "8px 14px";
-      sigCellLines(p, lang).forEach(function (line, i) {
+    wrap.style.margin = "18px 0";
+    [
+      { p: sig.contractor, lines: contractorLines(lang), signLabel: lang === "en" ? "Director:" : "Директор:" },
+      { p: sig.client, lines: clientLines(), signLabel: lang === "en" ? "Representative:" : "Представитель:" }
+    ].forEach(function (block, idx) {
+      sigBlockLines(block.p, lang, block.lines, block.signLabel).forEach(function (line, i) {
         var lineEl = document.createElement("div");
         lineEl.style.fontSize = "0.88em";
         if (i === 0) { lineEl.style.fontWeight = "700"; lineEl.style.textAlign = "center"; }
         else if (i === 1) { lineEl.style.fontWeight = "700"; }
         lineEl.innerHTML = line ? escapeHtml(line) : "&nbsp;";
-        td.appendChild(lineEl);
+        wrap.appendChild(lineEl);
       });
-      tr.appendChild(td);
+      if (idx === 0) {
+        var spacer = document.createElement("div");
+        spacer.innerHTML = "&nbsp;";
+        wrap.appendChild(spacer);
+      }
     });
-    table.appendChild(tr);
-    wrap.appendChild(table);
     return wrap;
   }
 
-  function signatureTableToHtmlString(sig, lang) {
-    function cellHtml(p) {
-      return sigCellLines(p, lang).map(function (line, i) {
+  function signatureStackToHtmlString(sig, lang) {
+    function blockHtml(p, lines, signLabel) {
+      return sigBlockLines(p, lang, lines, signLabel).map(function (line, i) {
         var style = "font-size:10pt;";
         if (i === 0) style += "font-weight:bold; text-align:center;";
         else if (i === 1) style += "font-weight:bold;";
         return "<div style='" + style + "'>" + (line ? escapeHtml(line) : "&nbsp;") + "</div>";
       }).join("");
     }
-    return "<table style='width:100%; border-collapse:collapse; margin:18px 0;'><tr>" +
-      "<td style='vertical-align:top; width:50%; padding:8px 14px;'>" + cellHtml(sig.contractor) + "</td>" +
-      "<td style='vertical-align:top; width:50%; padding:8px 14px;'>" + cellHtml(sig.client) + "</td>" +
-      "</tr></table>";
+    return "<div style='margin:18px 0;'>" +
+      blockHtml(sig.contractor, contractorLines(lang), lang === "en" ? "Director:" : "Директор:") +
+      "<div>&nbsp;</div>" +
+      blockHtml(sig.client, clientLines(), lang === "en" ? "Representative:" : "Представитель:") +
+      "</div>";
   }
 
   function buildBilingualSignatureTableEl(sig) {
@@ -603,43 +630,64 @@ document.addEventListener("DOMContentLoaded", function () {
 
   var lastParts = null;
 
+  function headingEl(text) {
+    var d = document.createElement("div");
+    d.style.textAlign = "center";
+    d.style.fontWeight = "700";
+    d.textContent = text;
+    return d;
+  }
+  function sublineEl(text, marginBottom) {
+    var d = document.createElement("div");
+    d.style.textAlign = "center";
+    d.style.marginBottom = marginBottom || "1em";
+    d.textContent = text;
+    return d;
+  }
+
+  function buildLanguageColumn(title, dateLine, body, sig, lang) {
+    var col = document.createElement("div");
+    col.appendChild(headingEl(title));
+    col.appendChild(sublineEl(dateLine));
+    var bodyEl = document.createElement("div");
+    renderParagraphsInto(bodyEl, body);
+    col.appendChild(bodyEl);
+    col.appendChild(buildSignatureStackEl(sig, lang));
+    return col;
+  }
+
+  function buildTwoColumnLayoutEl(leftEl, rightEl) {
+    var wrap = document.createElement("div");
+    wrap.className = "table-scroll";
+    var table = document.createElement("table");
+    table.style.width = "100%";
+    table.style.borderCollapse = "collapse";
+    table.style.tableLayout = "fixed";
+    var tr = document.createElement("tr");
+    var leftTd = document.createElement("td");
+    leftTd.style.width = "50%";
+    leftTd.style.verticalAlign = "top";
+    leftTd.style.padding = "0 14px 0 0";
+    leftTd.style.borderRight = "1px solid var(--border)";
+    leftTd.appendChild(leftEl);
+    var rightTd = document.createElement("td");
+    rightTd.style.width = "50%";
+    rightTd.style.verticalAlign = "top";
+    rightTd.style.padding = "0 0 0 14px";
+    rightTd.appendChild(rightEl);
+    tr.appendChild(leftTd);
+    tr.appendChild(rightTd);
+    table.appendChild(tr);
+    wrap.appendChild(table);
+    return wrap;
+  }
+
   function renderContract(parts) {
     contractOutput.innerHTML = "";
 
-    function heading(text) {
-      var d = document.createElement("div");
-      d.style.textAlign = "center";
-      d.style.fontWeight = "700";
-      d.textContent = text;
-      contractOutput.appendChild(d);
-    }
-    function subline(text, marginBottom) {
-      var d = document.createElement("div");
-      d.style.textAlign = "center";
-      d.style.marginBottom = marginBottom || "1em";
-      d.textContent = text;
-      contractOutput.appendChild(d);
-    }
-
-    heading(parts.titleEn);
-    subline(parts.dateLineEn);
-    var bodyEnEl = document.createElement("div");
-    renderParagraphsInto(bodyEnEl, parts.bodyEn);
-    contractOutput.appendChild(bodyEnEl);
-    contractOutput.appendChild(buildSignatureTableEl(parts.signatureData, "en"));
-
-    var sep1 = document.createElement("div");
-    sep1.style.textAlign = "center";
-    sep1.style.margin = "24px 0";
-    sep1.textContent = "————————————————————————————————";
-    contractOutput.appendChild(sep1);
-
-    heading(parts.titleRu);
-    subline(parts.dateLineRu);
-    var bodyRuEl = document.createElement("div");
-    renderParagraphsInto(bodyRuEl, parts.bodyRu);
-    contractOutput.appendChild(bodyRuEl);
-    contractOutput.appendChild(buildSignatureTableEl(parts.signatureData, "ru"));
+    var enCol = buildLanguageColumn(parts.titleEn, parts.dateLineEn, parts.bodyEn, parts.signatureData, "en");
+    var ruCol = buildLanguageColumn(parts.titleRu, parts.dateLineRu, parts.bodyRu, parts.signatureData, "ru");
+    contractOutput.appendChild(buildTwoColumnLayoutEl(enCol, ruCol));
 
     var sep2 = document.createElement("div");
     sep2.style.textAlign = "center";
@@ -647,8 +695,8 @@ document.addEventListener("DOMContentLoaded", function () {
     sep2.textContent = "————————————————————————————————";
     contractOutput.appendChild(sep2);
 
-    subline(parts.annexRefRu + " / " + parts.annexRefEn, "10px");
-    heading(parts.kalkTitle);
+    contractOutput.appendChild(sublineEl(parts.annexRefRu + " / " + parts.annexRefEn, "10px"));
+    contractOutput.appendChild(headingEl(parts.kalkTitle));
     var kalkDescEl = document.createElement("div");
     kalkDescEl.style.textAlign = "center";
     kalkDescEl.style.margin = "0 0 10px";
@@ -677,22 +725,27 @@ document.addEventListener("DOMContentLoaded", function () {
     outputSection.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
+  function languageColumnToHtmlString(title, dateLine, body, sig, lang) {
+    return "<p align='center' style='font-weight:bold; margin:0;'>" + escapeHtml(title) + "</p>" +
+      "<p align='center' style='margin:0 0 1em;'>" + escapeHtml(dateLine) + "</p>" +
+      paragraphsToHtmlString(body) +
+      signatureStackToHtmlString(sig, lang);
+  }
+
   if (downloadBtn) {
     downloadBtn.addEventListener("click", function () {
       if (!lastParts) return;
       var p = lastParts;
+      var twoColHtml = "<table style='width:100%; border-collapse:collapse; table-layout:fixed;'><tr>" +
+        "<td style='width:50%; vertical-align:top; padding:0 14px 0 0; border-right:1px solid #999;'>" +
+        languageColumnToHtmlString(p.titleEn, p.dateLineEn, p.bodyEn, p.signatureData, "en") + "</td>" +
+        "<td style='width:50%; vertical-align:top; padding:0 0 0 14px;'>" +
+        languageColumnToHtmlString(p.titleRu, p.dateLineRu, p.bodyRu, p.signatureData, "ru") + "</td>" +
+        "</tr></table>";
       var html = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>" +
         "<head><meta charset='utf-8'><title>Contract</title></head>" +
-        "<body style=\"font-family:'Times New Roman',serif; font-size:12pt;\">" +
-        "<p align='center' style='font-weight:bold; margin:0;'>" + escapeHtml(p.titleEn) + "</p>" +
-        "<p align='center' style='margin:0 0 1em;'>" + escapeHtml(p.dateLineEn) + "</p>" +
-        paragraphsToHtmlString(p.bodyEn) +
-        signatureTableToHtmlString(p.signatureData, "en") +
-        "<p align='center' style='margin:24px 0;'>————————————————————————————————</p>" +
-        "<p align='center' style='font-weight:bold; margin:0;'>" + escapeHtml(p.titleRu) + "</p>" +
-        "<p align='center' style='margin:0 0 1em;'>" + escapeHtml(p.dateLineRu) + "</p>" +
-        paragraphsToHtmlString(p.bodyRu) +
-        signatureTableToHtmlString(p.signatureData, "ru") +
+        "<body style=\"font-family:'Times New Roman',serif; font-size:11pt;\">" +
+        twoColHtml +
         "<p align='center' style='margin:24px 0;'>————————————————————————————————</p>" +
         "<p align='center' style='margin:0 0 10px;'>" + escapeHtml(p.annexRefRu + " / " + p.annexRefEn) + "</p>" +
         "<p align='center' style='font-weight:bold; margin:0;'>" + escapeHtml(p.kalkTitle) + "</p>" +
