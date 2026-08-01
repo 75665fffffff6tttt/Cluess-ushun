@@ -783,8 +783,11 @@ document.addEventListener("DOMContentLoaded", function () {
         signatureStackToHtmlString(p.signatureData, "ru")
       );
       var html = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>" +
-        "<head><meta charset='utf-8'><title>Contract</title></head>" +
+        "<head><meta charset='utf-8'><title>Contract</title>" +
+        "<style>@page WordSection1 { size: 21cm 29.7cm; margin: 1.5cm 1.5cm 1.5cm 1.5cm; mso-page-orientation: portrait; } div.WordSection1 { page: WordSection1; }</style>" +
+        "</head>" +
         "<body style=\"font-family:'Times New Roman',serif; font-size:11pt;\">" +
+        "<div class=\"WordSection1\">" +
         titleHtml + clauseTableHtml + sigHtml +
         "<p align='center' style='margin:24px 0;'>————————————————————————————————</p>" +
         "<p align='center' style='margin:0 0 10px;'>" + escapeHtml(p.annexRefRu + " / " + p.annexRefEn) + "</p>" +
@@ -793,6 +796,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "<p align='center' style='font-size:10pt; margin:0 0 10px;'>" + escapeHtml(p.kalkDescEn) + "</p>" +
         "<div style=\"margin:0 0 18px;\">" + calcTableToHtmlString(p.calcData) + "</div>" +
         bilingualSignatureTableToHtmlString(p.signatureData) +
+        "</div>" +
         "</body></html>";
       var blob = new Blob(['﻿', html], { type: "application/msword" });
       var url = URL.createObjectURL(blob);

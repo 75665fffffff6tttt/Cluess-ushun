@@ -480,6 +480,10 @@ form.contact-form { display: grid; gap: 14px; }
   margin-bottom: 10px;
 }
 
+@page {
+  margin: 1.5cm 1.5cm 1.5cm 1.5cm;
+}
+
 @media print {
   .site-header, .site-footer, .page-header, .template-box-actions, .btn-row { display: none !important; }
   .template-text { max-height: none; overflow: visible; }
