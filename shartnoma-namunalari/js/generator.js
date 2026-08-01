@@ -306,7 +306,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function calcTableToHtmlString(calcData) {
     var html = "<table style=\"border-collapse:collapse; width:100%; font-size:9pt;\">";
     html += "<tr>" + CALC_HEADERS.map(function (h) {
-      return "<th style=\"border:1px solid #999; padding:5px 7px; background:#eee;\">" + escapeHtml(h) + "</th>";
+      return "<th style=\"border:1px solid #999; padding:5px 7px; font-weight:bold;\">" + escapeHtml(h) + "</th>";
     }).join("") + "</tr>";
     calcData.rows.forEach(function (r) {
       html += "<tr>" + calcRowCells(r).map(function (c) {
