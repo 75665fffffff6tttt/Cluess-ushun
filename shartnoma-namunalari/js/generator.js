@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
       '<td><input type="text" class="f-obyekt" value="' + (data.obyekt || "") + '"></td>' +
       '<td><input type="text" class="f-meyor" value="' + (data.meyor || "") + '"></td>' +
       '<td><input type="number" class="f-baho" value="' + (data.baho || 0) + '" min="0"></td>' +
-      '<td style="text-align:center;"><input type="checkbox" class="f-qoshimcha" ' + (data.qoshimcha ? "checked" : "") + '></td>' +
+      '<td><input type="number" class="f-qoshimcha-pct" value="' + (data.qoshimchaPct != null ? data.qoshimchaPct : 30) + '" min="0" step="1" style="width:80px;"></td>' +
       '<td class="jami-cell">0</td>' +
       '<td><button type="button" class="btn btn-outline btn-small remove-row-btn">✕</button></td>';
     return tr;
@@ -74,8 +74,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function recalcRow(tr) {
     var baho = parseFloat(tr.querySelector(".f-baho").value) || 0;
-    var qoshimchaChecked = tr.querySelector(".f-qoshimcha").checked;
-    var qoshimcha = qoshimchaChecked ? Math.round(baho * 0.3) : 0;
+    var pct = parseFloat(tr.querySelector(".f-qoshimcha-pct").value) || 0;
+    var qoshimcha = Math.round(baho * (pct / 100));
     var jami = baho + qoshimcha;
     tr.querySelector(".jami-cell").textContent = formatNumber(jami);
     return jami;
@@ -115,9 +115,9 @@ document.addEventListener("DOMContentLoaded", function () {
   addRowBtn.addEventListener("click", function () { addRow(); });
 
   // Seed with the sample rows from the source contract
-  addRow({ preparat: "FARBIOBAC (Azotobacter chroococcum, Bacillus subtilis, kamida 1x10⁸ KTB/ml)", ekin: "G‘o‘za", obyekt: "O‘g‘it, shuningdek fungitsidlik xususiyati bor", meyor: "3 l/ga, 2 marta", baho: 15647500, qoshimcha: true });
-  addRow({ preparat: "FARBIOBAC (Azotobacter chroococcum, Bacillus subtilis, kamida 1x10⁸ KTB/ml)", ekin: "Bug‘doy", obyekt: "O‘g‘it, shuningdek fungitsidlik xususiyati bor", meyor: "3 l/ga, 2 marta", baho: 15647500, qoshimcha: true });
-  addRow({ preparat: "FARBIOBAC (Azotobacter chroococcum, Bacillus subtilis, kamida 1x10⁸ KTB/ml)", ekin: "Sabzavot (pomidor)", obyekt: "O‘g‘it, shuningdek fungitsidlik xususiyati bor", meyor: "3 l/ga, 1 marta", baho: 15647500, qoshimcha: false });
+  addRow({ preparat: "FARBIOBAC (Azotobacter chroococcum, Bacillus subtilis, kamida 1x10⁸ KTB/ml)", ekin: "G‘o‘za", obyekt: "O‘g‘it, shuningdek fungitsidlik xususiyati bor", meyor: "3 l/ga, 2 marta", baho: 15647500, qoshimchaPct: 30 });
+  addRow({ preparat: "FARBIOBAC (Azotobacter chroococcum, Bacillus subtilis, kamida 1x10⁸ KTB/ml)", ekin: "Bug‘doy", obyekt: "O‘g‘it, shuningdek fungitsidlik xususiyati bor", meyor: "3 l/ga, 2 marta", baho: 15647500, qoshimchaPct: 30 });
+  addRow({ preparat: "FARBIOBAC (Azotobacter chroococcum, Bacillus subtilis, kamida 1x10⁸ KTB/ml)", ekin: "Sabzavot (pomidor)", obyekt: "O‘g‘it, shuningdek fungitsidlik xususiyati bor", meyor: "3 l/ga, 1 marta", baho: 15647500, qoshimchaPct: 0 });
 
   function formatDateUz(isoDate) {
     if (!isoDate) return "“______” ____________ 2026 yil";
@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function buildCalcTableText() {
     var rows = calcRows.querySelectorAll("tr");
     var lines = [];
-    lines.push("№ | Preparat | Ekin turi | Ob'ekt | Sarf me'yori | 1 me'yor bo'yicha sinov bahosi | +30% qo'shimcha | Jami baho");
+    lines.push("№ | Preparat | Ekin turi | Ob'ekt | Sarf me'yori | 1 me'yor bo'yicha sinov bahosi | Qo'shimcha me'yor (%) | Jami baho");
     var total = 0;
     rows.forEach(function (tr, idx) {
       var preparat = tr.querySelector(".f-preparat").value;
@@ -164,12 +164,12 @@ document.addEventListener("DOMContentLoaded", function () {
       var obyekt = tr.querySelector(".f-obyekt").value;
       var meyor = tr.querySelector(".f-meyor").value;
       var baho = parseFloat(tr.querySelector(".f-baho").value) || 0;
-      var qoshimchaChecked = tr.querySelector(".f-qoshimcha").checked;
-      var qoshimcha = qoshimchaChecked ? Math.round(baho * 0.3) : 0;
+      var pct = parseFloat(tr.querySelector(".f-qoshimcha-pct").value) || 0;
+      var qoshimcha = Math.round(baho * (pct / 100));
       var jami = baho + qoshimcha;
       total += jami;
       lines.push((idx + 1) + " | " + preparat + " | " + ekin + " | " + obyekt + " | " + meyor + " | " +
-        formatNumber(baho) + " | " + formatNumber(qoshimcha) + " | " + formatNumber(jami));
+        formatNumber(baho) + " | " + pct + "% (" + formatNumber(qoshimcha) + ") | " + formatNumber(jami));
     });
     lines.push("");
     lines.push("Jami: " + formatNumber(total) + " so‘m");
@@ -191,7 +191,8 @@ document.addEventListener("DOMContentLoaded", function () {
     var total = 0;
     rows.forEach(function (tr) {
       var baho = parseFloat(tr.querySelector(".f-baho").value) || 0;
-      var qoshimcha = tr.querySelector(".f-qoshimcha").checked ? Math.round(baho * 0.3) : 0;
+      var pct = parseFloat(tr.querySelector(".f-qoshimcha-pct").value) || 0;
+      var qoshimcha = Math.round(baho * (pct / 100));
       total += baho + qoshimcha;
     });
     var totalWords = total > 0 ? capitalize(numberToWordsUz(total)) : "____________";
