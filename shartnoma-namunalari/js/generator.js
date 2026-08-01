@@ -153,27 +153,98 @@ document.addEventListener("DOMContentLoaded", function () {
     ].join("\n");
   }
 
-  function buildCalcTableText() {
-    var rows = calcRows.querySelectorAll("tr");
-    var lines = [];
-    lines.push("№ | Preparat | Ekin turi | Ob'ekt | Sarf me'yori | 1 me'yor bo'yicha sinov bahosi | Qo'shimcha me'yor (%) | Jami baho");
+  var CALC_HEADERS = ["№", "Preparat", "Ekin turi", "Ob'ekt", "Sarf me'yori",
+    "1 me'yor bo'yicha sinov bahosi (so‘m)", "Qo'shimcha me'yor (%)", "Jami baho (so‘m)"];
+
+  function getCalcRowsData() {
+    var trs = calcRows.querySelectorAll("tr");
+    var rows = [];
     var total = 0;
-    rows.forEach(function (tr, idx) {
-      var preparat = tr.querySelector(".f-preparat").value;
-      var ekin = tr.querySelector(".f-ekin").value;
-      var obyekt = tr.querySelector(".f-obyekt").value;
-      var meyor = tr.querySelector(".f-meyor").value;
+    trs.forEach(function (tr, idx) {
       var baho = parseFloat(tr.querySelector(".f-baho").value) || 0;
       var pct = parseFloat(tr.querySelector(".f-qoshimcha-pct").value) || 0;
       var qoshimcha = Math.round(baho * (pct / 100));
       var jami = baho + qoshimcha;
       total += jami;
-      lines.push((idx + 1) + " | " + preparat + " | " + ekin + " | " + obyekt + " | " + meyor + " | " +
-        formatNumber(baho) + " | " + pct + "% (" + formatNumber(qoshimcha) + ") | " + formatNumber(jami));
+      rows.push({
+        n: idx + 1,
+        preparat: tr.querySelector(".f-preparat").value,
+        ekin: tr.querySelector(".f-ekin").value,
+        obyekt: tr.querySelector(".f-obyekt").value,
+        meyor: tr.querySelector(".f-meyor").value,
+        baho: baho,
+        pct: pct,
+        qoshimcha: qoshimcha,
+        jami: jami
+      });
     });
-    lines.push("");
-    lines.push("Jami: " + formatNumber(total) + " so‘m");
-    return lines.join("\n");
+    return { rows: rows, total: total };
+  }
+
+  function buildCalcTableEl(calcData) {
+    var wrap = document.createElement("div");
+    wrap.className = "table-scroll";
+    var table = document.createElement("table");
+    table.className = "data-table";
+    var thead = document.createElement("thead");
+    var headRow = document.createElement("tr");
+    CALC_HEADERS.forEach(function (h) {
+      var th = document.createElement("th");
+      th.textContent = h;
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    var tbody = document.createElement("tbody");
+    calcData.rows.forEach(function (r) {
+      var tr = document.createElement("tr");
+      var cells = [r.n, r.preparat, r.ekin, r.obyekt, r.meyor,
+        formatNumber(r.baho), r.pct + "% (" + formatNumber(r.qoshimcha) + ")", formatNumber(r.jami)];
+      cells.forEach(function (c, i) {
+        var td = document.createElement("td");
+        td.textContent = c;
+        if (i >= 5) td.style.textAlign = "right";
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+
+    var totalTr = document.createElement("tr");
+    var labelTd = document.createElement("td");
+    labelTd.colSpan = CALC_HEADERS.length - 1;
+    labelTd.style.textAlign = "right";
+    labelTd.style.fontWeight = "700";
+    labelTd.textContent = "Jami:";
+    var totalTd = document.createElement("td");
+    totalTd.style.textAlign = "right";
+    totalTd.style.fontWeight = "700";
+    totalTd.textContent = formatNumber(calcData.total) + " so‘m";
+    totalTr.appendChild(labelTd);
+    totalTr.appendChild(totalTd);
+    tbody.appendChild(totalTr);
+
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    return wrap;
+  }
+
+  function calcTableToHtmlString(calcData) {
+    var html = "<table style=\"border-collapse:collapse; width:100%;\">";
+    html += "<tr>" + CALC_HEADERS.map(function (h) {
+      return "<th style=\"border:1px solid #999; padding:6px 8px; background:#eee;\">" + escapeHtml(h) + "</th>";
+    }).join("") + "</tr>";
+    calcData.rows.forEach(function (r) {
+      var cells = [r.n, r.preparat, r.ekin, r.obyekt, r.meyor,
+        formatNumber(r.baho), r.pct + "% (" + formatNumber(r.qoshimcha) + ")", formatNumber(r.jami)];
+      html += "<tr>" + cells.map(function (c) {
+        return "<td style=\"border:1px solid #999; padding:6px 8px;\">" + escapeHtml(String(c)) + "</td>";
+      }).join("") + "</tr>";
+    });
+    html += "<tr><td colspan=\"" + (CALC_HEADERS.length - 1) + "\" style=\"border:1px solid #999; padding:6px 8px; text-align:right; font-weight:bold;\">Jami:</td>" +
+      "<td style=\"border:1px solid #999; padding:6px 8px; font-weight:bold;\">" + formatNumber(calcData.total) + " so‘m</td></tr>";
+    html += "</table>";
+    return html;
   }
 
   function buildContractParts() {
@@ -187,17 +258,11 @@ document.addEventListener("DOMContentLoaded", function () {
     var penyaKun = val("fPenyaKun") || "0.4";
     var penyaMax = val("fPenyaMax") || "50";
 
-    var rows = calcRows.querySelectorAll("tr");
-    var total = 0;
-    rows.forEach(function (tr) {
-      var baho = parseFloat(tr.querySelector(".f-baho").value) || 0;
-      var pct = parseFloat(tr.querySelector(".f-qoshimcha-pct").value) || 0;
-      var qoshimcha = Math.round(baho * (pct / 100));
-      total += baho + qoshimcha;
-    });
+    var calcData = getCalcRowsData();
+    var total = calcData.total;
     var totalWords = total > 0 ? capitalize(numberToWordsUz(total)) : "____________";
 
-    var firstPreparat = rows.length ? rows[0].querySelector(".f-preparat").value : "____________";
+    var firstPreparat = calcData.rows.length ? calcData.rows[0].preparat : "____________";
 
     var title = "SHARTNOMA № " + fNo;
     var dateLine = joy + "   " + sanaText;
@@ -254,12 +319,14 @@ document.addEventListener("DOMContentLoaded", function () {
     text.push("");
     text.push("KALKULYATSIYA");
     text.push("registratsiya sinovlari xarajatlarining hisob-kitobi, " + (val("oNomi") || "“Buyurtmachi”") + " preparatlari bo‘yicha, " + fNo + "-sonli shartnomaga muvofiq");
-    text.push("");
-    text.push(buildCalcTableText());
-    text.push("");
-    text.push(buildSignatureBlock());
 
-    return { title: title, dateLine: dateLine, body: text.join("\n") };
+    return {
+      title: title,
+      dateLine: dateLine,
+      bodyBefore: text.join("\n"),
+      calcData: calcData,
+      bodyAfter: buildSignatureBlock()
+    };
   }
 
   var lastParts = null;
@@ -276,11 +343,17 @@ document.addEventListener("DOMContentLoaded", function () {
     dateEl.style.textAlign = "center";
     dateEl.style.marginBottom = "1em";
     dateEl.textContent = lastParts.dateLine;
-    var bodyEl = document.createElement("div");
-    bodyEl.textContent = lastParts.body;
+    var bodyBeforeEl = document.createElement("div");
+    bodyBeforeEl.textContent = lastParts.bodyBefore;
+    var tableEl = buildCalcTableEl(lastParts.calcData);
+    tableEl.style.margin = "14px 0";
+    var bodyAfterEl = document.createElement("div");
+    bodyAfterEl.textContent = lastParts.bodyAfter;
     contractOutput.appendChild(titleEl);
     contractOutput.appendChild(dateEl);
-    contractOutput.appendChild(bodyEl);
+    contractOutput.appendChild(bodyBeforeEl);
+    contractOutput.appendChild(tableEl);
+    contractOutput.appendChild(bodyAfterEl);
     outputSection.classList.remove("results-hidden");
     outputSection.scrollIntoView({ behavior: "smooth", block: "start" });
   });
@@ -295,13 +368,16 @@ document.addEventListener("DOMContentLoaded", function () {
   if (downloadBtn) {
     downloadBtn.addEventListener("click", function () {
       if (!lastParts) return;
-      var bodyHtml = escapeHtml(lastParts.body).replace(/\n/g, "<br>");
+      var bodyBeforeHtml = escapeHtml(lastParts.bodyBefore).replace(/\n/g, "<br>");
+      var bodyAfterHtml = escapeHtml(lastParts.bodyAfter).replace(/\n/g, "<br>");
       var html = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>" +
         "<head><meta charset='utf-8'><title>Shartnoma</title></head>" +
         "<body style=\"font-family:'Times New Roman',serif; font-size:13pt;\">" +
         "<p align='center' style='font-weight:bold; margin:0;'>" + escapeHtml(lastParts.title) + "</p>" +
         "<p align='center' style='margin:0 0 1em;'>" + escapeHtml(lastParts.dateLine) + "</p>" +
-        "<div style=\"white-space:pre-wrap;\">" + bodyHtml + "</div>" +
+        "<div style=\"white-space:pre-wrap;\">" + bodyBeforeHtml + "</div>" +
+        "<div style=\"margin:14px 0; font-size:10pt;\">" + calcTableToHtmlString(lastParts.calcData) + "</div>" +
+        "<div style=\"white-space:pre-wrap;\">" + bodyAfterHtml + "</div>" +
         "</body></html>";
       var blob = new Blob(['﻿', html], { type: "application/msword" });
       var url = URL.createObjectURL(blob);
