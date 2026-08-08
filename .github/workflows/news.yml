@@ -1,0 +1,41 @@
+name: Ўсимликларни ҳимоя — янгиликларни автоматик янгилаш
+
+on:
+  schedule:
+    - cron: "0 6 * * *"   # ҳар куни соат 06:00 UTC (≈ Тошкент 11:00)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "news-update"
+  cancel-in-progress: false
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Fetch latest plant-protection news
+        run: node scripts/fetch-news.mjs
+
+      - name: Commit if changed
+        run: |
+          if [ -n "$(git status --porcelain plant-protection/data/news.json)" ]; then
+            git config user.name "agro-news-bot"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add plant-protection/data/news.json
+            git commit -m "Авто: ўсимликларни ҳимоя қилиш янгиликлари янгиланди"
+            git push
+            echo "News updated and pushed."
+          else
+            echo "No news changes."
+          fi

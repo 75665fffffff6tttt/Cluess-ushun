@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="uz-Cyrl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Янгиликлар — АгроҲимоя</title>
+<meta name="description" content="Ўсимликларни ҳимоя қилиш бўйича сўнгги янгиликлар — автоматик янгиланиб борадиган ахборот тасмаси.">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .news-meta{color:#607d8b;font-size:13px;margin:0 0 16px}
+  .news-status{color:#90a4ae;font-size:15px;padding:20px 0}
+  .news-list{display:flex;flex-direction:column;gap:14px}
+  .news-card{border:1px solid #e0e8e0;border-left:4px solid #2e7d32;border-radius:12px;padding:14px 16px;background:#fff}
+  .news-date{font-size:12px;color:#2e7d32;font-weight:600;margin-bottom:4px}
+  .news-title{margin:0 0 6px;font-size:17px;line-height:1.35}
+  .news-title a{color:#1b3a1b;text-decoration:none}
+  .news-title a:hover{text-decoration:underline}
+  .news-sum{margin:0 0 8px;color:#37474f;font-size:14px;line-height:1.5}
+  .news-src{font-size:12.5px;color:#78909c}
+  .news-src a{color:#2e7d32}
+</style>
+  <script src="js/auth.js?v=2"></script>
+</head>
+<body>
+<div class="test-banner">🧪 Тест режимида ишламоқда</div>
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-icon">🌿</span>
+      <div>
+        <div class="sidebar-brand-title">АГРО</div>
+        <div class="sidebar-brand-sub">ҲИМОЯ</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="sidebar-link"><span class="sidebar-ico">📊</span> Бош саҳифа</a>
+      <a href="prognoz.html" class="sidebar-link"><span class="sidebar-ico">🌦️</span> Прогноз</a>
+      <a href="hisobot.html" class="sidebar-link"><span class="sidebar-ico">📄</span> Ҳисобот</a>
+      <a href="preparatlar.html" class="sidebar-link"><span class="sidebar-ico">🧪</span> Агрокўмакчи</a>
+      <a href="rezistentlik.html" class="sidebar-link"><span class="sidebar-ico">🔄</span> Резистентлик</a>
+      <a href="yangiliklar.html" class="sidebar-link active"><span class="sidebar-ico">📰</span> Янгиликлар</a>
+    </nav>
+    <div class="sidebar-footer">
+      <strong>АгроҲимоя порт.</strong>
+      Версия 1.0 · 2026
+    </div>
+  </aside>
+  <div class="main-area">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-expanded="false" aria-label="Менюни очиш">☰</button>
+      <h1 class="topbar-title">Янгиликлар</h1>
+      <div class="lang-switch">
+        <a href="yangiliklar.html" aria-current="true">ЎЗ</a>
+        <a href="yangiliklar.ru.html">РУ</a>
+      </div>
+    </header>
+    <main class="main-content">
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Бош саҳифа</a> / Янгиликлар</div>
+    <h1>Ўсимликларни ҳимоя қилиш бўйича янгиликлар</h1>
+    <p>Сўнгги янгиликлар автоматик равишда йиғилиб, ҳар куни янгиланиб борилади. Ҳар бир янгиликни асл манбада тўлиқ ўқишингиз мумкин.</p>
+  </div>
+</div>
+<div class="content-block">
+  <div class="container">
+    <div id="news-app"></div>
+  </div>
+</div>
+    </main>
+  </div>
+</div>
+<script src="js/main.js?v=2"></script>
+<script src="js/news.js?v=1"></script>
+<script src="js/counter.js?v=1"></script>
+</body>
+</html>
