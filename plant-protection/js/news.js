@@ -15,10 +15,15 @@
     auto: "Янгиликлар автоматик янгиланади (ҳар куни).", read: "Ўқиш →"
   };
   function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  var UZ_MONTHS = ["январ", "феврал", "март", "апрел", "май", "июн", "июл", "август", "сентябр", "октябр", "ноябр", "декабр"];
   function fmtDate(iso) {
     if (!iso) return "";
-    try { return new Date(iso + (iso.length === 10 ? "T00:00:00" : "")).toLocaleDateString(LANG === "ru" ? "ru-RU" : "ru-RU", { year: "numeric", month: "long", day: "numeric" }); }
-    catch (e) { return iso; }
+    try {
+      var d = new Date(iso + (String(iso).length === 10 ? "T00:00:00" : ""));
+      if (isNaN(d)) return iso;
+      if (LANG === "ru") return d.toLocaleDateString("ru-RU", { year: "numeric", month: "long", day: "numeric" });
+      return d.getDate() + "-" + UZ_MONTHS[d.getMonth()] + ", " + d.getFullYear() + " й.";
+    } catch (e) { return iso; }
   }
   root.innerHTML = '<p class="news-status">' + esc(T.loading) + '</p>';
 
