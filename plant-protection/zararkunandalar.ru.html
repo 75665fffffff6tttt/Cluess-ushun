@@ -3,117 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Карта вредителей — АгроЗащита</title>
-<meta name="description" content="Риск распространения вредителей по регионам Узбекистана — анимированная карта (демо-данные).">
+<title>Вредители — АгроЗащита</title>
+<meta name="description" content="Основные насекомые-вредители сельхозкультур и садовых растений, а также меры борьбы с ними.">
 <link rel="stylesheet" href="css/style.css">
-<style>
-  .zk-wrap{width:100%;max-width:680px;margin:0 auto;position:relative;overflow:hidden;border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.14)}
-  .stage{width:1080px;height:1080px;transform-origin:top left;background:linear-gradient(180deg,#f3f9ff 0%,#eaf4ef 100%);position:relative;overflow:hidden;font-family:"Segoe UI",system-ui,Arial,sans-serif;color:#0f2b1f;--c1:#27ae60;--c2:#f1c40f;--c3:#e67e22;--c4:#e74c3c;--c5:#8e1b1b}
-  .stage .hdr{display:flex;align-items:center;gap:16px;padding:30px 40px 10px}
-  .stage .shield{width:66px;height:74px;flex:0 0 auto}
-  .stage .hdr-t1{font-size:20px;font-weight:600;color:#1b5e20;line-height:1.25}
-  .stage .hdr-t2{font-size:15px;color:#5a7a6a}
-  .stage .titleband{padding:4px 40px 0}
-  .stage .title{font-size:34px;font-weight:800;line-height:1.05;margin:6px 0 2px;color:#0f2b1f}
-  .stage .subrow{display:flex;align-items:baseline;gap:18px;margin-top:8px;flex-wrap:wrap}
-  .stage .pest{font-size:27px;font-weight:800;color:#0b7a3b}
-  .stage .date{font-size:17px;color:#5a7a6a}
-  .stage .avgchip{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #d6e3da;border-radius:20px;padding:4px 14px;font-weight:700}
-  .stage .mapwrap{position:absolute;left:0;right:0;top:245px;bottom:270px}
-  .stage .uzsil{position:absolute;inset:0;width:100%;height:100%}
-  .stage .chip{position:absolute;transform:translate(-50%,-50%);min-width:80px;text-align:center;border-radius:12px;padding:5px 8px 6px;color:#fff;box-shadow:0 3px 9px rgba(0,0,0,.18);transition:background-color .9s ease,color .9s ease;border:2px solid rgba(255,255,255,.7)}
-  .stage .chip .nm{font-size:12px;font-weight:600;line-height:1.1;opacity:.95}
-  .stage .chip .vl{font-size:21px;font-weight:800;line-height:1}
-  .stage .chip.dark{color:#3a2d00}
-  .stage .uzmap{position:absolute;inset:0}
-  .stage .uzmap svg{display:block}
-  .stage .uzmap svg path{transition:fill .8s ease;cursor:pointer}
-  .stage .uzmap svg path:hover{stroke:#0f2b1f;stroke-width:1.4}
-  .stage .zktip{position:absolute;display:none;background:rgba(15,43,31,.93);color:#fff;font-size:13px;line-height:1.3;padding:6px 10px;border-radius:8px;pointer-events:none;z-index:6;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.3)}
-  .stage .legend{position:absolute;left:0;right:0;bottom:150px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;padding:0 30px}
-  .stage .lg{display:flex;align-items:center;gap:8px;background:#fff;border-radius:10px;padding:7px 13px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
-  .stage .lg i{width:15px;height:15px;border-radius:4px;flex:0 0 auto}
-  .stage .lg b{font-size:14px}.stage .lg span{font-size:11.5px;color:#5a7a6a}
-  .stage .foot{position:absolute;left:0;right:0;bottom:0;padding:16px 40px 24px;background:linear-gradient(0deg,#e5efe8,transparent)}
-  .stage .cyc{display:flex;gap:10px;align-items:flex-end;height:54px}
-  .stage .bar{flex:1;background:#b9ccbf;border-radius:6px 6px 0 0;transition:background-color .5s,height .5s}
-  .stage .foot-lbls{display:flex;justify-content:space-between;margin-top:8px;font-size:12.5px;color:#5a7a6a}
-  .stage .note{position:absolute;left:40px;bottom:6px;font-size:11px;color:#8aa}
-  .stage .watermark{position:absolute;right:40px;bottom:8px;font-size:11px;color:#9ab;font-weight:600}
-  .zk-caption{max-width:680px;margin:14px auto 0;font-size:13px;color:var(--text-muted,#667);text-align:center}
-</style>
-  <script src="js/auth.js?v=2"></script>
 </head>
 <body>
-<div class="test-banner">🧪 Работает в тестовом режиме</div>
-<div class="app-shell">
-  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <span class="sidebar-brand-icon">🌿</span>
-      <div><div class="sidebar-brand-title">АГРО</div><div class="sidebar-brand-sub">ЗАЩИТА</div></div>
-    </div>
-    <nav class="sidebar-nav">
-      <a href="index.ru.html" class="sidebar-link"><span class="sidebar-ico">📊</span> Главная</a>
-      <a href="prognoz.ru.html" class="sidebar-link"><span class="sidebar-ico">🌦️</span> Прогноз</a>
-      <a href="hisobot.ru.html" class="sidebar-link"><span class="sidebar-ico">📄</span> Отчёт</a>
-      <a href="preparatlar.ru.html" class="sidebar-link"><span class="sidebar-ico">🧪</span> Агрокумакчи</a>
-      <a href="rezistentlik.ru.html" class="sidebar-link"><span class="sidebar-ico">🔄</span> Резистентность</a>
-      <a href="zararkunandalar.ru.html" class="sidebar-link active"><span class="sidebar-ico">🐛</span> Карта вредителей</a>
-      <a href="yangiliklar.ru.html" class="sidebar-link"><span class="sidebar-ico">📰</span> Новости</a>
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a href="index.ru.html" class="brand"><span class="brand-icon">🌿</span> АгроЗащита</a>
+    <button class="nav-toggle" aria-expanded="false" aria-label="Открыть меню">☰ Меню</button>
+    <nav class="main-nav">
+      <a href="index.ru.html">Главная</a>
+      <a href="zararkunandalar.ru.html" aria-current="page">Вредители</a>
+      <a href="kasalliklar.ru.html">Болезни</a>
+      <a href="begona-otlar.ru.html">Сорняки</a>
+      <a href="himoya-usullari.ru.html">Методы защиты</a>
+      <a href="prognoz.ru.html">Прогноз и анализ</a>
+      <a href="fasl-kalendari.ru.html">Сезонный календарь</a>
+      <a href="aloqa.ru.html">Контакты</a>
+      <a href="shartnoma.ru.html">Договор</a>
+    
+      <a href="hisobot.ru.html">Отчёт</a>
+      <a href="preparatlar.ru.html">Агрокумакчи</a>
+      <a href="rezistentlik.ru.html">Резистентность</a>
+      <a href="yangiliklar.ru.html">Новости</a>
+      <a href="zararkunandalar-xarita.ru.html">Карта вредителей</a>
     </nav>
-    <div class="sidebar-footer"><strong>АгроЗащита</strong>Версия 1.0 · 2026</div>
-  </aside>
-  <div class="main-area">
-    <header class="topbar">
-      <button class="sidebar-toggle" id="sidebar-toggle" aria-expanded="false" aria-label="Открыть меню">☰</button>
-      <h1 class="topbar-title">Карта вредителей</h1>
-      <div class="lang-switch">
-        <a href="zararkunandalar.html">ЎЗ</a>
-        <a href="zararkunandalar.ru.html" aria-current="true">РУ</a>
-      </div>
-    </header>
-    <main class="main-content">
+    <div class="lang-switch">
+      <a href="zararkunandalar.html">ЎЗ</a>
+      <a href="zararkunandalar.ru.html" aria-current="true">РУ</a>
+    </div>
+  </div>
+</header>
+
 <div class="page-header">
   <div class="container">
-    <div class="breadcrumb"><a href="index.ru.html">Главная</a> / Карта вредителей</div>
-    <h1>Риск распространения вредителей</h1>
-    <p>Уровень риска распространения основных вредителей по регионам Узбекистана. Карта циклически меняется по основным вредителям.</p>
+    <div class="breadcrumb"><a href="index.ru.html">Главная</a> / Вредители</div>
+    <h1>Вредители</h1>
+    <p>Насекомые, грызуны и другие вредные организмы повреждают листья, стебли, корни или плоды растений, снижая урожайность. Своевременное распознавание — первый шаг борьбы.</p>
   </div>
 </div>
+
 <div class="content-block">
   <div class="container">
-    <div class="zk-wrap"><div class="stage" id="stage">
-      <div class="hdr">
-        <svg class="shield" viewBox="0 0 66 74"><path d="M33 2 61 12v28c0 18-13 28-28 32C18 68 5 58 5 40V12z" fill="#1b5e20"/><path d="M33 9 54 16v23c0 13-10 21-21 24C22 60 12 52 12 39V16z" fill="#2e9e4f"/><text x="33" y="44" font-size="26" text-anchor="middle" fill="#fff">🐛</text></svg>
-        <div><div class="hdr-t1">—</div><div class="hdr-t2">—</div></div>
+
+    <h2>Распространённые вредители</h2>
+
+    <div class="grid cols-2">
+      <div class="card">
+        <span class="tag pest">Насекомое</span>
+        <h3>Колорадский жук</h3>
+        <p>Объедает листья картофеля, баклажанов и томатов, оставляя растение почти без листвы. Опасны и взрослый жук, и его личинки.</p>
+        <p><strong>Признаки:</strong> крупные дыры на листьях, скопления жёлто-красных личинок.</p>
+        <p><strong>Борьба:</strong> ручной сбор, биопрепараты, при необходимости — разрешённые инсектициды.</p>
       </div>
-      <div class="titleband">
-        <div class="title">—</div>
-        <div class="subrow">
-          <span class="pest" id="pestName">—</span>
-          <span class="date" id="dateLbl"></span>
-          <span class="avgchip">—: <b id="avgVal">—</b></span>
-        </div>
+      <div class="card">
+        <span class="tag pest">Насекомое</span>
+        <h3>Тля</h3>
+        <p>Высасывает сок из молодых побегов и листьев, ослабляя растение, скручивает листья, переносит вирусные болезни.</p>
+        <p><strong>Признаки:</strong> скопления мелких зелёных/чёрных насекомых на нижней стороне листа, липкий налёт.</p>
+        <p><strong>Борьба:</strong> мыльный раствор, привлечение полезных насекомых (божьи коровки), при необходимости — инсектицид.</p>
       </div>
-      <div class="mapwrap"><div id="uzmap" class="uzmap"></div><div id="zktip" class="zktip"></div></div>
-      <div class="legend" id="legend"></div>
-      <div class="foot">
-        <div class="cyc" id="cyc"></div>
-        <div class="foot-lbls"><span>—</span><span id="idxLbl"></span></div>
+      <div class="card">
+        <span class="tag pest">Клещи</span>
+        <h3>Паутинный клещ</h3>
+        <p>Очень мелкий, почти невидимый вредитель. Быстро размножается в жаркую и сухую погоду, высасывает сок листа.</p>
+        <p><strong>Признаки:</strong> мелкие светлые точки на листьях, тонкая паутина, усыхание и опадание листвы.</p>
+        <p><strong>Борьба:</strong> повышение влажности, акарициды, привлечение хищных клещей.</p>
       </div>
-      <div class="note">—</div>
-      <div class="watermark">AgroHimoya · демо</div>
-    </div></div>
-    <p class="zk-caption">⚠️ Цифры на диаграмме — демонстрационные. Их можно заменить данными реального мониторинга вредителей. Границы районов: <a href="https://www.geoboundaries.org/" target="_blank" rel="noopener">geoBoundaries</a> (CC-BY 4.0). Наведите курсор на район — появится название и риск.</p>
+      <div class="card">
+        <span class="tag pest">Насекомое</span>
+        <h3>Саранча</h3>
+        <p>Передвигается большими стаями и способна за короткое время уничтожить листву на всём поле.</p>
+        <p><strong>Признаки:</strong> резкое массовое исчезновение листьев, наблюдаемые стаи.</p>
+        <p><strong>Борьба:</strong> раннее выявление и мониторинг территории, массовая обработка разрешёнными инсектицидами.</p>
+      </div>
+      <div class="card">
+        <span class="tag pest">Гусеницы</span>
+        <h3>Капустная и томатная совка</h3>
+        <p>Гусеницы, вылупившиеся из яиц бабочек, выедают листья и плоды изнутри.</p>
+        <p><strong>Признаки:</strong> прогрызенные ходы в листьях и плодах, экскременты гусениц.</p>
+        <p><strong>Борьба:</strong> феромонные ловушки, биопрепараты на основе Bt, ручной сбор.</p>
+      </div>
+      <div class="card">
+        <span class="tag pest">Грызуны</span>
+        <h3>Полевые мышевидные грызуны</h3>
+        <p>Повреждают зернохранилища и корни культур, особенно активны в осенне-зимний период.</p>
+        <p><strong>Признаки:</strong> норы и ходы, погрызенные корни и зёрна.</p>
+        <p><strong>Борьба:</strong> очистка окрестностей поля, ловушки, разрешённые родентициды.</p>
+      </div>
+    </div>
+
+    <h2>Как оценить степень поражения</h2>
+    <p>Не стоит сразу спешить с химической обработкой при появлении первого вредителя. Сначала оцените степень поражения:</p>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr><th>Уровень</th><th>Признак</th><th>Рекомендуемая мера</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Низкий</td><td>Единичные насекомые, поражение менее 5%</td><td>Продолжить наблюдение, биологические методы</td></tr>
+          <tr><td>Средний</td><td>Групповое поражение, 5–20%</td><td>Механическая и биологическая борьба, локальная обработка</td></tr>
+          <tr><td>Высокий</td><td>Массовое распространение, более 20%</td><td>Срочная обработка разрешёнными препаратами</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <strong>Заметка:</strong> если на поле присутствуют естественные враги вредителей (божьи коровки, наездники, птицы), их сохранение даёт более долгосрочный эффект, чем химическая обработка.
+    </div>
+
+    <h2>Меры профилактики</h2>
+    <ul>
+      <li>Соблюдение севооборота — один и тот же вредитель не закрепляется постоянно на одном месте.</li>
+      <li>Регулярная очистка краёв поля от сорняков — там часто зимует значительная часть вредителей.</li>
+      <li>Регулярный осмотр растений — минимум раз в неделю.</li>
+      <li>Использование здорового посадочного и семенного материала.</li>
+      <li>Создание условий для полезных насекомых (цветущие бордюрные растения).</li>
+    </ul>
+
+    <p>Подробнее о методах борьбы читайте в разделе <a href="himoya-usullari.ru.html">Методы защиты</a>.</p>
   </div>
 </div>
-    </main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h4>АгроЗащита</h4>
+        <p style="max-width: 44ch; font-size: 0.9rem;">Портал практической информации по защите растений. Материалы носят рекомендательный характер.</p>
+      </div>
+      <div>
+        <h4>Разделы</h4>
+        <ul>
+          <li><a href="zararkunandalar.ru.html">Вредители</a></li>
+          <li><a href="kasalliklar.ru.html">Болезни</a></li>
+          <li><a href="begona-otlar.ru.html">Сорняки</a></li>
+          <li><a href="himoya-usullari.ru.html">Методы защиты</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Дополнительно</h4>
+        <ul>
+          <li><a href="prognoz.ru.html">Прогноз и анализ</a></li>
+          <li><a href="fasl-kalendari.ru.html">Сезонный календарь</a></li>
+          <li><a href="aloqa.ru.html">Контакты</a></li>
+          <li><a href="shartnoma.ru.html">Договор</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 АгроЗащита. Все права защищены.</span>
+      <span>Информация предоставляется в рекомендательных целях.</span>
+    </div>
   </div>
-</div>
-<script src="js/main.js?v=2"></script>
-<script src="js/uz-districts.js?v=1"></script>
-<script src="js/zararkunandalar.js?v=2"></script>
-<script src="js/counter.js?v=1"></script>
+</footer>
+<script src="js/main.js"></script>
 </body>
 </html>

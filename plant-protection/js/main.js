@@ -33,6 +33,16 @@ document.addEventListener("DOMContentLoaded", function () {
     backdrop.addEventListener("click", closeSidebar);
   }
 
+  // Эски юқори-меню (main-nav) — main тармоғидаги контент саҳифалари учун
+  var navToggle = document.querySelector(".nav-toggle");
+  var mainNav = document.querySelector(".main-nav");
+  if (navToggle && mainNav) {
+    navToggle.addEventListener("click", function () {
+      mainNav.classList.toggle("open");
+      navToggle.setAttribute("aria-expanded", mainNav.classList.contains("open") ? "true" : "false");
+    });
+  }
+
   var form = document.querySelector(".contact-form");
   if (form) {
     form.addEventListener("submit", function (e) {

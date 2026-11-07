@@ -1,10 +1,11 @@
-name: Deploy plant-protection site to GitHub Pages
+name: Deploy sites to GitHub Pages
 
 on:
   push:
     branches: ["main"]
     paths:
       - "plant-protection/**"
+      - "shartnoma-namunalari/**"
       - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:
 
@@ -27,10 +28,16 @@ jobs:
         uses: actions/configure-pages@v5
         with:
           enablement: true
+      - name: Assemble combined site
+        run: |
+          mkdir -p _site
+          cp -r plant-protection/. _site/
+          mkdir -p _site/shartnoma
+          cp -r shartnoma-namunalari/. _site/shartnoma/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: plant-protection
+          path: _site
 
   deploy:
     environment:
