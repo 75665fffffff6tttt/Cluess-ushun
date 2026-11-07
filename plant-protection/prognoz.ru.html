@@ -3,58 +3,93 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Прогноз и анализ фитосанитарного риска — АгроЗащита</title>
-<meta name="description" content="Современный анализ фитосанитарного риска на основе культуры, сезона, температуры и влажности — оцените риск вредителей, болезней и сорняков.">
+<title>Прогноз — АгроЗащита</title>
+<meta name="description" content="Современный анализ риска на основе культуры, сезона, температуры и влажности — оцените риск вредителей, болезней и сорняков.">
 <link rel="stylesheet" href="css/style.css">
+  <script src="js/auth.js?v=2"></script>
 </head>
 <body>
-<header class="site-header">
-  <div class="container nav-wrap">
-    <a href="index.ru.html" class="brand"><span class="brand-icon">🌿</span> АгроЗащита</a>
-    <button class="nav-toggle" aria-expanded="false" aria-label="Открыть меню">☰ Меню</button>
-    <nav class="main-nav">
-      <a href="index.ru.html">Главная</a>
-      <a href="zararkunandalar.ru.html">Вредители</a>
-      <a href="kasalliklar.ru.html">Болезни</a>
-      <a href="begona-otlar.ru.html">Сорняки</a>
-      <a href="himoya-usullari.ru.html">Методы защиты</a>
-      <a href="prognoz.ru.html" aria-current="page">Прогноз и анализ</a>
-      <a href="fasl-kalendari.ru.html">Сезонный календарь</a>
-      <a href="aloqa.ru.html">Контакты</a>
-      <a href="shartnoma.ru.html">Договор</a>
-    </nav>
-    <div class="lang-switch">
-      <a href="prognoz.html">ЎЗ</a>
-      <a href="prognoz.ru.html" aria-current="true">РУ</a>
+<div class="test-banner">🧪 Работает в тестовом режиме</div>
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-icon">🌿</span>
+      <div>
+        <div class="sidebar-brand-title">АГРО</div>
+        <div class="sidebar-brand-sub">ЗАЩИТА</div>
+      </div>
     </div>
-  </div>
-</header>
-
+        <nav class="sidebar-nav">
+      <a href="index.ru.html" class="sidebar-link"><span class="sidebar-ico">📊</span> Главная</a>
+      <a href="prognoz.ru.html" class="sidebar-link active"><span class="sidebar-ico">🌦️</span> Прогноз</a>
+      <a href="hisobot.ru.html" class="sidebar-link"><span class="sidebar-ico">📄</span> Отчёт</a>
+      <a href="preparatlar.ru.html" class="sidebar-link"><span class="sidebar-ico">🧪</span> Агрокумакчи</a>
+      <a href="rezistentlik.ru.html" class="sidebar-link"><span class="sidebar-ico">🔄</span> Резистентность</a>
+      <a href="zararkunandalar-xarita.ru.html" class="sidebar-link"><span class="sidebar-ico">🗺️</span> Карта вредителей</a>
+      <a href="kasalliklar.ru.html" class="sidebar-link"><span class="sidebar-ico">🍂</span> Болезни</a>
+      <a href="zararkunandalar.ru.html" class="sidebar-link"><span class="sidebar-ico">🐛</span> Вредители</a>
+      <a href="begona-otlar.ru.html" class="sidebar-link"><span class="sidebar-ico">🌿</span> Сорняки</a>
+      <a href="himoya-usullari.ru.html" class="sidebar-link"><span class="sidebar-ico">🛡️</span> Методы защиты</a>
+      <a href="fasl-kalendari.ru.html" class="sidebar-link"><span class="sidebar-ico">📅</span> Календарь</a>
+      <a href="yangiliklar.ru.html" class="sidebar-link"><span class="sidebar-ico">📰</span> Новости</a>
+      <a href="shartnoma.ru.html" class="sidebar-link"><span class="sidebar-ico">📝</span> Договор</a>
+      <a href="aloqa.ru.html" class="sidebar-link"><span class="sidebar-ico">✉️</span> Контакты</a>
+    </nav>
+    <div class="sidebar-footer">
+      <strong>АгроЗащита</strong>
+      Версия 1.0 · 2026
+    </div>
+  </aside>
+  <div class="main-area">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-expanded="false" aria-label="Открыть меню">☰</button>
+      <h1 class="topbar-title">Прогноз</h1>
+      <div class="lang-switch">
+        <a href="prognoz.html">ЎЗ</a>
+        <a href="prognoz.ru.html" aria-current="true">РУ</a>
+      </div>
+    </header>
+    <main class="main-content">
 <div class="page-header">
   <div class="container">
-    <div class="breadcrumb"><a href="index.ru.html">Главная</a> / Прогноз и анализ</div>
-    <span class="promo-badge" style="background: var(--green-100); color: var(--green-700);">🆕 Современный инструмент</span>
-    <h1>Прогноз и анализ фитосанитарного риска</h1>
-    <p>Укажите культуру, текущий сезон и погодные условия — система оценит риск вредителей, болезней и сорняков и даст конкретные рекомендации.</p>
+    <div class="breadcrumb"><a href="index.ru.html">Главная</a> / Прогноз</div>
+    <h1>Прогноз</h1>
   </div>
 </div>
 
 <div class="content-block">
   <div class="container">
 
-    <div class="weather-card">
-      <h2>Получить текущую погоду автоматически</h2>
-      <p>Введите название города или разрешите определить ваше местоположение — данные о температуре, влажности и осадках (через сервис Open-Meteo) будут получены автоматически, и форма ниже заполнится сама.</p>
-      <div class="weather-controls">
+    <a href="https://dala.efito.uz/" target="_blank" rel="noopener" class="ext-portal-card">
+      <span class="ext-portal-ico">🌾</span>
+      <span class="ext-portal-txt">
+        <b>dala.efito.uz</b>
+        <small>Официальный фенологический прогноз и календарь по хлопчатнику и другим культурам (Агентство по карантину и защите растений). Откроется в новой вкладке ↗</small>
+      </span>
+    </a>
+
+    <div class="filter-card">
+      <h2 style="margin:0 0 4px;">Получить текущую погоду автоматически</h2>
+      <p style="margin:0 0 16px; color:var(--ink-600); font-size:0.92rem;">Введите название города или разрешите определить ваше местоположение — данные о температуре, влажности и осадках (через сервис Open-Meteo) будут получены автоматически, и форма ниже заполнится сама.</p>
+      <div class="filter-grid">
         <div class="field">
           <label for="city-input">Название города</label>
           <input type="text" id="city-input" placeholder="Например: Ташкент">
         </div>
-        <button type="button" id="fetch-city-btn" class="btn btn-primary">Найти по городу</button>
-        <button type="button" id="fetch-geo-btn" class="btn btn-outline">📍 Определить моё местоположение</button>
+        <div class="filter-actions">
+          <button type="button" id="fetch-city-btn" class="btn btn-primary">Поиск</button>
+          <button type="button" id="fetch-geo-btn" class="btn btn-outline">📍 Локация</button>
+        </div>
       </div>
+      <div class="chip-row" id="weather-chip-row"></div>
       <p id="weather-status" class="weather-status"></p>
-      <p class="external-forecast-link">Подробный агрометеорологический прогноз по Узбекистану: <a href="https://dala.efito.uz/" target="_blank" rel="noopener noreferrer">dala.efito.uz</a></p>
+    </div>
+
+    <div id="temp-chart-card" class="chart-card results-hidden">
+      <h3>Температура на ближайшие 24 часа</h3>
+      <p class="chart-sub" id="temp-chart-sub"></p>
+      <div class="chart-svg-wrap" id="temp-chart-wrap"></div>
     </div>
 
     <h2>Укажите условия</h2>
@@ -123,48 +158,14 @@
       <h2>Рекомендуемые меры</h2>
       <ul class="reco-list" id="reco-list"></ul>
     </div>
-
-    <div class="disclaimer-box">
-      <strong>Заметка:</strong> данные о погоде получены из открытого сервиса Open-Meteo и могут носить приблизительный характер. Оценка риска рассчитывается на основе этих данных и общих агрономических закономерностей — она не заменяет точный метеорологический прогноз или лабораторную диагностику. В серьёзных или неясных случаях обращайтесь в службу защиты растений вашего региона или к агроному-специалисту.
-    </div>
-
-    <p>Подробнее о видах рисков — в разделах <a href="zararkunandalar.ru.html">Вредители</a>, <a href="kasalliklar.ru.html">Болезни</a>, <a href="begona-otlar.ru.html">Сорняки</a> и <a href="himoya-usullari.ru.html">Методы защиты</a>.</p>
   </div>
 </div>
 
-<footer class="site-footer">
-  <div class="container">
-    <div class="footer-grid">
-      <div>
-        <h4>АгроЗащита</h4>
-        <p style="max-width: 44ch; font-size: 0.9rem;">Портал практической информации по защите растений. Материалы носят рекомендательный характер.</p>
-      </div>
-      <div>
-        <h4>Разделы</h4>
-        <ul>
-          <li><a href="zararkunandalar.ru.html">Вредители</a></li>
-          <li><a href="kasalliklar.ru.html">Болезни</a></li>
-          <li><a href="begona-otlar.ru.html">Сорняки</a></li>
-          <li><a href="himoya-usullari.ru.html">Методы защиты</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Дополнительно</h4>
-        <ul>
-          <li><a href="prognoz.ru.html">Прогноз и анализ</a></li>
-          <li><a href="fasl-kalendari.ru.html">Сезонный календарь</a></li>
-          <li><a href="aloqa.ru.html">Контакты</a></li>
-          <li><a href="shartnoma.ru.html">Договор</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2026 АгроЗащита. Все права защищены.</span>
-      <span>Информация предоставляется в рекомендательных целях.</span>
-    </div>
+    </main>
   </div>
-</footer>
-<script src="js/main.js"></script>
+</div>
+<script src="js/main.js?v=2"></script>
 <script src="js/prognoz.js"></script>
+<script src="js/counter.js?v=1"></script>
 </body>
 </html>

@@ -1,0 +1,54 @@
+{
+ "updated": "2026-08-08",
+ "note": "GitHub Actions томонидан автоматик янгиланади (scripts/fetch-news.mjs).",
+ "items": [
+  {
+   "lang": "uz",
+   "date": "2025-04-01",
+   "title": "Ўзбекистонда ўғит ва пестицидларни рақамли маркировкалаш 2025-йил 1 майдан жорий этилди",
+   "url": "https://buxgalter.uz/uz/publish/doc/text207722_ugitlar_va_pesticidlar_aylanmasi_ishtirokchilari_qanday_qadamlarni_amalga_oshirishi_kerak",
+   "source": "Buxgalter.uz",
+   "summary": "Ўғит ва пестицидлар айланмаси иштирокчилари учун мажбурий рақамли маркировка тартиби ва қадамлар."
+  },
+  {
+   "lang": "ru",
+   "date": "2025-04-01",
+   "title": "Цифровая маркировка удобрений и пестицидов в Узбекистане с 1 мая 2025 года",
+   "url": "https://buxgalter.uz/uz/publish/doc/text207722_ugitlar_va_pesticidlar_aylanmasi_ishtirokchilari_qanday_qadamlarni_amalga_oshirishi_kerak",
+   "source": "Buxgalter.uz",
+   "summary": "Порядок обязательной цифровой маркировки для участников оборота удобрений и пестицидов."
+  },
+  {
+   "lang": "uz",
+   "date": "2024-01-01",
+   "title": "EPPO Global Database — зараркунанда, касаллик ва бегона ўтларнинг халқаро базаси",
+   "url": "https://gd.eppo.int/",
+   "source": "EPPO",
+   "summary": "Ўсимлик зарарли организмлари бўйича расмий халқаро маълумотлар базаси ва методикалар."
+  },
+  {
+   "lang": "ru",
+   "date": "2024-01-01",
+   "title": "EPPO Global Database — международная база вредителей, болезней и сорняков",
+   "url": "https://gd.eppo.int/",
+   "source": "EPPO",
+   "summary": "Официальная международная база данных по вредным организмам растений и методикам."
+  },
+  {
+   "lang": "uz",
+   "date": "2024-01-01",
+   "title": "IRAC — инсектицидлар резистентлигини бошқариш бўйича халқаро қўмита",
+   "url": "https://irac-online.org/",
+   "source": "IRAC",
+   "summary": "Таъсир механизми (MoA) гуруҳлари ва резистентликка қарши ротация тавсиялари."
+  },
+  {
+   "lang": "ru",
+   "date": "2024-01-01",
+   "title": "IRAC — международный комитет по управлению резистентностью к инсектицидам",
+   "url": "https://irac-online.org/",
+   "source": "IRAC",
+   "summary": "Группы механизма действия (MoA) и рекомендации по ротации против резистентности."
+  }
+ ]
+}

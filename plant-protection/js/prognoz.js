@@ -39,7 +39,8 @@ document.addEventListener("DOMContentLoaded", function () {
         geoDenied: "Жойлашувга рухсат берилмади. Шаҳар номини қўлда киритинг.",
         geoUnsupported: "Браузерингиз геолокацияни қўллаб-қувватламайди. Шаҳар номини киритинг.",
         network: "Маълумот олишда хатолик юз берди. Интернет алоқасини текшириб, қайта уриниб кўринг.",
-        success: "📍 {place}: ҳарорат {temp}°C, намлик {hum}%, бугунги ёғин {rain} мм — {time}. Шароит қуйида автоматик тўлдирилди."
+        success: "📍 {place}: ҳарорат {temp}°C, намлик {hum}%, бугунги ёғин {rain} мм — {time}. Шароит қуйида автоматик тўлдирилди.",
+        chartSub: "Соатлик ҳарорат прогнози (Open-Meteo)"
       }
     },
     ru: {
@@ -76,7 +77,8 @@ document.addEventListener("DOMContentLoaded", function () {
         geoDenied: "Доступ к геолокации не разрешён. Введите название города вручную.",
         geoUnsupported: "Ваш браузер не поддерживает геолокацию. Введите название города.",
         network: "Ошибка при получении данных. Проверьте подключение к интернету и попробуйте снова.",
-        success: "📍 {place}: температура {temp}°C, влажность {hum}%, осадки сегодня {rain} мм — {time}. Условия ниже заполнены автоматически."
+        success: "📍 {place}: температура {temp}°C, влажность {hum}%, осадки сегодня {rain} мм — {time}. Условия ниже заполнены автоматически.",
+        chartSub: "Почасовой прогноз температуры (Open-Meteo)"
       }
     }
   };
@@ -286,7 +288,80 @@ document.addEventListener("DOMContentLoaded", function () {
     return "heavy";
   }
 
-  function applyWeather(place, current, dailyRain) {
+  var chipRow = document.getElementById("weather-chip-row");
+  var chartCard = document.getElementById("temp-chart-card");
+  var chartWrap = document.getElementById("temp-chart-wrap");
+  var chartSub = document.getElementById("temp-chart-sub");
+
+  function clearWeather() {
+    if (chipRow) chipRow.innerHTML = "";
+    setStatus("", null);
+    if (chartCard) chartCard.classList.add("results-hidden");
+  }
+
+  function renderChip(place) {
+    if (!chipRow) return;
+    chipRow.innerHTML = "";
+    var chip = document.createElement("span");
+    chip.className = "chip";
+    chip.innerHTML = "📍 " + place + ' <span class="chip-remove" role="button" tabindex="0" aria-label="close">✕</span>';
+    chip.querySelector(".chip-remove").addEventListener("click", clearWeather);
+    chipRow.appendChild(chip);
+  }
+
+  function hourLabel(iso) {
+    return new Date(iso).toLocaleTimeString(LANG === "ru" ? "ru-RU" : "uz-UZ", { hour: "2-digit" });
+  }
+
+  function buildSparklineSvg(times, temps) {
+    var w = 600, h = 170, padL = 34, padR = 14, padT = 18, padB = 28;
+    var n = temps.length;
+    var min = Math.min.apply(null, temps);
+    var max = Math.max.apply(null, temps);
+    if (min === max) { max = min + 1; }
+    var xStep = (w - padL - padR) / (n - 1);
+    function X(i) { return padL + i * xStep; }
+    function Y(v) { return padT + (1 - (v - min) / (max - min)) * (h - padT - padB); }
+
+    var linePts = temps.map(function (v, i) { return X(i).toFixed(1) + "," + Y(v).toFixed(1); }).join(" ");
+    var areaPts = linePts + " " + X(n - 1).toFixed(1) + "," + (h - padB) + " " + X(0).toFixed(1) + "," + (h - padB);
+    var midIdx = Math.floor((n - 1) / 2);
+
+    return (
+      '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="temperature chart">' +
+      '<polygon points="' + areaPts + '" style="fill:var(--green-100)"></polygon>' +
+      '<polyline points="' + linePts + '" fill="none" style="stroke:var(--green-700)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></polyline>' +
+      '<text x="4" y="' + (Y(max) + 4).toFixed(1) + '" font-size="11" style="fill:var(--ink-600)">' + Math.round(max) + '°</text>' +
+      '<text x="4" y="' + (Y(min) + 4).toFixed(1) + '" font-size="11" style="fill:var(--ink-600)">' + Math.round(min) + '°</text>' +
+      '<text x="' + X(0).toFixed(1) + '" y="' + (h - 8) + '" font-size="10" text-anchor="start" style="fill:var(--ink-600)">' + hourLabel(times[0]) + '</text>' +
+      '<text x="' + X(midIdx).toFixed(1) + '" y="' + (h - 8) + '" font-size="10" text-anchor="middle" style="fill:var(--ink-600)">' + hourLabel(times[midIdx]) + '</text>' +
+      '<text x="' + X(n - 1).toFixed(1) + '" y="' + (h - 8) + '" font-size="10" text-anchor="end" style="fill:var(--ink-600)">' + hourLabel(times[n - 1]) + '</text>' +
+      "</svg>"
+    );
+  }
+
+  function renderTempChart(place, hourly, now) {
+    if (!chartCard || !hourly || !hourly.time || !hourly.temperature_2m) {
+      if (chartCard) chartCard.classList.add("results-hidden");
+      return;
+    }
+    var times = hourly.time, temps = hourly.temperature_2m;
+    var startIdx = 0;
+    for (var i = 0; i < times.length; i++) {
+      if (new Date(times[i]) >= now) { startIdx = i; break; }
+    }
+    var sliceTimes = times.slice(startIdx, startIdx + 24);
+    var sliceTemps = temps.slice(startIdx, startIdx + 24);
+    if (sliceTemps.length < 2) {
+      chartCard.classList.add("results-hidden");
+      return;
+    }
+    chartWrap.innerHTML = buildSparklineSvg(sliceTimes, sliceTemps);
+    chartSub.textContent = place + " — " + t.weather.chartSub;
+    chartCard.classList.remove("results-hidden");
+  }
+
+  function applyWeather(place, current, dailyRain, hourly) {
     var temp = current.temperature_2m;
     var hum = current.relative_humidity_2m;
     var rain = dailyRain != null ? dailyRain : current.precipitation || 0;
@@ -307,6 +382,8 @@ document.addEventListener("DOMContentLoaded", function () {
       }),
       "success"
     );
+    renderChip(place);
+    renderTempChart(place, hourly, now);
 
     computeAndRenderFromForm();
   }
@@ -317,7 +394,8 @@ document.addEventListener("DOMContentLoaded", function () {
       "https://api.open-meteo.com/v1/forecast?latitude=" + encodeURIComponent(lat) +
       "&longitude=" + encodeURIComponent(lon) +
       "&current=temperature_2m,relative_humidity_2m,precipitation" +
-      "&daily=precipitation_sum&timezone=auto&forecast_days=1";
+      "&hourly=temperature_2m" +
+      "&daily=precipitation_sum&timezone=auto&forecast_days=2";
 
     fetch(url)
       .then(function (res) {
@@ -327,17 +405,78 @@ document.addEventListener("DOMContentLoaded", function () {
       .then(function (data) {
         if (!data.current) throw new Error("weather-empty");
         var dailyRain = data.daily && data.daily.precipitation_sum ? data.daily.precipitation_sum[0] : null;
-        applyWeather(place, data.current, dailyRain);
+        applyWeather(place, data.current, dailyRain, data.hourly);
       })
       .catch(function () {
         setStatus(t.weather.network, "error");
       });
   }
 
+  // Local lookup for major Uzbekistan cities: Open-Meteo's geocoding database
+  // is indexed in Latin script, so a raw Cyrillic query like "Тошкент" or
+  // "Ташкент" almost never matches. Known cities resolve instantly here;
+  // anything else falls back to transliteration + the geocoding API.
+  var CITY_DB = {
+    "тошкент": { lat: 41.2995, lon: 69.2401, label: "Toshkent, O'zbekiston" },
+    "ташкент": { lat: 41.2995, lon: 69.2401, label: "Toshkent, O'zbekiston" },
+    "самарқанд": { lat: 39.6270, lon: 66.9749, label: "Samarqand, O'zbekiston" },
+    "самарканд": { lat: 39.6270, lon: 66.9749, label: "Samarqand, O'zbekiston" },
+    "бухоро": { lat: 39.7747, lon: 64.4286, label: "Buxoro, O'zbekiston" },
+    "бухара": { lat: 39.7747, lon: 64.4286, label: "Buxoro, O'zbekiston" },
+    "андижон": { lat: 40.7821, lon: 72.3442, label: "Andijon, O'zbekiston" },
+    "андижан": { lat: 40.7821, lon: 72.3442, label: "Andijon, O'zbekiston" },
+    "наманган": { lat: 41.0011, lon: 71.6726, label: "Namangan, O'zbekiston" },
+    "фарғона": { lat: 40.3864, lon: 71.7864, label: "Farg'ona, O'zbekiston" },
+    "фергана": { lat: 40.3864, lon: 71.7864, label: "Farg'ona, O'zbekiston" },
+    "қарши": { lat: 38.8606, lon: 65.7891, label: "Qarshi, O'zbekiston" },
+    "карши": { lat: 38.8606, lon: 65.7891, label: "Qarshi, O'zbekiston" },
+    "нукус": { lat: 42.4531, lon: 59.6103, label: "Nukus, O'zbekiston" },
+    "термиз": { lat: 37.2242, lon: 67.2783, label: "Termiz, O'zbekiston" },
+    "термез": { lat: 37.2242, lon: 67.2783, label: "Termiz, O'zbekiston" },
+    "жиззах": { lat: 40.1158, lon: 67.8422, label: "Jizzax, O'zbekiston" },
+    "джизак": { lat: 40.1158, lon: 67.8422, label: "Jizzax, O'zbekiston" },
+    "гулистон": { lat: 40.4897, lon: 68.7842, label: "Guliston, O'zbekiston" },
+    "гулистан": { lat: 40.4897, lon: 68.7842, label: "Guliston, O'zbekiston" },
+    "навоий": { lat: 40.0844, lon: 65.3792, label: "Navoiy, O'zbekiston" },
+    "навои": { lat: 40.0844, lon: 65.3792, label: "Navoiy, O'zbekiston" },
+    "урганч": { lat: 41.5500, lon: 60.6333, label: "Urganch, O'zbekiston" },
+    "ургенч": { lat: 41.5500, lon: 60.6333, label: "Urganch, O'zbekiston" },
+    "ангрен": { lat: 41.0167, lon: 70.1444, label: "Angren, O'zbekiston" },
+    "чирчиқ": { lat: 41.4686, lon: 69.5822, label: "Chirchiq, O'zbekiston" },
+    "чирчик": { lat: 41.4686, lon: 69.5822, label: "Chirchiq, O'zbekiston" },
+    "қўқон": { lat: 40.5283, lon: 70.9428, label: "Qo'qon, O'zbekiston" },
+    "коканд": { lat: 40.5283, lon: 70.9428, label: "Qo'qon, O'zbekiston" },
+    "марғилон": { lat: 40.4715, lon: 71.7244, label: "Marg'ilon, O'zbekiston" },
+    "маргилан": { lat: 40.4715, lon: 71.7244, label: "Marg'ilon, O'zbekiston" }
+  };
+
+  var CYRILLIC_TO_LATIN = {
+    "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ё": "yo",
+    "ж": "j", "з": "z", "и": "i", "й": "y", "к": "k", "л": "l", "м": "m",
+    "н": "n", "о": "o", "п": "p", "р": "r", "с": "s", "т": "t", "у": "u",
+    "ф": "f", "х": "x", "ц": "ts", "ч": "ch", "ш": "sh", "щ": "sh", "ъ": "",
+    "ы": "i", "ь": "", "э": "e", "ю": "yu", "я": "ya",
+    "ў": "o'", "қ": "q", "ғ": "g'", "ҳ": "h"
+  };
+
+  function transliterate(str) {
+    return str.toLowerCase().replace(/[Ѐ-ӿ']/g, function (ch) {
+      return CYRILLIC_TO_LATIN[ch] != null ? CYRILLIC_TO_LATIN[ch] : ch;
+    });
+  }
+
   function geocodeCity(name) {
     setStatus(fillTemplate(t.weather.searching, { city: name }), "loading");
+
+    var known = CITY_DB[name.trim().toLowerCase()];
+    if (known) {
+      fetchWeatherForCoords(known.lat, known.lon, known.label);
+      return;
+    }
+
+    var query = /[Ѐ-ӿ]/.test(name) ? transliterate(name) : name;
     var url =
-      "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(name) +
+      "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(query) +
       "&count=1&language=" + (LANG === "ru" ? "ru" : "en") + "&format=json";
 
     fetch(url)
@@ -391,4 +530,12 @@ document.addEventListener("DOMContentLoaded", function () {
       { timeout: 10000 }
     );
   });
+
+  // Auto-search when arriving from the region map (xarita.html?city=...)
+  var params = new URLSearchParams(window.location.search);
+  var cityParam = params.get("city");
+  if (cityParam) {
+    cityInput.value = cityParam;
+    geocodeCity(cityParam);
+  }
 });
