@@ -21,10 +21,14 @@
   .stage .pest{font-size:29px;font-weight:800;color:#0b7a3b}
   .stage .date{font-size:17px;color:#5a7a6a}
   .stage .avgchip{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #d6e3da;border-radius:20px;padding:4px 14px;font-weight:700}
-  .stage .mapwrap{position:absolute;left:0;right:0;top:262px;bottom:220px}
-  .stage .pestsel{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-  .stage .pbtn{font:inherit;font-size:17px;font-weight:600;padding:7px 15px;border-radius:20px;border:1.5px solid #cfe0cf;background:#fff;color:#2e5d3a;cursor:pointer;transition:all .15s}
+  .stage .mapwrap{position:absolute;left:0;right:0;top:360px;bottom:220px}
+  .stage .selrow{display:flex;align-items:flex-start;gap:10px;margin-top:8px}
+  .stage .sellab{flex:0 0 auto;font-size:15px;font-weight:700;color:#5a7a6a;padding-top:6px;min-width:120px}
+  .stage .cropsel,.stage .pestsel{display:flex;flex-wrap:wrap;gap:7px}
+  .stage .pbtn{font:inherit;font-size:16px;font-weight:600;padding:6px 13px;border-radius:18px;border:1.5px solid #cfe0cf;background:#fff;color:#2e5d3a;cursor:pointer;transition:all .15s}
   .stage .pbtn.on{background:#1b5e20;color:#fff;border-color:#1b5e20}
+  .stage .cbtn{font:inherit;font-size:14px;font-weight:600;padding:5px 11px;border-radius:16px;border:1.5px solid #d8c9a8;background:#fffdf5;color:#7a5c1e;cursor:pointer;transition:all .15s}
+  .stage .cbtn.on{background:#a9701c;color:#fff;border-color:#a9701c}
   .stage .zkpanel{position:absolute;left:40px;right:40px;bottom:38px;display:flex;flex-direction:column;gap:5px}
   .stage .zkhint{font-size:17px;color:#37603f;font-weight:600}
   .stage .zkst{font-size:16px;color:#37474f}
@@ -94,7 +98,7 @@
   <div class="container">
     <div class="breadcrumb"><a href="index.html">Бош саҳифа</a> / Зараркунандалар харитаси</div>
     <h1>Зараркунандалар тарқалиш хавфи</h1>
-    <p>Ўзбекистон вилоятлари бўйича асосий зараркунандалар тарқалиш хавфи даражаси. Зараркунандани танланг, вилоятни босинг — ўша вилоят катталашиб, туманлари кесимида кўрсатилади.</p>
+    <p>14 та экин бўйича асосий зараркунандалар тарқалиш хавфи (2026 узоқ муддатли башорат). Экин ва зараркунандани танланг, вилоятни босинг — ўша вилоят катталашиб, туманлари кесимида кўрсатилади.</p>
   </div>
 </div>
 <div class="content-block">
@@ -106,15 +110,16 @@
       </div>
       <div class="titleband">
         <div class="title">ЗАРАРКУНАНДАЛАР ТАРҚАЛИШ ХАВФИ</div>
-        <div class="pestsel" id="pestsel"></div>
+        <div class="selrow"><span class="sellab">Экин:</span><div class="cropsel" id="cropsel"></div></div>
+        <div class="selrow"><span class="sellab">Зараркунанда:</span><div class="pestsel" id="pestsel"></div></div>
       </div>
       <div class="mapwrap"><div id="uzmap" class="uzmap"></div><div id="zktip" class="zktip"></div></div>
       <div class="legend" id="legend"></div>
       <div class="zkpanel" id="zkpanel"></div>
-      <div class="note">Манба: 2026 узоқ муддатли башорат (ғўза зараркунандалари).</div>
+      <div class="note">Манба: 2026 узоқ муддатли башорат.</div>
       <div class="watermark">AgroHimoya</div>
     </div></div>
-    <p class="zk-caption">Рақамлар — 2026 йил узоқ муддатли башорат бўйича ғўза зараркунандаларининг тарқалиш хавфи (экин майдонига нисбатан, %), вилоятлар кесимида. Туман даражасидаги қиймат ўша вилоят қийматига тенг деб олинган. Туман чегаралари: <a href="https://www.geoboundaries.org/" target="_blank" rel="noopener">geoBoundaries</a> (CC-BY 4.0). Туман устига курсорни олиб келинг — номи ва хавфи кўринади.</p>
+    <p class="zk-caption">Рақамлар — 2026 йил узоқ муддатли башорат бўйича 14 экин зараркунандаларининг тарқалиш хавфи (экин майдонига нисбатан, %), вилоятлар кесимида. Туман даражасидаги қиймат ўша вилоят қийматига тенг деб олинган; маълумоти йўқ вилоят кулранг кўрсатилади. Туман чегаралари: <a href="https://www.geoboundaries.org/" target="_blank" rel="noopener">geoBoundaries</a> (CC-BY 4.0). Туман устига курсорни олиб келинг — номи ва хавфи кўринади.</p>
   </div>
 </div>
     </main>
@@ -122,7 +127,8 @@
 </div>
 <script src="js/main.js?v=2"></script>
 <script src="js/uz-districts.js?v=2"></script>
-<script src="js/zararkunandalar.js?v=3"></script>
+<script src="js/uz-pest-forecast.js?v=1"></script>
+<script src="js/zararkunandalar.js?v=5"></script>
 <script src="js/counter.js?v=1"></script>
 </body>
 </html>
