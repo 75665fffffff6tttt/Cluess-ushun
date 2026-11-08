@@ -11,15 +11,15 @@
 
   // GDD модель параметрлари (илмий адабиёт, ўртача қийматлар)
   var PESTS = LANG === "ru" ? [
-    { id: "bollworm", nm: "Хлопковая совка", base: 10.5, upper: 35, gen: 500 },
-    { id: "mite", nm: "Паутинный клещ", base: 11, upper: 40, gen: 110 },
-    { id: "cutworm", nm: "Озимая совка", base: 10, upper: 35, gen: 520 },
-    { id: "aphid", nm: "Тли", base: 6.5, upper: 35, gen: 90 }
+    { id: "bollworm", nm: "Хлопковая совка", base: 10.5, upper: 35, gen: 500, winter: "куколка — в почве (5–10 см)", rec: "Глубокая зяблевая вспашка уничтожает зимующих куколок." },
+    { id: "mite", nm: "Паутинный клещ", base: 11, upper: 40, gen: 110, winter: "оплодотворённые самки — под растительными остатками и корой", rec: "Удаление и измельчение растительных остатков хлопчатника." },
+    { id: "cutworm", nm: "Озимая совка", base: 10, upper: 35, gen: 520, winter: "гусеницы и куколки — в почве", rec: "Глубокая вспашка и борьба с сорняками." },
+    { id: "aphid", nm: "Тли", base: 6.5, upper: 35, gen: 90, winter: "яйца — на сорняках и побегах", rec: "Борьба с сорняками снижает запас зимующих яиц." }
   ] : [
-    { id: "bollworm", nm: "Ғўза тунлами (кўсак қурти)", base: 10.5, upper: 35, gen: 500 },
-    { id: "mite", nm: "Ўргимчаккана", base: 11, upper: 40, gen: 110 },
-    { id: "cutworm", nm: "Кузги тунлам", base: 10, upper: 35, gen: 520 },
-    { id: "aphid", nm: "Ширалар", base: 6.5, upper: 35, gen: 90 }
+    { id: "bollworm", nm: "Ғўза тунлами (кўсак қурти)", base: 10.5, upper: 35, gen: 500, winter: "ғумбак — тупроқда (5–10 см чуқурликда)", rec: "Кузги чуқур шудгор қишлаётган ғумбакларни нобуд қилади." },
+    { id: "mite", nm: "Ўргимчаккана", base: 11, upper: 40, gen: 110, winter: "уруғланган урғочи — ўсимлик қолдиғи ва пўстлоқ остида", rec: "Ғўзапоя ва ўсимлик қолдиқларини йиғиштириш/майдалаш." },
+    { id: "cutworm", nm: "Кузги тунлам", base: 10, upper: 35, gen: 520, winter: "катта ёшли қурт ва ғумбак — тупроқда", rec: "Кузги чуқур шудгор ва бегона ўтларни йўқотиш." },
+    { id: "aphid", nm: "Ширалар", base: 6.5, upper: 35, gen: 90, winter: "тухум — бегона ўт ва новдаларда", rec: "Бегона ўтларни йўқотиш қишлаётган тухумни камайтиради." }
   ];
   var T = LANG === "ru" ? {
     title: "ФЕНОЛОГИЧЕСКИЙ ПРОГНОЗ", label: "Вредитель", region: "Область", districts: "районов",
@@ -28,7 +28,10 @@
     nodata: "нет данных", loading: "⏳ Расчёт по температуре…", err: "⚠️ Не удалось загрузить данные.",
     ended: "сезон завершён (диапауза)", approx: "≈ прогноз", src: "Модель ГДД · Open-Meteo",
     base: "порог", country: "В среднем по стране", today: "сегодня", months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
-    calTitle: "Фенокалендарь — поколения за сезон", note: "⚠️ Модельная оценка (градусо-дни), не официальный мониторинг."
+    calTitle: "Фенокалендарь — поколения за сезон", note: "⚠️ Модельная оценка (градусо-дни), не официальный мониторинг.",
+    nowLabel: "Текущее состояние", phaseActive: "АКТИВНОЕ РАЗВИТИЕ", phaseDiapause: "ДИАПАУЗА (зимовка)",
+    phasePre: "ЗИМОВКА — ожидается весеннее пробуждение", winterLabel: "Форма зимовки", recLabel: "Рекомендация",
+    windowLabel: "Окно обработки", windowTxt: "перед яйцекладкой следующего поколения"
   } : {
     title: "ФЕНОЛОГИК ПРОГНОЗ", label: "Зараркунанда", region: "Вилоят", districts: "туман",
     back: "← Бутун мамлакат", hint: "👆 Туманни босинг — вилоят катталашиб, календарь ўша вилоят авлодларини кўрсатади.",
@@ -36,7 +39,10 @@
     nodata: "маълумот йўқ", loading: "⏳ Ҳарорат бўйича ҳисоб…", err: "⚠️ Маълумот юкланмади.",
     ended: "мавсум якуни (диапауза)", approx: "≈ прогноз", src: "GDD модели · Open-Meteo",
     base: "ост-ҳарорат", country: "Республика ўртачаси", today: "бугун", months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
-    calTitle: "Фенокалендар — мавсум давомидаги авлодлар", note: "⚠️ Моделга асосланган тахмин (эффектив ҳарорат), расмий мониторинг эмас."
+    calTitle: "Фенокалендар — мавсум давомидаги авлодлар", note: "⚠️ Моделга асосланган тахмин (эффектив ҳарорат), расмий мониторинг эмас.",
+    nowLabel: "Бугунги ҳолат", phaseActive: "ФАОЛ РИВОЖЛАНИШ", phaseDiapause: "ДИАПАУЗА (қишлов)",
+    phasePre: "ҚИШЛОВ — баҳорда уйғониш кутилмоқда", winterLabel: "Қишлаш шакли", recLabel: "Тавсия",
+    windowLabel: "Ишлов бериш ойнаси", windowTxt: "навбатдаги авлод тухум қўйиши олдидан"
   };
 
   // авлод рақами → ранг (кўп авлод = кучли босим)
@@ -118,7 +124,7 @@
   function panPx(dx, dy) { var t = xform(); vb[0] -= dx / t.sc; vb[1] -= dy / t.sc; clampVB(); applyVB(); }
   function zoomBtn(factor) { var cx = vb[0] + vb[2] / 2, cy = vb[1] + vb[3] / 2, newW = vb[2] * factor; if (newW > base[2]) newW = base[2]; if (newW < MINW) newW = MINW; var newH = vb[3] * (newW / vb[2]); vb[0] = cx - newW / 2; vb[1] = cy - newH / 2; vb[2] = newW; vb[3] = newH; clampVB(); applyVB(); }
   function tweenTo(tgt, ms) { var cur = vb.slice(), t0 = performance.now(); function step(now) { var k = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - k, 3); vb = cur.map(function (c, i) { return c + (tgt[i] - c) * e; }); applyVB(); if (k < 1) requestAnimationFrame(step); else { clampVB(); applyVB(); } } requestAnimationFrame(step); }
-  function resetView() { curReg = null; tweenTo(base.slice(), 450); paint(); updatePanel(); drawCal(); }
+  function resetView() { curReg = null; tweenTo(base.slice(), 450); paint(); updatePanel(); drawCal(); renderStatus(); }
 
   function pestOf() { return PESTS[curPest]; }
   function phenoOf(rid) { return pheno[rid]; }
@@ -199,8 +205,33 @@
       '<div class="fc-note">' + T.note + ' · ' + T.src + (updatedAt ? ' · ' + updatedAt.toLocaleDateString(LANG === "ru" ? "ru-RU" : "ru-RU") : '') + '</div>';
   }
 
+  // ===== Бугунги ҳолат (фаза + қишлаш шакли + тавсия) =====
+  function renderStatus() {
+    var box = document.getElementById("fenostat"); if (!box) return;
+    if (loadState !== "ok") { box.style.display = "none"; return; }
+    var ph = curReg ? pheno[curReg] : countryPheno;
+    var who = curReg ? rname(regById[curReg]) : T.country, pest = pestOf();
+    if (!ph) { box.style.display = "none"; return; }
+    box.style.display = "";
+    var now = updatedAt || new Date(), mon = now.getMonth(), cls, phase, body;
+    if (!ph.ended) {
+      cls = "active"; phase = T.phaseActive;
+      var nextTxt = ph.next ? (fmtDate(ph.next) + (ph.approx ? " " + T.approx : "")) : "—";
+      body = T.gen + ': <b>' + ph.gen + '</b> (' + Math.round(ph.progress * 100) + '% ' + T.progress + ') · ' + T.next + ': <b>' + nextTxt + '</b>' +
+        '<div class="fn-rec"><b>' + T.windowLabel + ':</b> ' + T.windowTxt + '</div>';
+    } else {
+      var pre = (mon <= 3) && (ph.gdd < pest.gen * 0.5);
+      cls = "diapause"; phase = pre ? T.phasePre : T.phaseDiapause;
+      body = '<b>' + T.winterLabel + ':</b> ' + pest.winter +
+        '<div class="fn-rec"><b>' + T.recLabel + ':</b> ' + pest.rec + '</div>';
+    }
+    box.innerHTML = '<div class="fn-head">' + T.nowLabel + ' · ' + who + ' · ' + pest.nm + '</div>' +
+      '<div class="fn-phase ' + cls + '">' + phase + '</div>' +
+      '<div class="fn-body">' + body + '</div>';
+  }
+
   // ===== ҳодисалар =====
-  function drill(i) { var rid = items[i].r; if (curReg !== rid) { curReg = rid; tweenTo(fitRegion(regById[rid].bbox), 500); paint(); updatePanel(); drawCal(); } }
+  function drill(i) { var rid = items[i].r; if (curReg !== rid) { curReg = rid; tweenTo(fitRegion(regById[rid].bbox), 500); paint(); updatePanel(); drawCal(); renderStatus(); } }
   function showTip(e) {
     var t = e.target;
     if (t && t.tagName === "path" && t.hasAttribute("data-i")) {
@@ -257,7 +288,7 @@
     var b = e.target.closest(".pbtn"); if (!b) return;
     curPest = +b.getAttribute("data-p");
     [].forEach.call(pestBox.children, function (x) { x.classList.toggle("on", x === b); });
-    recompute(); paint(); updatePanel(); drawCal();
+    recompute(); paint(); updatePanel(); drawCal(); renderStatus();
   });
 
   // ===== GDD ҳисоби =====
@@ -327,7 +358,7 @@
     countrySeries = Object.keys(allDates).sort().map(function (dstr) { var a = allDates[dstr], s = 0; a.forEach(function (v) { s += v; }); return { t: new Date(dstr + "T00:00:00"), avg: s / a.length }; });
   }
   function loadData() {
-    loadState = "loading"; updatePanel(); drawCal();
+    loadState = "loading"; updatePanel(); drawCal(); renderStatus();
     var lat = regIds.map(function (rid) { return regPt[rid][0]; }).join(",");
     var lon = regIds.map(function (rid) { return regPt[rid][1]; }).join(",");
     var now = new Date(), y = now.getFullYear();
@@ -347,11 +378,11 @@
       });
       buildSeries(maps);
       updatedAt = new Date(); loadState = "ok";
-      recompute(); paint(); updatePanel(); drawCal();
-    }).catch(function () { loadState = "error"; updatePanel(); drawCal(); });
+      recompute(); paint(); updatePanel(); drawCal(); renderStatus();
+    }).catch(function () { loadState = "error"; updatePanel(); drawCal(); renderStatus(); });
   }
 
-  paint(); updatePanel(); drawCal(); loadData();
+  paint(); updatePanel(); drawCal(); renderStatus(); loadData();
 
   var wrap = stage.parentElement;
   function fit() { var w = wrap.clientWidth, s = w / 1080; stage.style.transform = "scale(" + s + ")"; wrap.style.height = (1080 * s) + "px"; }
