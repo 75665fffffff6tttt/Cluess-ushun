@@ -98,39 +98,45 @@
   var labels = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 18 });
 
   function phOf(lyr) { return (lyr && lyr._fi != null) ? dpheno[lyr._fi] : null; }
-  function styleFn(ph, sel) {
+  function styleFn(ph, sel, foreign) {
     var col = ph ? (ph.ended ? DIA_COL : genColor(ph.gen)) : "#cccccc";
-    return { color: "#ffffff", weight: sel ? 2.6 : 0.7, opacity: sel ? 1 : 0.8, fillColor: col, fillOpacity: ph ? (sel ? 0.9 : 0.75) : 0.15 };
+    return { color: "#ffffff", weight: sel ? 2.6 : 0.7, opacity: sel ? 1 : 0.8, dashArray: foreign ? "3,4" : null, fillColor: col, fillOpacity: ph ? (sel ? 0.9 : 0.75) : 0.15 };
   }
+  function isForeign(lyr) { return !!(lyr && lyr.feature && lyr.feature.properties && lyr.feature.properties.foreign); }
   function bindTip(lyr, p) {
     var ph = phOf(lyr);
     var line = loadState === "loading" ? T.loading : (ph ? (ph.ended ? "❄ " + T.ended : T.gen + " " + ph.gen + " · " + Math.round(ph.gdd) + "°Д") : T.nodata);
     lyr.bindTooltip("<b>" + dnm(p) + "</b><br>" + (rnm(p) ? rnm(p) + "<br>" : "") + line, { sticky: true, direction: "top", opacity: 0.95 });
   }
   var dLayer = L.geoJSON(null, {
-    style: function () { return styleFn(null, false); },
+    style: function (f) { return styleFn(null, false, f && f.properties && f.properties.foreign); },
     onEachFeature: function (f, lyr) {
       lyr._fi = f.__i;
       lyr.on("mouseover", function () { if (selFi !== lyr._fi) lyr.setStyle({ weight: 2, color: "#fff" }); lyr.bringToFront(); });
-      lyr.on("mouseout", function () { if (selFi !== lyr._fi) lyr.setStyle(styleFn(phOf(lyr), false)); });
+      lyr.on("mouseout", function () { if (selFi !== lyr._fi) lyr.setStyle(styleFn(phOf(lyr), false, isForeign(lyr))); });
       lyr.on("click", function () { selFi = lyr._fi; restyle(); showPanel(lyr._fi); });
       bindTip(lyr, f.properties);
     }
   }).addTo(map);
-  // Ўзбекистон давлат чегараси (ёрқин қизил контур)
-  var borderLayer = L.geoJSON(null, { interactive: false, style: { color: "#ff1744", weight: 3, opacity: 0.95, fill: false } });
+  // Ўзбекистон давлат чегараси (қора контур)
+  var borderLayer = L.geoJSON(null, { interactive: false, style: { color: "#000000", weight: 3, opacity: 0.95, fill: false } });
   function restyle() {
-    dLayer.eachLayer(function (lyr) { lyr.setStyle(styleFn(phOf(lyr), selFi === lyr._fi)); if (selFi === lyr._fi) lyr.bringToFront(); bindTip(lyr, lyr.feature.properties); });
+    dLayer.eachLayer(function (lyr) { lyr.setStyle(styleFn(phOf(lyr), selFi === lyr._fi, isForeign(lyr))); if (selFi === lyr._fi) lyr.bringToFront(); bindTip(lyr, lyr.feature.properties); });
     if (borderLayer) borderLayer.bringToFront();
   }
 
   var status = document.getElementById("map-status");
-  fetch("data/uz-districts.geojson?v=3").then(function (r) { return r.json(); }).then(function (gj) {
-    FEATS = gj.features || [];
+  Promise.all([
+    fetch("data/uz-districts.geojson?v=3").then(function (r) { return r.json(); }),
+    fetch("data/uz-neighbors.geojson?v=1").then(function (r) { return r.json(); }).catch(function () { return { features: [] }; })
+  ]).then(function (res) {
+    var gj = res[0] || { features: [] }, ng = res[1] || { features: [] };
+    var all = (gj.features || []).concat(ng.features || []);
+    FEATS = all;
     FEATS.forEach(function (f, i) { f.__i = i; CTR[i] = featCentroid(f.geometry); });
-    dLayer.addData(gj);
+    dLayer.addData({ type: "FeatureCollection", features: all });
     fetch("data/uz-border.geojson?v=1").then(function (r) { return r.json(); }).then(function (bg) { borderLayer.addData(bg); borderLayer.addTo(map); borderLayer.bringToFront(); }).catch(function () {});
-    try { map.fitBounds(dLayer.getBounds(), { padding: [12, 12] }); } catch (e) {}
+    try { map.fitBounds(L.geoJSON(gj).getBounds(), { padding: [12, 12] }); } catch (e) {}
     loadTemps();
   }).catch(function () { if (status) status.textContent = T.err; });
 
