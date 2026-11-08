@@ -26,7 +26,7 @@
     back: "← Вся страна", hint: "👆 Нажмите на район — область увеличится, и календарь покажет её поколения.",
     gen: "Поколение", gdd: "Накоплено ГДД", next: "Следующее поколение", progress: "до следующего",
     nodata: "нет данных", loading: "⏳ Расчёт по температуре…", err: "⚠️ Не удалось загрузить данные.",
-    ended: "сезон завершён (диапауза)", approx: "≈ прогноз", src: "Модель ГДД · Open-Meteo",
+    ended: "сезон завершён (диапауза)", approx: "≈ прогноз", src: "Модель ГДД (синус-метод) · Open-Meteo",
     base: "порог", country: "В среднем по стране", today: "сегодня", months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
     calTitle: "Фенокалендарь — поколения за сезон", note: "⚠️ Модельная оценка (градусо-дни), не официальный мониторинг.",
     nowLabel: "Текущее состояние", phaseActive: "АКТИВНОЕ РАЗВИТИЕ", phaseDiapause: "ДИАПАУЗА (зимовка)",
@@ -37,7 +37,7 @@
     back: "← Бутун мамлакат", hint: "👆 Туманни босинг — вилоят катталашиб, календарь ўша вилоят авлодларини кўрсатади.",
     gen: "Авлод", gdd: "Йиғилган GDD", next: "Кейинги авлод", progress: "кейингисигача",
     nodata: "маълумот йўқ", loading: "⏳ Ҳарорат бўйича ҳисоб…", err: "⚠️ Маълумот юкланмади.",
-    ended: "мавсум якуни (диапауза)", approx: "≈ прогноз", src: "GDD модели · Open-Meteo",
+    ended: "мавсум якуни (диапауза)", approx: "≈ прогноз", src: "GDD модели (синус усули) · Open-Meteo",
     base: "ост-ҳарорат", country: "Республика ўртачаси", today: "бугун", months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
     calTitle: "Фенокалендар — мавсум давомидаги авлодлар", note: "⚠️ Моделга асосланган тахмин (эффектив ҳарорат), расмий мониторинг эмас.",
     nowLabel: "Бугунги ҳолат", phaseActive: "ФАОЛ РИВОЖЛАНИШ", phaseDiapause: "ДИАПАУЗА (қишлов)",
@@ -291,14 +291,28 @@
     recompute(); paint(); updatePanel(); drawCal(); renderStatus();
   });
 
-  // ===== GDD ҳисоби =====
+  // ===== GDD ҳисоби (Baskerville–Emin СИНУС усули + юқори чегара) =====
+  // Кунлик ҳароратни синус эгри деб олиб, LT–UT оралиғидаги градус-кунни ҳисоблайди.
+  function ddAbove(tmin, tmax, TH) {
+    if (tmax <= TH) return 0;
+    var avg = (tmax + tmin) / 2, amp = (tmax - tmin) / 2;
+    if (tmin >= TH) return avg - TH;          // бутун эгри чегарадан юқори
+    if (amp < 1e-9) return 0;
+    var r = (TH - avg) / amp; if (r > 1) r = 1; if (r < -1) r = -1;
+    var theta = Math.asin(r);                  // [-π/2, π/2]
+    return ((avg - TH) * (Math.PI / 2 - theta) + amp * Math.cos(theta)) / Math.PI;
+  }
+  // горизонтал юқори чегара: UT устидаги иссиқликни чиқариб ташлаш
+  function sineDD(tmin, tmax, LT, UT) {
+    if (tmax < tmin) { var t = tmax; tmax = tmin; tmin = t; }
+    var dd = ddAbove(tmin, tmax, LT) - ddAbove(tmin, tmax, UT);
+    return dd > 0 ? dd : 0;
+  }
   function computePheno(ser, pest) {
     if (!ser || !ser.length) return null;
     var cum = 0, cumArr = [], now = (updatedAt || new Date());
-    var span = pest.upper - pest.base;
     for (var i = 0; i < ser.length; i++) {
-      var g = ser[i].avg - pest.base; if (g < 0) g = 0; if (g > span) g = span;
-      cum += g; cumArr.push(cum);
+      cum += sineDD(ser[i].mn, ser[i].mx, pest.base, pest.upper); cumArr.push(cum);
     }
     // бугунги индекс
     var todayIdx = 0;
@@ -315,12 +329,17 @@
     var next = null, approx = false, ended = false;
     for (var b = 0; b < boundaries.length; b++) { if (boundaries[b].date.getTime() > now.getTime()) { next = boundaries[b].date; break; } }
     if (!next) {
-      // сўнгги 14 кун ўртача GDD/кун
-      var s = 0, c = 0;
-      for (var q = Math.max(0, todayIdx - 13); q <= todayIdx; q++) { var gg = ser[q].avg - pest.base; if (gg < 0) gg = 0; if (gg > span) gg = span; s += gg; c++; }
-      var daily = c ? s / c : 0;
-      if (daily < 0.4) ended = true;
-      else { var remain = pest.gen - (gddToday % pest.gen); var days = Math.ceil(remain / daily); next = new Date(now.getTime() + days * 86400000); approx = true; }
+      // сўнгги 14 кун: ўртача ҳарорат ва ўртача GDD/кун
+      var mt = 0, s = 0, c = 0;
+      for (var q = Math.max(0, todayIdx - 13); q <= todayIdx; q++) { mt += (ser[q].mx + ser[q].mn) / 2; s += sineDD(ser[q].mn, ser[q].mx, pest.base, pest.upper); c++; }
+      var meanT = c ? mt / c : 0, daily = c ? s / c : 0;
+      // диапауза: ўртача ҳарорат ост-ҳароратдан паст ёки ривожланиш деярли тўхтаган
+      if (meanT < pest.base || daily < 0.5) ended = true;
+      else {
+        var remain = pest.gen - (gddToday % pest.gen), days = Math.ceil(remain / daily);
+        if (days > 45) ended = true;        // 45 кундан узоқ — мавсум тугамоқда
+        else { next = new Date(now.getTime() + days * 86400000); approx = true; }
+      }
     }
     // мавсум боши (GDD биринчи 1°Д дан ошган кун)
     var seasonStart = null;
@@ -343,19 +362,23 @@
     for (var i = 0; i < dl.time.length; i++) {
       var mx = dl.temperature_2m_max[i], mn = dl.temperature_2m_min[i];
       if (mx == null || mn == null) continue;
-      dst[dl.time[i]] = (mx + mn) / 2;
+      dst[dl.time[i]] = { mx: mx, mn: mn };
     }
   }
   function buildSeries(maps) {
-    // maps: regionId -> {date:avg}
+    // maps: regionId -> {date:{mx,mn}}
     regIds.forEach(function (rid) {
       var m = maps[rid] || {}, keys = Object.keys(m).sort();
-      series[rid] = keys.map(function (dstr) { return { t: new Date(dstr + "T00:00:00"), avg: m[dstr] }; });
+      series[rid] = keys.map(function (dstr) { return { t: new Date(dstr + "T00:00:00"), mx: m[dstr].mx, mn: m[dstr].mn }; });
     });
-    // республика ўртачаси: сана бўйича вилоятлар ўртачаси
+    // республика ўртачаси: сана бўйича вилоятлар tmax/tmin ўртачаси
     var allDates = {};
-    regIds.forEach(function (rid) { (series[rid] || []).forEach(function (p) { var dstr = iso(p.t); (allDates[dstr] = allDates[dstr] || []).push(p.avg); }); });
-    countrySeries = Object.keys(allDates).sort().map(function (dstr) { var a = allDates[dstr], s = 0; a.forEach(function (v) { s += v; }); return { t: new Date(dstr + "T00:00:00"), avg: s / a.length }; });
+    regIds.forEach(function (rid) { (series[rid] || []).forEach(function (p) { var dstr = iso(p.t); (allDates[dstr] = allDates[dstr] || []).push(p); }); });
+    countrySeries = Object.keys(allDates).sort().map(function (dstr) {
+      var a = allDates[dstr], smx = 0, smn = 0;
+      a.forEach(function (v) { smx += v.mx; smn += v.mn; });
+      return { t: new Date(dstr + "T00:00:00"), mx: smx / a.length, mn: smn / a.length };
+    });
   }
   function loadData() {
     loadState = "loading"; updatePanel(); drawCal(); renderStatus();
