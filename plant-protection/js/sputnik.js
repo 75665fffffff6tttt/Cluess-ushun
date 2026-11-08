@@ -104,13 +104,15 @@
   var labels = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 18 });
   // чегарадош давлат туманлари номлари (доимий ёрлиқлар, яқинлаштирилганда кўринади)
   var nbLabels = L.layerGroup(), LBL_ZOOM = 7;
-  function updateLabelVis() { if (map.getZoom() >= LBL_ZOOM) L.DomUtil.removeClass(el, "hidelbl"); else L.DomUtil.addClass(el, "hidelbl"); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (ch) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]; }); }
+  function updateLabelVis() { try { if (map.getZoom() >= LBL_ZOOM) L.DomUtil.removeClass(el, "hidelbl"); else L.DomUtil.addClass(el, "hidelbl"); } catch (e) {} }
   function buildForeignLabels() {
     FEATS.forEach(function (f, i) {
       var p = f.properties; if (!p || !p.foreign) return;
       var nm = dnm(p); if (!nm) return;
       var c = CTR[i]; if (!c) return;
-      nbLabels.addLayer(L.tooltip({ permanent: true, direction: "center", className: "nb-lbl", interactive: false, opacity: 1 }).setLatLng(c).setContent(nm));
+      var icon = L.divIcon({ className: "nb-lbl", html: '<span class="nb-lbl-t">' + esc(nm) + "</span>", iconSize: [0, 0], iconAnchor: [0, 0] });
+      nbLabels.addLayer(L.marker(c, { icon: icon, interactive: false, keyboard: false }));
     });
     nbLabels.addTo(map); updateLabelVis();
   }
@@ -157,11 +159,11 @@
     FEATS = all;
     FEATS.forEach(function (f, i) { f.__i = i; CTR[i] = featCentroid(f.geometry); });
     dLayer.addData({ type: "FeatureCollection", features: all });
-    buildForeignLabels();
     fetch("data/uz-neighbor-borders.geojson?v=1").then(function (r) { return r.json(); }).then(function (nb) { nbBorderLayer.addData(nb); nbBorderLayer.addTo(map); nbBorderLayer.bringToFront(); }).catch(function () {});
     fetch("data/uz-border.geojson?v=1").then(function (r) { return r.json(); }).then(function (bg) { borderLayer.addData(bg); borderLayer.addTo(map); borderLayer.bringToFront(); }).catch(function () {});
     try { map.fitBounds(dLayer.getBounds(), { padding: [10, 10] }); } catch (e) { try { map.fitBounds(L.geoJSON(gj).getBounds(), { padding: [12, 12] }); } catch (e2) {} }
-    loadTemps();
+    loadTemps();                               // фенопрогноз — критик йўл, ҳеч нарса тўсмаслиги керак
+    try { buildForeignLabels(); } catch (e) {} // ном ёрлиқлари — алоҳида, йиқилса ҳам прогнозга таъсир қилмайди
   }).catch(function () { if (status) status.textContent = T.err; });
 
   L.control.scale({ imperial: false, position: "bottomleft" }).addTo(map);
