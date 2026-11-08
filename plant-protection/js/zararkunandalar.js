@@ -147,7 +147,7 @@
   // ===== Zoom / Pan қатлами =====
   var base = fullVB.split(/\s+/).map(Number);   // [x,y,w,h] — тўлиқ кўриниш
   var vb = base.slice();
-  var MINW = base[2] * 0.11;                     // энг катта zoom (~9x)
+  var MINW = base[2] * 0.045;                    // энг катта zoom (~22x)
   function applyVB() { svg.setAttribute("viewBox", vb.join(" ")); }
   function xform() {
     var r = svg.getBoundingClientRect();
@@ -183,7 +183,14 @@
     vb[2] = newW; vb[3] = newH; clampVB(); applyVB();
   }
   function panPx(dx, dy) { var t = xform(); vb[0] -= dx / t.sc; vb[1] -= dy / t.sc; clampVB(); applyVB(); }
-  function zoomBtn(f) { var r = svg.getBoundingClientRect(); zoomAt(f, r.left + r.width / 2, r.top + r.height / 2); }
+  // марказдан zoom — камера матрицасига боғлиқ эмас (3D қийшайтиришда ҳам тўғри)
+  function zoomBtn(factor) {
+    var cx = vb[0] + vb[2] / 2, cy = vb[1] + vb[3] / 2, newW = vb[2] * factor;
+    if (newW > base[2]) newW = base[2]; if (newW < MINW) newW = MINW;
+    var newH = vb[3] * (newW / vb[2]);
+    vb[0] = cx - newW / 2; vb[1] = cy - newH / 2; vb[2] = newW; vb[3] = newH; clampVB(); applyVB();
+  }
+  var is3D = false;
   function tweenTo(tgt, ms) {
     var cur = vb.slice(), t0 = performance.now();
     function step(now) {
@@ -247,15 +254,15 @@
       tip.style.display = "none";
       var d = dist(ptrs[ids[0]], ptrs[ids[1]]);
       if (pinchD > 0 && d > 0) {
-        var mx = (ptrs[ids[0]].x + ptrs[ids[1]].x) / 2, my = (ptrs[ids[0]].y + ptrs[ids[1]].y) / 2;
-        zoomAt(pinchD / d, mx, my);
+        if (is3D) zoomBtn(pinchD / d);
+        else { var mx = (ptrs[ids[0]].x + ptrs[ids[1]].x) / 2, my = (ptrs[ids[0]].y + ptrs[ids[1]].y) / 2; zoomAt(pinchD / d, mx, my); }
       }
       pinchD = d; return;
     }
     if (panLast && (e.buttons || e.pointerType === "touch")) {
       var dx = e.clientX - panLast.x, dy = e.clientY - panLast.y;
       moved += Math.abs(dx) + Math.abs(dy);
-      if (moved > 4) { panPx(dx, dy); panLast = { x: e.clientX, y: e.clientY }; tip.style.display = "none"; return; }
+      if (moved > 4) { if (!is3D) panPx(dx, dy); panLast = { x: e.clientX, y: e.clientY }; tip.style.display = "none"; return; }
     }
     showTip(e);
   });
@@ -272,18 +279,29 @@
   svg.addEventListener("pointerup", endPtr);
   svg.addEventListener("pointercancel", endPtr);
   svg.addEventListener("pointerleave", function () { tip.style.display = "none"; });
-  svg.addEventListener("wheel", function (e) { e.preventDefault(); zoomAt(e.deltaY > 0 ? 1.18 : 0.85, e.clientX, e.clientY); }, { passive: false });
+  svg.addEventListener("wheel", function (e) { e.preventDefault(); if (is3D) zoomBtn(e.deltaY > 0 ? 1.18 : 0.85); else zoomAt(e.deltaY > 0 ? 1.18 : 0.85, e.clientX, e.clientY); }, { passive: false });
 
   // zoom тугмалари
   var zc = document.createElement("div"); zc.className = "zoomctl";
   zc.innerHTML = '<button type="button" data-z="in" aria-label="Катталаштириш">+</button>' +
     '<button type="button" data-z="out" aria-label="Кичрайтириш">−</button>' +
-    '<button type="button" data-z="reset" aria-label="Асл ҳолат">⟳</button>';
+    '<button type="button" data-z="reset" aria-label="Асл ҳолат">⟳</button>' +
+    '<button type="button" data-z="d3" class="d3btn" aria-pressed="false" aria-label="3D">3D</button>';
   map.appendChild(zc);
   zc.addEventListener("click", function (e) {
     var b = e.target.closest("button"); if (!b) return;
     var z = b.getAttribute("data-z");
-    if (z === "in") zoomBtn(0.72); else if (z === "out") zoomBtn(1.38); else resetView();
+    if (z === "in") zoomBtn(0.72);
+    else if (z === "out") zoomBtn(1.38);
+    else if (z === "reset") resetView();
+    else if (z === "d3") {
+      is3D = !is3D;
+      map.classList.toggle("d3", is3D);
+      b.textContent = is3D ? "2D" : "3D";
+      b.classList.toggle("on", is3D);
+      b.setAttribute("aria-pressed", is3D ? "true" : "false");
+      if (is3D) tip.style.display = "none";
+    }
   });
 
   if (cropBox) cropBox.addEventListener("click", function (e) {
