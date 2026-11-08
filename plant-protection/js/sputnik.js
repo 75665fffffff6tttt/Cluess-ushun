@@ -97,8 +97,8 @@
   }).addTo(map);
   var labels = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 18 });
   // ESA WorldCover ер қоплами — экин ерлари (cropland) алоҳида рангда кўринади
-  var cropland = L.tileLayer("https://services.terrascope.be/wmts/v2?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=WORLDCOVER_2021_MAP&STYLE=&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fpng", {
-    minZoom: 5, maxZoom: 14, opacity: 0.6, attribution: "Land cover &copy; ESA WorldCover 2021"
+  var cropland = L.tileLayer("https://services.terrascope.be/wmts/v2?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=WORLDCOVER_2021_MAP&STYLE=&TILEMATRIXSET=EPSG:3857&TILEMATRIX=EPSG:3857:{z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fpng", {
+    minZoom: 5, maxZoom: 13, maxNativeZoom: 13, opacity: 0.6, attribution: "Land cover &copy; ESA WorldCover 2021", crossOrigin: true
   });
 
   function phOf(lyr) { return (lyr && lyr._fi != null) ? dpheno[lyr._fi] : null; }
