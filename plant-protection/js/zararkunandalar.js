@@ -59,11 +59,12 @@
   }
   items.forEach(function (it) { it.ctr = centroid(it.d); });
 
-  // статик матнлар
-  stage.querySelector(".hdr-t1").textContent = T.org1;
-  stage.querySelector(".hdr-t2").textContent = T.org2;
-  stage.querySelector(".title").textContent = T.title;
-  var noteEl = stage.querySelector(".note"); if (noteEl) noteEl.textContent = T.note;
+  // статик матнлар (баъзи элементлар бўлмаслиги мумкин)
+  function setTxt(sel, v) { var el = stage.querySelector(sel); if (el) el.textContent = v; }
+  setTxt(".hdr-t1", T.org1);
+  setTxt(".hdr-t2", T.org2);
+  setTxt(".title", T.title);
+  setTxt(".note", T.note);
 
   // легенда
   document.getElementById("legend").innerHTML = BANDS.map(function (b) {
