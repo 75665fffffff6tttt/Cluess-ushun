@@ -102,6 +102,19 @@
     maxZoom: 18, attribution: "Tiles &copy; Esri — World Imagery, Maxar · Туман чегаралари &copy; OpenStreetMap (ODbL)"
   }).addTo(map);
   var labels = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 18 });
+  // чегарадош давлат туманлари номлари (доимий ёрлиқлар, яқинлаштирилганда кўринади)
+  var nbLabels = L.layerGroup(), LBL_ZOOM = 7;
+  function updateLabelVis() { if (map.getZoom() >= LBL_ZOOM) L.DomUtil.removeClass(el, "hidelbl"); else L.DomUtil.addClass(el, "hidelbl"); }
+  function buildForeignLabels() {
+    FEATS.forEach(function (f, i) {
+      var p = f.properties; if (!p || !p.foreign) return;
+      var nm = dnm(p); if (!nm) return;
+      var c = CTR[i]; if (!c) return;
+      nbLabels.addLayer(L.tooltip({ permanent: true, direction: "center", className: "nb-lbl", interactive: false, opacity: 1 }).setLatLng(c).setContent(nm));
+    });
+    nbLabels.addTo(map); updateLabelVis();
+  }
+  map.on("zoomend", updateLabelVis);
 
   function phOf(lyr) { return (lyr && lyr._fi != null) ? dpheno[lyr._fi] : null; }
   function styleFn(ph, sel, foreign) {
@@ -137,13 +150,14 @@
   var status = document.getElementById("map-status");
   Promise.all([
     fetch("data/uz-districts.geojson?v=3").then(function (r) { return r.json(); }),
-    fetch("data/uz-neighbors.geojson?v=1").then(function (r) { return r.json(); }).catch(function () { return { features: [] }; })
+    fetch("data/uz-neighbors.geojson?v=2").then(function (r) { return r.json(); }).catch(function () { return { features: [] }; })
   ]).then(function (res) {
     var gj = res[0] || { features: [] }, ng = res[1] || { features: [] };
     var all = (gj.features || []).concat(ng.features || []);
     FEATS = all;
     FEATS.forEach(function (f, i) { f.__i = i; CTR[i] = featCentroid(f.geometry); });
     dLayer.addData({ type: "FeatureCollection", features: all });
+    buildForeignLabels();
     fetch("data/uz-neighbor-borders.geojson?v=1").then(function (r) { return r.json(); }).then(function (nb) { nbBorderLayer.addData(nb); nbBorderLayer.addTo(map); nbBorderLayer.bringToFront(); }).catch(function () {});
     fetch("data/uz-border.geojson?v=1").then(function (r) { return r.json(); }).then(function (bg) { borderLayer.addData(bg); borderLayer.addTo(map); borderLayer.bringToFront(); }).catch(function () {});
     try { map.fitBounds(dLayer.getBounds(), { padding: [10, 10] }); } catch (e) { try { map.fitBounds(L.geoJSON(gj).getBounds(), { padding: [12, 12] }); } catch (e2) {} }
