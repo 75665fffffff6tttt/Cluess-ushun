@@ -35,7 +35,8 @@
     months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
     phaseA: "ФАОЛ РИВОЖЛАНИШ", phaseD: "ДИАПАУЗА (қишлов)", today: "бугун"
   };
-  var GENCOL = ["#d6dde2", "#fee5d9", "#fcbba1", "#fc9272", "#fb6a4a", "#de2d26", "#a50f15"];
+  // яшил (кам авлод) → сариқ → қизил (кўп авлод)
+  var GENCOL = ["#d6dde2", "#2ecc71", "#a3d93a", "#f1c40f", "#f39c12", "#e74c3c", "#c0392b"];
   var DIA_COL = "#90a4ae";
   function genColor(g) { if (g == null || g < 1) return GENCOL[0]; return GENCOL[Math.min(g, GENCOL.length - 1)]; }
   function ddAbove(tmin, tmax, TH) {
