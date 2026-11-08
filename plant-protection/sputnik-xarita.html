@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="uz-Cyrl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Спутник харита — АгроҲимоя</title>
+<meta name="description" content="Ўзбекистон спутник харитаси — туман чегаралари билан. Деҳқончилик ерлари (суғориладиган воҳалар) реал спутник тасвирида кўринади.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  #map{height:72vh;min-height:460px;width:100%;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.14);z-index:0}
+  .leaflet-container{background:#0a1622;font:inherit}
+  .map-status{font-size:13px;color:#607d8b;margin:10px 2px 0}
+  .leaflet-tooltip b{font-size:14px}
+</style>
+  <script src="js/auth.js?v=2"></script>
+</head>
+<body>
+<div class="test-banner">🧪 Тест режимида ишламоқда</div>
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-icon">🌿</span>
+      <div><div class="sidebar-brand-title">АГРО</div><div class="sidebar-brand-sub">ҲИМОЯ</div></div>
+    </div>
+        <nav class="sidebar-nav">
+      <a href="index.html" class="sidebar-link"><span class="sidebar-ico">📊</span> Бош саҳифа</a>
+      <a href="prognoz.html" class="sidebar-link"><span class="sidebar-ico">🌦️</span> Прогноз</a>
+      <a href="hisobot.html" class="sidebar-link"><span class="sidebar-ico">📄</span> Ҳисобот</a>
+      <a href="preparatlar.html" class="sidebar-link"><span class="sidebar-ico">🧪</span> Агрокўмакчи</a>
+      <a href="rezistentlik.html" class="sidebar-link"><span class="sidebar-ico">🔄</span> Резистентлик</a>
+      <a href="zararkunandalar-xarita.html" class="sidebar-link"><span class="sidebar-ico">🗺️</span> Зараркунандалар харитаси</a>
+      <a href="harorat-xarita.html" class="sidebar-link"><span class="sidebar-ico">🌡️</span> Ҳаво харорати</a>
+      <a href="fenologik.html" class="sidebar-link"><span class="sidebar-ico">📈</span> Фенопрогноз</a>
+      <a href="sputnik-xarita.html" class="sidebar-link active"><span class="sidebar-ico">🛰️</span> Спутник харита</a>
+      <a href="kasalliklar.html" class="sidebar-link"><span class="sidebar-ico">🍂</span> Касалликлар</a>
+      <a href="zararkunandalar.html" class="sidebar-link"><span class="sidebar-ico">🐛</span> Зараркунандалар</a>
+      <a href="begona-otlar.html" class="sidebar-link"><span class="sidebar-ico">🌿</span> Бегона ўтлар</a>
+      <a href="himoya-usullari.html" class="sidebar-link"><span class="sidebar-ico">🛡️</span> Ҳимоя усуллари</a>
+      <a href="fasl-kalendari.html" class="sidebar-link"><span class="sidebar-ico">📅</span> Фасл календари</a>
+      <a href="yangiliklar.html" class="sidebar-link"><span class="sidebar-ico">📰</span> Янгиликлар</a>
+      <a href="aloqa.html" class="sidebar-link"><span class="sidebar-ico">✉️</span> Алоқа</a>
+    </nav>
+    <div class="sidebar-footer"><strong>АгроҲимоя порт.</strong>Версия 1.0 · 2026</div>
+  </aside>
+  <div class="main-area">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-expanded="false" aria-label="Менюни очиш">☰</button>
+      <h1 class="topbar-title">Спутник харита</h1>
+      <div class="lang-switch">
+        <a href="sputnik-xarita.html" aria-current="true">ЎЗ</a>
+        <a href="sputnik-xarita.ru.html">РУ</a>
+      </div>
+    </header>
+    <main class="main-content">
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Бош саҳифа</a> / Спутник харита</div>
+    <h1>Ўзбекистон — спутник харита</h1>
+    <p>Реал спутник тасвири (Esri World Imagery) устида туман чегаралари. <b>Деҳқончилик ерлари</b> — суғориладиган воҳалар яшил, экилган майдонлар; Қизилқум чўли ва тоғлар эса деҳқончиликсиз кўринади. Туман устига курсорни олиб келинг — номи ва вилояти кўринади.</p>
+  </div>
+</div>
+<div class="content-block">
+  <div class="container">
+    <div id="map"></div>
+    <div class="map-status" id="map-status"></div>
+    <!-- Спутник: Esri World Imagery (Maxar, Earthstar Geographics) · Туман чегаралари: geoBoundaries (CC-BY 4.0) -->
+  </div>
+</div>
+    </main>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="js/main.js?v=2"></script>
+<script src="js/sputnik.js?v=1"></script>
+<script src="js/counter.js?v=1"></script>
+</body>
+</html>

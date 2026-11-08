@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Спутниковая карта — АгроЗащита</title>
+<meta name="description" content="Спутниковая карта Узбекистана с границами районов. Сельхозугодья (орошаемые оазисы) видны на реальном спутниковом снимке.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  #map{height:72vh;min-height:460px;width:100%;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.14);z-index:0}
+  .leaflet-container{background:#0a1622;font:inherit}
+  .map-status{font-size:13px;color:#607d8b;margin:10px 2px 0}
+  .leaflet-tooltip b{font-size:14px}
+</style>
+  <script src="js/auth.js?v=2"></script>
+</head>
+<body>
+<div class="test-banner">🧪 Работает в тестовом режиме</div>
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-icon">🌿</span>
+      <div><div class="sidebar-brand-title">АГРО</div><div class="sidebar-brand-sub">ЗАЩИТА</div></div>
+    </div>
+        <nav class="sidebar-nav">
+      <a href="index.ru.html" class="sidebar-link"><span class="sidebar-ico">📊</span> Главная</a>
+      <a href="prognoz.ru.html" class="sidebar-link"><span class="sidebar-ico">🌦️</span> Прогноз</a>
+      <a href="hisobot.ru.html" class="sidebar-link"><span class="sidebar-ico">📄</span> Отчёт</a>
+      <a href="preparatlar.ru.html" class="sidebar-link"><span class="sidebar-ico">🧪</span> Агрокумакчи</a>
+      <a href="rezistentlik.ru.html" class="sidebar-link"><span class="sidebar-ico">🔄</span> Резистентность</a>
+      <a href="zararkunandalar-xarita.ru.html" class="sidebar-link"><span class="sidebar-ico">🗺️</span> Карта вредителей</a>
+      <a href="harorat-xarita.ru.html" class="sidebar-link"><span class="sidebar-ico">🌡️</span> Температура воздуха</a>
+      <a href="fenologik.ru.html" class="sidebar-link"><span class="sidebar-ico">📈</span> Фенопрогноз</a>
+      <a href="sputnik-xarita.ru.html" class="sidebar-link active"><span class="sidebar-ico">🛰️</span> Спутниковая карта</a>
+      <a href="kasalliklar.ru.html" class="sidebar-link"><span class="sidebar-ico">🍂</span> Болезни</a>
+      <a href="zararkunandalar.ru.html" class="sidebar-link"><span class="sidebar-ico">🐛</span> Вредители</a>
+      <a href="begona-otlar.ru.html" class="sidebar-link"><span class="sidebar-ico">🌿</span> Сорняки</a>
+      <a href="himoya-usullari.ru.html" class="sidebar-link"><span class="sidebar-ico">🛡️</span> Методы защиты</a>
+      <a href="fasl-kalendari.ru.html" class="sidebar-link"><span class="sidebar-ico">📅</span> Календарь</a>
+      <a href="yangiliklar.ru.html" class="sidebar-link"><span class="sidebar-ico">📰</span> Новости</a>
+      <a href="aloqa.ru.html" class="sidebar-link"><span class="sidebar-ico">✉️</span> Контакты</a>
+    </nav>
+    <div class="sidebar-footer"><strong>АгроЗащита</strong>Версия 1.0 · 2026</div>
+  </aside>
+  <div class="main-area">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-expanded="false" aria-label="Открыть меню">☰</button>
+      <h1 class="topbar-title">Спутниковая карта</h1>
+      <div class="lang-switch">
+        <a href="sputnik-xarita.html">ЎЗ</a>
+        <a href="sputnik-xarita.ru.html" aria-current="true">РУ</a>
+      </div>
+    </header>
+    <main class="main-content">
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.ru.html">Главная</a> / Спутниковая карта</div>
+    <h1>Узбекистан — спутниковая карта</h1>
+    <p>Реальный спутниковый снимок (Esri World Imagery) с границами районов. <b>Сельхозугодья</b> — орошаемые оазисы и засеянные поля видны зелёными, а пустыня Кызылкум и горы — без земледелия. Наведите курсор на район — появится название и область.</p>
+  </div>
+</div>
+<div class="content-block">
+  <div class="container">
+    <div id="map"></div>
+    <div class="map-status" id="map-status"></div>
+    <!-- Спутник: Esri World Imagery (Maxar, Earthstar Geographics) · Границы районов: geoBoundaries (CC-BY 4.0) -->
+  </div>
+</div>
+    </main>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="js/main.js?v=2"></script>
+<script src="js/sputnik.js?v=1"></script>
+<script src="js/counter.js?v=1"></script>
+</body>
+</html>
