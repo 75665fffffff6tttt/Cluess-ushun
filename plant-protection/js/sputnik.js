@@ -24,7 +24,7 @@
     approx: "≈ прогноз", nodata: "нет данных", pickHint: "Нажмите на район — поколения и календарь.",
     winterL: "Форма зимовки", recL: "Рекомендация", calTitle: "Фенокалендарь — поколения за сезон",
     base: "порог", note: "Модель ГДД (синус) · Open-Meteo · оценка", countriesL: "Соседние страны",
-    dataL: "данные", noData0: "⚠️ Сервис погоды (Open-Meteo) не ответил. Обновите страницу через 1–2 мин (F5).",
+    dataL: "данные", cacheL: "(из кэша)", noData0: "⚠️ Сервис погоды (Open-Meteo) не ответил. Обновите страницу через 1–2 мин (F5).",
     months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
     phaseA: "АКТИВНОЕ РАЗВИТИЕ", phaseD: "ДИАПАУЗА (зимовка)", today: "сегодня"
   } : {
@@ -33,7 +33,7 @@
     approx: "≈ прогноз", nodata: "маълумот йўқ", pickHint: "Туманни босинг — авлод ва календар.",
     winterL: "Қишлаш шакли", recL: "Тавсия", calTitle: "Фенокалендар — мавсум давомидаги авлодлар",
     base: "ост-ҳарорат", note: "GDD модели (синус) · Open-Meteo · тахмин", countriesL: "Қўшни давлатлар",
-    dataL: "маълумот", noData0: "⚠️ Ҳаво хизмати (Open-Meteo) жавоб бермади. 1–2 дақиқадан сўнг саҳифани янгиланг (F5).",
+    dataL: "маълумот", cacheL: "(кэшдан)", noData0: "⚠️ Ҳаво хизмати (Open-Meteo) жавоб бермади. 1–2 дақиқадан сўнг саҳифани янгиланг (F5).",
     months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
     phaseA: "ФАОЛ РИВОЖЛАНИШ", phaseD: "ДИАПАУЗА (қишлов)", today: "бугун"
   };
@@ -203,10 +203,41 @@
     dpheno = {};
     FEATS.forEach(function (f, i) { dpheno[i] = computePheno(dseries[i], pest, now); });
   }
+  // ===== Ҳарорат кэши (localStorage) — кунига бир марта юклаш, қайта-қайta API'ни чақирмаслик =====
+  var TCACHE_KEY = "sputnik_temps_v1";
+  function tStamp() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
+  function readTCache(n) {
+    try {
+      var raw = localStorage.getItem(TCACHE_KEY); if (!raw) return null;
+      var o = JSON.parse(raw);
+      if (!o || o.day !== tStamp() || o.n !== n || !o.dates || !o.d) return null;
+      var ser = {}, i;
+      for (i in o.d) ser[i] = o.d[i].map(function (t) { return { t: new Date(o.dates[t[0]] + "T00:00:00"), mx: t[1], mn: t[2] }; });
+      return ser;
+    } catch (e) { return null; }
+  }
+  function writeTCache(n, ser) {
+    try {
+      var dateSet = {}, dates = [], d = {}, i;
+      for (i in ser) ser[i].forEach(function (p) { var k = iso(p.t); if (!(k in dateSet)) { dateSet[k] = dates.length; dates.push(k); } });
+      for (i in ser) d[i] = ser[i].map(function (p) { return [dateSet[iso(p.t)], Math.round(p.mx * 10) / 10, Math.round(p.mn * 10) / 10]; });
+      localStorage.setItem(TCACHE_KEY, JSON.stringify({ day: tStamp(), n: n, dates: dates, d: d }));
+    } catch (e) {}
+  }
+  function applySeries(ser, fromCache) {
+    dseries = ser; var withData = 0, tot = 0;
+    FEATS.forEach(function (f, i) { if (CTR[i]) { tot++; if (dseries[i] && dseries[i].length) withData++; } });
+    updatedAt = new Date();
+    recompute(); restyle();
+    if (withData === 0) { loadState = "error"; if (status) status.textContent = T.noData0; }
+    else { loadState = "ok"; if (status) status.textContent = T.pickHint + " · " + T.dataL + ": " + withData + "/" + tot + (fromCache ? " " + T.cacheL : ""); }
+  }
   function loadTemps() {
     loadState = "loading"; if (status) status.textContent = T.loading;
-    var now = new Date(), y = now.getFullYear(), archEnd = new Date(now.getTime() - 6 * 86400000);
     var idx = []; FEATS.forEach(function (f, i) { if (CTR[i]) idx.push(i); });
+    var cached = readTCache(FEATS.length);
+    if (cached) { applySeries(cached, true); return; } // кэшдан — API'сиз
+    var now = new Date(), y = now.getFullYear(), archEnd = new Date(now.getTime() - 6 * 86400000);
     var maps = {}; idx.forEach(function (i) { maps[i] = {}; });
     var CH = 40, chunks = [];
     for (var k = 0; k < idx.length; k += CH) chunks.push(idx.slice(k, k + CH));
@@ -231,16 +262,14 @@
       tasks.push(getJSON(fu, 1).then(function (d) { merge(ch, d); }).catch(function () {}));
     });
     Promise.all(tasks).then(function () {
-      dseries = {}; var withData = 0, tot = idx.length;
+      var ser = {}, withData = 0;
       idx.forEach(function (i) {
         var m = maps[i] || {}, keys = Object.keys(m).sort();
-        dseries[i] = keys.map(function (ds) { return { t: new Date(ds + "T00:00:00"), mx: m[ds].mx, mn: m[ds].mn }; });
-        if (dseries[i].length) withData++;
+        ser[i] = keys.map(function (ds) { return { t: new Date(ds + "T00:00:00"), mx: m[ds].mx, mn: m[ds].mn }; });
+        if (ser[i].length) withData++;
       });
-      updatedAt = new Date();
-      recompute(); restyle();
-      if (withData === 0) { loadState = "error"; if (status) status.textContent = T.noData0; }
-      else { loadState = "ok"; if (status) status.textContent = T.pickHint + " · " + T.dataL + ": " + withData + "/" + tot; }
+      if (withData > 0) writeTCache(FEATS.length, ser); // кэшга ёзиш — эртага/қайта юкланганда API'ни чақирмаслик
+      applySeries(ser, false);
     }).catch(function () { loadState = "error"; if (status) status.textContent = T.err; });
   }
 
