@@ -100,7 +100,7 @@
   function phOf(lyr) { return (lyr && lyr._fi != null) ? dpheno[lyr._fi] : null; }
   function styleFn(ph, sel) {
     var col = ph ? (ph.ended ? DIA_COL : genColor(ph.gen)) : "#cccccc";
-    return { color: "#ffffff", weight: sel ? 2.6 : 0.6, opacity: sel ? 1 : 0.7, fillColor: col, fillOpacity: ph ? (sel ? 0.72 : 0.55) : 0.12 };
+    return { color: "#ffffff", weight: sel ? 2.6 : 0.7, opacity: sel ? 1 : 0.8, fillColor: col, fillOpacity: ph ? (sel ? 0.9 : 0.75) : 0.15 };
   }
   function bindTip(lyr, p) {
     var ph = phOf(lyr);
