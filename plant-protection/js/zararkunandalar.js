@@ -144,17 +144,57 @@
     }
   }
 
-  function tweenVB(target, ms) {
-    var cur = svg.getAttribute("viewBox").split(/\s+/).map(Number);
-    var tgt = target.split(/\s+/).map(Number), t0 = performance.now();
+  // ===== Zoom / Pan қатлами =====
+  var base = fullVB.split(/\s+/).map(Number);   // [x,y,w,h] — тўлиқ кўриниш
+  var vb = base.slice();
+  var MINW = base[2] * 0.11;                     // энг катта zoom (~9x)
+  function applyVB() { svg.setAttribute("viewBox", vb.join(" ")); }
+  function xform() {
+    var r = svg.getBoundingClientRect();
+    var sc = Math.min(r.width / vb[2], r.height / vb[3]);
+    return { r: r, sc: sc, ox: (r.width - vb[2] * sc) / 2, oy: (r.height - vb[3] * sc) / 2 };
+  }
+  function toWorld(cx, cy) { var t = xform(); return [vb[0] + (cx - t.r.left - t.ox) / t.sc, vb[1] + (cy - t.r.top - t.oy) / t.sc]; }
+  function clampVB() {
+    if (vb[2] >= base[2] || vb[3] >= base[3]) { vb[0] = base[0]; vb[1] = base[1]; vb[2] = base[2]; vb[3] = base[3]; return; }
+    if (vb[0] < base[0]) vb[0] = base[0];
+    if (vb[1] < base[1]) vb[1] = base[1];
+    if (vb[0] + vb[2] > base[0] + base[2]) vb[0] = base[0] + base[2] - vb[2];
+    if (vb[1] + vb[3] > base[1] + base[3]) vb[1] = base[1] + base[3] - vb[3];
+  }
+  // вилоят bbox'ини base нисбатини сақлаган ҳолда мослаш
+  function fitRegion(bb) {
+    var pad = 1.12;
+    var s = Math.max(bb[2] / base[2], bb[3] / base[3]) * pad;
+    var w = base[2] * s, h = base[3] * s;
+    var cx = bb[0] + bb[2] / 2, cy = bb[1] + bb[3] / 2;
+    return [cx - w / 2, cy - h / 2, w, h];
+  }
+  function zoomAt(factor, cx, cy) {
+    var world = toWorld(cx, cy), t = xform();
+    var newW = vb[2] * factor;
+    if (newW > base[2]) newW = base[2];
+    if (newW < MINW) newW = MINW;
+    var ratio = newW / vb[2], newH = vb[3] * ratio;
+    var relX = cx - t.r.left, relY = cy - t.r.top;
+    var nsc = Math.min(t.r.width / newW, t.r.height / newH);
+    var ox = (t.r.width - newW * nsc) / 2, oy = (t.r.height - newH * nsc) / 2;
+    vb[0] = world[0] - (relX - ox) / nsc; vb[1] = world[1] - (relY - oy) / nsc;
+    vb[2] = newW; vb[3] = newH; clampVB(); applyVB();
+  }
+  function panPx(dx, dy) { var t = xform(); vb[0] -= dx / t.sc; vb[1] -= dy / t.sc; clampVB(); applyVB(); }
+  function zoomBtn(f) { var r = svg.getBoundingClientRect(); zoomAt(f, r.left + r.width / 2, r.top + r.height / 2); }
+  function tweenTo(tgt, ms) {
+    var cur = vb.slice(), t0 = performance.now();
     function step(now) {
       var k = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - k, 3);
-      var v = cur.map(function (c, idx) { return c + (tgt[idx] - c) * e; });
-      svg.setAttribute("viewBox", v.join(" "));
-      if (k < 1) requestAnimationFrame(step);
+      vb = cur.map(function (c, i) { return c + (tgt[i] - c) * e; });
+      applyVB();
+      if (k < 1) requestAnimationFrame(step); else clampVB(), applyVB();
     }
     requestAnimationFrame(step);
   }
+  function resetView() { curReg = null; tweenTo(base.slice(), 450); paint(); updatePanel(); }
 
   function updatePanel() {
     var pnl = document.getElementById("zkpanel");
@@ -166,7 +206,7 @@
         '<div class="zkst">' + (st.val != null
           ? '<span style="color:' + bd.col + '">● </span>' + T.avg + ': <b>' + st.val + '%</b> (' + bd.lab + ')'
           : '<b>' + T.nodata + '</b>') + '</div>';
-      document.getElementById("zkback").addEventListener("click", function () { curReg = null; tweenVB(fullVB, 500); paint(); updatePanel(); });
+      document.getElementById("zkback").addEventListener("click", resetView);
     } else {
       var ca = countryAvg();
       pnl.innerHTML = '<div class="zkhint">' + T.hint + '</div>' +
@@ -174,20 +214,12 @@
     }
   }
 
-  // ҳодисалар
-  svg.addEventListener("click", function (e) {
-    var t = e.target;
-    if (t && t.tagName === "path" && t.hasAttribute("data-i")) {
-      var i = +t.getAttribute("data-i"), rid = items[i].r;
-      if (curReg !== rid) {
-        curReg = rid;
-        var bb = regById[rid].bbox, pad = Math.max(bb[2], bb[3]) * 0.08;
-        tweenVB((bb[0] - pad) + " " + (bb[1] - pad) + " " + (bb[2] + pad * 2) + " " + (bb[3] + pad * 2), 500);
-        paint(); updatePanel();
-      }
-    }
-  });
-  svg.addEventListener("mousemove", function (e) {
+  // ===== ҳодисалар: drill + hover + pan + wheel + pinch =====
+  function drill(i) {
+    var rid = items[i].r;
+    if (curReg !== rid) { curReg = rid; tweenTo(fitRegion(regById[rid].bbox), 500); paint(); updatePanel(); }
+  }
+  function showTip(e) {
     var t = e.target;
     if (t && t.tagName === "path" && t.hasAttribute("data-i")) {
       var i = +t.getAttribute("data-i"), it = items[i], v = val(it.r);
@@ -196,9 +228,63 @@
       tip.style.display = "block";
       var r = map.getBoundingClientRect();
       tip.style.left = (e.clientX - r.left + 12) + "px"; tip.style.top = (e.clientY - r.top + 12) + "px";
-    }
+    } else { tip.style.display = "none"; }
+  }
+  var ptrs = {}, pinchD = 0, panLast = null, downT = null, moved = 0;
+  function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+  svg.style.touchAction = "none";
+  svg.addEventListener("pointerdown", function (e) {
+    try { svg.setPointerCapture(e.pointerId); } catch (x) {}
+    ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
+    var ids = Object.keys(ptrs);
+    if (ids.length === 1) { panLast = { x: e.clientX, y: e.clientY }; downT = e.target; moved = 0; }
+    else if (ids.length === 2) { pinchD = dist(ptrs[ids[0]], ptrs[ids[1]]); panLast = null; tip.style.display = "none"; }
   });
-  svg.addEventListener("mouseleave", function () { tip.style.display = "none"; });
+  svg.addEventListener("pointermove", function (e) {
+    if (ptrs[e.pointerId]) { ptrs[e.pointerId].x = e.clientX; ptrs[e.pointerId].y = e.clientY; }
+    var ids = Object.keys(ptrs);
+    if (ids.length >= 2) {
+      tip.style.display = "none";
+      var d = dist(ptrs[ids[0]], ptrs[ids[1]]);
+      if (pinchD > 0 && d > 0) {
+        var mx = (ptrs[ids[0]].x + ptrs[ids[1]].x) / 2, my = (ptrs[ids[0]].y + ptrs[ids[1]].y) / 2;
+        zoomAt(pinchD / d, mx, my);
+      }
+      pinchD = d; return;
+    }
+    if (panLast && (e.buttons || e.pointerType === "touch")) {
+      var dx = e.clientX - panLast.x, dy = e.clientY - panLast.y;
+      moved += Math.abs(dx) + Math.abs(dy);
+      if (moved > 4) { panPx(dx, dy); panLast = { x: e.clientX, y: e.clientY }; tip.style.display = "none"; return; }
+    }
+    showTip(e);
+  });
+  function endPtr(e) {
+    if (downT && moved <= 4) {
+      var t = e.target;
+      if (t && t.tagName === "path" && t.hasAttribute("data-i")) drill(+t.getAttribute("data-i"));
+    }
+    delete ptrs[e.pointerId];
+    var n = Object.keys(ptrs).length;
+    if (n < 2) pinchD = 0;
+    if (n === 0) { panLast = null; downT = null; }
+  }
+  svg.addEventListener("pointerup", endPtr);
+  svg.addEventListener("pointercancel", endPtr);
+  svg.addEventListener("pointerleave", function () { tip.style.display = "none"; });
+  svg.addEventListener("wheel", function (e) { e.preventDefault(); zoomAt(e.deltaY > 0 ? 1.18 : 0.85, e.clientX, e.clientY); }, { passive: false });
+
+  // zoom тугмалари
+  var zc = document.createElement("div"); zc.className = "zoomctl";
+  zc.innerHTML = '<button type="button" data-z="in" aria-label="Катталаштириш">+</button>' +
+    '<button type="button" data-z="out" aria-label="Кичрайтириш">−</button>' +
+    '<button type="button" data-z="reset" aria-label="Асл ҳолат">⟳</button>';
+  map.appendChild(zc);
+  zc.addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    var z = b.getAttribute("data-z");
+    if (z === "in") zoomBtn(0.72); else if (z === "out") zoomBtn(1.38); else resetView();
+  });
 
   if (cropBox) cropBox.addEventListener("click", function (e) {
     var b = e.target.closest(".cbtn"); if (!b) return;
