@@ -47,7 +47,7 @@
 
   // авлод рақами → ранг (кўп авлод = кучли босим)
   var GENCOL = ["#d6dde2", "#fee5d9", "#fcbba1", "#fc9272", "#fb6a4a", "#de2d26", "#a50f15"];
-  var DIA_COL = "#4caf50"; // диапауза (қишлов) — яшил, фаол эмас
+  var DIA_COL = "#90a4ae"; // диапауза (қишлов) — нейтрал кулранг-кўк, фаол эмас (хавфсиз эмас!)
   function genColor(g) { if (g == null || g < 1) return GENCOL[0]; return GENCOL[Math.min(g, GENCOL.length - 1)]; }
   function fillFor(rid) { var ph = pheno[rid]; if (!ph) return GENCOL[0]; return ph.ended ? DIA_COL : genColor(ph.gen); }
 
