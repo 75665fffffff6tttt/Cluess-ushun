@@ -1,7 +1,8 @@
 /* Зараркунандалар хавф харитаси — ИНТЕРАКТИВ (анимациясиз).
  * Вилоят туманини босганда — ўша вилоят катталашиб, туманлари кесимида кўрсатилади.
- * Маълумот: js/uz-districts.js (geoBoundaries ADM1/ADM2, CC-BY 4.0).
- * ⚠️ Хавф қийматлари НАМУНАВИЙ (демо). */
+ * Туман чегаралари: js/uz-districts.js (geoBoundaries ADM1/ADM2, CC-BY 4.0).
+ * Хавф қийматлари: 2026 узоқ муддатли башорат (ғўза зараркунандалари, % экин майдонига нисбатан),
+ * вилоят даражасида. */
 (function () {
   "use strict";
   var stage = document.getElementById("stage");
@@ -11,14 +12,14 @@
 
   var T = LANG === "ru" ? {
     org1: "Республика Узбекистан", org2: "Система защиты и карантина растений",
-    title: "РИСК РАСПРОСТРАНЕНИЯ ВРЕДИТЕЛЕЙ", avg: "Средний риск",
-    note: "⚠️ ДЕМО-данные по районам — не официальный мониторинг.",
+    title: "РИСК РАСПРОСТРАНЕНИЯ ВРЕДИТЕЛЕЙ", avg: "Риск",
+    note: "Источник: долгосрочный прогноз 2026 (вредители хлопчатника, % к площади посева), по областям.",
     hint: "👆 Нажмите на район — область увеличится и покажет свои районы.",
     back: "← Вся страна", districts: "районов", worst: "Макс. риск", region: "Область"
   } : {
     org1: "Ўзбекистон Республикаси", org2: "Ўсимликларни ҳимоя қилиш ва карантин тизими",
-    title: "ЗАРАРКУНАНДАЛАР ТАРҚАЛИШ ХАВФИ", avg: "Ўртача хавф",
-    note: "⚠️ НАМУНАВИЙ (туманлар) маълумот — расмий мониторинг эмас.",
+    title: "ЗАРАРКУНАНДАЛАР ТАРҚАЛИШ ХАВФИ", avg: "Хавф",
+    note: "Манба: 2026 узоқ муддатли башорат (ғўза зараркунандалари, % экин майдонига нисбатан), вилоятлар кесимида.",
     hint: "👆 Туманни босинг — ўша вилоят катталашиб, туманлари кўрсатилади.",
     back: "← Бутун мамлакат", districts: "туман", worst: "Энг юқори", region: "Вилоят"
   };
@@ -37,7 +38,8 @@
     { max: 101, col: "#8e1b1b", lab: "Жуда юқори", rng: "81–100" }
   ];
   function band(v) { for (var i = 0; i < BANDS.length; i++) if (v <= BANDS[i].max) return BANDS[i]; return BANDS[4]; }
-  function demoVal(i, p) { var x = Math.sin((i + 1) * 12.9898 + (p + 1) * 78.233) * 43758.5453; x = x - Math.floor(x); return 18 + Math.floor(x * 78); }
+  // Реал 2026 башорат — хавф вилоят даражасида (ғўза зараркунандалари, % майдон)
+  function demoVal(i, p) { var r = regById[items[i].r]; return (r && r.risk) ? r.risk[p] : 0; }
 
   var DATA = window.UZ_DISTRICTS, items = DATA.items, regions = DATA.regions;
   var regById = {}; regions.forEach(function (r) { regById[r.id] = r; });
@@ -90,12 +92,16 @@
   var curPest = 0, curReg = null;
 
   function regionStats(rid, p) {
-    var vs = [], worst = null;
-    items.forEach(function (it, i) { if (it.r === rid) { var v = demoVal(i, p); vs.push(v); if (!worst || v > worst.v) worst = { v: v, name: dname(it) }; } });
-    var avg = vs.length ? Math.round(vs.reduce(function (a, b) { return a + b; }, 0) / vs.length) : 0;
-    return { avg: avg, worst: worst, n: vs.length };
+    var reg = regById[rid], n = 0;
+    items.forEach(function (it) { if (it.r === rid) n++; });
+    var has = reg && reg.risk && reg.risk[p] != null;
+    return { val: has ? reg.risk[p] : null, n: n };
   }
-  function countryAvg(p) { var s = 0; for (var i = 0; i < items.length; i++) s += demoVal(i, p); return Math.round(s / items.length); }
+  function countryAvg(p) {
+    var s = 0, n = 0;
+    regions.forEach(function (r) { if (r.risk && r.risk[p] != null) { s += r.risk[p]; n++; } });
+    return n ? Math.round(s / n) : 0;
+  }
 
   function paint() {
     for (var i = 0; i < items.length; i++) {
@@ -136,15 +142,19 @@
   function updatePanel() {
     var pnl = document.getElementById("zkpanel");
     if (curReg) {
-      var reg = regById[curReg], st = regionStats(curReg, curPest), bd = band(st.avg);
+      var reg = regById[curReg], st = regionStats(curReg, curPest);
+      var bd = st.val != null ? band(st.val) : null;
+      var na = LANG === "ru" ? "нет данных" : "маълумот йўқ";
       pnl.innerHTML = '<button id="zkback" class="zkback">' + T.back + '</button>' +
         '<div class="zkreg"><b>' + rname(reg) + '</b> · ' + st.n + ' ' + T.districts + '</div>' +
-        '<div class="zkst"><span style="color:' + bd.col + '">● </span>' + T.avg + ': <b>' + st.avg + '</b> (' + bd.lab + ')' +
-        (st.worst ? ' · ' + T.worst + ': <b>' + st.worst.name + ' ' + st.worst.v + '</b>' : '') + '</div>';
+        '<div class="zkst">' + (st.val != null
+          ? '<span style="color:' + bd.col + '">● </span>' + T.avg + ': <b>' + st.val + '%</b> (' + bd.lab + ')'
+          : '<b>' + na + '</b>') + '</div>';
       document.getElementById("zkback").addEventListener("click", function () { curReg = null; tweenVB(fullVB, 500); paint(); updatePanel(); });
     } else {
+      var ca = countryAvg(curPest), rlab = LANG === "ru" ? "ср. по областям" : "вилоятлар ўртача";
       pnl.innerHTML = '<div class="zkhint">' + T.hint + '</div>' +
-        '<div class="zkst">' + T.avg + ' (' + T.districts + '): <b>' + countryAvg(curPest) + '</b> (' + band(countryAvg(curPest)).lab + ')</div>';
+        '<div class="zkst">' + rlab + ': <b>' + ca + '%</b> (' + band(ca).lab + ')</div>';
     }
   }
 
@@ -165,7 +175,7 @@
     var t = e.target;
     if (t && t.tagName === "path" && t.hasAttribute("data-i")) {
       var i = +t.getAttribute("data-i"), it = items[i], v = demoVal(i, curPest);
-      tip.innerHTML = "<b>" + dname(it) + "</b><br>" + rname(regById[it.r]) + "<br>" + (LANG === "ru" ? "риск" : "хавф") + ": " + v + " · " + band(v).lab;
+      tip.innerHTML = "<b>" + dname(it) + "</b><br>" + rname(regById[it.r]) + "<br>" + (LANG === "ru" ? "риск" : "хавф") + ": " + v + "% · " + band(v).lab;
       tip.style.display = "block";
       var r = map.getBoundingClientRect();
       tip.style.left = (e.clientX - r.left + 12) + "px"; tip.style.top = (e.clientY - r.top + 12) + "px";
