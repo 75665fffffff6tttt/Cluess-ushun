@@ -117,8 +117,11 @@
       bindTip(lyr, f.properties);
     }
   }).addTo(map);
+  // Ўзбекистон давлат чегараси (ёрқин қизил контур)
+  var borderLayer = L.geoJSON(null, { interactive: false, style: { color: "#ff1744", weight: 3, opacity: 0.95, fill: false } });
   function restyle() {
     dLayer.eachLayer(function (lyr) { lyr.setStyle(styleFn(phOf(lyr), selFi === lyr._fi)); if (selFi === lyr._fi) lyr.bringToFront(); bindTip(lyr, lyr.feature.properties); });
+    if (borderLayer) borderLayer.bringToFront();
   }
 
   var status = document.getElementById("map-status");
@@ -126,6 +129,7 @@
     FEATS = gj.features || [];
     FEATS.forEach(function (f, i) { f.__i = i; CTR[i] = featCentroid(f.geometry); });
     dLayer.addData(gj);
+    fetch("data/uz-border.geojson?v=1").then(function (r) { return r.json(); }).then(function (bg) { borderLayer.addData(bg); borderLayer.addTo(map); borderLayer.bringToFront(); }).catch(function () {});
     try { map.fitBounds(dLayer.getBounds(), { padding: [12, 12] }); } catch (e) {}
     loadTemps();
   }).catch(function () { if (status) status.textContent = T.err; });
