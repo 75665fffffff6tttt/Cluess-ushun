@@ -21,7 +21,15 @@
   .stage .pest{font-size:29px;font-weight:800;color:#0b7a3b}
   .stage .date{font-size:17px;color:#5a7a6a}
   .stage .avgchip{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #d6e3da;border-radius:20px;padding:4px 14px;font-weight:700}
-  .stage .mapwrap{position:absolute;left:0;right:0;top:245px;bottom:270px}
+  .stage .mapwrap{position:absolute;left:0;right:0;top:262px;bottom:220px}
+  .stage .pestsel{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .stage .pbtn{font:inherit;font-size:17px;font-weight:600;padding:7px 15px;border-radius:20px;border:1.5px solid #cfe0cf;background:#fff;color:#2e5d3a;cursor:pointer;transition:all .15s}
+  .stage .pbtn.on{background:#1b5e20;color:#fff;border-color:#1b5e20}
+  .stage .zkpanel{position:absolute;left:40px;right:40px;bottom:38px;display:flex;flex-direction:column;gap:5px}
+  .stage .zkhint{font-size:17px;color:#37603f;font-weight:600}
+  .stage .zkst{font-size:16px;color:#37474f}
+  .stage .zkreg{font-size:19px;color:#0f2b1f}
+  .stage .zkback{align-self:flex-start;font:inherit;font-size:16px;font-weight:700;padding:6px 14px;border-radius:18px;border:none;background:#2e7d32;color:#fff;cursor:pointer;margin-bottom:3px}
   .stage .uzsil{position:absolute;inset:0;width:100%;height:100%}
   .stage .chip{position:absolute;transform:translate(-50%,-50%);min-width:80px;text-align:center;border-radius:12px;padding:5px 8px 6px;color:#fff;box-shadow:0 3px 9px rgba(0,0,0,.18);transition:background-color .9s ease,color .9s ease;border:2px solid rgba(255,255,255,.7)}
   .stage .chip .nm{font-size:12px;font-weight:600;line-height:1.1;opacity:.95}
@@ -86,7 +94,7 @@
   <div class="container">
     <div class="breadcrumb"><a href="index.html">Бош саҳифа</a> / Зараркунандалар харитаси</div>
     <h1>Зараркунандалар тарқалиш хавфи</h1>
-    <p>Ўзбекистон вилоятлари бўйича асосий зараркунандалар тарқалиш хавфи даражаси. Харита асосий зараркунандалар бўйлаб айланиб туради.</p>
+    <p>Ўзбекистон вилоятлари бўйича асосий зараркунандалар тарқалиш хавфи даражаси. Зараркунандани танланг, вилоятни босинг — ўша вилоят катталашиб, туманлари кесимида кўрсатилади.</p>
   </div>
 </div>
 <div class="content-block">
@@ -98,18 +106,11 @@
       </div>
       <div class="titleband">
         <div class="title">ЗАРАРКУНАНДАЛАР ТАРҚАЛИШ ХАВФИ</div>
-        <div class="subrow">
-          <span class="pest" id="pestName">—</span>
-          <span class="date" id="dateLbl"></span>
-          <span class="avgchip">Ўртача хавф: <b id="avgVal">—</b></span>
-        </div>
+        <div class="pestsel" id="pestsel"></div>
       </div>
       <div class="mapwrap"><div id="uzmap" class="uzmap"></div><div id="zktip" class="zktip"></div></div>
       <div class="legend" id="legend"></div>
-      <div class="foot">
-        <div class="cyc" id="cyc"></div>
-        <div class="foot-lbls"><span>Асосий зараркунандалар бўйича айланма прогноз</span><span id="idxLbl"></span></div>
-      </div>
+      <div class="zkpanel" id="zkpanel"></div>
       <div class="note">⚠️ НАМУНАВИЙ маълумот — расмий мониторинг эмас.</div>
       <div class="watermark">AgroHimoya · демо</div>
     </div></div>
@@ -120,8 +121,8 @@
   </div>
 </div>
 <script src="js/main.js?v=2"></script>
-<script src="js/uz-districts.js?v=1"></script>
-<script src="js/zararkunandalar.js?v=2"></script>
+<script src="js/uz-districts.js?v=2"></script>
+<script src="js/zararkunandalar.js?v=3"></script>
 <script src="js/counter.js?v=1"></script>
 </body>
 </html>
