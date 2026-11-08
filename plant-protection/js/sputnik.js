@@ -100,7 +100,7 @@
   function phOf(lyr) { return (lyr && lyr._fi != null) ? dpheno[lyr._fi] : null; }
   function styleFn(ph, sel, foreign) {
     var col = ph ? (ph.ended ? DIA_COL : genColor(ph.gen)) : "#cccccc";
-    return { color: "#ffffff", weight: sel ? 2.6 : 0.7, opacity: sel ? 1 : 0.8, dashArray: foreign ? "3,4" : null, fillColor: col, fillOpacity: ph ? (sel ? 0.9 : 0.75) : 0.15 };
+    return { color: foreign ? "#ffeb3b" : "#ffffff", weight: sel ? 2.6 : (foreign ? 1.3 : 0.7), opacity: sel ? 1 : (foreign ? 0.95 : 0.8), dashArray: foreign ? "4,3" : null, fillColor: col, fillOpacity: ph ? (sel ? 0.9 : 0.75) : (foreign ? 0.22 : 0.15) };
   }
   function isForeign(lyr) { return !!(lyr && lyr.feature && lyr.feature.properties && lyr.feature.properties.foreign); }
   function bindTip(lyr, p) {
@@ -136,7 +136,7 @@
     FEATS.forEach(function (f, i) { f.__i = i; CTR[i] = featCentroid(f.geometry); });
     dLayer.addData({ type: "FeatureCollection", features: all });
     fetch("data/uz-border.geojson?v=1").then(function (r) { return r.json(); }).then(function (bg) { borderLayer.addData(bg); borderLayer.addTo(map); borderLayer.bringToFront(); }).catch(function () {});
-    try { map.fitBounds(L.geoJSON(gj).getBounds(), { padding: [12, 12] }); } catch (e) {}
+    try { map.fitBounds(dLayer.getBounds(), { padding: [10, 10] }); } catch (e) { try { map.fitBounds(L.geoJSON(gj).getBounds(), { padding: [12, 12] }); } catch (e2) {} }
     loadTemps();
   }).catch(function () { if (status) status.textContent = T.err; });
 
