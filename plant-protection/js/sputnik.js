@@ -184,8 +184,9 @@
       var lat = ch.map(function (i) { return CTR[i][0]; }).join(","), lon = ch.map(function (i) { return CTR[i][1]; }).join(",");
       var au = "https://archive-api.open-meteo.com/v1/archive?latitude=" + lat + "&longitude=" + lon + "&start_date=" + y + "-01-01&end_date=" + iso(archEnd) + "&daily=temperature_2m_max,temperature_2m_min&timezone=auto";
       var fu = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&daily=temperature_2m_max,temperature_2m_min&past_days=10&forecast_days=16&timezone=auto";
-      tasks.push(fetch(au).then(function (r) { return r.json(); }).then(function (d) { (Array.isArray(d) ? d : [d]).forEach(function (o, j) { var i = ch[j]; if (i != null) mergeInto(maps[i], o); }); }));
-      tasks.push(fetch(fu).then(function (r) { return r.json(); }).then(function (d) { (Array.isArray(d) ? d : [d]).forEach(function (o, j) { var i = ch[j]; if (i != null) mergeInto(maps[i], o); }); }));
+      // ҳар сўров алоҳида — биттаси муваффақиятсиз бўлса бошқалари ишлайверади
+      tasks.push(fetch(au).then(function (r) { return r.json(); }).then(function (d) { (Array.isArray(d) ? d : [d]).forEach(function (o, j) { var i = ch[j]; if (i != null) mergeInto(maps[i], o); }); }).catch(function () {}));
+      tasks.push(fetch(fu).then(function (r) { return r.json(); }).then(function (d) { (Array.isArray(d) ? d : [d]).forEach(function (o, j) { var i = ch[j]; if (i != null) mergeInto(maps[i], o); }); }).catch(function () {}));
     });
     Promise.all(tasks).then(function () {
       dseries = {};
