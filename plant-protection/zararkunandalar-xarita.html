@@ -43,6 +43,10 @@
   .stage .uzmap svg{display:block}
   .stage .uzmap svg path{transition:fill .8s ease;cursor:pointer}
   .stage .uzmap svg path:hover{stroke:#0f2b1f;stroke-width:1.4}
+  .stage .zoomctl{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:7px;z-index:7}
+  .stage .zoomctl button{width:42px;height:42px;border:1.5px solid #cfe0cf;background:rgba(255,255,255,.95);border-radius:10px;font-size:24px;font-weight:700;color:#2e5d3a;cursor:pointer;box-shadow:0 2px 7px rgba(0,0,0,.14);line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+  .stage .zoomctl button:hover{background:#eef5ee;border-color:#1b5e20}
+  .stage .zoomctl button:active{transform:scale(.94)}
   .stage .zktip{position:absolute;display:none;background:rgba(15,43,31,.93);color:#fff;font-size:13px;line-height:1.3;padding:6px 10px;border-radius:8px;pointer-events:none;z-index:6;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.3)}
   .stage .legend{position:absolute;left:0;right:0;bottom:150px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;padding:0 30px}
   .stage .lg{display:flex;align-items:center;gap:8px;background:#fff;border-radius:10px;padding:7px 13px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
@@ -125,7 +129,7 @@
 <script src="js/main.js?v=2"></script>
 <script src="js/uz-districts.js?v=2"></script>
 <script src="js/uz-pest-forecast.js?v=1"></script>
-<script src="js/zararkunandalar.js?v=6"></script>
+<script src="js/zararkunandalar.js?v=7"></script>
 <script src="js/counter.js?v=1"></script>
 </body>
 </html>
