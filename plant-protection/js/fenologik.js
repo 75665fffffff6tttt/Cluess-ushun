@@ -47,7 +47,9 @@
 
   // авлод рақами → ранг (кўп авлод = кучли босим)
   var GENCOL = ["#d6dde2", "#fee5d9", "#fcbba1", "#fc9272", "#fb6a4a", "#de2d26", "#a50f15"];
+  var DIA_COL = "#4caf50"; // диапауза (қишлов) — яшил, фаол эмас
   function genColor(g) { if (g == null || g < 1) return GENCOL[0]; return GENCOL[Math.min(g, GENCOL.length - 1)]; }
+  function fillFor(rid) { var ph = pheno[rid]; if (!ph) return GENCOL[0]; return ph.ended ? DIA_COL : genColor(ph.gen); }
 
   var DATA = window.UZ_DISTRICTS, items = DATA.items, regions = DATA.regions, GEO = window.UZ_GEO;
   var regById = {}; regions.forEach(function (r) { regById[r.id] = r; });
@@ -133,13 +135,14 @@
   function paint() {
     for (var i = 0; i < items.length; i++) {
       var inReg = !curReg || items[i].r === curReg;
-      paths[i].setAttribute("fill", genColor(curGen(items[i].r)));
+      paths[i].setAttribute("fill", fillFor(items[i].r));
       paths[i].setAttribute("opacity", inReg ? "1" : "0.12");
       paths[i].setAttribute("stroke-width", curReg && items[i].r === curReg ? "0.9" : "0.5");
     }
     gl.innerHTML = "";
     if (curReg) {
-      var reg = regById[curReg], fs = Math.max(reg.bbox[2], reg.bbox[3]) / 42, g = curGen(curReg);
+      var reg = regById[curReg], fs = Math.max(reg.bbox[2], reg.bbox[3]) / 42;
+      var ph = pheno[curReg], g = ph ? ph.gen : null, dia = ph && ph.ended;
       items.forEach(function (it, i) {
         if (it.r !== curReg) return;
         var t = document.createElementNS(ns, "text");
@@ -147,7 +150,7 @@
         t.setAttribute("text-anchor", "middle"); t.setAttribute("fill", "#12240f"); t.setAttribute("stroke", "#fff");
         t.setAttribute("stroke-width", fs * 0.14); t.setAttribute("paint-order", "stroke");
         t.setAttribute("style", "font-weight:700;pointer-events:none");
-        t.textContent = dname(it) + (g ? " " + g + (LANG === "ru" ? "п" : "а") : "");
+        t.textContent = dname(it) + (dia ? " ❄" : (g ? " " + g + (LANG === "ru" ? "п" : "а") : ""));
         gl.appendChild(t);
       });
     }
@@ -165,7 +168,7 @@
     if (!ph) { pnl.innerHTML = backBtn + '<div class="zkreg">' + head + '</div><div class="zkst"><b>' + T.nodata + '</b></div>'; if (curReg) document.getElementById("zkback").addEventListener("click", resetView); return; }
     var nextTxt = ph.ended ? T.ended : (ph.next ? fmtDate(ph.next) + (ph.approx ? " " + T.approx : "") : "—");
     pnl.innerHTML = backBtn +
-      '<div class="zkreg">' + head + ' · <span style="color:' + genColor(ph.gen) + '">●</span> ' + T.gen + ': <b>' + ph.gen + '</b> (' + Math.round(ph.progress * 100) + '% ' + T.progress + ')</div>' +
+      '<div class="zkreg">' + head + ' · <span style="color:' + (ph.ended ? DIA_COL : genColor(ph.gen)) + '">●</span> ' + T.gen + ': <b>' + ph.gen + '</b> (' + Math.round(ph.progress * 100) + '% ' + T.progress + ')</div>' +
       '<div class="zkst">' + T.gdd + ': <b>' + Math.round(ph.gdd) + '</b> °Д · ' + T.next + ': <b>' + nextTxt + '</b></div>';
     if (curReg) document.getElementById("zkback").addEventListener("click", resetView);
   }
@@ -236,7 +239,7 @@
     var t = e.target;
     if (t && t.tagName === "path" && t.hasAttribute("data-i")) {
       var i = +t.getAttribute("data-i"), it = items[i], ph = pheno[it.r];
-      var line = ph ? (T.gen + " " + ph.gen + " · " + Math.round(ph.gdd) + "°Д") : T.nodata;
+      var line = ph ? (ph.ended ? "❄ " + T.phaseDiapause : (T.gen + " " + ph.gen + " · " + Math.round(ph.gdd) + "°Д")) : T.nodata;
       tip.innerHTML = "<b>" + dname(it) + "</b><br>" + rname(regById[it.r]) + "<br>" + line;
       tip.style.display = "block";
       var r = map.getBoundingClientRect();
