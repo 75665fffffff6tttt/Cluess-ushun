@@ -92,7 +92,7 @@
   function phOf(lyr) { return (lyr && lyr._di != null) ? dpheno[lyr._di] : null; }
   function styleFn(ph, sel) {
     var col = ph ? (ph.ended ? DIA_COL : genColor(ph.gen)) : "#cccccc";
-    return { color: sel ? "#fff" : "#1a1a1a", weight: sel ? 2.6 : 0.7, opacity: 0.9, fillColor: col, fillOpacity: ph ? 0.58 : 0.12 };
+    return { color: sel ? "#fff" : "#ffffff", weight: sel ? 2.6 : 0.6, opacity: sel ? 1 : 0.6, fillColor: col, fillOpacity: ph ? (sel ? 0.5 : 0.32) : 0.08 };
   }
   var featByIdx = {};
   var dLayer = L.geoJSON(null, {
