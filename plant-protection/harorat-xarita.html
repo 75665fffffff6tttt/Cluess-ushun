@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="uz-Cyrl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ҳаво харорати харитаси — АгроҲимоя</title>
+<meta name="description" content="Ўзбекистон туманлари кесимида жонли ҳаво харорати харитаси — ҳозирги, кундузги макс. ва кечаси мин. ҳарорат (Open-Meteo).">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .zk-wrap{width:100%;max-width:680px;margin:0 auto;position:relative;overflow:hidden;border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.14)}
+  .stage{width:1080px;height:1080px;transform-origin:top left;background:linear-gradient(180deg,#eef6ff 0%,#eef4f0 100%);
+    position:relative;overflow:hidden;font-family:"Segoe UI",system-ui,Arial,sans-serif;color:#0f2b1f}
+  .stage .titleband{padding:30px 40px 0}
+  .stage .title{font-size:38px;font-weight:800;line-height:1.05;margin:6px 0 2px;color:#0f2b1f}
+  .stage .mapwrap{position:absolute;left:0;right:0;top:160px;bottom:210px}
+  .stage .selrow{display:flex;align-items:flex-start;gap:10px;margin-top:8px}
+  .stage .sellab{flex:0 0 auto;font-size:15px;font-weight:700;color:#5a7a6a;padding-top:6px;min-width:120px}
+  .stage .modesel{display:flex;flex-wrap:wrap;gap:7px}
+  .stage .pbtn{font:inherit;font-size:16px;font-weight:600;padding:6px 13px;border-radius:18px;border:1.5px solid #cfe0cf;background:#fff;color:#2e5d3a;cursor:pointer;transition:all .15s}
+  .stage .pbtn.on{background:#1b5e20;color:#fff;border-color:#1b5e20}
+  .stage .zkpanel{position:absolute;left:40px;right:40px;bottom:36px;display:flex;flex-direction:column;gap:5px}
+  .stage .zkhint{font-size:17px;color:#37603f;font-weight:600}
+  .stage .zkst{font-size:17px;color:#37474f}
+  .stage .zkreg{font-size:19px;color:#0f2b1f}
+  .stage .zkback{align-self:flex-start;font:inherit;font-size:16px;font-weight:700;padding:6px 14px;border-radius:18px;border:none;background:#2e7d32;color:#fff;cursor:pointer;margin-bottom:3px}
+  .stage .uzmap{position:absolute;inset:0}
+  .stage .uzmap svg{display:block}
+  .stage .uzmap svg path{transition:fill .8s ease;cursor:pointer}
+  .stage .uzmap svg path:hover{stroke:#0f2b1f;stroke-width:1.4}
+  .stage .zoomctl{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:7px;z-index:7}
+  .stage .zoomctl button{width:42px;height:42px;border:1.5px solid #cfe0cf;background:rgba(255,255,255,.95);border-radius:10px;font-size:24px;font-weight:700;color:#2e5d3a;cursor:pointer;box-shadow:0 2px 7px rgba(0,0,0,.14);line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+  .stage .zoomctl button:hover{background:#eef5ee;border-color:#1b5e20}
+  .stage .zoomctl button:active{transform:scale(.94)}
+  .stage .zktip{position:absolute;display:none;background:rgba(15,43,31,.93);color:#fff;font-size:13px;line-height:1.3;padding:6px 10px;border-radius:8px;pointer-events:none;z-index:6;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+  .stage .legend{position:absolute;left:0;right:0;bottom:140px;display:flex;justify-content:center;padding:0 40px}
+  .stage .tempbar{width:min(640px,92%)}
+  .stage .tbar{height:18px;border-radius:9px;border:1px solid rgba(0,0,0,.08);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .stage .tticks{display:flex;justify-content:space-between;margin-top:5px;font-size:13px;font-weight:600;color:#5a7a6a}
+  .stage .note{position:absolute;left:40px;bottom:8px;font-size:12px;color:#8aa}
+  .stage .watermark{position:absolute;right:40px;bottom:8px;font-size:11px;color:#9ab;font-weight:600}
+</style>
+  <script src="js/auth.js?v=2"></script>
+</head>
+<body>
+<div class="test-banner">🧪 Тест режимида ишламоқда</div>
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-icon">🌿</span>
+      <div><div class="sidebar-brand-title">АГРО</div><div class="sidebar-brand-sub">ҲИМОЯ</div></div>
+    </div>
+        <nav class="sidebar-nav">
+      <a href="index.html" class="sidebar-link"><span class="sidebar-ico">📊</span> Бош саҳифа</a>
+      <a href="prognoz.html" class="sidebar-link"><span class="sidebar-ico">🌦️</span> Прогноз</a>
+      <a href="hisobot.html" class="sidebar-link"><span class="sidebar-ico">📄</span> Ҳисобот</a>
+      <a href="preparatlar.html" class="sidebar-link"><span class="sidebar-ico">🧪</span> Агрокўмакчи</a>
+      <a href="rezistentlik.html" class="sidebar-link"><span class="sidebar-ico">🔄</span> Резистентлик</a>
+      <a href="zararkunandalar-xarita.html" class="sidebar-link"><span class="sidebar-ico">🗺️</span> Зараркунандалар харитаси</a>
+      <a href="harorat-xarita.html" class="sidebar-link active"><span class="sidebar-ico">🌡️</span> Ҳаво харорати</a>
+      <a href="kasalliklar.html" class="sidebar-link"><span class="sidebar-ico">🍂</span> Касалликлар</a>
+      <a href="zararkunandalar.html" class="sidebar-link"><span class="sidebar-ico">🐛</span> Зараркунандалар</a>
+      <a href="begona-otlar.html" class="sidebar-link"><span class="sidebar-ico">🌿</span> Бегона ўтлар</a>
+      <a href="himoya-usullari.html" class="sidebar-link"><span class="sidebar-ico">🛡️</span> Ҳимоя усуллари</a>
+      <a href="fasl-kalendari.html" class="sidebar-link"><span class="sidebar-ico">📅</span> Фасл календари</a>
+      <a href="yangiliklar.html" class="sidebar-link"><span class="sidebar-ico">📰</span> Янгиликлар</a>
+      <a href="aloqa.html" class="sidebar-link"><span class="sidebar-ico">✉️</span> Алоқа</a>
+    </nav>
+    <div class="sidebar-footer"><strong>АгроҲимоя порт.</strong>Версия 1.0 · 2026</div>
+  </aside>
+  <div class="main-area">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-expanded="false" aria-label="Менюни очиш">☰</button>
+      <h1 class="topbar-title">Ҳаво харорати</h1>
+      <div class="lang-switch">
+        <a href="harorat-xarita.html" aria-current="true">ЎЗ</a>
+        <a href="harorat-xarita.ru.html">РУ</a>
+      </div>
+    </header>
+    <main class="main-content">
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Бош саҳифа</a> / Ҳаво харорати</div>
+    <h1>Ҳаво харорати — туманлар кесимида</h1>
+    <p>Ўзбекистон туманлари бўйича жонли ҳаво харорати. Кўрсаткични танланг (ҳозир, кундузги макс., кечаси мин.), вилоятни босинг — ўша вилоят катталашиб, туманлари кесимида кўрсатилади.</p>
+  </div>
+</div>
+<div class="content-block">
+  <div class="container">
+    <div class="zk-wrap"><div class="stage" id="stage">
+      <div class="titleband">
+        <div class="title">ҲАВО ҲАРОРАТИ</div>
+        <div class="selrow"><span class="sellab">Кўрсаткич:</span><div class="modesel" id="modesel"></div></div>
+      </div>
+      <div class="mapwrap"><div id="uzmap" class="uzmap"></div><div id="zktip" class="zktip"></div></div>
+      <div class="legend" id="legend"></div>
+      <div class="zkpanel" id="zkpanel"></div>
+      <div class="note" id="status"></div>
+      <div class="watermark">AgroHimoya</div>
+    </div></div>
+    <!-- Туман чегаралари: geoBoundaries (https://www.geoboundaries.org/) CC-BY 4.0 -->
+    <!-- Ҳарорат маълумоти: Open-Meteo (https://open-meteo.com/) CC-BY 4.0 -->
+  </div>
+</div>
+    </main>
+  </div>
+</div>
+<script src="js/main.js?v=2"></script>
+<script src="js/uz-districts.js?v=2"></script>
+<script src="js/uz-geo.js?v=1"></script>
+<script src="js/harorat.js?v=1"></script>
+<script src="js/counter.js?v=1"></script>
+</body>
+</html>
