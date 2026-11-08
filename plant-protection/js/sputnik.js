@@ -119,7 +119,7 @@
   }
 
   var status = document.getElementById("map-status");
-  fetch("data/uz-districts.geojson").then(function (r) { return r.json(); }).then(function (gj) {
+  fetch("data/uz-districts.geojson?v=2").then(function (r) { return r.json(); }).then(function (gj) {
     dLayer.addData(gj);
     try { map.fitBounds(dLayer.getBounds(), { padding: [12, 12] }); } catch (e) {}
     loadTemps();
