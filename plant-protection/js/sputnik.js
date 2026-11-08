@@ -24,6 +24,7 @@
     approx: "≈ прогноз", nodata: "нет данных", pickHint: "Нажмите на район — поколения и календарь.",
     winterL: "Форма зимовки", recL: "Рекомендация", calTitle: "Фенокалендарь — поколения за сезон",
     base: "порог", note: "Модель ГДД (синус) · Open-Meteo · оценка", countriesL: "Соседние страны",
+    dataL: "данные", noData0: "⚠️ Сервис погоды (Open-Meteo) не ответил. Обновите страницу через 1–2 мин (F5).",
     months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
     phaseA: "АКТИВНОЕ РАЗВИТИЕ", phaseD: "ДИАПАУЗА (зимовка)", today: "сегодня"
   } : {
@@ -32,6 +33,7 @@
     approx: "≈ прогноз", nodata: "маълумот йўқ", pickHint: "Туманни босинг — авлод ва календар.",
     winterL: "Қишлаш шакли", recL: "Тавсия", calTitle: "Фенокалендар — мавсум давомидаги авлодлар",
     base: "ост-ҳарорат", note: "GDD модели (синус) · Open-Meteo · тахмин", countriesL: "Қўшни давлатлар",
+    dataL: "маълумот", noData0: "⚠️ Ҳаво хизмати (Open-Meteo) жавоб бермади. 1–2 дақиқадан сўнг саҳифани янгиланг (F5).",
     months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
     phaseA: "ФАОЛ РИВОЖЛАНИШ", phaseD: "ДИАПАУЗА (қишлов)", today: "бугун"
   };
@@ -152,14 +154,14 @@
   var status = document.getElementById("map-status");
   Promise.all([
     fetch("data/uz-districts.geojson?v=3").then(function (r) { return r.json(); }),
-    fetch("data/uz-neighbors.geojson?v=2").then(function (r) { return r.json(); }).catch(function () { return { features: [] }; })
+    fetch("data/uz-neighbors.geojson?v=3").then(function (r) { return r.json(); }).catch(function () { return { features: [] }; })
   ]).then(function (res) {
     var gj = res[0] || { features: [] }, ng = res[1] || { features: [] };
     var all = (gj.features || []).concat(ng.features || []);
     FEATS = all;
     FEATS.forEach(function (f, i) { f.__i = i; CTR[i] = featCentroid(f.geometry); });
     dLayer.addData({ type: "FeatureCollection", features: all });
-    fetch("data/uz-neighbor-borders.geojson?v=1").then(function (r) { return r.json(); }).then(function (nb) { nbBorderLayer.addData(nb); nbBorderLayer.addTo(map); nbBorderLayer.bringToFront(); }).catch(function () {});
+    fetch("data/uz-neighbor-borders.geojson?v=2").then(function (r) { return r.json(); }).then(function (nb) { nbBorderLayer.addData(nb); nbBorderLayer.addTo(map); nbBorderLayer.bringToFront(); }).catch(function () {});
     fetch("data/uz-border.geojson?v=1").then(function (r) { return r.json(); }).then(function (bg) { borderLayer.addData(bg); borderLayer.addTo(map); borderLayer.bringToFront(); }).catch(function () {});
     try { map.fitBounds(dLayer.getBounds(), { padding: [10, 10] }); } catch (e) { try { map.fitBounds(L.geoJSON(gj).getBounds(), { padding: [12, 12] }); } catch (e2) {} }
     loadTemps();                               // фенопрогноз — критик йўл, ҳеч нарса тўсмаслиги керак
@@ -206,23 +208,39 @@
     var now = new Date(), y = now.getFullYear(), archEnd = new Date(now.getTime() - 6 * 86400000);
     var idx = []; FEATS.forEach(function (f, i) { if (CTR[i]) idx.push(i); });
     var maps = {}; idx.forEach(function (i) { maps[i] = {}; });
-    var CH = 60, chunks = [];
+    var CH = 40, chunks = [];
     for (var k = 0; k < idx.length; k += CH) chunks.push(idx.slice(k, k + CH));
+    // JSON олиш — Open-Meteo хато объектини (reason) ҳам, тармоқ хатосини ҳам, бир марта қайта уриниш билан
+    function getJSON(url, tries) {
+      return fetch(url).then(function (r) { return r.json(); }).then(function (d) {
+        if (d && d.error) throw new Error(d.reason || "api error");
+        return d;
+      }).catch(function (e) {
+        if (tries > 0) return new Promise(function (res) { setTimeout(res, 1300); }).then(function () { return getJSON(url, tries - 1); });
+        throw e;
+      });
+    }
+    function merge(ch, d) { (Array.isArray(d) ? d : [d]).forEach(function (o, j) { var i = ch[j]; if (i != null) mergeInto(maps[i], o); }); }
     var tasks = [];
     chunks.forEach(function (ch) {
       var lat = ch.map(function (i) { return CTR[i][0]; }).join(","), lon = ch.map(function (i) { return CTR[i][1]; }).join(",");
       var au = "https://archive-api.open-meteo.com/v1/archive?latitude=" + lat + "&longitude=" + lon + "&start_date=" + y + "-01-01&end_date=" + iso(archEnd) + "&daily=temperature_2m_max,temperature_2m_min&timezone=auto";
       var fu = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&daily=temperature_2m_max,temperature_2m_min&past_days=10&forecast_days=16&timezone=auto";
       // ҳар сўров алоҳида — биттаси муваффақиятсиз бўлса бошқалари ишлайверади
-      tasks.push(fetch(au).then(function (r) { return r.json(); }).then(function (d) { (Array.isArray(d) ? d : [d]).forEach(function (o, j) { var i = ch[j]; if (i != null) mergeInto(maps[i], o); }); }).catch(function () {}));
-      tasks.push(fetch(fu).then(function (r) { return r.json(); }).then(function (d) { (Array.isArray(d) ? d : [d]).forEach(function (o, j) { var i = ch[j]; if (i != null) mergeInto(maps[i], o); }); }).catch(function () {}));
+      tasks.push(getJSON(au, 1).then(function (d) { merge(ch, d); }).catch(function () {}));
+      tasks.push(getJSON(fu, 1).then(function (d) { merge(ch, d); }).catch(function () {}));
     });
     Promise.all(tasks).then(function () {
-      dseries = {};
-      idx.forEach(function (i) { var m = maps[i] || {}, keys = Object.keys(m).sort(); dseries[i] = keys.map(function (ds) { return { t: new Date(ds + "T00:00:00"), mx: m[ds].mx, mn: m[ds].mn }; }); });
-      updatedAt = new Date(); loadState = "ok";
+      dseries = {}; var withData = 0, tot = idx.length;
+      idx.forEach(function (i) {
+        var m = maps[i] || {}, keys = Object.keys(m).sort();
+        dseries[i] = keys.map(function (ds) { return { t: new Date(ds + "T00:00:00"), mx: m[ds].mx, mn: m[ds].mn }; });
+        if (dseries[i].length) withData++;
+      });
+      updatedAt = new Date();
       recompute(); restyle();
-      if (status) status.textContent = T.pickHint;
+      if (withData === 0) { loadState = "error"; if (status) status.textContent = T.noData0; }
+      else { loadState = "ok"; if (status) status.textContent = T.pickHint + " · " + T.dataL + ": " + withData + "/" + tot; }
     }).catch(function () { loadState = "error"; if (status) status.textContent = T.err; });
   }
 
