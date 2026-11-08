@@ -49,27 +49,24 @@
   var GENCOL = ["#d6dde2", "#fee5d9", "#fcbba1", "#fc9272", "#fb6a4a", "#de2d26", "#a50f15"];
   var DIA_COL = "#90a4ae"; // диапауза (қишлов) — нейтрал кулранг-кўк, фаол эмас (хавфсиз эмас!)
   function genColor(g) { if (g == null || g < 1) return GENCOL[0]; return GENCOL[Math.min(g, GENCOL.length - 1)]; }
-  function fillFor(rid) { var ph = pheno[rid]; if (!ph) return GENCOL[0]; return ph.ended ? DIA_COL : genColor(ph.gen); }
+  function fillFor(i) { var ph = dpheno[i]; if (!ph) return GENCOL[0]; return ph.ended ? DIA_COL : genColor(ph.gen); }
 
   var DATA = window.UZ_DISTRICTS, items = DATA.items, regions = DATA.regions, GEO = window.UZ_GEO;
   var regById = {}; regions.forEach(function (r) { regById[r.id] = r; });
   function rname(r) { return LANG === "ru" ? r.ru : r.c; }
   function dname(it) { return LANG === "ru" ? it.n : it.c; }
 
-  // вилоят маркази = туманлар координаталари ўртачаси
-  var regPt = {};
-  (function () {
-    var acc = {};
-    items.forEach(function (it, i) { var g = GEO[i]; if (!g) return; (acc[it.r] = acc[it.r] || []).push(g); });
-    Object.keys(acc).forEach(function (rid) { var a = acc[rid], la = 0, lo = 0; a.forEach(function (p) { la += p[0]; lo += p[1]; }); regPt[rid] = [la / a.length, lo / a.length]; });
-  })();
-  var regIds = regions.map(function (r) { return r.id; }).filter(function (id) { return regPt[id]; });
+  // туман индекслари (координатаси бор) ва вилоят → туманлар
+  var dIdx = [];
+  GEO.forEach(function (g, i) { if (g) dIdx.push(i); });
+  var regDistricts = {};
+  items.forEach(function (it, i) { if (GEO[i]) (regDistricts[it.r] = regDistricts[it.r] || []).push(i); });
+  var regIds = regions.map(function (r) { return r.id; }).filter(function (id) { return regDistricts[id] && regDistricts[id].length; });
 
   var curPest = 0, curReg = null;
-  var series = {};        // regionId -> [{t:Date, avg:°C}]
-  var countrySeries = []; // республика ўртачаси
-  var pheno = {};         // regionId -> {gdd,gen,progress,boundaries,next,ended}
-  var countryPheno = null;
+  var dseries = {}, dpheno = {};     // туман (индекс) бўйича: серия ва фенология
+  var regSeries = {}, regPheno = {}; // вилоят ўртачаси
+  var countrySeries = [], countryPheno = null;
   var loadState = "loading", updatedAt = null;
 
   function centroid(d) {
@@ -129,22 +126,20 @@
   function resetView() { curReg = null; tweenTo(base.slice(), 450); paint(); updatePanel(); drawCal(); renderStatus(); }
 
   function pestOf() { return PESTS[curPest]; }
-  function phenoOf(rid) { return pheno[rid]; }
-  function curGen(rid) { var p = pheno[rid]; return p ? p.gen : null; }
 
   function paint() {
     for (var i = 0; i < items.length; i++) {
       var inReg = !curReg || items[i].r === curReg;
-      paths[i].setAttribute("fill", fillFor(items[i].r));
+      paths[i].setAttribute("fill", fillFor(i));
       paths[i].setAttribute("opacity", inReg ? "1" : "0.12");
       paths[i].setAttribute("stroke-width", curReg && items[i].r === curReg ? "0.9" : "0.5");
     }
     gl.innerHTML = "";
     if (curReg) {
       var reg = regById[curReg], fs = Math.max(reg.bbox[2], reg.bbox[3]) / 42;
-      var ph = pheno[curReg], g = ph ? ph.gen : null, dia = ph && ph.ended;
       items.forEach(function (it, i) {
         if (it.r !== curReg) return;
+        var ph = dpheno[i], g = ph ? ph.gen : null, dia = ph && ph.ended;
         var t = document.createElementNS(ns, "text");
         t.setAttribute("x", it.ctr[0]); t.setAttribute("y", it.ctr[1]); t.setAttribute("font-size", fs);
         t.setAttribute("text-anchor", "middle"); t.setAttribute("fill", "#12240f"); t.setAttribute("stroke", "#fff");
@@ -162,7 +157,7 @@
     var pnl = document.getElementById("zkpanel"); if (!pnl) return;
     if (loadState === "loading") { pnl.innerHTML = '<div class="zkhint">' + T.loading + '</div>'; return; }
     if (loadState === "error") { pnl.innerHTML = '<div class="zkhint">' + T.err + '</div>'; return; }
-    var ph = curReg ? pheno[curReg] : countryPheno;
+    var ph = curReg ? regPheno[curReg] : countryPheno;
     var head = curReg ? ('<b>' + rname(regById[curReg]) + '</b>') : ('<b>' + T.country + '</b>');
     var backBtn = curReg ? ('<button id="zkback" class="zkback">' + T.back + '</button>') : ('<div class="zkhint">' + T.hint + '</div>');
     if (!ph) { pnl.innerHTML = backBtn + '<div class="zkreg">' + head + '</div><div class="zkst"><b>' + T.nodata + '</b></div>'; if (curReg) document.getElementById("zkback").addEventListener("click", resetView); return; }
@@ -177,7 +172,7 @@
   function drawCal() {
     var box = document.getElementById("fenocal"); if (!box) return;
     if (loadState !== "ok") { box.innerHTML = '<div class="fc-empty">' + (loadState === "loading" ? T.loading : T.err) + '</div>'; return; }
-    var rid = curReg, ph = rid ? pheno[rid] : countryPheno;
+    var rid = curReg, ph = rid ? regPheno[rid] : countryPheno;
     var who = rid ? rname(regById[rid]) : T.country;
     if (!ph) { box.innerHTML = '<div class="fc-empty">' + who + ' — ' + T.nodata + '</div>'; return; }
     var y = (updatedAt || new Date()).getFullYear();
@@ -212,7 +207,7 @@
   function renderStatus() {
     var box = document.getElementById("fenostat"); if (!box) return;
     if (loadState !== "ok") { box.style.display = "none"; return; }
-    var ph = curReg ? pheno[curReg] : countryPheno;
+    var ph = curReg ? regPheno[curReg] : countryPheno;
     var who = curReg ? rname(regById[curReg]) : T.country, pest = pestOf();
     if (!ph) { box.style.display = "none"; return; }
     box.style.display = "";
@@ -238,7 +233,7 @@
   function showTip(e) {
     var t = e.target;
     if (t && t.tagName === "path" && t.hasAttribute("data-i")) {
-      var i = +t.getAttribute("data-i"), it = items[i], ph = pheno[it.r];
+      var i = +t.getAttribute("data-i"), it = items[i], ph = dpheno[i];
       var line = ph ? (ph.ended ? "❄ " + T.phaseDiapause : (T.gen + " " + ph.gen + " · " + Math.round(ph.gdd) + "°Д")) : T.nodata;
       tip.innerHTML = "<b>" + dname(it) + "</b><br>" + rname(regById[it.r]) + "<br>" + line;
       tip.style.display = "block";
@@ -351,8 +346,10 @@
   }
   function recompute() {
     var pest = pestOf();
-    pheno = {};
-    regIds.forEach(function (rid) { pheno[rid] = computePheno(series[rid], pest); });
+    dpheno = {};
+    dIdx.forEach(function (i) { dpheno[i] = computePheno(dseries[i], pest); });
+    regPheno = {};
+    regIds.forEach(function (rid) { regPheno[rid] = computePheno(regSeries[rid], pest); });
     countryPheno = computePheno(countrySeries, pest);
   }
 
@@ -368,40 +365,55 @@
       dst[dl.time[i]] = { mx: mx, mn: mn };
     }
   }
-  function buildSeries(maps) {
-    // maps: regionId -> {date:{mx,mn}}
-    regIds.forEach(function (rid) {
-      var m = maps[rid] || {}, keys = Object.keys(m).sort();
-      series[rid] = keys.map(function (dstr) { return { t: new Date(dstr + "T00:00:00"), mx: m[dstr].mx, mn: m[dstr].mn }; });
-    });
-    // республика ўртачаси: сана бўйича вилоятлар tmax/tmin ўртачаси
-    var allDates = {};
-    regIds.forEach(function (rid) { (series[rid] || []).forEach(function (p) { var dstr = iso(p.t); (allDates[dstr] = allDates[dstr] || []).push(p); }); });
-    countrySeries = Object.keys(allDates).sort().map(function (dstr) {
-      var a = allDates[dstr], smx = 0, smn = 0;
+  function avgByDate(list) {
+    // list: массив {t,mx,mn} элементлари → сана бўйича ўртача
+    var by = {};
+    list.forEach(function (p) { var ds = iso(p.t); (by[ds] = by[ds] || []).push(p); });
+    return Object.keys(by).sort().map(function (ds) {
+      var a = by[ds], smx = 0, smn = 0;
       a.forEach(function (v) { smx += v.mx; smn += v.mn; });
-      return { t: new Date(dstr + "T00:00:00"), mx: smx / a.length, mn: smn / a.length };
+      return { t: new Date(ds + "T00:00:00"), mx: smx / a.length, mn: smn / a.length };
     });
+  }
+  function buildSeries(maps) {
+    // maps: туман индекс -> {date:{mx,mn}}
+    dseries = {};
+    dIdx.forEach(function (i) {
+      var m = maps[i] || {}, keys = Object.keys(m).sort();
+      dseries[i] = keys.map(function (dstr) { return { t: new Date(dstr + "T00:00:00"), mx: m[dstr].mx, mn: m[dstr].mn }; });
+    });
+    // вилоят ўртачаси ва республика ўртачаси (сана бўйича)
+    regSeries = {};
+    regIds.forEach(function (rid) {
+      var all = []; (regDistricts[rid] || []).forEach(function (i) { all = all.concat(dseries[i] || []); });
+      regSeries[rid] = avgByDate(all);
+    });
+    var allD = [];
+    dIdx.forEach(function (i) { allD = allD.concat(dseries[i] || []); });
+    countrySeries = avgByDate(allD);
   }
   function loadData() {
     loadState = "loading"; updatePanel(); drawCal(); renderStatus();
-    var lat = regIds.map(function (rid) { return regPt[rid][0]; }).join(",");
-    var lon = regIds.map(function (rid) { return regPt[rid][1]; }).join(",");
-    var now = new Date(), y = now.getFullYear();
-    var archEnd = new Date(now.getTime() - 6 * 86400000);
-    var archUrl = "https://archive-api.open-meteo.com/v1/archive?latitude=" + lat + "&longitude=" + lon +
-      "&start_date=" + y + "-01-01&end_date=" + iso(archEnd) + "&daily=temperature_2m_max,temperature_2m_min&timezone=auto";
-    var fcUrl = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon +
-      "&daily=temperature_2m_max,temperature_2m_min&past_days=10&forecast_days=16&timezone=auto";
-    var maps = {}; regIds.forEach(function (rid) { maps[rid] = {}; });
-    Promise.all([
-      fetch(archUrl).then(function (r) { return r.json(); }),
-      fetch(fcUrl).then(function (r) { return r.json(); })
-    ]).then(function (res) {
-      [res[0], res[1]].forEach(function (data) {
-        var arr = parseResp(data);
-        arr.forEach(function (d, k) { var rid = regIds[k]; if (rid) mergeInto(maps[rid], d); });
-      });
+    var now = new Date(), y = now.getFullYear(), archEnd = new Date(now.getTime() - 6 * 86400000);
+    var maps = {}; dIdx.forEach(function (i) { maps[i] = {}; });
+    var CH = 60, chunks = [];               // кўп нуқтани чанкларга бўлиб сўраймиз
+    for (var k = 0; k < dIdx.length; k += CH) chunks.push(dIdx.slice(k, k + CH));
+    var tasks = [];
+    chunks.forEach(function (ch) {
+      var lat = ch.map(function (i) { return GEO[i][0]; }).join(",");
+      var lon = ch.map(function (i) { return GEO[i][1]; }).join(",");
+      var archUrl = "https://archive-api.open-meteo.com/v1/archive?latitude=" + lat + "&longitude=" + lon +
+        "&start_date=" + y + "-01-01&end_date=" + iso(archEnd) + "&daily=temperature_2m_max,temperature_2m_min&timezone=auto";
+      var fcUrl = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon +
+        "&daily=temperature_2m_max,temperature_2m_min&past_days=10&forecast_days=16&timezone=auto";
+      tasks.push(fetch(archUrl).then(function (r) { return r.json(); }).then(function (data) {
+        parseResp(data).forEach(function (d, j) { var i = ch[j]; if (i != null) mergeInto(maps[i], d); });
+      }));
+      tasks.push(fetch(fcUrl).then(function (r) { return r.json(); }).then(function (data) {
+        parseResp(data).forEach(function (d, j) { var i = ch[j]; if (i != null) mergeInto(maps[i], d); });
+      }));
+    });
+    Promise.all(tasks).then(function () {
       buildSeries(maps);
       updatedAt = new Date(); loadState = "ok";
       recompute(); paint(); updatePanel(); drawCal(); renderStatus();
