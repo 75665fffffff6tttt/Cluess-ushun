@@ -40,12 +40,6 @@
   // яшил (кам авлод) → сариқ → қизил (кўп авлод)
   var GENCOL = ["#d6dde2", "#2ecc71", "#a3d93a", "#f1c40f", "#f39c12", "#e74c3c", "#c0392b"];
   var DIA_COL = "#90a4ae";
-  // қўшни давлат чегараси ранглари (geojson'даги color билан мос)
-  var NBC = LANG === "ru" ? [
-    ["Казахстан", "#00e5ff"], ["Туркменистан", "#ff4081"], ["Таджикистан", "#ff6d00"], ["Кыргызстан", "#b388ff"], ["Афганистан", "#69f0ae"]
-  ] : [
-    ["Қозоғистон", "#00e5ff"], ["Туркманистон", "#ff4081"], ["Тожикистон", "#ff6d00"], ["Қирғизистон", "#b388ff"], ["Афғонистон", "#69f0ae"]
-  ];
   function genColor(g) { if (g == null || g < 1) return GENCOL[0]; return GENCOL[Math.min(g, GENCOL.length - 1)]; }
   function ddAbove(tmin, tmax, TH) {
     if (tmax <= TH) return 0;
@@ -141,13 +135,10 @@
       bindTip(lyr, f.properties);
     }
   }).addTo(map);
-  // Қўшни давлатлар чегаралари (ҳар давлат ўз ранги билан)
-  var nbBorderLayer = L.geoJSON(null, { interactive: false, style: function (f) { return { color: (f.properties && f.properties.color) || "#ffffff", weight: 3.8, opacity: 0.97, fill: false, lineJoin: "round", lineCap: "round" }; } });
-  // Ўзбекистон давлат чегараси (қора контур)
-  var borderLayer = L.geoJSON(null, { interactive: false, style: { color: "#000000", weight: 4.5, opacity: 0.97, fill: false, lineJoin: "round" } });
+  // Ўзбекистон давлат чегараси (енгил қора контур)
+  var borderLayer = L.geoJSON(null, { interactive: false, style: { color: "#1a1a1a", weight: 2, opacity: 0.7, fill: false, lineJoin: "round" } });
   function restyle() {
     dLayer.eachLayer(function (lyr) { lyr.setStyle(styleFn(phOf(lyr), selFi === lyr._fi, isForeign(lyr))); if (selFi === lyr._fi) lyr.bringToFront(); bindTip(lyr, lyr.feature.properties); });
-    if (nbBorderLayer) nbBorderLayer.bringToFront();
     if (borderLayer) borderLayer.bringToFront();
   }
 
@@ -161,7 +152,6 @@
     FEATS = all;
     FEATS.forEach(function (f, i) { f.__i = i; CTR[i] = featCentroid(f.geometry); });
     dLayer.addData({ type: "FeatureCollection", features: all });
-    fetch("data/uz-neighbor-borders.geojson?v=2").then(function (r) { return r.json(); }).then(function (nb) { nbBorderLayer.addData(nb); nbBorderLayer.addTo(map); nbBorderLayer.bringToFront(); }).catch(function () {});
     fetch("data/uz-border.geojson?v=1").then(function (r) { return r.json(); }).then(function (bg) { borderLayer.addData(bg); borderLayer.addTo(map); borderLayer.bringToFront(); }).catch(function () {});
     try { map.fitBounds(dLayer.getBounds(), { padding: [10, 10] }); } catch (e) { try { map.fitBounds(L.geoJSON(gj).getBounds(), { padding: [12, 12] }); } catch (e2) {} }
     loadTemps();                               // фенопрогноз — критик йўл, ҳеч нарса тўсмаслиги керак
@@ -175,10 +165,7 @@
   legend.onAdd = function () {
     var div = L.DomUtil.create("div", "sat-legend");
     var html = GENCOL.slice(1).map(function (c, i) { return '<span><i style="background:' + c + '"></i>' + (i + 1) + (i === 5 ? "+" : "") + '</span>'; }).join("");
-    var cnt = NBC.map(function (n) { return '<span><i style="width:14px;height:0;border-top:3px solid ' + n[1] + ';border-radius:0"></i>' + n[0] + '</span>'; }).join("");
-    div.innerHTML = '<b>' + T.gen + '</b> ' + html + '<span><i style="background:' + DIA_COL + '"></i>❄</span>'
-      + '<div style="flex-basis:100%;height:5px"></div><b>' + T.countriesL + '</b> ' + cnt
-      + '<span><i style="width:14px;height:0;border-top:3px solid #000"></i>' + (LANG === "ru" ? "Узбекистан" : "Ўзбекистон") + '</span>';
+    div.innerHTML = '<b>' + T.gen + '</b> ' + html + '<span><i style="background:' + DIA_COL + '"></i>❄</span>';
     return div;
   };
   legend.addTo(map);
