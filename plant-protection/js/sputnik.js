@@ -19,7 +19,7 @@
     { nm: "Ширалар", base: 6.5, upper: 35, gen: 90, winter: "тухум — бегона ўтларда", rec: "Бегона ўтларни йўқотиш." }
   ];
   var T = LANG === "ru" ? {
-    labels: "Названия и границы", loading: "⏳ Расчёт по температуре…", err: "⚠️ Не удалось загрузить данные.",
+    labels: "Названия и границы", cropland: "Земной покров (пашни)", loading: "⏳ Расчёт по температуре…", err: "⚠️ Не удалось загрузить данные.",
     gen: "Поколение", gdd: "Накоплено ГДД", next: "След. поколение", progress: "до след.", ended: "диапауза (зимовка)",
     approx: "≈ прогноз", nodata: "нет данных", pickHint: "Нажмите на район — поколения и календарь.",
     winterL: "Форма зимовки", recL: "Рекомендация", calTitle: "Фенокалендарь — поколения за сезон",
@@ -27,7 +27,7 @@
     months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
     phaseA: "АКТИВНОЕ РАЗВИТИЕ", phaseD: "ДИАПАУЗА (зимовка)", today: "сегодня"
   } : {
-    labels: "Номлар ва чегаралар", loading: "⏳ Ҳарорат бўйича ҳисоб…", err: "⚠️ Маълумот юкланмади.",
+    labels: "Номлар ва чегаралар", cropland: "Ер қоплами (экин ерлари)", loading: "⏳ Ҳарорат бўйича ҳисоб…", err: "⚠️ Маълумот юкланмади.",
     gen: "Авлод", gdd: "Йиғилган GDD", next: "Кейинги авлод", progress: "кейингисигача", ended: "диапауза (қишлов)",
     approx: "≈ прогноз", nodata: "маълумот йўқ", pickHint: "Туманни босинг — авлод ва календар.",
     winterL: "Қишлаш шакли", recL: "Тавсия", calTitle: "Фенокалендар — мавсум давомидаги авлодлар",
@@ -96,6 +96,10 @@
     maxZoom: 18, attribution: "Tiles &copy; Esri — World Imagery, Maxar · Туман чегаралари &copy; OpenStreetMap (ODbL)"
   }).addTo(map);
   var labels = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 18 });
+  // ESA WorldCover ер қоплами — экин ерлари (cropland) алоҳида рангда кўринади
+  var cropland = L.tileLayer("https://services.terrascope.be/wmts/v2?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=WORLDCOVER_2021_MAP&STYLE=&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fpng", {
+    minZoom: 5, maxZoom: 14, opacity: 0.6, attribution: "Land cover &copy; ESA WorldCover 2021"
+  });
 
   function phOf(lyr) { return (lyr && lyr._fi != null) ? dpheno[lyr._fi] : null; }
   function styleFn(ph, sel) {
@@ -131,8 +135,8 @@
   }).catch(function () { if (status) status.textContent = T.err; });
 
   L.control.scale({ imperial: false, position: "bottomleft" }).addTo(map);
-  var overlays = {}; overlays[T.labels] = labels;
-  L.control.layers(null, overlays, { position: "topright", collapsed: true }).addTo(map);
+  var overlays = {}; overlays[T.cropland] = cropland; overlays[T.labels] = labels;
+  L.control.layers(null, overlays, { position: "topright", collapsed: false }).addTo(map);
   var legend = L.control({ position: "bottomright" });
   legend.onAdd = function () {
     var div = L.DomUtil.create("div", "sat-legend");
