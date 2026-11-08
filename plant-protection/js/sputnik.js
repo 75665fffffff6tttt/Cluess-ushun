@@ -125,9 +125,9 @@
     }
   }).addTo(map);
   // Қўшни давлатлар чегаралари (ҳар давлат ўз ранги билан)
-  var nbBorderLayer = L.geoJSON(null, { interactive: false, style: function (f) { return { color: (f.properties && f.properties.color) || "#ffffff", weight: 2.6, opacity: 0.95, fill: false, lineJoin: "round" }; } });
+  var nbBorderLayer = L.geoJSON(null, { interactive: false, style: function (f) { return { color: (f.properties && f.properties.color) || "#ffffff", weight: 3.8, opacity: 0.97, fill: false, lineJoin: "round", lineCap: "round" }; } });
   // Ўзбекистон давлат чегараси (қора контур)
-  var borderLayer = L.geoJSON(null, { interactive: false, style: { color: "#000000", weight: 3, opacity: 0.95, fill: false } });
+  var borderLayer = L.geoJSON(null, { interactive: false, style: { color: "#000000", weight: 4.5, opacity: 0.97, fill: false, lineJoin: "round" } });
   function restyle() {
     dLayer.eachLayer(function (lyr) { lyr.setStyle(styleFn(phOf(lyr), selFi === lyr._fi, isForeign(lyr))); if (selFi === lyr._fi) lyr.bringToFront(); bindTip(lyr, lyr.feature.properties); });
     if (nbBorderLayer) nbBorderLayer.bringToFront();
