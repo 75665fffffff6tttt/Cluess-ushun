@@ -129,7 +129,7 @@
     }
     gl.innerHTML = "";
     if (curReg) {
-      var reg = regById[curReg], fs = Math.max(reg.bbox[2], reg.bbox[3]) / 26;
+      var reg = regById[curReg], fs = Math.max(reg.bbox[2], reg.bbox[3]) / 42;
       items.forEach(function (it, i) {
         if (it.r !== curReg) return;
         var t = document.createElementNS(ns, "text");
