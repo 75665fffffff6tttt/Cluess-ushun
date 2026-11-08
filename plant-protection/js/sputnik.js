@@ -1,12 +1,12 @@
 /* Спутник харита — Leaflet + Esri World Imagery (бепул, калитсиз)
- * + фенологик прогноз қатлами (GDD, туманлар кесимида) + фенокалендар.
- * Чегара: geoBoundaries ADM2; ҳарорат: Open-Meteo. */
+ * + фенологик прогноз (GDD) қатлами + фенокалендар, туманлар кесимида.
+ * Чегара: OSM (omadli/uzbekistan-regions, ODbL) — 205 туман/шаҳар,
+ * шу жумладан Қорақалпоғистоннинг барча 16 тумани. Ҳарорат: Open-Meteo. */
 (function () {
   "use strict";
-  if (!window.L || !window.UZ_DISTRICTS || !window.UZ_GEO) return;
+  if (!window.L) return;
   var LANG = (document.documentElement.lang || "").toLowerCase().indexOf("ru") === 0 ? "ru" : "uz";
 
-  // ===== фенология модели (fenologik.js билан бир хил) =====
   var PESTS = LANG === "ru" ? [
     { nm: "Хлопковая совка", base: 10.5, upper: 35, gen: 500, winter: "куколка — в почве", rec: "Глубокая зяблевая вспашка." },
     { nm: "Паутинный клещ", base: 11, upper: 40, gen: 110, winter: "самки — в растительных остатках", rec: "Удаление остатков." },
@@ -19,19 +19,17 @@
     { nm: "Ширалар", base: 6.5, upper: 35, gen: 90, winter: "тухум — бегона ўтларда", rec: "Бегона ўтларни йўқотиш." }
   ];
   var T = LANG === "ru" ? {
-    labels: "Названия и границы", pest: "Вредитель", region: "Область", loading: "⏳ Расчёт по температуре…",
-    err: "⚠️ Не удалось загрузить данные.", gen: "Поколение", gdd: "Накоплено ГДД", next: "След. поколение",
-    progress: "до след.", ended: "диапауза (зимовка)", approx: "≈ прогноз", nodata: "нет данных",
-    pickHint: "Нажмите на район — поколения и календарь.", country: "Выберите район",
+    labels: "Названия и границы", loading: "⏳ Расчёт по температуре…", err: "⚠️ Не удалось загрузить данные.",
+    gen: "Поколение", gdd: "Накоплено ГДД", next: "След. поколение", progress: "до след.", ended: "диапауза (зимовка)",
+    approx: "≈ прогноз", nodata: "нет данных", pickHint: "Нажмите на район — поколения и календарь.",
     winterL: "Форма зимовки", recL: "Рекомендация", calTitle: "Фенокалендарь — поколения за сезон",
     base: "порог", note: "Модель ГДД (синус) · Open-Meteo · оценка",
     months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
     phaseA: "АКТИВНОЕ РАЗВИТИЕ", phaseD: "ДИАПАУЗА (зимовка)", today: "сегодня"
   } : {
-    labels: "Номлар ва чегаралар", pest: "Зараркунанда", region: "Вилоят", loading: "⏳ Ҳарорат бўйича ҳисоб…",
-    err: "⚠️ Маълумот юкланмади.", gen: "Авлод", gdd: "Йиғилган GDD", next: "Кейинги авлод",
-    progress: "кейингисигача", ended: "диапауза (қишлов)", approx: "≈ прогноз", nodata: "маълумот йўқ",
-    pickHint: "Туманни босинг — авлод ва календар.", country: "Туман танланг",
+    labels: "Номлар ва чегаралар", loading: "⏳ Ҳарорат бўйича ҳисоб…", err: "⚠️ Маълумот юкланмади.",
+    gen: "Авлод", gdd: "Йиғилган GDD", next: "Кейинги авлод", progress: "кейингисигача", ended: "диапауза (қишлов)",
+    approx: "≈ прогноз", nodata: "маълумот йўқ", pickHint: "Туманни босинг — авлод ва календар.",
     winterL: "Қишлаш шакли", recL: "Тавсия", calTitle: "Фенокалендар — мавсум давомидаги авлодлар",
     base: "ост-ҳарорат", note: "GDD модели (синус) · Open-Meteo · тахмин",
     months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
@@ -75,51 +73,57 @@
   function iso(d) { return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
   function fmtDate(d) { if (!d) return "—"; return d.getDate() + "-" + T.months[d.getMonth()].toLowerCase(); }
 
-  var items = window.UZ_DISTRICTS.items, regions = window.UZ_DISTRICTS.regions, GEO = window.UZ_GEO;
-  var regById = {}; regions.forEach(function (r) { regById[r.id] = r; });
-  var dIdx = []; GEO.forEach(function (g, i) { if (g) dIdx.push(i); });
-  var nameIdx = {}; items.forEach(function (it, i) { nameIdx[(it.n || "").toLowerCase()] = i; });
-  var dseries = {}, dpheno = {}, updatedAt = null, curPest = 0, loadState = "loading", selIdx = null;
+  // геометриядан марказ (энг катта полигоннинг outer ринги) → [lat,lon]
+  function ringArea(r) { var a = 0; for (var i = 0, j = r.length - 1; i < r.length; j = i++) a += r[j][0] * r[i][1] - r[i][0] * r[j][1]; return a / 2; }
+  function ringCentroid(r) { var a = 0, cx = 0, cy = 0; for (var i = 0, j = r.length - 1; i < r.length; j = i++) { var f = r[j][0] * r[i][1] - r[i][0] * r[j][1]; a += f; cx += (r[j][0] + r[i][0]) * f; cy += (r[j][1] + r[i][1]) * f; } a /= 2; if (Math.abs(a) < 1e-12) { var sx = 0, sy = 0; r.forEach(function (p) { sx += p[0]; sy += p[1]; }); return [sx / r.length, sy / r.length]; } return [cx / (6 * a), cy / (6 * a)]; }
+  function featCentroid(geom) {
+    var polys = geom.type === "Polygon" ? [geom.coordinates] : (geom.type === "MultiPolygon" ? geom.coordinates : []);
+    var best = null, bestA = -1;
+    polys.forEach(function (poly) { var a = Math.abs(ringArea(poly[0])); if (a > bestA) { bestA = a; best = poly[0]; } });
+    if (!best) return null;
+    var c = ringCentroid(best); return [c[1], c[0]];
+  }
+
+  var FEATS = [], CTR = [], dseries = {}, dpheno = {}, updatedAt = null, curPest = 0, loadState = "loading", selFi = null;
+  function dnm(p) { return LANG === "ru" ? (p.ru || p.c) : (p.c || p.ru); }
+  function rnm(p) { return LANG === "ru" ? (p.regru || p.reg) : (p.reg || p.regru); }
 
   // ===== Leaflet =====
   var el = document.getElementById("map"); if (!el) return;
   var map = L.map(el, { minZoom: 5, maxZoom: 17 }).setView([41.4, 63.9], 6);
-  var imagery = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
-    maxZoom: 18, attribution: "Tiles &copy; Esri — World Imagery, Maxar"
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+    maxZoom: 18, attribution: "Tiles &copy; Esri — World Imagery, Maxar · Туман чегаралари &copy; OpenStreetMap (ODbL)"
   }).addTo(map);
   var labels = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 18 });
 
-  function phOf(lyr) { return (lyr && lyr._di != null) ? dpheno[lyr._di] : null; }
+  function phOf(lyr) { return (lyr && lyr._fi != null) ? dpheno[lyr._fi] : null; }
   function styleFn(ph, sel) {
     var col = ph ? (ph.ended ? DIA_COL : genColor(ph.gen)) : "#cccccc";
-    return { color: sel ? "#fff" : "#ffffff", weight: sel ? 2.6 : 0.6, opacity: sel ? 1 : 0.6, fillColor: col, fillOpacity: ph ? (sel ? 0.5 : 0.32) : 0.08 };
+    return { color: "#ffffff", weight: sel ? 2.6 : 0.6, opacity: sel ? 1 : 0.6, fillColor: col, fillOpacity: ph ? (sel ? 0.5 : 0.32) : 0.08 };
   }
-  var featByIdx = {};
+  function bindTip(lyr, p) {
+    var ph = phOf(lyr);
+    var line = loadState === "loading" ? T.loading : (ph ? (ph.ended ? "❄ " + T.ended : T.gen + " " + ph.gen + " · " + Math.round(ph.gdd) + "°Д") : T.nodata);
+    lyr.bindTooltip("<b>" + dnm(p) + "</b><br>" + (rnm(p) ? rnm(p) + "<br>" : "") + line, { sticky: true, direction: "top", opacity: 0.95 });
+  }
   var dLayer = L.geoJSON(null, {
     style: function () { return styleFn(null, false); },
     onEachFeature: function (f, lyr) {
-      var i = nameIdx[(f.properties.n || "").toLowerCase()];
-      lyr._di = (i == null ? null : i);
-      if (i != null) featByIdx[i] = lyr;
-      lyr.on("mouseover", function () { if (selIdx !== lyr._di) lyr.setStyle({ weight: 2, color: "#fff" }); lyr.bringToFront(); });
-      lyr.on("mouseout", function () { if (selIdx !== lyr._di) lyr.setStyle(styleFn(phOf(lyr), false)); });
-      lyr.on("click", function () { selIdx = lyr._di; restyle(); showPanel(lyr._di); });
+      lyr._fi = f.__i;
+      lyr.on("mouseover", function () { if (selFi !== lyr._fi) lyr.setStyle({ weight: 2, color: "#fff" }); lyr.bringToFront(); });
+      lyr.on("mouseout", function () { if (selFi !== lyr._fi) lyr.setStyle(styleFn(phOf(lyr), false)); });
+      lyr.on("click", function () { selFi = lyr._fi; restyle(); showPanel(lyr._fi); });
       bindTip(lyr, f.properties);
     }
   }).addTo(map);
-
-  function bindTip(lyr, p) {
-    var nm = LANG === "ru" ? (p.n || p.c) : (p.c || p.n), ph = phOf(lyr);
-    var line = loadState === "loading" ? T.loading : (ph ? (ph.ended ? "❄ " + T.ended : T.gen + " " + ph.gen + " · " + Math.round(ph.gdd) + "°Д") : T.nodata);
-    lyr.bindTooltip("<b>" + nm + "</b><br>" + (p.rc ? p.rc + "<br>" : "") + line, { sticky: true, direction: "top", opacity: 0.95 });
-  }
   function restyle() {
-    dLayer.eachLayer(function (lyr) { lyr.setStyle(styleFn(phOf(lyr), selIdx === lyr._di)); if (selIdx === lyr._di) lyr.bringToFront(); });
-    dLayer.eachLayer(function (lyr) { var p = lyr.feature.properties; bindTip(lyr, p); });
+    dLayer.eachLayer(function (lyr) { lyr.setStyle(styleFn(phOf(lyr), selFi === lyr._fi)); if (selFi === lyr._fi) lyr.bringToFront(); bindTip(lyr, lyr.feature.properties); });
   }
 
   var status = document.getElementById("map-status");
-  fetch("data/uz-districts.geojson?v=2").then(function (r) { return r.json(); }).then(function (gj) {
+  fetch("data/uz-districts.geojson?v=3").then(function (r) { return r.json(); }).then(function (gj) {
+    FEATS = gj.features || [];
+    FEATS.forEach(function (f, i) { f.__i = i; CTR[i] = featCentroid(f.geometry); });
     dLayer.addData(gj);
     try { map.fitBounds(dLayer.getBounds(), { padding: [12, 12] }); } catch (e) {}
     loadTemps();
@@ -128,8 +132,6 @@
   L.control.scale({ imperial: false, position: "bottomleft" }).addTo(map);
   var overlays = {}; overlays[T.labels] = labels;
   L.control.layers(null, overlays, { position: "topright", collapsed: true }).addTo(map);
-
-  // легенда (Leaflet control)
   var legend = L.control({ position: "bottomright" });
   legend.onAdd = function () {
     var div = L.DomUtil.create("div", "sat-legend");
@@ -139,7 +141,6 @@
   };
   legend.addTo(map);
 
-  // зараркунанда танлагич
   var pestBox = document.getElementById("pestsel");
   if (pestBox) {
     pestBox.innerHTML = PESTS.map(function (p, i) { return '<button class="pbtn' + (i === 0 ? ' on' : '') + '" data-p="' + i + '">' + p.nm + '</button>'; }).join("");
@@ -147,11 +148,10 @@
       var b = e.target.closest(".pbtn"); if (!b) return;
       curPest = +b.getAttribute("data-p");
       [].forEach.call(pestBox.children, function (x) { x.classList.toggle("on", x === b); });
-      recompute(); restyle(); if (selIdx != null) showPanel(selIdx);
+      recompute(); restyle(); if (selFi != null) showPanel(selFi);
     });
   }
 
-  // ===== Open-Meteo (чанк) =====
   function mergeInto(dst, resp) {
     var dl = resp && resp.daily; if (!dl || !dl.time) return;
     for (var i = 0; i < dl.time.length; i++) { var mx = dl.temperature_2m_max[i], mn = dl.temperature_2m_min[i]; if (mx == null || mn == null) continue; dst[dl.time[i]] = { mx: mx, mn: mn }; }
@@ -159,17 +159,18 @@
   function recompute() {
     var pest = PESTS[curPest], now = updatedAt || new Date();
     dpheno = {};
-    dIdx.forEach(function (i) { dpheno[i] = computePheno(dseries[i], pest, now); });
+    FEATS.forEach(function (f, i) { dpheno[i] = computePheno(dseries[i], pest, now); });
   }
   function loadTemps() {
     loadState = "loading"; if (status) status.textContent = T.loading;
     var now = new Date(), y = now.getFullYear(), archEnd = new Date(now.getTime() - 6 * 86400000);
-    var maps = {}; dIdx.forEach(function (i) { maps[i] = {}; });
+    var idx = []; FEATS.forEach(function (f, i) { if (CTR[i]) idx.push(i); });
+    var maps = {}; idx.forEach(function (i) { maps[i] = {}; });
     var CH = 60, chunks = [];
-    for (var k = 0; k < dIdx.length; k += CH) chunks.push(dIdx.slice(k, k + CH));
+    for (var k = 0; k < idx.length; k += CH) chunks.push(idx.slice(k, k + CH));
     var tasks = [];
     chunks.forEach(function (ch) {
-      var lat = ch.map(function (i) { return GEO[i][0]; }).join(","), lon = ch.map(function (i) { return GEO[i][1]; }).join(",");
+      var lat = ch.map(function (i) { return CTR[i][0]; }).join(","), lon = ch.map(function (i) { return CTR[i][1]; }).join(",");
       var au = "https://archive-api.open-meteo.com/v1/archive?latitude=" + lat + "&longitude=" + lon + "&start_date=" + y + "-01-01&end_date=" + iso(archEnd) + "&daily=temperature_2m_max,temperature_2m_min&timezone=auto";
       var fu = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&daily=temperature_2m_max,temperature_2m_min&past_days=10&forecast_days=16&timezone=auto";
       tasks.push(fetch(au).then(function (r) { return r.json(); }).then(function (d) { (Array.isArray(d) ? d : [d]).forEach(function (o, j) { var i = ch[j]; if (i != null) mergeInto(maps[i], o); }); }));
@@ -177,27 +178,25 @@
     });
     Promise.all(tasks).then(function () {
       dseries = {};
-      dIdx.forEach(function (i) { var m = maps[i] || {}, keys = Object.keys(m).sort(); dseries[i] = keys.map(function (ds) { return { t: new Date(ds + "T00:00:00"), mx: m[ds].mx, mn: m[ds].mn }; }); });
+      idx.forEach(function (i) { var m = maps[i] || {}, keys = Object.keys(m).sort(); dseries[i] = keys.map(function (ds) { return { t: new Date(ds + "T00:00:00"), mx: m[ds].mx, mn: m[ds].mn }; }); });
       updatedAt = new Date(); loadState = "ok";
       recompute(); restyle();
       if (status) status.textContent = T.pickHint;
     }).catch(function () { loadState = "error"; if (status) status.textContent = T.err; });
   }
 
-  // ===== панель + фенокалендар =====
   function showPanel(i) {
     var box = document.getElementById("sat-panel"); if (!box) return;
-    if (i == null) { box.style.display = "none"; return; }
-    var it = items[i], ph = dpheno[i], pest = PESTS[curPest];
-    var nm = LANG === "ru" ? it.n : it.c, rc = (regById[it.r] ? (LANG === "ru" ? regById[it.r].ru : regById[it.r].c) : "");
+    if (i == null || !FEATS[i]) { box.style.display = "none"; return; }
+    var p = FEATS[i].properties, ph = dpheno[i], pest = PESTS[curPest];
     box.style.display = "";
-    if (!ph) { box.innerHTML = '<div class="sp-h"><b>' + nm + '</b> · ' + rc + '</div><div>' + (loadState === "loading" ? T.loading : T.nodata) + '</div>'; return; }
+    if (!ph) { box.innerHTML = '<div class="sp-h"><b>' + dnm(p) + '</b> · ' + rnm(p) + '</div><div>' + (loadState === "loading" ? T.loading : T.nodata) + '</div>'; return; }
     var active = !ph.ended;
     var phase = active ? ('<span class="sp-ph active">' + T.phaseA + '</span>') : ('<span class="sp-ph dia">' + T.phaseD + '</span>');
     var body = active
       ? (T.gen + ': <b>' + ph.gen + '</b> (' + Math.round(ph.progress * 100) + '% ' + T.progress + ') · ' + T.next + ': <b>' + (ph.next ? fmtDate(ph.next) + (ph.approx ? ' ' + T.approx : '') : '—') + '</b>')
       : ('<b>' + T.winterL + ':</b> ' + pest.winter + '<br><b>' + T.recL + ':</b> ' + pest.rec);
-    box.innerHTML = '<div class="sp-h"><b>' + nm + '</b> · ' + rc + ' · ' + pest.nm + '</div>' +
+    box.innerHTML = '<div class="sp-h"><b>' + dnm(p) + '</b> · ' + rnm(p) + ' · ' + pest.nm + '</div>' +
       '<div class="sp-badge">' + phase + '</div>' +
       '<div class="sp-body">' + body + '</div>' +
       '<div class="sp-gdd">' + T.gdd + ': <b>' + Math.round(ph.gdd) + '</b> °Д</div>' +
@@ -207,10 +206,7 @@
     var y = (updatedAt || new Date()).getFullYear(), y0 = new Date(y, 0, 1).getTime(), y1 = new Date(y + 1, 0, 1).getTime(), span = y1 - y0;
     function pct(d) { return Math.max(0, Math.min(100, (d.getTime() - y0) / span * 100)); }
     var bnds = ph.boundaries || [], segs = "", start = ph.seasonStart ? pct(ph.seasonStart) : (bnds.length ? pct(bnds[0].date) : 0);
-    for (var k = 0; k < bnds.length; k++) {
-      var s = k === 0 ? start : pct(bnds[k - 1].date), e = pct(bnds[k].date);
-      segs += '<div class="sc-seg" style="left:' + s + '%;width:' + Math.max(0.6, e - s) + '%;background:' + genColor(k + 1) + '"></div>';
-    }
+    for (var k = 0; k < bnds.length; k++) { var s = k === 0 ? start : pct(bnds[k - 1].date), e = pct(bnds[k].date); segs += '<div class="sc-seg" style="left:' + s + '%;width:' + Math.max(0.6, e - s) + '%;background:' + genColor(k + 1) + '"></div>'; }
     var lastStart = bnds.length ? pct(bnds[bnds.length - 1].date) : start, nowP = pct(updatedAt || new Date());
     if (nowP > lastStart) segs += '<div class="sc-seg" style="left:' + lastStart + '%;width:' + Math.max(0.6, nowP - lastStart) + '%;background:' + (ph.ended ? DIA_COL : genColor(ph.gen)) + '"></div>';
     var marks = bnds.map(function (b, k) { return '<div class="sc-mark" style="left:' + pct(b.date) + '%"><span>' + (k + 2) + '</span></div>'; }).join("");
