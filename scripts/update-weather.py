@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Кунлик ҳарорат маълумоти (Open-Meteo) → plant-protection/data/wx.json
 
-Фенологик прогноз ва спутник харита саҳифалари учун ҳарорат маълумотини
+Фенологик прогноз саҳифаси учун ҳарорат маълумотини
 GitHub Actions'да кунига бир марта йиғади, шунда сайтга кирувчилар
 Open-Meteo'ни умуман чақирмайди (бепул лимит тугамайди).
 
-- Нуқталар: иккала саҳифадаги барча туман марказлари, 0.25° тўрга
+- Нуқталар: фенологик прогноз саҳифасидаги туман марказлари, 0.25° тўрга
   яхлитланиб, такрорсиз катакларга бирлаштирилади.
 - Прогноз (past_days=7, +16 кун) — 18 соатда бир марта.
 - Архив (1-январдан) — фақат бўш кунлар учун (биринчи марта тўлиқ, кейин
@@ -99,7 +99,6 @@ def all_points():
     with open(os.path.join(P, "js", "uz-geo.js"), encoding="utf-8") as fh:
         geo = json.loads(fh.read().split("=", 1)[1].strip().rstrip(";"))
     pts = [(g[0], g[1]) for g in geo if g]
-    pts += geojson_points(os.path.join(P, "data", "uz-districts.geojson"))
     pts += geojson_points(os.path.join(P, "data", "uz-neighbors.geojson"))
     return pts
 
