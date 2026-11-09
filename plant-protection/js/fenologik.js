@@ -25,7 +25,7 @@
     title: "ФЕНОЛОГИЧЕСКИЙ ПРОГНОЗ", label: "Вредитель", region: "Область", districts: "районов",
     back: "← Вся страна", hint: "👆 Нажмите на район — область увеличится, и календарь покажет её поколения.",
     gen: "Поколение", gdd: "Накоплено ГДД", next: "Следующее поколение", progress: "до следующего",
-    nodata: "нет данных", loading: "⏳ Расчёт по температуре…", err: "⚠️ Не удалось загрузить данные.",
+    nodata: "нет данных", loading: "⏳ Расчёт по температуре…", wxPending: "⏳ Данные о температуре готовятся (первый сбор ~2 часа). Обновите страницу позже.", err: "⚠️ Не удалось загрузить данные.",
     ended: "сезон завершён (диапауза)", approx: "≈ прогноз", src: "Модель ГДД (синус-метод) · Open-Meteo",
     base: "порог", country: "В среднем по стране", today: "сегодня", months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
     calTitle: "Фенокалендарь — поколения за сезон", note: "⚠️ Модельная оценка (градусо-дни), не официальный мониторинг.",
@@ -42,7 +42,7 @@
     title: "ФЕНОЛОГИК ПРОГНОЗ", label: "Зараркунанда", region: "Вилоят", districts: "туман",
     back: "← Бутун мамлакат", hint: "👆 Туманни босинг — вилоят катталашиб, календарь ўша вилоят авлодларини кўрсатади.",
     gen: "Авлод", gdd: "Йиғилган GDD", next: "Кейинги авлод", progress: "кейингисигача",
-    nodata: "маълумот йўқ", loading: "⏳ Ҳарорат бўйича ҳисоб…", err: "⚠️ Маълумот юкланмади.",
+    nodata: "маълумот йўқ", loading: "⏳ Ҳарорат бўйича ҳисоб…", wxPending: "⏳ Ҳарорат маълумоти тайёрланмоқда (биринчи йиғиш ~2 соат). Бироздан сўнг саҳифани янгиланг.", err: "⚠️ Маълумот юкланмади.",
     ended: "мавсум якуни (диапауза)", approx: "≈ прогноз", src: "GDD модели (синус усули) · Open-Meteo",
     base: "ост-ҳарорат", country: "Республика ўртачаси", today: "бугун", months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
     calTitle: "Фенокалендар — мавсум давомидаги авлодлар", note: "⚠️ Моделга асосланган тахмин (эффектив ҳарорат), расмий мониторинг эмас.",
@@ -79,7 +79,7 @@
   var dseries = {}, dpheno = {};     // туман (индекс) бўйича: серия ва фенология
   var regSeries = {}, regPheno = {}; // вилоят ўртачаси
   var countrySeries = [], countryPheno = null;
-  var loadState = "loading", updatedAt = null;
+  var loadState = "loading", updatedAt = null, wxPending = false;
 
   function centroid(d) {
     var nums = d.match(/-?\d+(?:\.\d+)?/g); if (!nums) return [0, 0];
@@ -177,7 +177,7 @@
   function updatePanel() {
     var pnl = document.getElementById("zkpanel"); if (!pnl) return;
     if (loadState === "loading") { pnl.innerHTML = '<div class="zkhint">' + T.loading + '</div>'; return; }
-    if (loadState === "error") { pnl.innerHTML = '<div class="zkhint">' + T.err + '</div>'; return; }
+    if (loadState === "error") { pnl.innerHTML = '<div class="zkhint">' + (wxPending ? T.wxPending : T.err) + '</div>'; return; }
     var ph = curReg ? regPheno[curReg] : countryPheno;
     var head = curReg ? ('<b>' + rname(regById[curReg]) + '</b>') : ('<b>' + T.country + '</b>');
     var backBtn = curReg ? ('<button id="zkback" class="zkback">' + T.back + '</button>') : ('<div class="zkhint">' + T.hint + '</div>');
@@ -550,7 +550,7 @@
     var t = new Date(), stamp = t.getFullYear() + "-" + (t.getMonth() + 1) + "-" + t.getDate() + "-" + t.getHours();
     fetch("data/wx.json?h=" + stamp).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(function (W) { finish(wxMaps(W, pts)); })
-      .catch(function () { loadState = "error"; updatePanel(); drawCal(); renderStatus(); renderSummary(); });
+      .catch(function (e) { wxPending = !!(e && e.message === "404"); loadState = "error"; updatePanel(); drawCal(); renderStatus(); renderSummary(); });
   }
 
   paint(); updatePanel(); drawCal(); renderStatus(); renderSummary();
