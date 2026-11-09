@@ -24,7 +24,7 @@
     approx: "≈ прогноз", nodata: "нет данных", pickHint: "Нажмите на район — поколения и календарь.",
     winterL: "Форма зимовки", recL: "Рекомендация", calTitle: "Фенокалендарь — поколения за сезон",
     base: "порог", note: "Модель ГДД (синус) · Open-Meteo · оценка", countriesL: "Соседние страны",
-    dataL: "данные", cacheL: "(из кэша)", noData0: "⚠️ Сервис погоды (Open-Meteo) не ответил. Обновите страницу через 1–2 мин (F5).",
+    dataL: "данные", cacheL: "(из кэша)", noData0: "⚠️ Данные о температуре ещё не готовы (обновляются ежедневно). Откройте страницу позже.",
     months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
     phaseA: "АКТИВНОЕ РАЗВИТИЕ", phaseD: "ДИАПАУЗА (зимовка)", today: "сегодня"
   } : {
@@ -33,7 +33,7 @@
     approx: "≈ прогноз", nodata: "маълумот йўқ", pickHint: "Туманни босинг — авлод ва календар.",
     winterL: "Қишлаш шакли", recL: "Тавсия", calTitle: "Фенокалендар — мавсум давомидаги авлодлар",
     base: "ост-ҳарорат", note: "GDD модели (синус) · Open-Meteo · тахмин", countriesL: "Қўшни давлатлар",
-    dataL: "маълумот", cacheL: "(кэшдан)", noData0: "⚠️ Ҳаво хизмати (Open-Meteo) жавоб бермади. 1–2 дақиқадан сўнг саҳифани янгиланг (F5).",
+    dataL: "маълумот", cacheL: "(кэшдан)", noData0: "⚠️ Ҳарорат маълумоти ҳали тайёр эмас (ҳар куни янгиланади). Саҳифани бироздан сўнг очинг.",
     months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
     phaseA: "ФАОЛ РИВОЖЛАНИШ", phaseD: "ДИАПАУЗА (қишлов)", today: "бугун"
   };
@@ -190,26 +190,17 @@
     dpheno = {};
     FEATS.forEach(function (f, i) { dpheno[i] = computePheno(dseries[i], pest, now); });
   }
-  // ===== Ҳарорат кэши (localStorage) — кунига бир марта юклаш, қайта-қайta API'ни чақирмаслик =====
-  var TCACHE_KEY = "sputnik_temps_v2"; // v2: эски (чала) кэшни бекор қилиш
-  function tStamp() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
-  function readTCache(n) {
-    try {
-      var raw = localStorage.getItem(TCACHE_KEY); if (!raw) return null;
-      var o = JSON.parse(raw);
-      if (!o || o.day !== tStamp() || o.n !== n || !o.dates || !o.d) return null;
-      var ser = {}, i;
-      for (i in o.d) ser[i] = o.d[i].map(function (t) { return { t: new Date(o.dates[t[0]] + "T00:00:00"), mx: t[1], mn: t[2] }; });
-      return ser;
-    } catch (e) { return null; }
-  }
-  function writeTCache(n, ser) {
-    try {
-      var dateSet = {}, dates = [], d = {}, i;
-      for (i in ser) ser[i].forEach(function (p) { var k = iso(p.t); if (!(k in dateSet)) { dateSet[k] = dates.length; dates.push(k); } });
-      for (i in ser) d[i] = ser[i].map(function (p) { return [dateSet[iso(p.t)], Math.round(p.mx * 10) / 10, Math.round(p.mn * 10) / 10]; });
-      localStorage.setItem(TCACHE_KEY, JSON.stringify({ day: tStamp(), n: n, dates: dates, d: d }));
-    } catch (e) {}
+  // ===== ҳарорат: data/wx.json — GitHub Actions ҳар куни тайёрлайди (scripts/update-weather.py).
+  // Браузер Open-Meteo'ни умуман чақирмайди → бепул лимит тугамайди.
+  try { ["sputnik_temps_v1", "sputnik_temps_v2"].forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
+  function snapC(v) { return Math.round(v * 4) / 4; }
+  function wxCell(W, lat, lon) { // 0.25° катак (топилмаса — энг яқин қўшни катак)
+    var la = snapC(lat), lo = snapC(lon), best = null, bd = 1e9;
+    for (var a = -2; a <= 2; a++) for (var b = -2; b <= 2; b++) {
+      var c = W.cells[(la + a * 0.25).toFixed(2) + "," + (lo + b * 0.25).toFixed(2)];
+      if (c && a * a + b * b < bd) { bd = a * a + b * b; best = c; }
+    }
+    return best;
   }
   function applySeries(ser, fromCache) {
     dseries = ser; var withData = 0, tot = 0;
@@ -218,62 +209,25 @@
     recompute(); restyle();
     if (withData === 0) { loadState = "error"; if (status) status.textContent = T.noData0; }
     else { loadState = "ok"; if (status) status.textContent = T.pickHint + " · " + T.dataL + ": " + withData + "/" + tot + (fromCache ? " " + T.cacheL : ""); }
-  }
-  function getJSON(url, tries, wait) { // хато/лимит бўлса кутиб қайта уриниш (2.5с, 6с)
-    return fetch(url).then(function (r) { return r.json(); }).then(function (d) {
-      if (!d || d.error) throw new Error((d && d.reason) || "api");
-      return d;
-    }).catch(function (e) {
-      if (tries <= 0) throw e;
-      return new Promise(function (res) { setTimeout(res, wait); }).then(function () { return getJSON(url, tries - 1, wait * 2.4); });
-    });
-  }
-  function runQueue(jobs, conc) { // бир вақтда фақат `conc` та сўров — минутлик лимитга урилмаслик учун
-    var i = 0;
-    function next() { if (i >= jobs.length) return Promise.resolve(); var j = jobs[i++]; return j().then(next, next); }
-    var w = []; for (var c = 0; c < Math.min(conc, jobs.length); c++) w.push(next());
-    return Promise.all(w);
-  }
-  function wxRange() {
-    var now = new Date(), y = now.getFullYear(), jan1 = new Date(y, 0, 1), archEnd = new Date(now.getTime() - 6 * 86400000);
-    return { jan1: iso(jan1), archEnd: iso(archEnd), needArch: archEnd >= jan1, today: iso(now) };
-  }
-  function fetchIdx(list, maps) {
-    var R = wxRange(), CH = 40, jobs = [];
-    for (var k = 0; k < list.length; k += CH) (function (ch) {
-      var lat = ch.map(function (i) { return CTR[i][0].toFixed(4); }).join(","), lon = ch.map(function (i) { return CTR[i][1].toFixed(4); }).join(",");
-      function job(url) { return function () { return getJSON(url, 2, 2500).then(function (d) { (Array.isArray(d) ? d : [d]).forEach(function (o, j) { var i = ch[j]; if (i != null) mergeInto(maps[i], o); }); }).catch(function () {}); }; }
-      if (R.needArch) jobs.push(job("https://archive-api.open-meteo.com/v1/archive?latitude=" + lat + "&longitude=" + lon + "&start_date=" + R.jan1 + "&end_date=" + R.archEnd + "&daily=temperature_2m_max,temperature_2m_min&timezone=auto"));
-      jobs.push(job("https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&daily=temperature_2m_max,temperature_2m_min&past_days=10&forecast_days=16&timezone=auto"));
-    })(list.slice(k, k + CH));
-    return runQueue(jobs, 3);
-  }
-  function incompleteIdx(list, maps) { // архив (1-январ) ва бугунги кун иккаласи бўлиши шарт
-    var R = wxRange();
-    return list.filter(function (i) { var m = maps[i] || {}; return !(m[R.today] && (!R.needArch || m[R.jan1])); });
-  }
-  function mapsToSeries(idx, maps) {
+  }  function mapsToSeries(idx, maps) {
     var ser = {};
     idx.forEach(function (i) { var m = maps[i] || {}, keys = Object.keys(m).sort(); ser[i] = keys.map(function (ds) { return { t: new Date(ds + "T00:00:00"), mx: m[ds].mx, mn: m[ds].mn }; }); });
     return ser;
-  }
-  function loadTemps() {
+  }  function loadTemps() {
     loadState = "loading"; if (status) status.textContent = T.loading;
     var idx = []; FEATS.forEach(function (f, i) { if (CTR[i]) idx.push(i); });
-    var cached = readTCache(FEATS.length);
-    if (cached) { applySeries(cached, true); return; } // кэшдан — API'сиз
-    var maps = {}; idx.forEach(function (i) { maps[i] = {}; });
-    fetchIdx(idx, maps).then(function () {
-      var ser = mapsToSeries(idx, maps); applySeries(ser, false);
-      var miss = incompleteIdx(idx, maps);
-      if (!miss.length) { writeTCache(FEATS.length, ser); return; } // фақат ТЎЛИҚ маълумот кэшланади
-      setTimeout(function () { // етишмаган туманлар — 25 сониядан сўнг фақат уларни қайта сўраш
-        fetchIdx(miss, maps).then(function () {
-          var s2 = mapsToSeries(idx, maps); applySeries(s2, false);
-          if (!incompleteIdx(idx, maps).length) writeTCache(FEATS.length, s2);
-        });
-      }, 25000);
-    });
+    var t = new Date(), stamp = t.getFullYear() + "-" + (t.getMonth() + 1) + "-" + t.getDate() + "-" + t.getHours();
+    fetch("data/wx.json?h=" + stamp).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(function (W) {
+      var p0 = W.start.split("-").map(Number), dates = [], maps = {};
+      for (var d = 0; d < W.days; d++) dates.push(iso(new Date(p0[0], p0[1] - 1, p0[2] + d)));
+      idx.forEach(function (i) {
+        var c = wxCell(W, CTR[i][0], CTR[i][1]), m = {};
+        if (c && c[0] != null) // 1-январдан маълумот бор (архив тўлдирилган)
+          for (var d = 0; d < W.days; d++) { var mx = c[2 * d], mn = c[2 * d + 1]; if (mx != null && mn != null) m[dates[d]] = { mx: mx / 10, mn: mn / 10 }; }
+        maps[i] = m;
+      });
+      applySeries(mapsToSeries(idx, maps), false);
+    }).catch(function () { loadState = "error"; if (status) status.textContent = T.noData0; });
   }
 
   function showPanel(i) {
