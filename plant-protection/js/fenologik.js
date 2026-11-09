@@ -465,7 +465,7 @@
   function ringArea(r) { var a = 0; for (var i = 0, j = r.length - 1; i < r.length; j = i++) a += r[j][0] * r[i][1] - r[i][0] * r[j][1]; return a / 2; }
   function ringCtr(r) { var a = 0, cx = 0, cy = 0; for (var i = 0, j = r.length - 1; i < r.length; j = i++) { var f = r[j][0] * r[i][1] - r[i][0] * r[j][1]; a += f; cx += (r[j][0] + r[i][0]) * f; cy += (r[j][1] + r[i][1]) * f; } a /= 2; if (Math.abs(a) < 1e-12) return r[0]; return [cx / (6 * a), cy / (6 * a)]; }
   function loadNeighbors() {
-    return fetch("data/uz-neighbors.geojson?v=3").then(function (r) { return r.json(); }).then(function (gj) {
+    return fetch("data/uz-neighbors.geojson?v=4").then(function (r) { return r.json(); }).then(function (gj) {
       var mnx = 0, mny = 0, mxx = base[2], mxy = base[3];
       (gj.features || []).forEach(function (f) {
         var g = f.geometry, p = f.properties || {}; if (!g) return;
