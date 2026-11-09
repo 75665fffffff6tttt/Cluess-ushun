@@ -654,7 +654,7 @@
   function addDesertLayer(X) {
     var m = X && X.desertMask; if (!m || svg.querySelector("#desertlayer")) return;
     var im = document.createElementNS(ns, "image");
-    im.setAttribute("id", "desertlayer"); im.setAttribute("href", m.png + "?v=1");
+    im.setAttribute("id", "desertlayer"); im.setAttribute("href", m.png + "?v=2");
     im.setAttribute("x", (m.w - PX0) * PS); im.setAttribute("y", (PY0 - m.n) * PS);
     im.setAttribute("width", (m.e - m.w) * PS); im.setAttribute("height", (m.n - m.s) * PS);
     im.setAttribute("preserveAspectRatio", "none"); im.setAttribute("style", "pointer-events:none");

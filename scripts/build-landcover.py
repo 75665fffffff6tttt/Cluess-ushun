@@ -38,6 +38,7 @@ P = os.path.join(ROOT, "plant-protection")
 OUT = os.path.join(P, "data", "wx-points.json")
 MASK = os.path.join(P, "data", "desert-mask.png")
 MASK_RES = 0.02  # чўл қатлами пиксели (°) ≈ 2 км
+CROP_NEAR_KM = float(os.environ.get("CROP_NEAR_KM", "6"))  # экиндан шунча км узоқ ер — рангсиз
 URL = "/vsicurl/https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/ESA_WorldCover_10m_2021_v200_%s_Map.tif"
 DEC = 32                      # 10 м × 32 ≈ 300 м пиксел
 PX = 3.0 / (36000 // DEC)     # пиксел ўлчами (градус)
@@ -126,9 +127,22 @@ def main():
     from PIL import Image
     f = max(1, int(round(MASK_RES / PX)))
     Hm, Wm = H // f, W // f
-    bare = (lc[:Hm * f, :Wm * f] == BARE).reshape(Hm, f, Wm, f).mean(axis=(1, 3))
+    sub = lc[:Hm * f, :Wm * f]
+    cropf = (sub == CROP).reshape(Hm, f, Wm, f).mean(axis=(1, 3))
+    builtf = (sub == BUILT).reshape(Hm, f, Wm, f).mean(axis=(1, 3))
     inside = (ids[:Hm * f, :Wm * f] > 0).reshape(Hm, f, Wm, f).mean(axis=(1, 3))
-    alpha = np.clip(bare * inside * 1.15, 0, 1)
+    # экин майдонига яқинлик: CROP_NEAR_KM радиусдаги энг катта экин улуши
+    # (чўл, дашт, бута, тоғ, сув — экин йўқ ҳамма жой ёпилади; масалан
+    # Қўнғирот шимолидаги Устюрт дашти (синф 30) олдин рангли қолган эди)
+    rad = max(1, int(round(CROP_NEAR_KM / (MASK_RES * 111.32))))
+    pad = np.pad(cropf, rad)
+    near = np.zeros_like(cropf)
+    for dy in range(-rad, rad + 1):
+        for dx in range(-rad, rad + 1):
+            if dy * dy + dx * dx <= rad * rad:
+                near = np.maximum(near, pad[rad + dy:rad + dy + Hm, rad + dx:rad + dx + Wm])
+    nocrop = 1 - np.clip(near / 0.02, 0, 1)        # 2% экин бўлса — экин зонаси
+    alpha = np.clip(nocrop * (1 - builtf * 3) * inside * 1.15, 0, 1)
     alpha[alpha < 0.12] = 0
     rgba = np.zeros((Hm, Wm, 4), dtype=np.uint8)
     rgba[..., 0], rgba[..., 1], rgba[..., 2] = 0xEA, 0xD9, 0xB0
