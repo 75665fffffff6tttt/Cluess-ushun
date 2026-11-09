@@ -577,7 +577,12 @@
   loadNeighbors().then(loadData);
 
   var wrap = stage.parentElement;
-  function fit() { var w = wrap.clientWidth, s = w / 1080; stage.style.transform = "scale(" + s + ")"; wrap.style.height = (1080 * s) + "px"; }
+  // кенг экранда — кенгроқ саҳна (харита каттароқ), телефонда — эски квадрат (матн кичраймаслиги учун)
+  function fit() {
+    var w = wrap.clientWidth, wide = w >= 760, W = wide ? 1500 : 1080, H = wide ? 1180 : 1080, s = w / W;
+    stage.style.width = W + "px"; stage.style.height = H + "px";
+    stage.style.transform = "scale(" + s + ")"; wrap.style.height = (H * s) + "px";
+  }
   fit(); window.addEventListener("resize", fit);
   if (window.ResizeObserver) { try { new ResizeObserver(fit).observe(wrap); } catch (e) {} }
 })();
