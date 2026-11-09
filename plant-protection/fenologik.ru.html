@@ -27,6 +27,25 @@
   .stage .uzmap svg{display:block}
   .stage .uzmap svg path{transition:fill .8s ease;cursor:pointer}
   .stage .uzmap svg path:hover{stroke:#0f2b1f;stroke-width:1.4}
+  .stage .dinfo{position:absolute;top:12px;right:66px;width:360px;max-height:calc(100% - 24px);overflow:auto;background:rgba(255,255,255,.97);border:1px solid #d9e6d9;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.18);padding:14px 16px 12px;z-index:8;font-size:16px;color:#1f2d1f}
+  .stage .di-x{position:absolute;top:6px;right:8px;border:none;background:none;font-size:26px;line-height:1;color:#78909c;cursor:pointer;padding:2px 6px}
+  .stage .di-x:hover{color:#1b5e20}
+  .stage .di-name{font-size:21px;font-weight:800;padding-right:28px;line-height:1.2}
+  .stage .di-reg{font-size:14px;color:#607d8b;margin-top:2px}
+  .stage .di-pest{font-size:14px;color:#2e7d32;font-weight:700;margin:8px 0 6px}
+  .stage .di-phase{display:inline-block;font-size:14px;font-weight:800;padding:3px 11px;border-radius:14px;margin-bottom:8px}
+  .stage .di-phase.active{background:#e3f1e3;color:#1b5e20}
+  .stage .di-phase.dia{background:#eceff1;color:#546e7a}
+  .stage .di-phase.desert{background:#f3e9d2;color:#7a5a1e;font-weight:700}
+  .stage .di-t{width:100%;border-collapse:collapse;font-size:15px}
+  .stage .di-t td{padding:4px 0;border-top:1px solid #eef2ee;vertical-align:top}
+  .stage .di-t td:first-child{color:#607d8b;padding-right:10px}
+  .stage .di-sub{color:#8a9a8a;font-size:13px}
+  .stage .di-crop{margin-top:8px;font-size:13.5px;color:#5f6b61}
+  .stage .di-row{font-size:15px;color:#607d8b}
+  .stage.narrow .dinfo{width:640px;font-size:28px;padding:20px 24px;right:72px}
+  .stage.narrow .di-name{font-size:36px} .stage.narrow .di-reg,.stage.narrow .di-pest,.stage.narrow .di-phase,.stage.narrow .di-crop,.stage.narrow .di-row{font-size:25px}
+  .stage.narrow .di-t{font-size:27px} .stage.narrow .di-sub{font-size:22px} .stage.narrow .di-x{font-size:44px}
   .stage .zoomctl{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:7px;z-index:7}
   .stage .zoomctl button{width:42px;height:42px;border:1.5px solid #cfe0cf;background:rgba(255,255,255,.95);border-radius:10px;font-size:24px;font-weight:700;color:#2e5d3a;cursor:pointer;box-shadow:0 2px 7px rgba(0,0,0,.14);line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
   .stage .zoomctl button:hover{background:#eef5ee;border-color:#1b5e20}
@@ -136,7 +155,7 @@
 <script src="js/main.js?v=2"></script>
 <script src="js/uz-districts.js?v=3"></script>
 <script src="js/uz-geo.js?v=1"></script>
-<script src="js/fenologik.js?v=16"></script>
+<script src="js/fenologik.js?v=17"></script>
 <script src="js/counter.js?v=1"></script>
 </body>
 </html>
