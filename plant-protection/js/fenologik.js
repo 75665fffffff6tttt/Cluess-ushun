@@ -33,7 +33,7 @@
     phasePre: "ЗИМОВКА — ожидается весеннее пробуждение", winterLabel: "Форма зимовки", recLabel: "Рекомендация",
     windowLabel: "Окно обработки", windowTxt: "перед яйцекладкой следующего поколения",
     sumTitle: "Заключение", sumUnit: "р-нов", sumActive: "Активное развитие", sumDiap: "Зимовка (диапауза)",
-    sumMaxGen: "Макс. поколений", sumAvgGen: "В среднем", sumTop: "Наибольшее давление", desertTip: "🏜 Пустыня — посевов нет, прогноз не даётся", nocropTip: "Посевов нет (степь/горы) — прогноз не даётся", sumNoFc: "Без прогноза (пустыня/нет посевов)",
+    sumMaxGen: "Макс. поколений", sumAvgGen: "В среднем", sumTop: "Наибольшее давление", desertTip: "🏜 Пустыня — посевов нет, прогноз не даётся", nocropTip: "Посевов нет (степь/горы) — прогноз не даётся", sumNoFc: "Без прогноза (пустыня/нет посевов)", diToday: "Сегодня (max / min)", di7: "Средняя за 7 дней", diCrop: "Посевы", diCity: "Городская территория — температура по центру района", diClose: "Закрыть",
     sumOverLead: "Сезон в основном завершён", sumActiveLead: "Вредитель ещё активен",
     sumOverTxt: "из {N} районов {E} перешли в диапаузу (зимовку). За сезон накоплено до {G} поколений.",
     sumActiveTxt: "в {A} районах идёт активное развитие (до {G} поколений). Проведите обработку перед яйцекладкой следующего поколения.",
@@ -50,7 +50,7 @@
     phasePre: "ҚИШЛОВ — баҳорда уйғониш кутилмоқда", winterLabel: "Қишлаш шакли", recLabel: "Тавсия",
     windowLabel: "Ишлов бериш ойнаси", windowTxt: "навбатдаги авлод тухум қўйиши олдидан",
     sumTitle: "Хулоса", sumUnit: "туман", sumActive: "Фаол ривожланиш", sumDiap: "Қишлов (диапауза)",
-    sumMaxGen: "Энг кўп авлод", sumAvgGen: "Ўртача", sumTop: "Энг юқори босим", desertTip: "🏜 Чўл — экин майдони йўқ, прогноз берилмайди", nocropTip: "Экин майдони йўқ (дашт/тоғ) — прогноз берилмайди", sumNoFc: "Прогноз берилмади (чўл/экин майдони йўқ)",
+    sumMaxGen: "Энг кўп авлод", sumAvgGen: "Ўртача", sumTop: "Энг юқори босим", desertTip: "🏜 Чўл — экин майдони йўқ, прогноз берилмайди", nocropTip: "Экин майдони йўқ (дашт/тоғ) — прогноз берилмайди", sumNoFc: "Прогноз берилмади (чўл/экин майдони йўқ)", diToday: "Бугун (max / min)", di7: "Охирги 7 кун ўртача", diCrop: "Экин майдони", diCity: "Шаҳар ҳудуди — ҳарорат туман марказидан", diClose: "Ёпиш",
     sumOverLead: "Мавсум асосан якунланди", sumActiveLead: "Зараркунанда ҳали фаол",
     sumOverTxt: "{N} тумандан {E} таси диапаузага (қишловга) ўтган. Мавсум давомида {G} авлодгача ривожланган.",
     sumActiveTxt: "{A} туманда фаол ривожланиш кетмоқда ({G} авлодгача). Навбатдаги авлод тухум қўйишидан олдин ишлов беринг.",
@@ -81,7 +81,7 @@
   var dseries = {}, dpheno = {};     // туман (индекс) бўйича: серия ва фенология
   var regSeries = {}, regPheno = {}; // вилоят ўртачаси
   var countrySeries = [], countryPheno = null;
-  var loadState = "loading", updatedAt = null, wxPending = false;
+  var loadState = "loading", updatedAt = null, wxPending = false, selDist = null, WXP = null;
 
   function centroid(d) {
     var nums = d.match(/-?\d+(?:\.\d+)?/g); if (!nums) return [0, 0];
@@ -141,7 +141,7 @@
   function panPx(dx, dy) { var t = xform(); vb[0] -= dx / t.sc; vb[1] -= dy / t.sc; clampVB(); applyVB(); }
   function zoomBtn(factor) { var cx = vb[0] + vb[2] / 2, cy = vb[1] + vb[3] / 2, newW = vb[2] * factor; if (newW > base[2]) newW = base[2]; if (newW < MINW) newW = MINW; var newH = vb[3] * (newW / vb[2]); vb[0] = cx - newW / 2; vb[1] = cy - newH / 2; vb[2] = newW; vb[3] = newH; clampVB(); applyVB(); }
   function tweenTo(tgt, ms) { var cur = vb.slice(), t0 = performance.now(); function step(now) { var k = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - k, 3); vb = cur.map(function (c, i) { return c + (tgt[i] - c) * e; }); applyVB(); if (k < 1) requestAnimationFrame(step); else { clampVB(); applyVB(); } } requestAnimationFrame(step); }
-  function resetView() { curReg = null; tweenTo(base.slice(), 450); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); }
+  function resetView() { curReg = null; selDist = null; tweenTo(base.slice(), 450); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict(); }
 
   function pestOf() { return PESTS[curPest]; }
 
@@ -150,12 +150,17 @@
       var inReg = !curReg || items[i].r === curReg;
       paths[i].setAttribute("fill", fillFor(i));
       paths[i].setAttribute("opacity", inReg ? "1" : "0.12");
-      paths[i].setAttribute("stroke-width", curReg && items[i].r === curReg ? "0.9" : "0.5");
+      var selU = selDist && selDist.t === "u" && selDist.i === i;
+      paths[i].setAttribute("stroke", selU ? "#0f2b1f" : "#fff");
+      paths[i].setAttribute("stroke-width", selU ? "2.2" : (curReg && items[i].r === curReg ? "0.9" : "0.5"));
     }
     for (var k = 0; k < npaths.length; k++) {
       var nph = npheno[k];
       npaths[k].setAttribute("fill", zoneN[k] ? DESERT_COL : (nph ? (nph.ended ? DIA_COL : genColor(nph.gen)) : "#e3e8ea"));
-      npaths[k].setAttribute("opacity", curReg ? "0.12" : "0.55");
+      var selN = selDist && selDist.t === "n" && selDist.i === k;
+      npaths[k].setAttribute("opacity", selN ? "0.9" : (curReg ? "0.12" : "0.55"));
+      npaths[k].setAttribute("stroke", selN ? "#0f2b1f" : "#607d8b");
+      npaths[k].setAttribute("stroke-width", selN ? "1.8" : "0.45");
     }
     gl.innerHTML = "";
     if (curReg) {
@@ -292,7 +297,7 @@
   }
 
   // ===== ҳодисалар =====
-  function drill(i) { var rid = items[i].r; if (curReg !== rid) { curReg = rid; tweenTo(fitRegion(regById[rid].bbox), 500); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); } }
+  function drill(i) { var rid = items[i].r; if (curReg !== rid) { curReg = rid; tweenTo(fitRegion(regById[rid].bbox), 500); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict(); } }
   function phLine(ph) { return ph ? (ph.ended ? "❄ " + T.phaseDiapause : (T.gen + " " + ph.gen + " · " + Math.round(ph.gdd) + "°Д")) : (loadState === "loading" ? T.loading : T.nodata); }
   function showTip(e) {
     var t = e.target, html = null;
@@ -337,7 +342,11 @@
     showTip(e);
   });
   function endPtr(e) {
-    if (downT && moved <= 4) { var t = e.target; if (t && t.tagName === "path" && t.hasAttribute("data-i")) drill(+t.getAttribute("data-i")); }
+    if (downT && moved <= 4) {
+      var t = downT; // pointer capture туфайли pointerup'нинг target'и — svg; шунинг учун pointerdown пайтидаги элемент
+      if (t && t.tagName === "path" && t.hasAttribute("data-i")) { var di = +t.getAttribute("data-i"); selDist = { t: "u", i: di }; svg.insertBefore(t, svg.querySelector("#desertlayer") || svg.querySelector("#uzborder") || gl); drill(di); paint(); renderDistrict(); }
+      else if (t && t.tagName === "path" && t.hasAttribute("data-n")) { selDist = { t: "n", i: +t.getAttribute("data-n") }; gN.appendChild(t); paint(); renderDistrict(); }
+    }
     delete ptrs[e.pointerId]; var n = Object.keys(ptrs).length;
     if (n < 2) pinchD = 0; if (n === 0) { panLast = null; downT = null; }
   }
@@ -345,6 +354,40 @@
   svg.addEventListener("pointercancel", endPtr);
   svg.addEventListener("pointerleave", function () { tip.style.display = "none"; });
   svg.addEventListener("wheel", function (e) { e.preventDefault(); zoomAt(e.deltaY > 0 ? 1.18 : 0.85, e.clientX, e.clientY); }, { passive: false });
+
+  // ===== босилган туман маълумоти (хаританинг ўнг юқори бурчаги) =====
+  var dinfo = document.createElement("div"); dinfo.className = "dinfo"; dinfo.style.display = "none"; map.appendChild(dinfo);
+  ["pointerdown", "pointerup", "wheel"].forEach(function (ev) { dinfo.addEventListener(ev, function (e) { e.stopPropagation(); }); });
+  dinfo.addEventListener("click", function (e) { if (e.target.closest(".di-x")) { selDist = null; renderDistrict(); paint(); } });
+  function dayOf(ser, ds) { if (!ser) return null; for (var j = ser.length - 1; j >= 0; j--) if (iso(ser[j].t) === ds) return ser[j]; return null; }
+  function renderDistrict() {
+    if (!selDist) { dinfo.style.display = "none"; return; }
+    var i = selDist.i, nm, rg, ph, ser, zone, e;
+    if (selDist.t === "u") { var it = items[i]; nm = dname(it); rg = rname(regById[it.r]); ph = dpheno[i]; ser = dseries[i]; zone = zoneD[i]; e = WXP && WXP.d && WXP.d[String(i)]; }
+    else { var n = NB[i]; nm = n.nm || n.cn; rg = n.cn; ph = npheno[i]; ser = nseries[i]; zone = zoneN[i]; e = WXP && WXP.d && WXP.d["n" + n.fi]; }
+    var pest = pestOf();
+    var h = '<button class="di-x" type="button" aria-label="' + T.diClose + '" title="' + T.diClose + '">×</button>' +
+      '<div class="di-name">' + nm + '</div><div class="di-reg">' + rg + '</div><div class="di-pest">' + pest.nm + '</div>';
+    if (zone) h += '<div class="di-phase desert">' + T[zone + "Tip"] + '</div>';
+    else if (loadState === "loading") h += '<div class="di-row">' + T.loading + '</div>';
+    else if (!ph) h += '<div class="di-row">' + T.nodata + '</div>';
+    else {
+      h += '<div class="di-phase ' + (ph.ended ? "dia" : "active") + '">' + (ph.ended ? "❄ " + T.phaseDiapause : T.phaseActive) + '</div>';
+      var rows = [
+        [T.gen, '<b>' + ph.gen + '</b> <span class="di-sub">(' + Math.round(ph.progress * 100) + '% ' + T.progress + ')</span>'],
+        [T.gdd, '<b>' + Math.round(ph.gdd) + '</b> °Д <span class="di-sub">(' + T.base + ' ' + pest.base + '°C)</span>'],
+        [T.next, '<b>' + (ph.ended ? T.ended : (ph.next ? fmtDate(ph.next) + (ph.approx ? " " + T.approx : "") : "—")) + '</b>']
+      ];
+      var now = new Date(), td = dayOf(ser, iso(now)), s7 = 0, c7 = 0;
+      if (td) rows.push([T.diToday, '<b>' + Math.round(td.mx) + '° / ' + Math.round(td.mn) + '°</b>']);
+      if (ser) for (var j = 0; j < ser.length; j++) { var dd = (now - ser[j].t) / 86400000; if (dd >= 0 && dd < 7) { s7 += (ser[j].mx + ser[j].mn) / 2; c7++; } }
+      if (c7) rows.push([T.di7, '<b>' + (s7 / c7).toFixed(1) + '°C</b>']);
+      h += '<table class="di-t">' + rows.map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>'; }).join("") + '</table>';
+    }
+    if (e && !Array.isArray(e) && e.crop != null)
+      h += '<div class="di-crop">' + (e.zone === "city" ? T.diCity : T.diCrop + ': <b>' + Math.round(e.crop) + ' км²</b> (' + e.cropPct + '%)') + '</div>';
+    dinfo.innerHTML = h; dinfo.style.display = "";
+  }
 
   var zc = document.createElement("div"); zc.className = "zoomctl";
   zc.innerHTML = '<button type="button" data-z="in">+</button><button type="button" data-z="out">−</button><button type="button" data-z="reset">⟳</button>';
@@ -355,7 +398,7 @@
     var b = e.target.closest(".pbtn"); if (!b) return;
     curPest = +b.getAttribute("data-p");
     [].forEach.call(pestBox.children, function (x) { x.classList.toggle("on", x === b); });
-    recompute(); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary();
+    recompute(); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict();
   });
 
   // ===== GDD ҳисоби (Baskerville–Emin СИНУС усули + юқори чегара) =====
@@ -572,28 +615,28 @@
     NB.forEach(function (n, k) { var m = maps["n" + k] || {}, keys = Object.keys(m).sort(); nseries[k] = keys.map(function (ds) { return { t: new Date(ds + "T00:00:00"), mx: m[ds].mx, mn: m[ds].mn }; }); });
     var have = dIdx.filter(function (i) { return dseries[i] && dseries[i].length; }).length;
     updatedAt = new Date(); loadState = have ? "ok" : "error";
-    recompute(); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary();
+    recompute(); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict();
   }
   function loadData() {
-    loadState = "loading"; updatePanel(); drawCal(); renderStatus(); renderSummary();
+    loadState = "loading"; updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict();
     var pts = dIdx.map(function (i) { return { key: i, pk: String(i), lat: GEO[i][0], lon: GEO[i][1] }; })
       .concat(NB.map(function (n, k) { return { key: "n" + k, pk: "n" + n.fi, lat: n.ll[0], lon: n.ll[1] }; }));
     var t = new Date(), stamp = t.getFullYear() + "-" + (t.getMonth() + 1) + "-" + t.getDate() + "-" + t.getHours();
     Promise.all([
       fetch("data/wx.json?h=" + stamp).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }),
       fetch("data/wx-points.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
-    ]).then(function (res) { addDesertLayer(res[1]); finish(wxMaps(res[0], pts, res[1])); })
-      .catch(function (e) { wxPending = !!(e && e.message === "404"); loadState = "error"; updatePanel(); drawCal(); renderStatus(); renderSummary(); });
+    ]).then(function (res) { WXP = res[1]; addDesertLayer(res[1]); finish(wxMaps(res[0], pts, res[1])); })
+      .catch(function (e) { wxPending = !!(e && e.message === "404"); loadState = "error"; updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict(); });
   }
 
-  paint(); updatePanel(); drawCal(); renderStatus(); renderSummary();
+  paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict();
   loadNeighbors().then(loadData);
 
   var wrap = stage.parentElement;
   // кенг экранда — кенгроқ саҳна (харита каттароқ), телефонда — эски квадрат (матн кичраймаслиги учун)
   function fit() {
     var w = wrap.clientWidth, wide = w >= 760, W = wide ? 1500 : 1080, H = wide ? 1180 : 1080, s = w / W;
-    stage.style.width = W + "px"; stage.style.height = H + "px";
+    stage.style.width = W + "px"; stage.style.height = H + "px"; stage.classList.toggle("narrow", !wide);
     stage.style.transform = "scale(" + s + ")"; wrap.style.height = (H * s) + "px";
   }
   fit(); window.addEventListener("resize", fit);
