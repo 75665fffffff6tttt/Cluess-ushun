@@ -256,10 +256,12 @@ def main():
         if fc_at:
             age = dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(fc_at)
             fresh = age < dt.timedelta(hours=FC_EVERY_H)
-        if not fresh:
+        ti = (today - start).days
+        fc_keys = keys if not fresh else [k for k in keys if st["cells"][k][2 * ti] is None]  # янги катаклар — доим
+        if fc_keys:
             ok = 0
-            for i in range(0, len(keys), 100):
-                ch = keys[i:i + 100]
+            for i in range(0, len(fc_keys), 100):
+                ch = fc_keys[i:i + 100]
                 params = {
                     "latitude": ",".join("%.2f" % cells[k][0] for k in ch),
                     "longitude": ",".join("%.2f" % cells[k][1] for k in ch),
@@ -270,8 +272,8 @@ def main():
                 if resp:
                     put(st, start, ch, resp)
                     ok += len(ch)
-                log("forecast %d/%d" % (min(i + 100, len(keys)), len(keys)))
-            if ok == len(keys):
+                log("forecast %d/%d" % (min(i + 100, len(fc_keys)), len(fc_keys)))
+            if ok == len(fc_keys) and not fresh:
                 st["fc_at"] = dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
             save_state(st)
         else:
