@@ -467,7 +467,7 @@
   function loadNeighbors() {
     return fetch("data/uz-neighbors.geojson?v=4").then(function (r) { return r.json(); }).then(function (gj) {
       var mnx = 0, mny = 0, mxx = base[2], mxy = base[3];
-      (gj.features || []).forEach(function (f) {
+      (gj.features || []).forEach(function (f, fi) {
         var g = f.geometry, p = f.properties || {}; if (!g) return;
         var polys = g.type === "Polygon" ? [g.coordinates] : (g.type === "MultiPolygon" ? g.coordinates : []);
         var d = "", best = null, bestA = -1;
@@ -486,7 +486,7 @@
         });
         if (!d || !best) return;
         var ll = ringCtr(best), k = NB.length;
-        NB.push({ nm: LANG === "ru" ? (p.ru || p.c) : (p.c || p.ru), cn: LANG === "ru" ? (p.regru || p.reg) : (p.reg || p.regru), ll: [ll[1], ll[0]] });
+        NB.push({ nm: LANG === "ru" ? (p.ru || p.c) : (p.c || p.ru), cn: LANG === "ru" ? (p.regru || p.reg) : (p.reg || p.regru), ll: [ll[1], ll[0]], fi: fi });
         var el = document.createElementNS(ns, "path");
         el.setAttribute("d", d); el.setAttribute("fill-rule", "evenodd"); el.setAttribute("fill", "#e3e8ea");
         el.setAttribute("stroke", "#607d8b"); el.setAttribute("stroke-width", "0.45"); el.setAttribute("stroke-dasharray", "2.2,1.6");
@@ -525,13 +525,21 @@
     }
     return best;
   }
-  function wxMaps(W, pts) {
+  // туман ичидаги бир нечта нуқта (data/wx-points.json) ҳароратининг ўртачаси;
+  // улар ҳали тайёр бўлмаса — туман марказининг катаги
+  function wxMaps(W, pts, X) {
     var p0 = W.start.split("-").map(Number), maps = {}, dates = [];
     for (var d = 0; d < W.days; d++) dates.push(iso(new Date(p0[0], p0[1] - 1, p0[2] + d)));
     pts.forEach(function (p) {
-      var c = wxCell(W, p.lat, p.lon), m = {};
-      if (c && c[0] != null) // 1-январдан маълумот бор (архив тўлдирилган) — акс ҳолда "маълумот йўқ"
-        for (var d = 0; d < W.days; d++) { var mx = c[2 * d], mn = c[2 * d + 1]; if (mx != null && mn != null) m[dates[d]] = { mx: mx / 10, mn: mn / 10 }; }
+      var list = [], ks = X && X.d && X.d[p.pk];
+      if (ks) ks.forEach(function (k) { var c = W.cells[k]; if (c && c[0] != null) list.push(c); }); // 1-январдан тўлиқ катаклар
+      if (!list.length) { var c0 = wxCell(W, p.lat, p.lon); if (c0 && c0[0] != null) list.push(c0); }
+      var m = {};
+      for (var d = 0; d < W.days; d++) {
+        var sx = 0, sn = 0, n = 0;
+        for (var j = 0; j < list.length; j++) { var mx = list[j][2 * d], mn = list[j][2 * d + 1]; if (mx != null && mn != null) { sx += mx; sn += mn; n++; } }
+        if (n) m[dates[d]] = { mx: sx / n / 10, mn: sn / n / 10 };
+      }
       maps[p.key] = m;
     });
     return maps;
@@ -543,13 +551,16 @@
     var have = dIdx.filter(function (i) { return dseries[i] && dseries[i].length; }).length;
     updatedAt = new Date(); loadState = have ? "ok" : "error";
     recompute(); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary();
-  }  function loadData() {
+  }
+  function loadData() {
     loadState = "loading"; updatePanel(); drawCal(); renderStatus(); renderSummary();
-    var pts = dIdx.map(function (i) { return { key: i, lat: GEO[i][0], lon: GEO[i][1] }; })
-      .concat(NB.map(function (n, k) { return { key: "n" + k, lat: n.ll[0], lon: n.ll[1] }; }));
+    var pts = dIdx.map(function (i) { return { key: i, pk: String(i), lat: GEO[i][0], lon: GEO[i][1] }; })
+      .concat(NB.map(function (n, k) { return { key: "n" + k, pk: "n" + n.fi, lat: n.ll[0], lon: n.ll[1] }; }));
     var t = new Date(), stamp = t.getFullYear() + "-" + (t.getMonth() + 1) + "-" + t.getDate() + "-" + t.getHours();
-    fetch("data/wx.json?h=" + stamp).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function (W) { finish(wxMaps(W, pts)); })
+    Promise.all([
+      fetch("data/wx.json?h=" + stamp).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }),
+      fetch("data/wx-points.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+    ]).then(function (res) { finish(wxMaps(res[0], pts, res[1])); })
       .catch(function (e) { wxPending = !!(e && e.message === "404"); loadState = "error"; updatePanel(); drawCal(); renderStatus(); renderSummary(); });
   }
 

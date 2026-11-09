@@ -5,8 +5,8 @@
 GitHub Actions'да кунига бир марта йиғади, шунда сайтга кирувчилар
 Open-Meteo'ни умуман чақирмайди (бепул лимит тугамайди).
 
-- Нуқталар: фенологик прогноз саҳифасидаги туман марказлари, 0.25° тўрга
-  яхлитланиб, такрорсиз катакларга бирлаштирилади.
+- Нуқталар: data/wx-points.json (ҳар туман ичидаги 0.5° тўр нуқталари;
+  кичик туманда — марказ), такрорсиз 0.25° катакларга бирлаштирилади.
 - Прогноз (past_days=7, +16 кун) — 18 соатда бир марта.
 - Архив (1-январдан) — фақат бўш кунлар учун (биринчи марта тўлиқ, кейин
   фақат узилишлар).
@@ -234,12 +234,21 @@ def put(st, start, keys, resp, only_until=None):
 
 def main():
     today = dt.datetime.now(dt.timezone(dt.timedelta(hours=5))).date()  # Тошкент
-    pts = all_points()
     cells = {}
-    for lat, lon in pts:
-        cells.setdefault(cell_key(lat, lon), (snap(lat), snap(lon)))
+    wp = os.path.join(P, "data", "wx-points.json")  # scripts/build-wx-points.py: ҳар туман ичидаги нуқталар
+    if os.path.exists(wp):
+        with open(wp, encoding="utf-8") as fh:
+            for lst in json.load(fh)["d"].values():
+                for k in lst:
+                    la, lo = (float(x) for x in k.split(","))
+                    cells.setdefault(k, (la, lo))
+        log("wx-points.json → cells %d" % len(cells))
+    else:  # эски усул: фақат туман марказлари
+        pts = all_points()
+        for lat, lon in pts:
+            cells.setdefault(cell_key(lat, lon), (snap(lat), snap(lon)))
+        log("points %d → cells %d" % (len(pts), len(cells)))
     keys = sorted(cells)
-    log("points %d → cells %d" % (len(pts), len(keys)))
 
     st, start = load_state(today)
     for k in keys:
