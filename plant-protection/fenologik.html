@@ -57,6 +57,22 @@
   .stage .lg b{font-size:13px}
   .stage .note{position:absolute;left:40px;bottom:8px;font-size:12px;color:#8aa}
   .stage .watermark{position:absolute;right:40px;bottom:8px;font-size:11px;color:#9ab;font-weight:600}
+  .feno-time{max-width:1180px;margin:14px auto 0;background:#fff;border:1px solid #e6ece6;border-radius:14px;padding:12px 16px 10px;box-shadow:0 3px 14px rgba(0,0,0,.06)}
+  .feno-time .tl-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .feno-time .tl-lbl{font-size:14px;color:#2b3b2b}
+  .feno-time .tl-date{font-size:16px;font-weight:800;color:#1b5e20;min-width:150px}
+  .feno-time .tl-tag{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:10px;background:#eef3ee;color:#5a7a6a;vertical-align:middle}
+  .feno-time .tl-tag.fc{background:#fff3e0;color:#bf360c}
+  .feno-time .tl-btn{font:inherit;font-size:13.5px;font-weight:700;padding:5px 12px;border-radius:16px;border:1.5px solid #cfe0cf;background:#fff;color:#2e5d3a;cursor:pointer}
+  .feno-time .tl-btn:hover{border-color:#1b5e20;background:#eef5ee}
+  .feno-time .tl-play{margin-left:auto}
+  .feno-time .tl-track{position:relative;margin:10px 4px 0;height:26px}
+  .feno-time .tl-track input{position:relative;z-index:2;width:100%;margin:0;height:26px;accent-color:#1b5e20;background:transparent;cursor:pointer}
+  .feno-time .tl-fc{position:absolute;top:9px;height:8px;border-radius:4px;background:repeating-linear-gradient(45deg,#ffe0b2 0 5px,#fff3e0 5px 10px);z-index:1}
+  .feno-time .tl-todaymark{position:absolute;top:2px;bottom:2px;width:2px;background:#1b5e20;z-index:1}
+  .feno-time .tl-ticks{position:relative;height:16px;margin:2px 4px 0}
+  .feno-time .tl-ticks span{position:absolute;transform:translateX(-50%);font-size:11px;color:#8a9a8a}
+  .feno-time .tl-hint{font-size:12px;color:#8a9a8a;margin-top:4px}
   .feno-cal{max-width:1180px;margin:16px auto 0;background:#fff;border:1px solid #e6ece6;border-radius:14px;padding:14px 16px;box-shadow:0 3px 14px rgba(0,0,0,.06)}
   .fc-head{font-size:14px;color:#2b3b2b;margin-bottom:10px;line-height:1.4}
   .fc-base{color:#8a9a8a;font-weight:400}
@@ -144,6 +160,7 @@
       <div class="note">GDD модели · Open-Meteo</div>
       <div class="watermark">AgroHimoya</div>
     </div></div>
+    <div class="feno-time" id="fenotime"></div>
     <div class="feno-now" id="fenostat" style="display:none"></div>
     <div class="feno-cal" id="fenocal"></div>
     <div class="feno-sum" id="fenosum" style="display:none"></div>
@@ -156,7 +173,7 @@
 <script src="js/main.js?v=2"></script>
 <script src="js/uz-districts.js?v=3"></script>
 <script src="js/uz-geo.js?v=1"></script>
-<script src="js/fenologik.js?v=19"></script>
+<script src="js/fenologik.js?v=20"></script>
 <script src="js/counter.js?v=1"></script>
 </body>
 </html>

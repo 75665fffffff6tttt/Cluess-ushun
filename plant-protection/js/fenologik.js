@@ -37,7 +37,7 @@
     phasePre: "ЗИМОВКА — ожидается весеннее пробуждение", winterLabel: "Форма зимовки", recLabel: "Рекомендация",
     windowLabel: "Окно обработки", windowTxt: "перед яйцекладкой следующего поколения",
     sumTitle: "Заключение", sumUnit: "р-нов", sumActive: "Активное развитие", sumDiap: "Зимовка (диапауза)",
-    sumMaxGen: "Макс. поколений", sumAvgGen: "В среднем", sumTop: "Наибольшее давление", desertTip: "🏜 Пустыня — посевов нет, прогноз не даётся", nocropTip: "Посевов нет (степь/горы) — прогноз не даётся", sumNoFc: "Без прогноза (пустыня/нет посевов)", diToday: "Сегодня (max / min)", di7: "Средняя за 7 дней", diCrop: "Посевы", diCity: "Городская территория — температура по центру района", diClose: "Закрыть", bioL: "Начало сезона (выход с зимовки)", cutL: "Осенняя диапауза (короткий день)", noNextCut: "новое поколение не начнётся — короткий день", genAbbr: "пок.", winNow: "ОТКРЫТО сейчас", winOpenL: "⚠ Окно обработки открыто сейчас", winSoonL: "Откроется в ближайшие 7 дней", winShort: "время обработки", winNone: "в этом сезоне больше нет", dateL: "Показана дата",
+    sumMaxGen: "Макс. поколений", sumAvgGen: "В среднем", sumTop: "Наибольшее давление", desertTip: "🏜 Пустыня — посевов нет, прогноз не даётся", nocropTip: "Посевов нет (степь/горы) — прогноз не даётся", sumNoFc: "Без прогноза (пустыня/нет посевов)", diToday: "Сегодня (max / min)", di7: "Средняя за 7 дней", diCrop: "Посевы", diCity: "Городская территория — температура по центру района", diClose: "Закрыть", bioL: "Начало сезона (выход с зимовки)", cutL: "Осенняя диапауза (короткий день)", noNextCut: "новое поколение не начнётся — короткий день", genAbbr: "пок.", winNow: "ОТКРЫТО сейчас", winOpenL: "⚠ Окно обработки открыто сейчас", winSoonL: "Откроется в ближайшие 7 дней", winShort: "время обработки", winNone: "в этом сезоне больше нет", dateL: "Показана дата", tlLabel: "Дата", tlToday: "Сегодня", tlPlay: "▶ Сезон", tlPause: "⏸ Пауза", tlFc: "прогноз", tlPast: "прошлое", tlHint: "Двигайте ползунок — карта, календарь и окна обработки покажут состояние на выбранную дату.",
     sumOverLead: "Сезон в основном завершён", sumActiveLead: "Вредитель ещё активен",
     sumOverTxt: "из {N} районов {E} перешли в диапаузу (зимовку). За сезон накоплено до {G} поколений.",
     sumActiveTxt: "в {A} районах идёт активное развитие (до {G} поколений). Проведите обработку перед яйцекладкой следующего поколения.",
@@ -54,7 +54,7 @@
     phasePre: "ҚИШЛОВ — баҳорда уйғониш кутилмоқда", winterLabel: "Қишлаш шакли", recLabel: "Тавсия",
     windowLabel: "Ишлов бериш ойнаси", windowTxt: "навбатдаги авлод тухум қўйиши олдидан",
     sumTitle: "Хулоса", sumUnit: "туман", sumActive: "Фаол ривожланиш", sumDiap: "Қишлов (диапауза)",
-    sumMaxGen: "Энг кўп авлод", sumAvgGen: "Ўртача", sumTop: "Энг юқори босим", desertTip: "🏜 Чўл — экин майдони йўқ, прогноз берилмайди", nocropTip: "Экин майдони йўқ (дашт/тоғ) — прогноз берилмайди", sumNoFc: "Прогноз берилмади (чўл/экин майдони йўқ)", diToday: "Бугун (max / min)", di7: "Охирги 7 кун ўртача", diCrop: "Экин майдони", diCity: "Шаҳар ҳудуди — ҳарорат туман марказидан", diClose: "Ёпиш", bioL: "Мавсум боши (қишловдан чиқиш)", cutL: "Кузги диапауза (кун қисқариши)", noNextCut: "янги авлод бошланмайди — кун қисқа", genAbbr: "авлод", winNow: "ҲОЗИР очиқ", winOpenL: "⚠ Ишлов бериш ойнаси ҳозир очиқ", winSoonL: "7 кун ичида очилади", winShort: "ишлов бериш вақти", winNone: "бу мавсумда бошқа йўқ", dateL: "Кўрсатилган сана",
+    sumMaxGen: "Энг кўп авлод", sumAvgGen: "Ўртача", sumTop: "Энг юқори босим", desertTip: "🏜 Чўл — экин майдони йўқ, прогноз берилмайди", nocropTip: "Экин майдони йўқ (дашт/тоғ) — прогноз берилмайди", sumNoFc: "Прогноз берилмади (чўл/экин майдони йўқ)", diToday: "Бугун (max / min)", di7: "Охирги 7 кун ўртача", diCrop: "Экин майдони", diCity: "Шаҳар ҳудуди — ҳарорат туман марказидан", diClose: "Ёпиш", bioL: "Мавсум боши (қишловдан чиқиш)", cutL: "Кузги диапауза (кун қисқариши)", noNextCut: "янги авлод бошланмайди — кун қисқа", genAbbr: "авлод", winNow: "ҲОЗИР очиқ", winOpenL: "⚠ Ишлов бериш ойнаси ҳозир очиқ", winSoonL: "7 кун ичида очилади", winShort: "ишлов бериш вақти", winNone: "бу мавсумда бошқа йўқ", dateL: "Кўрсатилган сана", tlLabel: "Сана", tlToday: "Бугун", tlPlay: "▶ Мавсум", tlPause: "⏸ Тўхтатиш", tlFc: "прогноз", tlPast: "ўтган кун", tlHint: "Сургични суринг — харита, календар ва ишлов бериш ойналари танланган кундаги ҳолатни кўрсатади.",
     sumOverLead: "Мавсум асосан якунланди", sumActiveLead: "Зараркунанда ҳали фаол",
     sumOverTxt: "{N} тумандан {E} таси диапаузага (қишловга) ўтган. Мавсум давомида {G} авлодгача ривожланган.",
     sumActiveTxt: "{A} туманда фаол ривожланиш кетмоқда ({G} авлодгача). Навбатдаги авлод тухум қўйишидан олдин ишлов беринг.",
@@ -87,6 +87,7 @@
   var countrySeries = [], countryPheno = null;
   // ?sana=YYYY-MM-DD — исталган санадаги ҳолатни кўриш (масалан, ёзги ишлов бериш ойналари)
   var NOW = (function () { var m = /[?&]sana=(\d{4})-(\d{2})-(\d{2})/.exec(location.search); return m ? new Date(+m[1], +m[2] - 1, +m[3], 12) : null; })();
+  var WXR = null; // ҳарорат маълумоти санаси оралиғи (wx.json: start, days)
   var loadState = "loading", updatedAt = null, wxPending = false, selDist = null, WXP = null;
 
   function centroid(d) {
@@ -421,7 +422,7 @@
       if (ph.seasonStart) rows.push([T.bioL, '<b>' + fmtDate(ph.seasonStart) + '</b>']);
       if (ph.cutoff) rows.push([T.cutL, '<b>' + fmtDate(ph.cutoff) + '</b>']);
       var now = updatedAt || new Date(), td = dayOf(ser, iso(now)), s7 = 0, c7 = 0;
-      if (td) rows.push([T.diToday, '<b>' + Math.round(td.mx) + '° / ' + Math.round(td.mn) + '°</b>']);
+      if (td) rows.push([NOW ? fmtDate(NOW) + ' (max / min)' : T.diToday, '<b>' + Math.round(td.mx) + '° / ' + Math.round(td.mn) + '°</b>']);
       if (ser) for (var j = 0; j < ser.length; j++) { var dd = (now - ser[j].t) / 86400000; if (dd >= 0 && dd < 7) { s7 += (ser[j].mx + ser[j].mn) / 2; c7++; } }
       if (c7) rows.push([T.di7, '<b>' + (s7 / c7).toFixed(1) + '°C</b>']);
       h += '<table class="di-t">' + rows.map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>'; }).join("") + '</table>';
@@ -692,6 +693,57 @@
     updatedAt = NOW || new Date(); loadState = have ? "ok" : "error";
     recompute(); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict(); renderLegend();
   }
+  // ===== сана сургичи (2.2): исталган кундаги ҳолат; ▶ — мавсумни анимация қилиш =====
+  var tlPlay = null;
+  function refreshAt(d) {
+    var today = new Date(); today.setHours(12, 0, 0, 0);
+    NOW = (d && iso(d) !== iso(today)) ? d : null;
+    updatedAt = NOW || new Date();
+    recompute(); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict(); renderLegend();
+    try { history.replaceState(null, "", location.pathname + (NOW ? "?sana=" + iso(NOW) : "") + location.hash); } catch (e) {}
+  }
+  function buildTimeline() {
+    var box = document.getElementById("fenotime"); if (!box || !WXR || loadState !== "ok") return;
+    var p0 = WXR.start.split("-").map(Number), d0 = new Date(p0[0], p0[1] - 1, p0[2], 12);
+    var dayAt = function (k) { return new Date(p0[0], p0[1] - 1, p0[2] + k, 12); };
+    var today = new Date(); today.setHours(12, 0, 0, 0);
+    var tIdx = Math.max(0, Math.min(WXR.days - 1, Math.round((today - d0) / 86400000)));
+    var cur = NOW ? Math.max(0, Math.min(WXR.days - 1, Math.round((NOW - d0) / 86400000))) : tIdx;
+    var ticks = T.months.map(function (m, i) {
+      var k = Math.round((new Date(p0[0], i, 1, 12) - d0) / 86400000);
+      return k < WXR.days ? '<span style="left:' + (k / (WXR.days - 1) * 100) + '%">' + m + '</span>' : '';
+    }).join("");
+    box.innerHTML =
+      '<div class="tl-row"><b class="tl-lbl">📅 ' + T.tlLabel + ':</b>' +
+      '<span class="tl-date" id="tl-date"></span>' +
+      '<button type="button" class="tl-btn" id="tl-today">' + T.tlToday + '</button>' +
+      '<button type="button" class="tl-btn tl-play" id="tl-play">' + T.tlPlay + '</button></div>' +
+      '<div class="tl-track"><input type="range" id="tl-range" min="0" max="' + (WXR.days - 1) + '" step="1" value="' + cur + '" aria-label="' + T.tlLabel + '">' +
+      '<div class="tl-todaymark" style="left:' + (tIdx / (WXR.days - 1) * 100) + '%" title="' + T.tlToday + '"></div>' +
+      '<div class="tl-fc" style="left:' + (tIdx / (WXR.days - 1) * 100) + '%;width:' + ((WXR.days - 1 - tIdx) / (WXR.days - 1) * 100) + '%"></div></div>' +
+      '<div class="tl-ticks">' + ticks + '</div>' +
+      '<div class="tl-hint">' + T.tlHint + '</div>';
+    var rng = document.getElementById("tl-range"), lab = document.getElementById("tl-date"), raf = 0;
+    function label(k) {
+      var d = dayAt(k), tag = k === tIdx ? T.tlToday.toLowerCase() : (k > tIdx ? T.tlFc : T.tlPast);
+      lab.innerHTML = fmtDate(d) + ' ' + d.getFullYear() + ' <span class="tl-tag' + (k > tIdx ? ' fc' : '') + '">' + tag + '</span>';
+    }
+    function go(k) { label(k); if (raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(function () { raf = 0; refreshAt(dayAt(k)); }); }
+    function stop() { if (tlPlay) { clearInterval(tlPlay); tlPlay = null; document.getElementById("tl-play").textContent = T.tlPlay; } }
+    label(cur);
+    rng.addEventListener("input", function () { go(+rng.value); });
+    document.getElementById("tl-today").addEventListener("click", function () { stop(); rng.value = tIdx; go(tIdx); });
+    document.getElementById("tl-play").addEventListener("click", function () {
+      if (tlPlay) { stop(); return; }
+      if (+rng.value >= WXR.days - 1) rng.value = 0;
+      this.textContent = T.tlPause;
+      tlPlay = setInterval(function () {
+        var k = Math.min(WXR.days - 1, +rng.value + 3); rng.value = k; go(k);
+        if (k >= WXR.days - 1) stop();
+      }, 140);
+    });
+  }
+
   function loadData() {
     loadState = "loading"; updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict(); renderLegend();
     var pts = dIdx.map(function (i) { return { key: i, pk: String(i), lat: GEO[i][0], lon: GEO[i][1] }; })
@@ -700,7 +752,7 @@
     Promise.all([
       fetch("data/wx.json?h=" + stamp).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }),
       fetch("data/wx-points.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
-    ]).then(function (res) { WXP = res[1]; addDesertLayer(res[1]); finish(wxMaps(res[0], pts, res[1])); })
+    ]).then(function (res) { WXP = res[1]; WXR = { start: res[0].start, days: res[0].days }; addDesertLayer(res[1]); finish(wxMaps(res[0], pts, res[1])); buildTimeline(); })
       .catch(function (e) { wxPending = !!(e && e.message === "404"); loadState = "error"; updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict(); renderLegend(); });
   }
 
