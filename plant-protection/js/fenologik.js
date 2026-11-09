@@ -111,6 +111,10 @@
   });
   var gl = document.createElementNS(ns, "g"); gl.setAttribute("id", "labels"); svg.appendChild(gl);
   map.appendChild(svg);
+  // қўшни давлатлар туманлари — Ўзбекистон остида (пунктир)
+  var gN = document.createElementNS(ns, "g"); gN.setAttribute("id", "nb"); svg.insertBefore(gN, svg.firstChild);
+  var NB = [], npaths = [], nseries = {}, npheno = {};
+  var PX0 = 55.9987, PY0 = 45.5901, PS = 58.3397; // uz-districts.js проекцияси (lon/lat → SVG)
   var tip = document.getElementById("zktip");
 
   // ===== Zoom / Pan =====
@@ -145,6 +149,11 @@
       paths[i].setAttribute("fill", fillFor(i));
       paths[i].setAttribute("opacity", inReg ? "1" : "0.12");
       paths[i].setAttribute("stroke-width", curReg && items[i].r === curReg ? "0.9" : "0.5");
+    }
+    for (var k = 0; k < npaths.length; k++) {
+      var nph = npheno[k];
+      npaths[k].setAttribute("fill", nph ? (nph.ended ? DIA_COL : genColor(nph.gen)) : "#e3e8ea");
+      npaths[k].setAttribute("opacity", curReg ? "0.12" : "0.55");
     }
     gl.innerHTML = "";
     if (curReg) {
@@ -281,12 +290,18 @@
 
   // ===== ҳодисалар =====
   function drill(i) { var rid = items[i].r; if (curReg !== rid) { curReg = rid; tweenTo(fitRegion(regById[rid].bbox), 500); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); } }
+  function phLine(ph) { return ph ? (ph.ended ? "❄ " + T.phaseDiapause : (T.gen + " " + ph.gen + " · " + Math.round(ph.gdd) + "°Д")) : (loadState === "loading" ? T.loading : T.nodata); }
   function showTip(e) {
-    var t = e.target;
+    var t = e.target, html = null;
     if (t && t.tagName === "path" && t.hasAttribute("data-i")) {
-      var i = +t.getAttribute("data-i"), it = items[i], ph = dpheno[i];
-      var line = ph ? (ph.ended ? "❄ " + T.phaseDiapause : (T.gen + " " + ph.gen + " · " + Math.round(ph.gdd) + "°Д")) : T.nodata;
-      tip.innerHTML = "<b>" + dname(it) + "</b><br>" + rname(regById[it.r]) + "<br>" + line;
+      var i = +t.getAttribute("data-i"), it = items[i];
+      html = "<b>" + dname(it) + "</b><br>" + rname(regById[it.r]) + "<br>" + phLine(dpheno[i]);
+    } else if (t && t.tagName === "path" && t.hasAttribute("data-n")) {
+      var k = +t.getAttribute("data-n"), n = NB[k];
+      html = (n.nm ? "<b>" + n.nm + "</b><br>" : "") + n.cn + "<br>" + phLine(npheno[k]);
+    }
+    if (html) {
+      tip.innerHTML = html;
       tip.style.display = "block";
       var r = map.getBoundingClientRect();
       tip.style.left = (e.clientX - r.left + 12) + "px"; tip.style.top = (e.clientY - r.top + 12) + "px";
@@ -402,6 +417,8 @@
     regPheno = {};
     regIds.forEach(function (rid) { regPheno[rid] = computePheno(regSeries[rid], pest); });
     countryPheno = computePheno(countrySeries, pest);
+    npheno = {};
+    NB.forEach(function (n, k) { npheno[k] = computePheno(nseries[k], pest); });
   }
 
   // ===== маълумот юклаш (Open-Meteo архив + прогноз) =====
@@ -443,35 +460,121 @@
     dIdx.forEach(function (i) { allD = allD.concat(dseries[i] || []); });
     countrySeries = avgByDate(allD);
   }
-  function loadData() {
-    loadState = "loading"; updatePanel(); drawCal(); renderStatus(); renderSummary();
-    var now = new Date(), y = now.getFullYear(), archEnd = new Date(now.getTime() - 6 * 86400000);
-    var maps = {}; dIdx.forEach(function (i) { maps[i] = {}; });
-    var CH = 60, chunks = [];               // кўп нуқтани чанкларга бўлиб сўраймиз
-    for (var k = 0; k < dIdx.length; k += CH) chunks.push(dIdx.slice(k, k + CH));
-    var tasks = [];
-    chunks.forEach(function (ch) {
-      var lat = ch.map(function (i) { return GEO[i][0]; }).join(",");
-      var lon = ch.map(function (i) { return GEO[i][1]; }).join(",");
-      var archUrl = "https://archive-api.open-meteo.com/v1/archive?latitude=" + lat + "&longitude=" + lon +
-        "&start_date=" + y + "-01-01&end_date=" + iso(archEnd) + "&daily=temperature_2m_max,temperature_2m_min&timezone=auto";
-      var fcUrl = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon +
-        "&daily=temperature_2m_max,temperature_2m_min&past_days=10&forecast_days=16&timezone=auto";
-      tasks.push(fetch(archUrl).then(function (r) { return r.json(); }).then(function (data) {
-        parseResp(data).forEach(function (d, j) { var i = ch[j]; if (i != null) mergeInto(maps[i], d); });
-      }));
-      tasks.push(fetch(fcUrl).then(function (r) { return r.json(); }).then(function (data) {
-        parseResp(data).forEach(function (d, j) { var i = ch[j]; if (i != null) mergeInto(maps[i], d); });
-      }));
-    });
-    Promise.all(tasks).then(function () {
-      buildSeries(maps);
-      updatedAt = new Date(); loadState = "ok";
-      recompute(); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary();
-    }).catch(function () { loadState = "error"; updatePanel(); drawCal(); renderStatus(); renderSummary(); });
+  // ===== қўшни давлатлар туманлари (data/uz-neighbors.geojson → SVG проекция) =====
+  function pj(lon, lat) { return [(lon - PX0) * PS, (PY0 - lat) * PS]; }
+  function ringArea(r) { var a = 0; for (var i = 0, j = r.length - 1; i < r.length; j = i++) a += r[j][0] * r[i][1] - r[i][0] * r[j][1]; return a / 2; }
+  function ringCtr(r) { var a = 0, cx = 0, cy = 0; for (var i = 0, j = r.length - 1; i < r.length; j = i++) { var f = r[j][0] * r[i][1] - r[i][0] * r[j][1]; a += f; cx += (r[j][0] + r[i][0]) * f; cy += (r[j][1] + r[i][1]) * f; } a /= 2; if (Math.abs(a) < 1e-12) return r[0]; return [cx / (6 * a), cy / (6 * a)]; }
+  function loadNeighbors() {
+    return fetch("data/uz-neighbors.geojson?v=3").then(function (r) { return r.json(); }).then(function (gj) {
+      var mnx = 0, mny = 0, mxx = base[2], mxy = base[3];
+      (gj.features || []).forEach(function (f) {
+        var g = f.geometry, p = f.properties || {}; if (!g) return;
+        var polys = g.type === "Polygon" ? [g.coordinates] : (g.type === "MultiPolygon" ? g.coordinates : []);
+        var d = "", best = null, bestA = -1;
+        polys.forEach(function (poly) {
+          var a0 = Math.abs(ringArea(poly[0])); if (a0 > bestA) { bestA = a0; best = poly[0]; }
+          poly.forEach(function (ring) {
+            var out = [], last = null;
+            ring.forEach(function (c) {
+              var q = pj(c[0], c[1]);
+              if (last && Math.abs(q[0] - last[0]) + Math.abs(q[1] - last[1]) < 0.6) return;
+              out.push(q[0].toFixed(1) + "," + q[1].toFixed(1)); last = q;
+              if (q[0] < mnx) mnx = q[0]; if (q[1] < mny) mny = q[1]; if (q[0] > mxx) mxx = q[0]; if (q[1] > mxy) mxy = q[1];
+            });
+            if (out.length > 2) d += "M" + out.join(" ") + "Z";
+          });
+        });
+        if (!d || !best) return;
+        var ll = ringCtr(best), k = NB.length;
+        NB.push({ nm: LANG === "ru" ? (p.ru || p.c) : (p.c || p.ru), cn: LANG === "ru" ? (p.regru || p.reg) : (p.reg || p.regru), ll: [ll[1], ll[0]] });
+        var el = document.createElementNS(ns, "path");
+        el.setAttribute("d", d); el.setAttribute("fill-rule", "evenodd"); el.setAttribute("fill", "#e3e8ea");
+        el.setAttribute("stroke", "#607d8b"); el.setAttribute("stroke-width", "0.45"); el.setAttribute("stroke-dasharray", "2.2,1.6");
+        el.setAttribute("data-n", k); gN.appendChild(el); npaths.push(el);
+      });
+      // кўриниш чегараси — қўшни туманларни ҳам қамраб олади
+      var pad = 8;
+      base = [Math.floor(mnx - pad), Math.floor(mny - pad), Math.ceil(mxx - mnx + 2 * pad), Math.ceil(mxy - mny + 2 * pad)];
+      vb = base.slice(); MINW = base[2] * 0.035; applyVB(); paint();
+      // Ўзбекистон давлат чегараси — ингичка тўқ контур (фарқлаш учун)
+      return fetch("data/uz-border.geojson?v=1").then(function (r) { return r.json(); }).then(function (bg) {
+        var d = "";
+        (bg.features || []).forEach(function (f) {
+          var g = f.geometry; if (!g) return;
+          var polys = g.type === "Polygon" ? [g.coordinates] : (g.type === "MultiPolygon" ? g.coordinates : []);
+          polys.forEach(function (poly) { poly.forEach(function (ring) { d += "M" + ring.map(function (c) { var q = pj(c[0], c[1]); return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" ") + "Z"; }); });
+        });
+        if (!d) return;
+        var bl = document.createElementNS(ns, "path");
+        bl.setAttribute("d", d); bl.setAttribute("fill", "none"); bl.setAttribute("stroke", "#263238");
+        bl.setAttribute("stroke-width", "1.3"); bl.setAttribute("stroke-linejoin", "round"); bl.setAttribute("opacity", "0.8");
+        bl.setAttribute("style", "pointer-events:none"); svg.insertBefore(bl, gl);
+      });
+    }).catch(function () {});
   }
 
-  paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); loadData();
+  // ===== ҳарорат кэши (localStorage, кунлик) — қайта юклашда Open-Meteo лимити тугамаслиги учун =====
+  var FCACHE_KEY = "feno_temps_v1";
+  function dayStamp() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
+  function cacheRead(n) {
+    try { var o = JSON.parse(localStorage.getItem(FCACHE_KEY) || "null"); if (!o || o.day !== dayStamp() || o.n !== n || !o.d) return null; return o; } catch (e) { return null; }
+  }
+  function cacheWrite(n, maps) {
+    try {
+      var dates = [], di = {}, out = {};
+      Object.keys(maps).forEach(function (key) {
+        var m = maps[key];
+        out[key] = Object.keys(m).map(function (ds) { if (!(ds in di)) { di[ds] = dates.length; dates.push(ds); } return [di[ds], Math.round(m[ds].mx * 10) / 10, Math.round(m[ds].mn * 10) / 10]; });
+      });
+      localStorage.setItem(FCACHE_KEY, JSON.stringify({ day: dayStamp(), n: n, dates: dates, d: out }));
+    } catch (e) {}
+  }
+  function cacheToMaps(o) {
+    var maps = {};
+    Object.keys(o.d).forEach(function (key) { var m = {}; o.d[key].forEach(function (t) { m[o.dates[t[0]]] = { mx: t[1], mn: t[2] }; }); maps[key] = m; });
+    return maps;
+  }
+  function finish(maps) {
+    buildSeries(maps);
+    nseries = {};
+    NB.forEach(function (n, k) { var m = maps["n" + k] || {}, keys = Object.keys(m).sort(); nseries[k] = keys.map(function (ds) { return { t: new Date(ds + "T00:00:00"), mx: m[ds].mx, mn: m[ds].mn }; }); });
+    var have = dIdx.filter(function (i) { return dseries[i] && dseries[i].length; }).length;
+    updatedAt = new Date(); loadState = have ? "ok" : "error";
+    recompute(); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary();
+  }
+  function loadData() {
+    loadState = "loading"; updatePanel(); drawCal(); renderStatus(); renderSummary();
+    var NPTS = dIdx.length + NB.length;
+    var c = cacheRead(NPTS); if (c) { finish(cacheToMaps(c)); return; }
+    var now = new Date(), y = now.getFullYear(), archEnd = new Date(now.getTime() - 6 * 86400000);
+    var pts = dIdx.map(function (i) { return { key: i, lat: GEO[i][0], lon: GEO[i][1] }; })
+      .concat(NB.map(function (n, k) { return { key: "n" + k, lat: n.ll[0], lon: n.ll[1] }; }));
+    var maps = {}; pts.forEach(function (p) { maps[p.key] = {}; });
+    var CH = 50, chunks = [];               // кўп нуқтани чанкларга бўлиб сўраймиз
+    for (var k = 0; k < pts.length; k += CH) chunks.push(pts.slice(k, k + CH));
+    function grab(url, ch) {               // ҳар сўров алоҳида: биттаси йиқилса бошқалари ишлайверади
+      return fetch(url).then(function (r) { return r.json(); }).then(function (data) {
+        if (data && data.error) return;
+        parseResp(data).forEach(function (d, j) { var p = ch[j]; if (p) mergeInto(maps[p.key], d); });
+      }).catch(function () {});
+    }
+    var tasks = [];
+    chunks.forEach(function (ch) {
+      var lat = ch.map(function (p) { return p.lat.toFixed(4); }).join(",");
+      var lon = ch.map(function (p) { return p.lon.toFixed(4); }).join(",");
+      tasks.push(grab("https://archive-api.open-meteo.com/v1/archive?latitude=" + lat + "&longitude=" + lon +
+        "&start_date=" + y + "-01-01&end_date=" + iso(archEnd) + "&daily=temperature_2m_max,temperature_2m_min&timezone=auto", ch));
+      tasks.push(grab("https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon +
+        "&daily=temperature_2m_max,temperature_2m_min&past_days=10&forecast_days=16&timezone=auto", ch));
+    });
+    Promise.all(tasks).then(function () {
+      if (dIdx.some(function (i) { return Object.keys(maps[i]).length; })) cacheWrite(NPTS, maps);
+      finish(maps);
+    });
+  }
+
+  paint(); updatePanel(); drawCal(); renderStatus(); renderSummary();
+  loadNeighbors().then(loadData);
 
   var wrap = stage.parentElement;
   function fit() { var w = wrap.clientWidth, s = w / 1080; stage.style.transform = "scale(" + s + ")"; wrap.style.height = (1080 * s) + "px"; }
