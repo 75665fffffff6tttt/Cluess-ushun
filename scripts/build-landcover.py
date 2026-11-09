@@ -11,6 +11,9 @@
   катаклардан, экин майдони юзасига мутаносиб вазн билан олинади (энг кўпи
   MAX_CELLS та катак).
 
+Қўшимча: plant-protection/data/desert-mask.png — очиқ чўл (синф 60) қатлами,
+харитада туман ранглари устидан қумранг кўрсатилади (barcha зараркунандалар учун).
+
 Маълумот: ESA WorldCover 10 m 2021 v200 (CC-BY 4.0), AWS S3 очиқ COG'лари,
 ~300 м обзор (overview) даражасида ўқилади.
 
@@ -33,6 +36,8 @@ from shapely.geometry import MultiPolygon, Polygon, shape, mapping
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 P = os.path.join(ROOT, "plant-protection")
 OUT = os.path.join(P, "data", "wx-points.json")
+MASK = os.path.join(P, "data", "desert-mask.png")
+MASK_RES = 0.02  # чўл қатлами пиксели (°) ≈ 2 км
 URL = "/vsicurl/https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/ESA_WorldCover_10m_2021_v200_%s_Map.tif"
 DEC = 32                      # 10 м × 32 ≈ 300 м пиксел
 PX = 3.0 / (36000 // DEC)     # пиксел ўлчами (градус)
@@ -117,6 +122,22 @@ def main():
     lon_c = lon0 + (np.arange(W) + 0.5) * PX
     lon_key = np.floor(lon_c / 0.25 + 0.5) * 0.25
 
+    # --- чўл қатлами (PNG, EPSG:4326 — SVG проекцияси ҳам чизиқли lon/lat) ---
+    from PIL import Image
+    f = max(1, int(round(MASK_RES / PX)))
+    Hm, Wm = H // f, W // f
+    bare = (lc[:Hm * f, :Wm * f] == BARE).reshape(Hm, f, Wm, f).mean(axis=(1, 3))
+    inside = (ids[:Hm * f, :Wm * f] > 0).reshape(Hm, f, Wm, f).mean(axis=(1, 3))
+    alpha = np.clip(bare * inside * 1.15, 0, 1)
+    alpha[alpha < 0.12] = 0
+    rgba = np.zeros((Hm, Wm, 4), dtype=np.uint8)
+    rgba[..., 0], rgba[..., 1], rgba[..., 2] = 0xEA, 0xD9, 0xB0
+    rgba[..., 3] = (alpha * 235).astype(np.uint8)
+    Image.fromarray(rgba, "RGBA").save(MASK, optimize=True)
+    mask_meta = {"png": "data/desert-mask.png", "w": lon0, "n": lat1,
+                 "e": lon0 + Wm * f * PX, "s": lat1 - Hm * f * PX}
+    print("desert mask %dx%d → %s (%d KB)" % (Wm, Hm, MASK, os.path.getsize(MASK) // 1024), file=sys.stderr)
+
     res = {}
     stats = []
     for j, (key, name, g, ctr) in enumerate(dist):
@@ -155,7 +176,7 @@ def main():
     cells = sorted({k for e in res.values() for k, _ in e.get("c", [])})
     with open(OUT, "w", encoding="utf-8") as fh:
         json.dump({"v": 2, "src": "ESA WorldCover 2021 v200 (CC-BY 4.0)", "minCropKm2": MIN_CROP_KM2,
-                   "d": res}, fh, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+                   "desertMask": mask_meta, "d": res}, fh, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
     nd = sum(1 for e in res.values() if e.get("zone") == "desert")
     nn = sum(1 for e in res.values() if e.get("zone") == "nocrop")
     nc = sum(1 for e in res.values() if e.get("zone") == "city")
