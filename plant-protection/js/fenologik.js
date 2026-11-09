@@ -15,15 +15,15 @@
   //  кузги тунлам 2–3, ўргимчаккана 12–18, ширалар 20–26); crit — кузги диапаузани қўзғатувчи кун узунлиги (соат);
   //  bin — харита рангида нечта авлод бир синфга киради. ⚠️ Тахминий қийматлар — дала маълумоти билан калибрлаш керак.
   var PESTS = LANG === "ru" ? [
-    { id: "bollworm", nm: "Хлопковая совка", base: 10.5, upper: 35, gen: 650, emerge: 250, crit: 12.9, bin: 1, winter: "куколка — в почве (5–10 см)", rec: "Глубокая зяблевая вспашка уничтожает зимующих куколок." },
-    { id: "mite", nm: "Паутинный клещ", base: 11, upper: 40, gen: 160, emerge: 80, crit: 13.3, bin: 3, winter: "оплодотворённые самки — под растительными остатками и корой", rec: "Удаление и измельчение растительных остатков хлопчатника." },
-    { id: "cutworm", nm: "Озимая совка", base: 10, upper: 35, gen: 1100, emerge: 200, crit: 13.0, bin: 1, winter: "гусеницы и куколки — в почве", rec: "Глубокая вспашка и борьба с сорняками." },
-    { id: "aphid", nm: "Тли", base: 6.5, upper: 35, gen: 155, emerge: 120, crit: 12.5, bin: 5, winter: "яйца — на сорняках и побегах", rec: "Борьба с сорняками снижает запас зимующих яиц." }
+    { id: "bollworm", nm: "Хлопковая совка", win: [0.05, 0.22], wst: "яйца и молодые гусеницы",  base: 10.5, upper: 35, gen: 650, emerge: 250, crit: 12.9, bin: 1, winter: "куколка — в почве (5–10 см)", rec: "Глубокая зяблевая вспашка уничтожает зимующих куколок." },
+    { id: "mite", nm: "Паутинный клещ", win: [0, 0.35], wst: "яйца и личинки",  base: 11, upper: 40, gen: 160, emerge: 80, crit: 13.3, bin: 3, winter: "оплодотворённые самки — под растительными остатками и корой", rec: "Удаление и измельчение растительных остатков хлопчатника." },
+    { id: "cutworm", nm: "Озимая совка", win: [0.05, 0.2], wst: "яйца и молодые гусеницы",  base: 10, upper: 35, gen: 1100, emerge: 200, crit: 13.0, bin: 1, winter: "гусеницы и куколки — в почве", rec: "Глубокая вспашка и борьба с сорняками." },
+    { id: "aphid", nm: "Тли", win: [0, 0.4], wst: "молодые колонии (личинки)",  base: 6.5, upper: 35, gen: 155, emerge: 120, crit: 12.5, bin: 5, winter: "яйца — на сорняках и побегах", rec: "Борьба с сорняками снижает запас зимующих яиц." }
   ] : [
-    { id: "bollworm", nm: "Ғўза тунлами (кўсак қурти)", base: 10.5, upper: 35, gen: 650, emerge: 250, crit: 12.9, bin: 1, winter: "ғумбак — тупроқда (5–10 см чуқурликда)", rec: "Кузги чуқур шудгор қишлаётган ғумбакларни нобуд қилади." },
-    { id: "mite", nm: "Ўргимчаккана", base: 11, upper: 40, gen: 160, emerge: 80, crit: 13.3, bin: 3, winter: "уруғланган урғочи — ўсимлик қолдиғи ва пўстлоқ остида", rec: "Ғўзапоя ва ўсимлик қолдиқларини йиғиштириш/майдалаш." },
-    { id: "cutworm", nm: "Кузги тунлам", base: 10, upper: 35, gen: 1100, emerge: 200, crit: 13.0, bin: 1, winter: "катта ёшли қурт ва ғумбак — тупроқда", rec: "Кузги чуқур шудгор ва бегона ўтларни йўқотиш." },
-    { id: "aphid", nm: "Ширалар", base: 6.5, upper: 35, gen: 155, emerge: 120, crit: 12.5, bin: 5, winter: "тухум — бегона ўт ва новдаларда", rec: "Бегона ўтларни йўқотиш қишлаётган тухумни камайтиради." }
+    { id: "bollworm", nm: "Ғўза тунлами (кўсак қурти)", win: [0.05, 0.22], wst: "тухум ва ёш қуртлар",  base: 10.5, upper: 35, gen: 650, emerge: 250, crit: 12.9, bin: 1, winter: "ғумбак — тупроқда (5–10 см чуқурликда)", rec: "Кузги чуқур шудгор қишлаётган ғумбакларни нобуд қилади." },
+    { id: "mite", nm: "Ўргимчаккана", win: [0, 0.35], wst: "тухум ва личинкалар",  base: 11, upper: 40, gen: 160, emerge: 80, crit: 13.3, bin: 3, winter: "уруғланган урғочи — ўсимлик қолдиғи ва пўстлоқ остида", rec: "Ғўзапоя ва ўсимлик қолдиқларини йиғиштириш/майдалаш." },
+    { id: "cutworm", nm: "Кузги тунлам", win: [0.05, 0.2], wst: "тухум ва ёш қуртлар",  base: 10, upper: 35, gen: 1100, emerge: 200, crit: 13.0, bin: 1, winter: "катта ёшли қурт ва ғумбак — тупроқда", rec: "Кузги чуқур шудгор ва бегона ўтларни йўқотиш." },
+    { id: "aphid", nm: "Ширалар", win: [0, 0.4], wst: "ёш колониялар (личинкалар)",  base: 6.5, upper: 35, gen: 155, emerge: 120, crit: 12.5, bin: 5, winter: "тухум — бегона ўт ва новдаларда", rec: "Бегона ўтларни йўқотиш қишлаётган тухумни камайтиради." }
   ];
   var T = LANG === "ru" ? {
     title: "ФЕНОЛОГИЧЕСКИЙ ПРОГНОЗ", label: "Вредитель", region: "Область", districts: "районов",
@@ -37,7 +37,7 @@
     phasePre: "ЗИМОВКА — ожидается весеннее пробуждение", winterLabel: "Форма зимовки", recLabel: "Рекомендация",
     windowLabel: "Окно обработки", windowTxt: "перед яйцекладкой следующего поколения",
     sumTitle: "Заключение", sumUnit: "р-нов", sumActive: "Активное развитие", sumDiap: "Зимовка (диапауза)",
-    sumMaxGen: "Макс. поколений", sumAvgGen: "В среднем", sumTop: "Наибольшее давление", desertTip: "🏜 Пустыня — посевов нет, прогноз не даётся", nocropTip: "Посевов нет (степь/горы) — прогноз не даётся", sumNoFc: "Без прогноза (пустыня/нет посевов)", diToday: "Сегодня (max / min)", di7: "Средняя за 7 дней", diCrop: "Посевы", diCity: "Городская территория — температура по центру района", diClose: "Закрыть", bioL: "Начало сезона (выход с зимовки)", cutL: "Осенняя диапауза (короткий день)", noNextCut: "новое поколение не начнётся — короткий день", genAbbr: "пок.",
+    sumMaxGen: "Макс. поколений", sumAvgGen: "В среднем", sumTop: "Наибольшее давление", desertTip: "🏜 Пустыня — посевов нет, прогноз не даётся", nocropTip: "Посевов нет (степь/горы) — прогноз не даётся", sumNoFc: "Без прогноза (пустыня/нет посевов)", diToday: "Сегодня (max / min)", di7: "Средняя за 7 дней", diCrop: "Посевы", diCity: "Городская территория — температура по центру района", diClose: "Закрыть", bioL: "Начало сезона (выход с зимовки)", cutL: "Осенняя диапауза (короткий день)", noNextCut: "новое поколение не начнётся — короткий день", genAbbr: "пок.", winNow: "ОТКРЫТО сейчас", winOpenL: "⚠ Окно обработки открыто сейчас", winSoonL: "Откроется в ближайшие 7 дней", winShort: "время обработки", winNone: "в этом сезоне больше нет", dateL: "Показана дата",
     sumOverLead: "Сезон в основном завершён", sumActiveLead: "Вредитель ещё активен",
     sumOverTxt: "из {N} районов {E} перешли в диапаузу (зимовку). За сезон накоплено до {G} поколений.",
     sumActiveTxt: "в {A} районах идёт активное развитие (до {G} поколений). Проведите обработку перед яйцекладкой следующего поколения.",
@@ -54,7 +54,7 @@
     phasePre: "ҚИШЛОВ — баҳорда уйғониш кутилмоқда", winterLabel: "Қишлаш шакли", recLabel: "Тавсия",
     windowLabel: "Ишлов бериш ойнаси", windowTxt: "навбатдаги авлод тухум қўйиши олдидан",
     sumTitle: "Хулоса", sumUnit: "туман", sumActive: "Фаол ривожланиш", sumDiap: "Қишлов (диапауза)",
-    sumMaxGen: "Энг кўп авлод", sumAvgGen: "Ўртача", sumTop: "Энг юқори босим", desertTip: "🏜 Чўл — экин майдони йўқ, прогноз берилмайди", nocropTip: "Экин майдони йўқ (дашт/тоғ) — прогноз берилмайди", sumNoFc: "Прогноз берилмади (чўл/экин майдони йўқ)", diToday: "Бугун (max / min)", di7: "Охирги 7 кун ўртача", diCrop: "Экин майдони", diCity: "Шаҳар ҳудуди — ҳарорат туман марказидан", diClose: "Ёпиш", bioL: "Мавсум боши (қишловдан чиқиш)", cutL: "Кузги диапауза (кун қисқариши)", noNextCut: "янги авлод бошланмайди — кун қисқа", genAbbr: "авлод",
+    sumMaxGen: "Энг кўп авлод", sumAvgGen: "Ўртача", sumTop: "Энг юқори босим", desertTip: "🏜 Чўл — экин майдони йўқ, прогноз берилмайди", nocropTip: "Экин майдони йўқ (дашт/тоғ) — прогноз берилмайди", sumNoFc: "Прогноз берилмади (чўл/экин майдони йўқ)", diToday: "Бугун (max / min)", di7: "Охирги 7 кун ўртача", diCrop: "Экин майдони", diCity: "Шаҳар ҳудуди — ҳарорат туман марказидан", diClose: "Ёпиш", bioL: "Мавсум боши (қишловдан чиқиш)", cutL: "Кузги диапауза (кун қисқариши)", noNextCut: "янги авлод бошланмайди — кун қисқа", genAbbr: "авлод", winNow: "ҲОЗИР очиқ", winOpenL: "⚠ Ишлов бериш ойнаси ҳозир очиқ", winSoonL: "7 кун ичида очилади", winShort: "ишлов бериш вақти", winNone: "бу мавсумда бошқа йўқ", dateL: "Кўрсатилган сана",
     sumOverLead: "Мавсум асосан якунланди", sumActiveLead: "Зараркунанда ҳали фаол",
     sumOverTxt: "{N} тумандан {E} таси диапаузага (қишловга) ўтган. Мавсум давомида {G} авлодгача ривожланган.",
     sumActiveTxt: "{A} туманда фаол ривожланиш кетмоқда ({G} авлодгача). Навбатдаги авлод тухум қўйишидан олдин ишлов беринг.",
@@ -85,6 +85,8 @@
   var dseries = {}, dpheno = {};     // туман (индекс) бўйича: серия ва фенология
   var regSeries = {}, regPheno = {}; // вилоят ўртачаси
   var countrySeries = [], countryPheno = null;
+  // ?sana=YYYY-MM-DD — исталган санадаги ҳолатни кўриш (масалан, ёзги ишлов бериш ойналари)
+  var NOW = (function () { var m = /[?&]sana=(\d{4})-(\d{2})-(\d{2})/.exec(location.search); return m ? new Date(+m[1], +m[2] - 1, +m[3], 12) : null; })();
   var loadState = "loading", updatedAt = null, wxPending = false, selDist = null, WXP = null;
 
   function centroid(d) {
@@ -167,8 +169,9 @@
       paths[i].setAttribute("fill", fillFor(i));
       paths[i].setAttribute("opacity", inReg ? "1" : "0.12");
       var selU = selDist && selDist.t === "u" && selDist.i === i;
-      paths[i].setAttribute("stroke", selU ? "#0f2b1f" : "#fff");
-      paths[i].setAttribute("stroke-width", selU ? "2.2" : (curReg && items[i].r === curReg ? "0.9" : "0.5"));
+      var wOpen = !zoneD[i] && dpheno[i] && dpheno[i].win && dpheno[i].win.open;
+      paths[i].setAttribute("stroke", selU ? "#0f2b1f" : (wOpen ? "#e65100" : "#fff"));
+      paths[i].setAttribute("stroke-width", selU ? "2.2" : (wOpen ? "1.1" : (curReg && items[i].r === curReg ? "0.9" : "0.5")));
     }
     for (var k = 0; k < npaths.length; k++) {
       var nph = npheno[k];
@@ -263,7 +266,7 @@
       cls = "active"; phase = T.phaseActive;
       var nextTxt = ph.next ? (fmtDate(ph.next) + (ph.approx ? " " + T.approx : "")) : "—";
       body = T.gen + ': <b>' + ph.gen + '</b> (' + Math.round(ph.progress * 100) + '% ' + T.progress + ') · ' + T.next + ': <b>' + nextTxt + '</b>' +
-        '<div class="fn-rec"><b>' + T.windowLabel + ':</b> ' + T.windowTxt + '</div>';
+        '<div class="fn-rec"><b>' + T.windowLabel + ':</b> ' + (ph.win ? winText(ph.win, pest) : T.winNone) + '</div>';
     } else {
       var pre = !!ph.pre;
       cls = "diapause"; phase = pre ? T.phasePre : T.phaseDiapause;
@@ -276,6 +279,16 @@
   }
 
   // ===== Хулоса (бутун мамлакат бўйича синтез) =====
+  function winSummary() {
+    var now = (updatedAt || new Date()).getTime(), open = [], soon = [];
+    dIdx.forEach(function (i) {
+      var w = dpheno[i] && dpheno[i].win; if (!w || zoneD[i]) return;
+      if (w.open) open.push(dname(items[i])); else if (w.from.getTime() - now <= 7 * 86400000) soon.push(dname(items[i]));
+    });
+    function lst(a) { return a.length + " (" + a.slice(0, 8).join(", ") + (a.length > 8 ? ", …" : "") + ")"; }
+    return (open.length ? '<div class="fn-rec" style="color:#bf360c"><b>' + T.winOpenL + ':</b> ' + lst(open) + '</div>' : '') +
+           (soon.length ? '<div class="fn-rec"><b>' + T.winSoonL + ':</b> ' + lst(soon) + '</div>' : '');
+  }
   function renderSummary() {
     var box = document.getElementById("fenosum"); if (!box) return;
     if (loadState !== "ok") { box.style.display = "none"; return; }
@@ -299,7 +312,7 @@
       return '<div class="fs-stat"><div class="fs-v"' + (col ? ' style="color:' + col + '"' : '') + '>' + val + '</div><div class="fs-l">' + lbl + '</div></div>';
     }
     box.innerHTML =
-      '<div class="fn-head">' + T.sumTitle + ' · ' + pest.nm + ' · ' + withData + ' ' + T.sumUnit + '</div>' +
+      '<div class="fn-head">' + T.sumTitle + ' · ' + pest.nm + ' · ' + withData + ' ' + T.sumUnit + (NOW ? ' · 📅 ' + T.dateL + ': ' + fmtDate(NOW) : '') + '</div>' +
       '<div class="fn-phase ' + (over ? "diapause" : "active") + '">' + (over ? T.sumOverLead : T.sumActiveLead) + '</div>' +
       '<div class="fs-grid">' +
         stat(T.sumActive, active, "#1b5e20") +
@@ -309,6 +322,7 @@
       '</div>' +
       '<div class="fn-body">' + (over ? fill(T.sumOverTxt) : fill(T.sumActiveTxt)) +
         '<div class="fn-rec"><b>' + T.sumTop + ':</b> ' + (topRegs.join(", ") || "—") + '</div>' +
+        winSummary() +
         (Object.keys(zoneD).length ? '<div class="fn-rec"><b>' + T.sumNoFc + ':</b> ' + Object.keys(zoneD).map(function (i) { return dname(items[i]); }).join(", ") + '</div>' : '') +
         (over ? '<div class="fn-rec"><b>' + T.recLabel + ':</b> ' + pest.rec + '</div>' : '') +
       '</div>' +
@@ -317,7 +331,13 @@
 
   // ===== ҳодисалар =====
   function drill(i) { var rid = items[i].r; if (curReg !== rid) { curReg = rid; tweenTo(fitRegion(regById[rid].bbox), 500); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict(); renderLegend(); } }
-  function phLine(ph) { return ph ? (ph.ended ? "❄ " + T.phaseDiapause : (T.gen + " " + ph.gen + " · " + Math.round(ph.gdd) + "°Д")) : (loadState === "loading" ? T.loading : T.nodata); }
+  function winText(w, pest) {
+    if (!w) return "—";
+    var t = w.open ? (LANG === "ru" ? T.winNow + " — до " + fmtDate(w.to) : T.winNow + " — " + fmtDate(w.to) + "гача")
+                   : fmtDate(w.from) + " – " + fmtDate(w.to);
+    return t + (w.approx ? " " + T.approx : "") + " <span class=\"di-sub\">(" + w.gen + (LANG === "ru" ? "-е пок.: " : "-авлод: ") + pest.wst + ")</span>";
+  }
+  function phLine(ph) { return ph ? (ph.ended ? "❄ " + T.phaseDiapause : (T.gen + " " + ph.gen + " · " + Math.round(ph.gdd) + "°Д" + (ph.win && ph.win.open ? " · ⚠ " + T.winShort : ""))) : (loadState === "loading" ? T.loading : T.nodata); }
   function showTip(e) {
     var t = e.target, html = null;
     if (t && t.tagName === "path" && t.hasAttribute("data-i")) {
@@ -397,9 +417,10 @@
         [T.gdd, '<b>' + Math.round(ph.gdd) + '</b> °Д <span class="di-sub">(' + T.base + ' ' + pest.base + '°C)</span>'],
         [T.next, '<b>' + (ph.ended ? T.ended : (ph.noNext ? T.noNextCut : (ph.next ? fmtDate(ph.next) + (ph.approx ? " " + T.approx : "") : "—"))) + '</b>']
       ];
+      if (!ph.ended || ph.win) rows.push([T.windowLabel, '<b>' + (ph.win ? winText(ph.win, pest) : T.winNone) + '</b>']);
       if (ph.seasonStart) rows.push([T.bioL, '<b>' + fmtDate(ph.seasonStart) + '</b>']);
       if (ph.cutoff) rows.push([T.cutL, '<b>' + fmtDate(ph.cutoff) + '</b>']);
-      var now = new Date(), td = dayOf(ser, iso(now)), s7 = 0, c7 = 0;
+      var now = updatedAt || new Date(), td = dayOf(ser, iso(now)), s7 = 0, c7 = 0;
       if (td) rows.push([T.diToday, '<b>' + Math.round(td.mx) + '° / ' + Math.round(td.mn) + '°</b>']);
       if (ser) for (var j = 0; j < ser.length; j++) { var dd = (now - ser[j].t) / 86400000; if (dd >= 0 && dd < 7) { s7 += (ser[j].mx + ser[j].mn) / 2; c7++; } }
       if (c7) rows.push([T.di7, '<b>' + (s7 / c7).toFixed(1) + '°C</b>']);
@@ -485,8 +506,30 @@
         }
       }
     }
+    // ишлов бериш ойнаси: (k+1)-авлоднинг тухум ва ёш қуртлари — эфф. GDD k·gen + [win0, win1]·gen оралиғи
+    var win = null;
+    if (!pre && !pastCut && bio >= 0 && pest.win) {
+      var L = ser.length - 1, r7 = 0, n7 = 0;
+      for (var z = Math.max(0, L - 6); z <= L; z++) { r7 += sineDD(ser[z].mn, ser[z].mx, pest.base, pest.upper); n7++; }
+      r7 = n7 ? r7 / n7 : 0;
+      var effAt = function (x) { // эфф. GDD x га етадиган сана (серия охиридан кейин — сўнгги 7 кун тезлигида)
+        for (var mm = bio; mm <= L; mm++) if (cumArr[mm] - pest.emerge >= x) return { d: ser[mm].t, ap: false };
+        if (r7 < 0.5) return null;
+        var dd = Math.ceil((x - (cumArr[L] - pest.emerge)) / r7);
+        return dd > 60 ? null : { d: new Date(ser[L].t.getTime() + dd * 86400000), ap: true };
+      };
+      var effCut = cut >= 0 ? cumArr[cut] - pest.emerge : Infinity;
+      for (var kk = 0; kk < 200; kk++) {
+        var g0 = kk * pest.gen; if (g0 > effCut) break; // авлод кузги кесишдан кейин бошланади — ойна йўқ
+        var A = effAt(g0 + pest.win[0] * pest.gen), B = effAt(g0 + pest.win[1] * pest.gen);
+        if (!A) break;
+        if (B && B.d.getTime() < now.getTime() - 43200000) continue; // ўтиб кетган ойна
+        win = { gen: kk + 1, from: A.d, to: B ? B.d : null, open: A.d.getTime() <= now.getTime(), approx: A.ap || (B ? B.ap : true) };
+        break;
+      }
+    }
     return { gdd: gddToday, gen: gen, progress: progress, boundaries: boundaries, next: next, approx: approx, ended: ended,
-      pre: pre, noNext: noNext, seasonStart: bio >= 0 ? ser[bio].t : null, cutoff: cut >= 0 ? ser[cut].t : null, pastCut: pastCut };
+      win: win, pre: pre, noNext: noNext, seasonStart: bio >= 0 ? ser[bio].t : null, cutoff: cut >= 0 ? ser[cut].t : null, pastCut: pastCut };
   }
   function recompute() {
     var pest = pestOf();
@@ -646,7 +689,7 @@
     nseries = {};
     NB.forEach(function (n, k) { var m = maps["n" + k] || {}, keys = Object.keys(m).sort(); nseries[k] = keys.map(function (ds) { return { t: new Date(ds + "T00:00:00"), mx: m[ds].mx, mn: m[ds].mn }; }); });
     var have = dIdx.filter(function (i) { return dseries[i] && dseries[i].length; }).length;
-    updatedAt = new Date(); loadState = have ? "ok" : "error";
+    updatedAt = NOW || new Date(); loadState = have ? "ok" : "error";
     recompute(); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict(); renderLegend();
   }
   function loadData() {
