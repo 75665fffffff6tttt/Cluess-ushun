@@ -511,7 +511,7 @@
         var bl = document.createElementNS(ns, "path");
         bl.setAttribute("d", d); bl.setAttribute("fill", "none"); bl.setAttribute("stroke", "#263238");
         bl.setAttribute("stroke-width", "1.3"); bl.setAttribute("stroke-linejoin", "round"); bl.setAttribute("opacity", "0.8");
-        bl.setAttribute("style", "pointer-events:none"); svg.insertBefore(bl, gl);
+        bl.setAttribute("style", "pointer-events:none"); bl.setAttribute("id", "uzborder"); svg.insertBefore(bl, svg.querySelector("#desertlayer") ? svg.querySelector("#desertlayer").nextSibling : gl);
       });
     }).catch(function () {});
   }
@@ -530,6 +530,17 @@
   }
   // туман ичидаги бир нечта нуқта (data/wx-points.json) ҳароратининг ўртачаси;
   // улар ҳали тайёр бўлмаса — туман марказининг катаги
+  // очиқ чўл қатлами (ESA WorldCover, data/desert-mask.png) — барча зараркунандалар учун
+  // туман ранглари устидан қумранг; тултиплар ишлайверади (pointer-events:none)
+  function addDesertLayer(X) {
+    var m = X && X.desertMask; if (!m || svg.querySelector("#desertlayer")) return;
+    var im = document.createElementNS(ns, "image");
+    im.setAttribute("id", "desertlayer"); im.setAttribute("href", m.png + "?v=1");
+    im.setAttribute("x", (m.w - PX0) * PS); im.setAttribute("y", (PY0 - m.n) * PS);
+    im.setAttribute("width", (m.e - m.w) * PS); im.setAttribute("height", (m.n - m.s) * PS);
+    im.setAttribute("preserveAspectRatio", "none"); im.setAttribute("style", "pointer-events:none");
+    var b = svg.querySelector("#uzborder"); svg.insertBefore(im, b || gl);
+  }
   // ҳарорат: туманнинг ЭКИН МАЙДОНИ тушган катаклари, экин юзасига мутаносиб вазн билан
   // (data/wx-points.json, scripts/build-landcover.py — ESA WorldCover). Чўл / экин йўқ туман —
   // прогноз берилмайди. Катаклар ҳали тайёр бўлмаса — туман марказининг катаги.
@@ -571,7 +582,7 @@
     Promise.all([
       fetch("data/wx.json?h=" + stamp).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }),
       fetch("data/wx-points.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
-    ]).then(function (res) { finish(wxMaps(res[0], pts, res[1])); })
+    ]).then(function (res) { addDesertLayer(res[1]); finish(wxMaps(res[0], pts, res[1])); })
       .catch(function (e) { wxPending = !!(e && e.message === "404"); loadState = "error"; updatePanel(); drawCal(); renderStatus(); renderSummary(); });
   }
 
