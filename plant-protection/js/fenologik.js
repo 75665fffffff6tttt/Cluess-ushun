@@ -26,14 +26,14 @@
     back: "← Вся страна", hint: "👆 Нажмите на район — область увеличится, и календарь покажет её поколения.",
     gen: "Поколение", gdd: "Накоплено ГДД", next: "Следующее поколение", progress: "до следующего",
     nodata: "нет данных", loading: "⏳ Расчёт по температуре…", wxPending: "⏳ Данные о температуре готовятся (первый сбор ~2 часа). Обновите страницу позже.", err: "⚠️ Не удалось загрузить данные.",
-    ended: "сезон завершён (диапауза)", approx: "≈ прогноз", src: "Модель ГДД (синус-метод) · Open-Meteo",
+    ended: "сезон завершён (диапауза)", approx: "≈ прогноз", src: "Модель ГДД (синус-метод) · Open-Meteo · посевы: ESA WorldCover",
     base: "порог", country: "В среднем по стране", today: "сегодня", months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
     calTitle: "Фенокалендарь — поколения за сезон", note: "⚠️ Модельная оценка (градусо-дни), не официальный мониторинг.",
     nowLabel: "Текущее состояние", phaseActive: "АКТИВНОЕ РАЗВИТИЕ", phaseDiapause: "ДИАПАУЗА (зимовка)",
     phasePre: "ЗИМОВКА — ожидается весеннее пробуждение", winterLabel: "Форма зимовки", recLabel: "Рекомендация",
     windowLabel: "Окно обработки", windowTxt: "перед яйцекладкой следующего поколения",
     sumTitle: "Заключение", sumUnit: "р-нов", sumActive: "Активное развитие", sumDiap: "Зимовка (диапауза)",
-    sumMaxGen: "Макс. поколений", sumAvgGen: "В среднем", sumTop: "Наибольшее давление",
+    sumMaxGen: "Макс. поколений", sumAvgGen: "В среднем", sumTop: "Наибольшее давление", desertTip: "🏜 Пустыня — посевов нет, прогноз не даётся", nocropTip: "Посевов нет (степь/горы) — прогноз не даётся", sumNoFc: "Без прогноза (пустыня/нет посевов)",
     sumOverLead: "Сезон в основном завершён", sumActiveLead: "Вредитель ещё активен",
     sumOverTxt: "из {N} районов {E} перешли в диапаузу (зимовку). За сезон накоплено до {G} поколений.",
     sumActiveTxt: "в {A} районах идёт активное развитие (до {G} поколений). Проведите обработку перед яйцекладкой следующего поколения.",
@@ -43,14 +43,14 @@
     back: "← Бутун мамлакат", hint: "👆 Туманни босинг — вилоят катталашиб, календарь ўша вилоят авлодларини кўрсатади.",
     gen: "Авлод", gdd: "Йиғилган GDD", next: "Кейинги авлод", progress: "кейингисигача",
     nodata: "маълумот йўқ", loading: "⏳ Ҳарорат бўйича ҳисоб…", wxPending: "⏳ Ҳарорат маълумоти тайёрланмоқда (биринчи йиғиш ~2 соат). Бироздан сўнг саҳифани янгиланг.", err: "⚠️ Маълумот юкланмади.",
-    ended: "мавсум якуни (диапауза)", approx: "≈ прогноз", src: "GDD модели (синус усули) · Open-Meteo",
+    ended: "мавсум якуни (диапауза)", approx: "≈ прогноз", src: "GDD модели (синус усули) · Open-Meteo · экин майдонлари: ESA WorldCover",
     base: "ост-ҳарорат", country: "Республика ўртачаси", today: "бугун", months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
     calTitle: "Фенокалендар — мавсум давомидаги авлодлар", note: "⚠️ Моделга асосланган тахмин (эффектив ҳарорат), расмий мониторинг эмас.",
     nowLabel: "Бугунги ҳолат", phaseActive: "ФАОЛ РИВОЖЛАНИШ", phaseDiapause: "ДИАПАУЗА (қишлов)",
     phasePre: "ҚИШЛОВ — баҳорда уйғониш кутилмоқда", winterLabel: "Қишлаш шакли", recLabel: "Тавсия",
     windowLabel: "Ишлов бериш ойнаси", windowTxt: "навбатдаги авлод тухум қўйиши олдидан",
     sumTitle: "Хулоса", sumUnit: "туман", sumActive: "Фаол ривожланиш", sumDiap: "Қишлов (диапауза)",
-    sumMaxGen: "Энг кўп авлод", sumAvgGen: "Ўртача", sumTop: "Энг юқори босим",
+    sumMaxGen: "Энг кўп авлод", sumAvgGen: "Ўртача", sumTop: "Энг юқори босим", desertTip: "🏜 Чўл — экин майдони йўқ, прогноз берилмайди", nocropTip: "Экин майдони йўқ (дашт/тоғ) — прогноз берилмайди", sumNoFc: "Прогноз берилмади (чўл/экин майдони йўқ)",
     sumOverLead: "Мавсум асосан якунланди", sumActiveLead: "Зараркунанда ҳали фаол",
     sumOverTxt: "{N} тумандан {E} таси диапаузага (қишловга) ўтган. Мавсум давомида {G} авлодгача ривожланган.",
     sumActiveTxt: "{A} туманда фаол ривожланиш кетмоқда ({G} авлодгача). Навбатдаги авлод тухум қўйишидан олдин ишлов беринг.",
@@ -60,8 +60,10 @@
   // авлод рақами → ранг (кўп авлод = кучли босим)
   var GENCOL = ["#d6dde2", "#fee5d9", "#fcbba1", "#fc9272", "#fb6a4a", "#de2d26", "#a50f15"];
   var DIA_COL = "#90a4ae"; // диапауза (қишлов) — нейтрал кулранг-кўк, фаол эмас (хавфсиз эмас!)
+  var DESERT_COL = "#ead9b0"; // чўл / экин майдони йўқ — прогноз йўқ (ESA WorldCover)
+  var zoneD = {}, zoneN = {}; // туман → "desert" | "nocrop" (data/wx-points.json)
   function genColor(g) { if (g == null || g < 1) return GENCOL[0]; return GENCOL[Math.min(g, GENCOL.length - 1)]; }
-  function fillFor(i) { var ph = dpheno[i]; if (!ph) return GENCOL[0]; return ph.ended ? DIA_COL : genColor(ph.gen); }
+  function fillFor(i) { if (zoneD[i]) return DESERT_COL; var ph = dpheno[i]; if (!ph) return GENCOL[0]; return ph.ended ? DIA_COL : genColor(ph.gen); }
 
   var DATA = window.UZ_DISTRICTS, items = DATA.items, regions = DATA.regions, GEO = window.UZ_GEO;
   var regById = {}; regions.forEach(function (r) { regById[r.id] = r; });
@@ -152,7 +154,7 @@
     }
     for (var k = 0; k < npaths.length; k++) {
       var nph = npheno[k];
-      npaths[k].setAttribute("fill", nph ? (nph.ended ? DIA_COL : genColor(nph.gen)) : "#e3e8ea");
+      npaths[k].setAttribute("fill", zoneN[k] ? DESERT_COL : (nph ? (nph.ended ? DIA_COL : genColor(nph.gen)) : "#e3e8ea"));
       npaths[k].setAttribute("opacity", curReg ? "0.12" : "0.55");
     }
     gl.innerHTML = "";
@@ -166,7 +168,7 @@
         t.setAttribute("text-anchor", "middle"); t.setAttribute("fill", "#12240f"); t.setAttribute("stroke", "#fff");
         t.setAttribute("stroke-width", fs * 0.14); t.setAttribute("paint-order", "stroke");
         t.setAttribute("style", "font-weight:700;pointer-events:none");
-        t.textContent = dname(it) + (dia ? " ❄" : (g ? " " + g + (LANG === "ru" ? "п" : "а") : ""));
+        t.textContent = dname(it) + (zoneD[i] ? " 🏜" : (dia ? " ❄" : (g ? " " + g + (LANG === "ru" ? "п" : "а") : "")));
         gl.appendChild(t);
       });
     }
@@ -283,6 +285,7 @@
       '</div>' +
       '<div class="fn-body">' + (over ? fill(T.sumOverTxt) : fill(T.sumActiveTxt)) +
         '<div class="fn-rec"><b>' + T.sumTop + ':</b> ' + (topRegs.join(", ") || "—") + '</div>' +
+        (Object.keys(zoneD).length ? '<div class="fn-rec"><b>' + T.sumNoFc + ':</b> ' + Object.keys(zoneD).map(function (i) { return dname(items[i]); }).join(", ") + '</div>' : '') +
         (over ? '<div class="fn-rec"><b>' + T.recLabel + ':</b> ' + pest.rec + '</div>' : '') +
       '</div>' +
       '<div class="fc-note">' + T.note + ' · ' + T.src + '</div>';
@@ -295,10 +298,10 @@
     var t = e.target, html = null;
     if (t && t.tagName === "path" && t.hasAttribute("data-i")) {
       var i = +t.getAttribute("data-i"), it = items[i];
-      html = "<b>" + dname(it) + "</b><br>" + rname(regById[it.r]) + "<br>" + phLine(dpheno[i]);
+      html = "<b>" + dname(it) + "</b><br>" + rname(regById[it.r]) + "<br>" + (zoneD[i] ? T[zoneD[i] + "Tip"] : phLine(dpheno[i]));
     } else if (t && t.tagName === "path" && t.hasAttribute("data-n")) {
       var k = +t.getAttribute("data-n"), n = NB[k];
-      html = (n.nm ? "<b>" + n.nm + "</b><br>" : "") + n.cn + "<br>" + phLine(npheno[k]);
+      html = (n.nm ? "<b>" + n.nm + "</b><br>" : "") + n.cn + "<br>" + (zoneN[k] ? T[zoneN[k] + "Tip"] : phLine(npheno[k]));
     }
     if (html) {
       tip.innerHTML = html;
@@ -527,18 +530,26 @@
   }
   // туман ичидаги бир нечта нуқта (data/wx-points.json) ҳароратининг ўртачаси;
   // улар ҳали тайёр бўлмаса — туман марказининг катаги
+  // ҳарорат: туманнинг ЭКИН МАЙДОНИ тушган катаклари, экин юзасига мутаносиб вазн билан
+  // (data/wx-points.json, scripts/build-landcover.py — ESA WorldCover). Чўл / экин йўқ туман —
+  // прогноз берилмайди. Катаклар ҳали тайёр бўлмаса — туман марказининг катаги.
   function wxMaps(W, pts, X) {
     var p0 = W.start.split("-").map(Number), maps = {}, dates = [];
     for (var d = 0; d < W.days; d++) dates.push(iso(new Date(p0[0], p0[1] - 1, p0[2] + d)));
+    zoneD = {}; zoneN = {};
     pts.forEach(function (p) {
-      var list = [], ks = X && X.d && X.d[p.pk];
-      if (ks) ks.forEach(function (k) { var c = W.cells[k]; if (c && c[0] != null) list.push(c); }); // 1-январдан тўлиқ катаклар
-      if (!list.length) { var c0 = wxCell(W, p.lat, p.lon); if (c0 && c0[0] != null) list.push(c0); }
-      var m = {};
+      var e = X && X.d && X.d[p.pk], list = [], m = {};
+      if (e && !Array.isArray(e) && !e.c && (e.zone === "desert" || e.zone === "nocrop")) {
+        if (typeof p.key === "number") zoneD[p.key] = e.zone; else zoneN[+String(p.key).slice(1)] = e.zone;
+        maps[p.key] = m; return;
+      }
+      var ks = !e ? [] : (Array.isArray(e) ? e.map(function (k) { return [k, 1]; }) : e.c);
+      ks.forEach(function (kw) { var c = W.cells[kw[0]]; if (c && c[0] != null) list.push([c, kw[1]]); }); // 1-январдан тўлиқ катаклар
+      if (!list.length) { var c0 = wxCell(W, p.lat, p.lon); if (c0 && c0[0] != null) list.push([c0, 1]); }
       for (var d = 0; d < W.days; d++) {
-        var sx = 0, sn = 0, n = 0;
-        for (var j = 0; j < list.length; j++) { var mx = list[j][2 * d], mn = list[j][2 * d + 1]; if (mx != null && mn != null) { sx += mx; sn += mn; n++; } }
-        if (n) m[dates[d]] = { mx: sx / n / 10, mn: sn / n / 10 };
+        var sx = 0, sn = 0, sw = 0;
+        for (var j = 0; j < list.length; j++) { var c = list[j][0], w = list[j][1], mx = c[2 * d], mn = c[2 * d + 1]; if (mx != null && mn != null) { sx += w * mx; sn += w * mn; sw += w; } }
+        if (sw > 0) m[dates[d]] = { mx: sx / sw / 10, mn: sn / sw / 10 };
       }
       maps[p.key] = m;
     });
