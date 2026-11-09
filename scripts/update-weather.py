@@ -5,8 +5,8 @@
 GitHub Actions'да кунига бир марта йиғади, шунда сайтга кирувчилар
 Open-Meteo'ни умуман чақирмайди (бепул лимит тугамайди).
 
-- Нуқталар: data/wx-points.json (ҳар туман ичидаги 0.5° тўр нуқталари;
-  кичик туманда — марказ), такрорсиз 0.25° катакларга бирлаштирилади.
+- Нуқталар: data/wx-points.json (scripts/build-landcover.py — ҳар туманнинг
+  экин майдони тушган 0.25° катаклари; чўл туманлар учун ҳарорат йиғилмайди).
 - Прогноз (past_days=7, +16 кун) — 18 соатда бир марта.
 - Архив (1-январдан) — фақат бўш кунлар учун (биринчи марта тўлиқ, кейин
   фақат узилишлар).
@@ -238,7 +238,9 @@ def main():
     wp = os.path.join(P, "data", "wx-points.json")  # scripts/build-wx-points.py: ҳар туман ичидаги нуқталар
     if os.path.exists(wp):
         with open(wp, encoding="utf-8") as fh:
-            for lst in json.load(fh)["d"].values():
+            for ent in json.load(fh)["d"].values():
+                # v1: ["lat,lon", ...]; v2 (build-landcover.py): {"c": [["lat,lon", вазн], ...]} — чўлда "c" йўқ
+                lst = ent if isinstance(ent, list) else [c[0] for c in ent.get("c", [])]
                 for k in lst:
                     la, lo = (float(x) for x in k.split(","))
                     cells.setdefault(k, (la, lo))
