@@ -7,6 +7,11 @@ on:
       - "plant-protection/**"
       - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:
+  # Бот коммитлари (GITHUB_TOKEN) push-триггерни ишга туширмайди — шунинг учун
+  # маълумот/янгилик workflow'лари тугагач сайтни қайта жойлаймиз.
+  workflow_run:
+    workflows: ["Weather data", "Ўсимликларни ҳимоя — янгиликларни автоматик янгилаш"]
+    types: [completed]
 
 permissions:
   contents: read

@@ -513,25 +513,27 @@
     }).catch(function () {});
   }
 
-  // ===== ҳарорат кэши (localStorage, кунлик) — қайта юклашда Open-Meteo лимити тугамаслиги учун =====
-  var FCACHE_KEY = "feno_temps_v2"; // v2: эски (чала) кэшни бекор қилиш
-  function dayStamp() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
-  function cacheRead(n) {
-    try { var o = JSON.parse(localStorage.getItem(FCACHE_KEY) || "null"); if (!o || o.day !== dayStamp() || o.n !== n || !o.d) return null; return o; } catch (e) { return null; }
+  // ===== ҳарорат: data/wx.json — GitHub Actions ҳар куни тайёрлайди (scripts/update-weather.py).
+  // Браузер Open-Meteo'ни умуман чақирмайди → бепул лимит тугамайди.
+  try { ["feno_temps_v1", "feno_temps_v2"].forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
+  function snapC(v) { return Math.round(v * 4) / 4; }
+  function wxCell(W, lat, lon) { // 0.25° катак (топилмаса — энг яқин қўшни катак)
+    var la = snapC(lat), lo = snapC(lon), best = null, bd = 1e9;
+    for (var a = -2; a <= 2; a++) for (var b = -2; b <= 2; b++) {
+      var c = W.cells[(la + a * 0.25).toFixed(2) + "," + (lo + b * 0.25).toFixed(2)];
+      if (c && a * a + b * b < bd) { bd = a * a + b * b; best = c; }
+    }
+    return best;
   }
-  function cacheWrite(n, maps) {
-    try {
-      var dates = [], di = {}, out = {};
-      Object.keys(maps).forEach(function (key) {
-        var m = maps[key];
-        out[key] = Object.keys(m).map(function (ds) { if (!(ds in di)) { di[ds] = dates.length; dates.push(ds); } return [di[ds], Math.round(m[ds].mx * 10) / 10, Math.round(m[ds].mn * 10) / 10]; });
-      });
-      localStorage.setItem(FCACHE_KEY, JSON.stringify({ day: dayStamp(), n: n, dates: dates, d: out }));
-    } catch (e) {}
-  }
-  function cacheToMaps(o) {
-    var maps = {};
-    Object.keys(o.d).forEach(function (key) { var m = {}; o.d[key].forEach(function (t) { m[o.dates[t[0]]] = { mx: t[1], mn: t[2] }; }); maps[key] = m; });
+  function wxMaps(W, pts) {
+    var p0 = W.start.split("-").map(Number), maps = {}, dates = [];
+    for (var d = 0; d < W.days; d++) dates.push(iso(new Date(p0[0], p0[1] - 1, p0[2] + d)));
+    pts.forEach(function (p) {
+      var c = wxCell(W, p.lat, p.lon), m = {};
+      if (c && c[0] != null) // 1-январдан маълумот бор (архив тўлдирилган) — акс ҳолда "маълумот йўқ"
+        for (var d = 0; d < W.days; d++) { var mx = c[2 * d], mn = c[2 * d + 1]; if (mx != null && mn != null) m[dates[d]] = { mx: mx / 10, mn: mn / 10 }; }
+      maps[p.key] = m;
+    });
     return maps;
   }
   function finish(maps) {
@@ -541,61 +543,14 @@
     var have = dIdx.filter(function (i) { return dseries[i] && dseries[i].length; }).length;
     updatedAt = new Date(); loadState = have ? "ok" : "error";
     recompute(); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary();
-  }
-  // Open-Meteo сўрови: хато/лимит бўлса кутиб қайта уриниш (2.5с, 6с)
-  function getJSON(url, tries, wait) {
-    return fetch(url).then(function (r) { return r.json(); }).then(function (d) {
-      if (!d || d.error) throw new Error((d && d.reason) || "api");
-      return d;
-    }).catch(function (e) {
-      if (tries <= 0) throw e;
-      return new Promise(function (res) { setTimeout(res, wait); }).then(function () { return getJSON(url, tries - 1, wait * 2.4); });
-    });
-  }
-  // навбат: бир вақтда фақат `conc` та сўров (ҳаммаси бирдан юборилса минутлик лимитга урилади)
-  function runQueue(jobs, conc) {
-    var i = 0;
-    function next() { if (i >= jobs.length) return Promise.resolve(); var j = jobs[i++]; return j().then(next, next); }
-    var w = []; for (var c = 0; c < Math.min(conc, jobs.length); c++) w.push(next());
-    return Promise.all(w);
-  }
-  function wxRange() {
-    var now = new Date(), y = now.getFullYear(), jan1 = new Date(y, 0, 1), archEnd = new Date(now.getTime() - 6 * 86400000);
-    return { y: y, jan1: iso(jan1), archEnd: iso(archEnd), needArch: archEnd >= jan1, today: iso(now) };
-  }
-  function fetchPoints(pts, maps) {
-    var R = wxRange(), CH = 50, jobs = [];
-    for (var k = 0; k < pts.length; k += CH) (function (ch) {
-      var lat = ch.map(function (p) { return p.lat.toFixed(4); }).join(","), lon = ch.map(function (p) { return p.lon.toFixed(4); }).join(",");
-      function job(url) { return function () { return getJSON(url, 2, 2500).then(function (data) { parseResp(data).forEach(function (d, j) { var p = ch[j]; if (p) mergeInto(maps[p.key], d); }); }).catch(function () {}); }; }
-      if (R.needArch) jobs.push(job("https://archive-api.open-meteo.com/v1/archive?latitude=" + lat + "&longitude=" + lon +
-        "&start_date=" + R.jan1 + "&end_date=" + R.archEnd + "&daily=temperature_2m_max,temperature_2m_min&timezone=auto"));
-      jobs.push(job("https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon +
-        "&daily=temperature_2m_max,temperature_2m_min&past_days=10&forecast_days=16&timezone=auto"));
-    })(pts.slice(k, k + CH));
-    return runQueue(jobs, 3);
-  }
-  // тўлиқлик: архив (1-январ) ва бугунги кун иккаласи бор бўлиши шарт
-  function incomplete(pts, maps) {
-    var R = wxRange();
-    return pts.filter(function (p) { var m = maps[p.key] || {}; return !(m[R.today] && (!R.needArch || m[R.jan1])); });
-  }
-  function loadData() {
+  }  function loadData() {
     loadState = "loading"; updatePanel(); drawCal(); renderStatus(); renderSummary();
-    var NPTS = dIdx.length + NB.length;
-    var c = cacheRead(NPTS); if (c) { finish(cacheToMaps(c)); return; }
     var pts = dIdx.map(function (i) { return { key: i, lat: GEO[i][0], lon: GEO[i][1] }; })
       .concat(NB.map(function (n, k) { return { key: "n" + k, lat: n.ll[0], lon: n.ll[1] }; }));
-    var maps = {}; pts.forEach(function (p) { maps[p.key] = {}; });
-    fetchPoints(pts, maps).then(function () {
-      finish(maps);
-      var miss = incomplete(pts, maps);
-      if (!miss.length) { cacheWrite(NPTS, maps); return; } // фақат ТЎЛИҚ маълумот кэшланади
-      // етишмаган туманлар — 25 сониядан сўнг фақат уларни қайта сўраш
-      setTimeout(function () {
-        fetchPoints(miss, maps).then(function () { finish(maps); if (!incomplete(pts, maps).length) cacheWrite(NPTS, maps); });
-      }, 25000);
-    });
+    var t = new Date(), stamp = t.getFullYear() + "-" + (t.getMonth() + 1) + "-" + t.getDate() + "-" + t.getHours();
+    fetch("data/wx.json?h=" + stamp).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (W) { finish(wxMaps(W, pts)); })
+      .catch(function () { loadState = "error"; updatePanel(); drawCal(); renderStatus(); renderSummary(); });
   }
 
   paint(); updatePanel(); drawCal(); renderStatus(); renderSummary();

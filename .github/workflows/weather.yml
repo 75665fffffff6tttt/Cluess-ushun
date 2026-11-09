@@ -1,0 +1,49 @@
+name: Weather data
+
+# Фенологик прогноз ва спутник харита учун ҳарорат маълумоти (Open-Meteo)
+# → plant-protection/data/wx.json. Сайтга кирувчилар Open-Meteo'ни чақирмайди.
+# Биринчи ишга туширишда йил бошидан архив тўлдирилади (лимит туфайли ~2 соат),
+# кейин ҳар 6 соатда фақат прогноз (18 соатда бир марта) ва бўш кунлар.
+
+on:
+  schedule:
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "weather-data"
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 230
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch weather (Open-Meteo, paced)
+        env:
+          WX_MAX_MINUTES: "200"
+        run: python scripts/update-weather.py
+
+      - name: Commit if changed
+        run: |
+          if [ -n "$(git status --porcelain plant-protection/data/wx.json)" ]; then
+            git config user.name "agro-weather-bot"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add plant-protection/data/wx.json
+            git commit -m "Авто: ҳарорат маълумоти янгиланди (wx.json)"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push
+          else
+            echo "No weather changes."
+          fi
