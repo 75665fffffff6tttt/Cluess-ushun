@@ -59,6 +59,11 @@
   .fn-phase.active{background:#e3f1e3;color:#1b5e20}
   .fn-body{font-size:14px;color:#37474f;line-height:1.5}
   .fn-rec{margin-top:6px;color:#2b3b2b}
+  .feno-sum{max-width:680px;margin:16px auto 0;background:#fff;border:1px solid #e6ece6;border-radius:14px;padding:14px 16px;box-shadow:0 3px 14px rgba(0,0,0,.06)}
+  .fs-grid{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+  .fs-stat{flex:1 1 120px;min-width:108px;background:#f6faf6;border:1px solid #e6ece6;border-radius:12px;padding:9px 12px;text-align:center}
+  .fs-v{font-size:22px;font-weight:800;line-height:1.1}
+  .fs-l{font-size:12px;color:#6a7a6a;margin-top:2px}
 </style>
   <script src="js/auth.js?v=2"></script>
 </head>
@@ -131,6 +136,7 @@
     </div></div>
     <div class="feno-now" id="fenostat" style="display:none"></div>
     <div class="feno-cal" id="fenocal"></div>
+    <div class="feno-sum" id="fenosum" style="display:none"></div>
     <!-- Границы районов: geoBoundaries (CC-BY 4.0) · Температура: Open-Meteo (CC-BY 4.0) -->
   </div>
 </div>
@@ -140,7 +146,7 @@
 <script src="js/main.js?v=2"></script>
 <script src="js/uz-districts.js?v=3"></script>
 <script src="js/uz-geo.js?v=1"></script>
-<script src="js/fenologik.js?v=6"></script>
+<script src="js/fenologik.js?v=7"></script>
 <script src="js/counter.js?v=1"></script>
 </body>
 </html>
