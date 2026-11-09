@@ -191,7 +191,7 @@
     FEATS.forEach(function (f, i) { dpheno[i] = computePheno(dseries[i], pest, now); });
   }
   // ===== Ҳарорат кэши (localStorage) — кунига бир марта юклаш, қайта-қайta API'ни чақирмаслик =====
-  var TCACHE_KEY = "sputnik_temps_v1";
+  var TCACHE_KEY = "sputnik_temps_v2"; // v2: эски (чала) кэшни бекор қилиш
   function tStamp() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
   function readTCache(n) {
     try {
@@ -219,45 +219,61 @@
     if (withData === 0) { loadState = "error"; if (status) status.textContent = T.noData0; }
     else { loadState = "ok"; if (status) status.textContent = T.pickHint + " · " + T.dataL + ": " + withData + "/" + tot + (fromCache ? " " + T.cacheL : ""); }
   }
+  function getJSON(url, tries, wait) { // хато/лимит бўлса кутиб қайта уриниш (2.5с, 6с)
+    return fetch(url).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || d.error) throw new Error((d && d.reason) || "api");
+      return d;
+    }).catch(function (e) {
+      if (tries <= 0) throw e;
+      return new Promise(function (res) { setTimeout(res, wait); }).then(function () { return getJSON(url, tries - 1, wait * 2.4); });
+    });
+  }
+  function runQueue(jobs, conc) { // бир вақтда фақат `conc` та сўров — минутлик лимитга урилмаслик учун
+    var i = 0;
+    function next() { if (i >= jobs.length) return Promise.resolve(); var j = jobs[i++]; return j().then(next, next); }
+    var w = []; for (var c = 0; c < Math.min(conc, jobs.length); c++) w.push(next());
+    return Promise.all(w);
+  }
+  function wxRange() {
+    var now = new Date(), y = now.getFullYear(), jan1 = new Date(y, 0, 1), archEnd = new Date(now.getTime() - 6 * 86400000);
+    return { jan1: iso(jan1), archEnd: iso(archEnd), needArch: archEnd >= jan1, today: iso(now) };
+  }
+  function fetchIdx(list, maps) {
+    var R = wxRange(), CH = 40, jobs = [];
+    for (var k = 0; k < list.length; k += CH) (function (ch) {
+      var lat = ch.map(function (i) { return CTR[i][0].toFixed(4); }).join(","), lon = ch.map(function (i) { return CTR[i][1].toFixed(4); }).join(",");
+      function job(url) { return function () { return getJSON(url, 2, 2500).then(function (d) { (Array.isArray(d) ? d : [d]).forEach(function (o, j) { var i = ch[j]; if (i != null) mergeInto(maps[i], o); }); }).catch(function () {}); }; }
+      if (R.needArch) jobs.push(job("https://archive-api.open-meteo.com/v1/archive?latitude=" + lat + "&longitude=" + lon + "&start_date=" + R.jan1 + "&end_date=" + R.archEnd + "&daily=temperature_2m_max,temperature_2m_min&timezone=auto"));
+      jobs.push(job("https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&daily=temperature_2m_max,temperature_2m_min&past_days=10&forecast_days=16&timezone=auto"));
+    })(list.slice(k, k + CH));
+    return runQueue(jobs, 3);
+  }
+  function incompleteIdx(list, maps) { // архив (1-январ) ва бугунги кун иккаласи бўлиши шарт
+    var R = wxRange();
+    return list.filter(function (i) { var m = maps[i] || {}; return !(m[R.today] && (!R.needArch || m[R.jan1])); });
+  }
+  function mapsToSeries(idx, maps) {
+    var ser = {};
+    idx.forEach(function (i) { var m = maps[i] || {}, keys = Object.keys(m).sort(); ser[i] = keys.map(function (ds) { return { t: new Date(ds + "T00:00:00"), mx: m[ds].mx, mn: m[ds].mn }; }); });
+    return ser;
+  }
   function loadTemps() {
     loadState = "loading"; if (status) status.textContent = T.loading;
     var idx = []; FEATS.forEach(function (f, i) { if (CTR[i]) idx.push(i); });
     var cached = readTCache(FEATS.length);
     if (cached) { applySeries(cached, true); return; } // кэшдан — API'сиз
-    var now = new Date(), y = now.getFullYear(), archEnd = new Date(now.getTime() - 6 * 86400000);
     var maps = {}; idx.forEach(function (i) { maps[i] = {}; });
-    var CH = 40, chunks = [];
-    for (var k = 0; k < idx.length; k += CH) chunks.push(idx.slice(k, k + CH));
-    // JSON олиш — Open-Meteo хато объектини (reason) ҳам, тармоқ хатосини ҳам, бир марта қайта уриниш билан
-    function getJSON(url, tries) {
-      return fetch(url).then(function (r) { return r.json(); }).then(function (d) {
-        if (d && d.error) throw new Error(d.reason || "api error");
-        return d;
-      }).catch(function (e) {
-        if (tries > 0) return new Promise(function (res) { setTimeout(res, 1300); }).then(function () { return getJSON(url, tries - 1); });
-        throw e;
-      });
-    }
-    function merge(ch, d) { (Array.isArray(d) ? d : [d]).forEach(function (o, j) { var i = ch[j]; if (i != null) mergeInto(maps[i], o); }); }
-    var tasks = [];
-    chunks.forEach(function (ch) {
-      var lat = ch.map(function (i) { return CTR[i][0]; }).join(","), lon = ch.map(function (i) { return CTR[i][1]; }).join(",");
-      var au = "https://archive-api.open-meteo.com/v1/archive?latitude=" + lat + "&longitude=" + lon + "&start_date=" + y + "-01-01&end_date=" + iso(archEnd) + "&daily=temperature_2m_max,temperature_2m_min&timezone=auto";
-      var fu = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&daily=temperature_2m_max,temperature_2m_min&past_days=10&forecast_days=16&timezone=auto";
-      // ҳар сўров алоҳида — биттаси муваффақиятсиз бўлса бошқалари ишлайверади
-      tasks.push(getJSON(au, 1).then(function (d) { merge(ch, d); }).catch(function () {}));
-      tasks.push(getJSON(fu, 1).then(function (d) { merge(ch, d); }).catch(function () {}));
+    fetchIdx(idx, maps).then(function () {
+      var ser = mapsToSeries(idx, maps); applySeries(ser, false);
+      var miss = incompleteIdx(idx, maps);
+      if (!miss.length) { writeTCache(FEATS.length, ser); return; } // фақат ТЎЛИҚ маълумот кэшланади
+      setTimeout(function () { // етишмаган туманлар — 25 сониядан сўнг фақат уларни қайта сўраш
+        fetchIdx(miss, maps).then(function () {
+          var s2 = mapsToSeries(idx, maps); applySeries(s2, false);
+          if (!incompleteIdx(idx, maps).length) writeTCache(FEATS.length, s2);
+        });
+      }, 25000);
     });
-    Promise.all(tasks).then(function () {
-      var ser = {}, withData = 0;
-      idx.forEach(function (i) {
-        var m = maps[i] || {}, keys = Object.keys(m).sort();
-        ser[i] = keys.map(function (ds) { return { t: new Date(ds + "T00:00:00"), mx: m[ds].mx, mn: m[ds].mn }; });
-        if (ser[i].length) withData++;
-      });
-      if (withData > 0) writeTCache(FEATS.length, ser); // кэшга ёзиш — эртага/қайта юкланганда API'ни чақирмаслик
-      applySeries(ser, false);
-    }).catch(function () { loadState = "error"; if (status) status.textContent = T.err; });
   }
 
   function showPanel(i) {
