@@ -31,7 +31,13 @@
     calTitle: "Фенокалендарь — поколения за сезон", note: "⚠️ Модельная оценка (градусо-дни), не официальный мониторинг.",
     nowLabel: "Текущее состояние", phaseActive: "АКТИВНОЕ РАЗВИТИЕ", phaseDiapause: "ДИАПАУЗА (зимовка)",
     phasePre: "ЗИМОВКА — ожидается весеннее пробуждение", winterLabel: "Форма зимовки", recLabel: "Рекомендация",
-    windowLabel: "Окно обработки", windowTxt: "перед яйцекладкой следующего поколения"
+    windowLabel: "Окно обработки", windowTxt: "перед яйцекладкой следующего поколения",
+    sumTitle: "Заключение", sumUnit: "р-нов", sumActive: "Активное развитие", sumDiap: "Зимовка (диапауза)",
+    sumMaxGen: "Макс. поколений", sumAvgGen: "В среднем", sumTop: "Наибольшее давление",
+    sumOverLead: "Сезон в основном завершён", sumActiveLead: "Вредитель ещё активен",
+    sumOverTxt: "из {N} районов {E} перешли в диапаузу (зимовку). За сезон накоплено до {G} поколений.",
+    sumActiveTxt: "в {A} районах идёт активное развитие (до {G} поколений). Проведите обработку перед яйцекладкой следующего поколения.",
+    sumToGen: "до {G} поколений"
   } : {
     title: "ФЕНОЛОГИК ПРОГНОЗ", label: "Зараркунанда", region: "Вилоят", districts: "туман",
     back: "← Бутун мамлакат", hint: "👆 Туманни босинг — вилоят катталашиб, календарь ўша вилоят авлодларини кўрсатади.",
@@ -42,7 +48,13 @@
     calTitle: "Фенокалендар — мавсум давомидаги авлодлар", note: "⚠️ Моделга асосланган тахмин (эффектив ҳарорат), расмий мониторинг эмас.",
     nowLabel: "Бугунги ҳолат", phaseActive: "ФАОЛ РИВОЖЛАНИШ", phaseDiapause: "ДИАПАУЗА (қишлов)",
     phasePre: "ҚИШЛОВ — баҳорда уйғониш кутилмоқда", winterLabel: "Қишлаш шакли", recLabel: "Тавсия",
-    windowLabel: "Ишлов бериш ойнаси", windowTxt: "навбатдаги авлод тухум қўйиши олдидан"
+    windowLabel: "Ишлов бериш ойнаси", windowTxt: "навбатдаги авлод тухум қўйиши олдидан",
+    sumTitle: "Хулоса", sumUnit: "туман", sumActive: "Фаол ривожланиш", sumDiap: "Қишлов (диапауза)",
+    sumMaxGen: "Энг кўп авлод", sumAvgGen: "Ўртача", sumTop: "Энг юқори босим",
+    sumOverLead: "Мавсум асосан якунланди", sumActiveLead: "Зараркунанда ҳали фаол",
+    sumOverTxt: "{N} тумандан {E} таси диапаузага (қишловга) ўтган. Мавсум давомида {G} авлодгача ривожланган.",
+    sumActiveTxt: "{A} туманда фаол ривожланиш кетмоқда ({G} авлодгача). Навбатдаги авлод тухум қўйишидан олдин ишлов беринг.",
+    sumToGen: "{G} авлодгача"
   };
 
   // авлод рақами → ранг (кўп авлод = кучли босим)
@@ -123,7 +135,7 @@
   function panPx(dx, dy) { var t = xform(); vb[0] -= dx / t.sc; vb[1] -= dy / t.sc; clampVB(); applyVB(); }
   function zoomBtn(factor) { var cx = vb[0] + vb[2] / 2, cy = vb[1] + vb[3] / 2, newW = vb[2] * factor; if (newW > base[2]) newW = base[2]; if (newW < MINW) newW = MINW; var newH = vb[3] * (newW / vb[2]); vb[0] = cx - newW / 2; vb[1] = cy - newH / 2; vb[2] = newW; vb[3] = newH; clampVB(); applyVB(); }
   function tweenTo(tgt, ms) { var cur = vb.slice(), t0 = performance.now(); function step(now) { var k = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - k, 3); vb = cur.map(function (c, i) { return c + (tgt[i] - c) * e; }); applyVB(); if (k < 1) requestAnimationFrame(step); else { clampVB(); applyVB(); } } requestAnimationFrame(step); }
-  function resetView() { curReg = null; tweenTo(base.slice(), 450); paint(); updatePanel(); drawCal(); renderStatus(); }
+  function resetView() { curReg = null; tweenTo(base.slice(), 450); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); }
 
   function pestOf() { return PESTS[curPest]; }
 
@@ -228,8 +240,47 @@
       '<div class="fn-body">' + body + '</div>';
   }
 
+  // ===== Хулоса (бутун мамлакат бўйича синтез) =====
+  function renderSummary() {
+    var box = document.getElementById("fenosum"); if (!box) return;
+    if (loadState !== "ok") { box.style.display = "none"; return; }
+    var pest = pestOf();
+    var withData = 0, ended = 0, active = 0, genSum = 0, genMax = 0, regGenMax = {};
+    dIdx.forEach(function (i) {
+      var ph = dpheno[i]; if (!ph) return;
+      withData++; if (ph.ended) ended++; else active++;
+      var g = ph.gen || 0; genSum += g; if (g > genMax) genMax = g;
+      var rid = items[i].r; if (!(rid in regGenMax) || g > regGenMax[rid]) regGenMax[rid] = g;
+    });
+    if (!withData) { box.style.display = "none"; return; }
+    box.style.display = "";
+    var avgTxt = Math.round((genSum / withData) * 10) / 10;
+    var over = ended >= active;
+    var topRegs = Object.keys(regGenMax).filter(function (r) { return regGenMax[r] === genMax; })
+      .map(function (r) { return rname(regById[r]); });
+    if (topRegs.length > 3) topRegs = topRegs.slice(0, 3).concat(["…"]);
+    function fill(s) { return s.replace("{N}", withData).replace("{E}", ended).replace("{A}", active).replace("{G}", genMax); }
+    function stat(lbl, val, col) {
+      return '<div class="fs-stat"><div class="fs-v"' + (col ? ' style="color:' + col + '"' : '') + '>' + val + '</div><div class="fs-l">' + lbl + '</div></div>';
+    }
+    box.innerHTML =
+      '<div class="fn-head">' + T.sumTitle + ' · ' + pest.nm + ' · ' + withData + ' ' + T.sumUnit + '</div>' +
+      '<div class="fn-phase ' + (over ? "diapause" : "active") + '">' + (over ? T.sumOverLead : T.sumActiveLead) + '</div>' +
+      '<div class="fs-grid">' +
+        stat(T.sumActive, active, "#1b5e20") +
+        stat(T.sumDiap, ended, "#546e7a") +
+        stat(T.sumMaxGen, genMax, genColor(genMax)) +
+        stat(T.sumAvgGen, avgTxt, null) +
+      '</div>' +
+      '<div class="fn-body">' + (over ? fill(T.sumOverTxt) : fill(T.sumActiveTxt)) +
+        '<div class="fn-rec"><b>' + T.sumTop + ':</b> ' + (topRegs.join(", ") || "—") + '</div>' +
+        (over ? '<div class="fn-rec"><b>' + T.recLabel + ':</b> ' + pest.rec + '</div>' : '') +
+      '</div>' +
+      '<div class="fc-note">' + T.note + ' · ' + T.src + '</div>';
+  }
+
   // ===== ҳодисалар =====
-  function drill(i) { var rid = items[i].r; if (curReg !== rid) { curReg = rid; tweenTo(fitRegion(regById[rid].bbox), 500); paint(); updatePanel(); drawCal(); renderStatus(); } }
+  function drill(i) { var rid = items[i].r; if (curReg !== rid) { curReg = rid; tweenTo(fitRegion(regById[rid].bbox), 500); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); } }
   function showTip(e) {
     var t = e.target;
     if (t && t.tagName === "path" && t.hasAttribute("data-i")) {
@@ -286,7 +337,7 @@
     var b = e.target.closest(".pbtn"); if (!b) return;
     curPest = +b.getAttribute("data-p");
     [].forEach.call(pestBox.children, function (x) { x.classList.toggle("on", x === b); });
-    recompute(); paint(); updatePanel(); drawCal(); renderStatus();
+    recompute(); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary();
   });
 
   // ===== GDD ҳисоби (Baskerville–Emin СИНУС усули + юқори чегара) =====
@@ -393,7 +444,7 @@
     countrySeries = avgByDate(allD);
   }
   function loadData() {
-    loadState = "loading"; updatePanel(); drawCal(); renderStatus();
+    loadState = "loading"; updatePanel(); drawCal(); renderStatus(); renderSummary();
     var now = new Date(), y = now.getFullYear(), archEnd = new Date(now.getTime() - 6 * 86400000);
     var maps = {}; dIdx.forEach(function (i) { maps[i] = {}; });
     var CH = 60, chunks = [];               // кўп нуқтани чанкларга бўлиб сўраймиз
@@ -416,11 +467,11 @@
     Promise.all(tasks).then(function () {
       buildSeries(maps);
       updatedAt = new Date(); loadState = "ok";
-      recompute(); paint(); updatePanel(); drawCal(); renderStatus();
-    }).catch(function () { loadState = "error"; updatePanel(); drawCal(); renderStatus(); });
+      recompute(); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary();
+    }).catch(function () { loadState = "error"; updatePanel(); drawCal(); renderStatus(); renderSummary(); });
   }
 
-  paint(); updatePanel(); drawCal(); renderStatus(); loadData();
+  paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); loadData();
 
   var wrap = stage.parentElement;
   function fit() { var w = wrap.clientWidth, s = w / 1080; stage.style.transform = "scale(" + s + ")"; wrap.style.height = (1080 * s) + "px"; }
