@@ -67,7 +67,10 @@
   var DESERT_COL = "#ead9b0"; // чўл / экин майдони йўқ — прогноз йўқ (ESA WorldCover)
   var zoneD = {}, zoneN = {}; // туман → "desert" | "nocrop" (data/wx-points.json)
   function genColor(g) { if (g == null || g < 1) return GENCOL[0]; var b = (PESTS[curPest] && PESTS[curPest].bin) || 1; return GENCOL[Math.min(Math.ceil(g / b), GENCOL.length - 1)]; }
-  function fillFor(i) { if (zoneD[i]) return DESERT_COL; var ph = dpheno[i]; if (!ph) return GENCOL[0]; return ph.ended ? DIA_COL : genColor(ph.gen); }
+  // қишловдаги туман: ранг — мавсумда етишган авлод сони, устида кулранг штрих (❄)
+  function genIdx(g) { if (g == null || g < 1) return 0; var b = (PESTS[curPest] && PESTS[curPest].bin) || 1; return Math.min(Math.ceil(g / b), GENCOL.length - 1); }
+  function phFill(ph) { if (!ph) return GENCOL[0]; if (!ph.ended) return genColor(ph.gen); var k = genIdx(ph.gen); return k ? "url(#dia" + k + ")" : DIA_COL; }
+  function fillFor(i) { if (zoneD[i]) return DESERT_COL; return phFill(dpheno[i]); }
 
   var DATA = window.UZ_DISTRICTS, items = DATA.items, regions = DATA.regions, GEO = window.UZ_GEO;
   var regById = {}; regions.forEach(function (r) { regById[r.id] = r; });
@@ -112,6 +115,13 @@
   svg.setAttribute("viewBox", fullVB);
   svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
   svg.setAttribute("width", "100%"); svg.setAttribute("height", "100%");
+  (function () { // қишлов штрихи: ҳар авлод ранги учун
+    var defs = document.createElementNS(ns, "defs"), h = "";
+    for (var k = 1; k < GENCOL.length; k++)
+      h += '<pattern id="dia' + k + '" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45)">' +
+        '<rect width="5" height="5" fill="' + GENCOL[k] + '"/><rect width="1.6" height="5" fill="' + DIA_COL + '" fill-opacity=".75"/></pattern>';
+    defs.innerHTML = h; svg.appendChild(defs);
+  })();
   var paths = [];
   items.forEach(function (it, i) {
     var p = document.createElementNS(ns, "path");
@@ -176,7 +186,7 @@
     }
     for (var k = 0; k < npaths.length; k++) {
       var nph = npheno[k];
-      npaths[k].setAttribute("fill", zoneN[k] ? DESERT_COL : (nph ? (nph.ended ? DIA_COL : genColor(nph.gen)) : "#e3e8ea"));
+      npaths[k].setAttribute("fill", zoneN[k] ? DESERT_COL : (nph ? phFill(nph) : "#e3e8ea"));
       var selN = selDist && selDist.t === "n" && selDist.i === k;
       npaths[k].setAttribute("opacity", selN ? "0.9" : (curReg ? "0.12" : "0.55"));
       npaths[k].setAttribute("stroke", selN ? "#0f2b1f" : "#607d8b");
