@@ -90,7 +90,9 @@
   // SVG
   var ns = "http://www.w3.org/2000/svg";
   var svg = document.createElementNS(ns, "svg");
-  var fullVB = DATA.viewBox;
+  // чеккада 3% бўш жой — Қорақалпоғистон ғарби рамкага тегиб турмасин
+  var fullVB = (function (v) { v = v.split(/\s+/).map(Number); var px = v[2] * 0.03, py = v[3] * 0.03;
+    return [v[0] - px, v[1] - py, v[2] + 2 * px, v[3] + 2 * py].map(function (x) { return +x.toFixed(1); }).join(" "); })(DATA.viewBox);
   svg.setAttribute("viewBox", fullVB);
   svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
   svg.setAttribute("width", "100%"); svg.setAttribute("height", "100%");
@@ -261,7 +263,7 @@
   });
   function endPtr(e) {
     if (downT && moved <= 4) {
-      var t = e.target;
+      var t = downT; // pointer capture туфайли e.target — бутун svg; босилган элемент pointerdown пайтида олинади
       if (t && t.tagName === "path" && t.hasAttribute("data-i")) drill(+t.getAttribute("data-i"));
     }
     delete ptrs[e.pointerId];
@@ -303,7 +305,12 @@
 
   // экранга мослаш
   var wrap = stage.parentElement;
-  function fit() { var w = wrap.clientWidth, s = w / 1080; stage.style.transform = "scale(" + s + ")"; wrap.style.height = (1080 * s) + "px"; }
+  // кенг экранда саҳна кенгроқ (харита каттароқ), телефонда — квадрат
+  function fit() {
+    var w = wrap.clientWidth, wide = w >= 760, W = wide ? 1500 : 1080, H = wide ? 1180 : 1080, sc = w / W;
+    stage.style.width = W + "px"; stage.style.height = H + "px";
+    stage.style.transform = "scale(" + sc + ")"; wrap.style.height = (H * sc) + "px";
+  }
   fit(); window.addEventListener("resize", fit);
   if (window.ResizeObserver) { try { new ResizeObserver(fit).observe(wrap); } catch (e) {} }
 })();

@@ -108,7 +108,9 @@
     headers.forEach(function (h) { var th = document.createElement("th"); th.textContent = h; tr.appendChild(th); });
     thead.appendChild(tr); t.appendChild(thead);
     var tb = document.createElement("tbody"); t.appendChild(tb);
-    return { table: t, body: tb };
+    // телефонда жадвал саҳифани кенгайтирмасин — ўз ичида суриладиган қути
+    var wrap = document.createElement("div"); wrap.className = "hb-scroll"; wrap.appendChild(t);
+    return { table: wrap, body: tb };
   }
 
   function renderFieldData() {

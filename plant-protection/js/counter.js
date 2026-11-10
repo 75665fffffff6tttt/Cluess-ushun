@@ -35,7 +35,12 @@
         "box-shadow:0 2px 8px rgba(0,0,0,.25);opacity:.85;user-select:none;cursor:default;max-width:70vw";
       // Босилса — яширинади
       b.addEventListener("click", function () { b.style.display = "none"; });
-      document.body.appendChild(b);
+      // ён менюда — пастки ёзув билан устма-уст тушмасин
+      var foot = document.querySelector(".sidebar-footer");
+      if (foot && window.innerWidth > 960) {
+        b.style.position = "static"; b.style.display = "inline-block"; b.style.marginBottom = "8px"; b.style.maxWidth = "100%";
+        foot.insertBefore(b, foot.firstChild);
+      } else document.body.appendChild(b);
     }
     if (document.body) makeBadge();
     else document.addEventListener("DOMContentLoaded", makeBadge);
