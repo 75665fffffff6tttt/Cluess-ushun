@@ -397,7 +397,7 @@
       var last = new Date(y, m + 1, 0).getDate();
       for (var p = 0; p < 6; p++) { var a = 1 + 5 * p, b = p < 5 ? a + 4 : last; pents.push({ m: m, p: p, a: new Date(y, m, a), b: new Date(y, m, b), n: b - a + 1 }); }
     }
-    var cum = 0, bio = false, cut = false, si = 0, acc = 0, gen = 0, maxGen = 0, winDone = false, eff = 0;
+    var cum = 0, bio = false, cut = false, si = 0, acc = 0, gen = 0, maxGen = 0, winDone = false, eff = 0, dd10 = [];
     var ev = [], cur = null, wins = {}, w0 = pest.win ? pest.win[0] : null, w1 = pest.win ? pest.win[1] : null;
     function open(o, d) { cur = o; cur.from = d; ev.push(cur); }
     function close(d) { if (cur) cur.to = d; }
@@ -421,6 +421,13 @@
           continue;
         }
         if (winDone) { c = P.cells[gen] = P.cells[gen] || []; addSym(c, { w: 1, act: dd > 0.5 }); continue; }
+        // кеч кузги авлод: кун қисқа (диапауза) ва совуқ тушди (охирги 10 кунда < 20 °C·кун) ёки ноябр —
+        // ривожланиш тўхтайди, авлод қишловчи фазага ўтади (аввал «қурт» босқичида йил охиригача қолиб кетарди)
+        dd10.push(dd); if (dd10.length > 10) dd10.shift();
+        if (cut && d.getMonth() >= 9 && (d.getMonth() >= 10 || (dd10.length === 10 && dd10.reduce(function (x, v) { return x + v; }, 0) < 20))) {
+          close(d); winDone = true; acc = 0; open({ g: gen, w: 1 }, d);
+          c = P.cells[gen] = P.cells[gen] || []; addSym(c, { w: 1, act: true }); continue;
+        }
         acc += dd; eff += dd; c = P.cells[gen] = P.cells[gen] || [];
         addSym(c, { s: si });
         while (!winDone && acc >= st[si].dd) {
