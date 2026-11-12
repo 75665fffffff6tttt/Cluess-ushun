@@ -175,14 +175,16 @@
   // ===== инфографика қатлами: давлат номлари ва шаҳарлар (вилоятга яқинлашганда яширинади) =====
   var gI = document.createElementNS(ns, "g"); gI.setAttribute("id", "infolayer"); gI.setAttribute("pointer-events", "none"); svg.insertBefore(gI, gl);
   var INFO_C = LANG === "ru"
-    ? [["КАЗАХСТАН", 66.2, 44.9], ["ТУРКМЕНИСТАН", 59.4, 39.9], ["ТАДЖИКИСТАН", 70.4, 38.75], ["КЫРГЫЗСТАН", 73.25, 41.95], ["АФГАНИСТАН", 65.9, 36.7]]
-    : [["ҚОЗОҒИСТОН", 66.2, 44.9], ["ТУРКМАНИСТОН", 59.4, 39.9], ["ТОЖИКИСТОН", 70.4, 38.75], ["ҚИРҒИЗИСТОН", 73.25, 41.95], ["АФҒОНИСТОН", 65.9, 36.7]];
+    ? [["КАЗАХСТАН", 66.2, 44.9], ["ТУРКМЕНИСТАН", 59.6, 39.35], ["ТАДЖИКИСТАН", 70.4, 38.75], ["КЫРГЫЗСТАН", 73.25, 41.95], ["АФГАНИСТАН", 65.6, 33.6]]
+    : [["ҚОЗОҒИСТОН", 66.2, 44.9], ["ТУРКМАНИСТОН", 59.6, 39.35], ["ТОЖИКИСТОН", 70.4, 38.75], ["ҚИРҒИЗИСТОН", 73.25, 41.95], ["АФҒОНИСТОН", 65.6, 33.6]];
   var INFO_UZ = [LANG === "ru" ? "УЗБЕКИСТАН" : "ЎЗБЕКИСТОН", 63.4, 42.35];
   // [ном uz, ном ru, lon, lat, ёзув жойи: r — ўнгда, l — чапда, t — тепада, b — пастда, пойтахт]
   var INFO_T = [["Тошкент", "Ташкент", 69.24, 41.31, "r", 1], ["Самарқанд", "Самарканд", 66.96, 39.65, "r"], ["Бухоро", "Бухара", 64.42, 39.77, "b"],
     ["Андижон", "Андижан", 72.34, 40.78, "r"], ["Наманган", "Наманган", 71.67, 41.0, "t"], ["Фарғона", "Фергана", 71.78, 40.38, "b"],
     ["Қарши", "Карши", 65.79, 38.86, "r"], ["Термиз", "Термез", 67.28, 37.22, "r"], ["Нукус", "Нукус", 59.61, 42.46, "l"],
-    ["Урганч", "Ургенч", 60.63, 41.55, "b"], ["Навоий", "Навои", 65.38, 40.10, "t"], ["Жиззах", "Джизак", 67.84, 40.12, "b"], ["Гулистон", "Гулистан", 68.78, 40.49, "r"]];
+    ["Урганч", "Ургенч", 60.63, 41.55, "b"], ["Навоий", "Навои", 65.38, 40.10, "t"], ["Жиззах", "Джизак", 67.84, 40.12, "b"], ["Гулистон", "Гулистан", 68.78, 40.49, "r"],
+    ["Ашхобод", "Ашхабад", 58.38, 37.95, "b"], ["Мари", "Мары", 61.83, 37.6, "b"], ["Туркманобод", "Туркменабад", 63.58, 39.08, "l"], ["Дошховуз", "Дашогуз", 59.96, 41.84, "l"],
+    ["Мозори Шариф", "Мазари-Шариф", 67.11, 36.71, "b"], ["Кобул", "Кабул", 69.17, 34.53, "b"], ["Ҳирот", "Герат", 62.2, 34.35, "b"], ["Қандаҳор", "Кандагар", 65.71, 31.61, "b"]];
   function svgEl(tag, at, txt) { var e = document.createElementNS(ns, tag); for (var k in at) e.setAttribute(k, at[k]); if (txt != null) e.textContent = txt; return e; }
   function buildInfo() {
     gI.innerHTML = "";
@@ -1143,7 +1145,7 @@
   function ringArea(r) { var a = 0; for (var i = 0, j = r.length - 1; i < r.length; j = i++) a += r[j][0] * r[i][1] - r[i][0] * r[j][1]; return a / 2; }
   function ringCtr(r) { var a = 0, cx = 0, cy = 0; for (var i = 0, j = r.length - 1; i < r.length; j = i++) { var f = r[j][0] * r[i][1] - r[i][0] * r[j][1]; a += f; cx += (r[j][0] + r[i][0]) * f; cy += (r[j][1] + r[i][1]) * f; } a /= 2; if (Math.abs(a) < 1e-12) return r[0]; return [cx / (6 * a), cy / (6 * a)]; }
   function loadNeighbors() {
-    return fetch("data/uz-neighbors.geojson?v=4").then(function (r) { return r.json(); }).then(function (gj) {
+    return fetch("data/uz-neighbors.geojson?v=5").then(function (r) { return r.json(); }).then(function (gj) {
       var mnx = 0, mny = 0, mxx = base[2], mxy = base[3];
       (gj.features || []).forEach(function (f, fi) {
         var g = f.geometry, p = f.properties || {}; if (!g) return;
@@ -1210,7 +1212,7 @@
   function addDesertLayer(X) {
     var m = X && X.desertMask; if (!m || svg.querySelector("#desertlayer")) return;
     var im = document.createElementNS(ns, "image");
-    im.setAttribute("id", "desertlayer"); im.setAttribute("href", m.png + "?v=5");
+    im.setAttribute("id", "desertlayer"); im.setAttribute("href", m.png + "?v=6");
     im.setAttribute("x", (m.w - PX0) * PS); im.setAttribute("y", (PY0 - m.n) * PS);
     im.setAttribute("width", (m.e - m.w) * PS); im.setAttribute("height", (m.n - m.s) * PS);
     im.setAttribute("preserveAspectRatio", "none"); im.setAttribute("style", "pointer-events:none");
@@ -1226,7 +1228,7 @@
         SPR.mask = { m: m, W: c.width, H: c.height, a: a }; SPR.key = null; spreadSoon();
       } catch (e) {}
     };
-    img.src = m.png + "?v=5";
+    img.src = m.png + "?v=6";
   }
   // ===== тарқалган майдон чегараси: мавсуми бошланган туманлардаги экин майдонининг чети =====
   var SPR = { mask: null, key: null, on: true, t: 0 };
