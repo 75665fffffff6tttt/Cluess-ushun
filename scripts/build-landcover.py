@@ -40,6 +40,13 @@ MASK = os.path.join(P, "data", "desert-mask.png")
 MASK_RES = 0.02  # чўл қатлами пиксели (°) ≈ 2 км
 CROP_NEAR_KM = float(os.environ.get("CROP_NEAR_KM", "6"))  # экиндан шунча км узоқ ер — рангсиз
 URL = "/vsicurl/https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/ESA_WorldCover_10m_2021_v200_%s_Map.tif"
+# LC_SRC=io2024 — Esri / Impact Observatory 10 м йиллик ер қоплами (Sentinel-2, CC-BY 4.0), UTM зоналари бўйича COG
+LC_SRC = os.environ.get("LC_SRC", "worldcover2021")
+IO_URL = "/vsicurl/https://io-10m-annual-lulc.s3.amazonaws.com/%s_%d.tif"
+IO_YEAR = int(os.environ.get("IO_YEAR", "2024"))
+IO_MAP = {1: 80, 2: 10, 4: 90, 5: 40, 7: 50, 8: 60, 9: 70, 10: 0, 11: 30}  # IO синфлари → WorldCover кодлари
+OUT = os.environ.get("LC_OUT", OUT)
+MASK = os.environ.get("LC_MASK", MASK)
 DEC = 32                      # 10 м × 32 ≈ 300 м пиксел
 PX = 3.0 / (36000 // DEC)     # пиксел ўлчами (градус)
 MAX_CELLS = 6
@@ -97,7 +104,28 @@ def main():
     W, H = int(round((lon1 - lon0) / PX)), int(round((lat1 - lat0) / PX))
     lc = np.zeros((H, W), dtype=np.uint8)
     n = 0
-    for la in range(lat0, lat1, 3):
+    if LC_SRC.startswith("io"):
+        from rasterio.warp import reproject
+        lut = np.zeros(256, dtype=np.uint8)
+        for k, v in IO_MAP.items():
+            lut[k] = v
+        dst_tr = from_origin(lon0, lat1, PX, PX)
+        for zone in range(int((lon0 + 180) // 6) + 1, int((lon1 + 180) // 6) + 2):
+            for band in "RSTU":
+                name = "%02d%s" % (zone, band)
+                try:
+                    with rasterio.open(IO_URL % (name, IO_YEAR), OVERVIEW_LEVEL=3) as ds:  # 10 м × 16 = 160 м
+                        a = ds.read(1)
+                        src_tr, src_crs = ds.transform, ds.crs
+                except Exception:
+                    continue
+                tmp = np.zeros((H, W), dtype=np.uint8)
+                reproject(lut[a], tmp, src_transform=src_tr, src_crs=src_crs, dst_transform=dst_tr,
+                          dst_crs="EPSG:4326", resampling=Resampling.mode, src_nodata=0, dst_nodata=0)
+                lc[tmp > 0] = tmp[tmp > 0]
+                n += 1
+                print("io tile", name, IO_YEAR, file=sys.stderr, flush=True)
+    for la in (range(lat0, lat1, 3) if not LC_SRC.startswith("io") else []):
         for lo in range(lon0, lon1, 3):
             name = tile_name(la, lo)
             try:
@@ -189,7 +217,7 @@ def main():
 
     cells = sorted({k for e in res.values() for k, _ in e.get("c", [])})
     with open(OUT, "w", encoding="utf-8") as fh:
-        json.dump({"v": 2, "src": "ESA WorldCover 2021 v200 (CC-BY 4.0)", "minCropKm2": MIN_CROP_KM2,
+        json.dump({"v": 2, "src": ("Esri / Impact Observatory 10m Annual LULC %d (CC-BY 4.0)" % IO_YEAR) if LC_SRC.startswith("io") else "ESA WorldCover 2021 v200 (CC-BY 4.0)", "minCropKm2": MIN_CROP_KM2,
                    "desertMask": mask_meta, "d": res}, fh, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
     nd = sum(1 for e in res.values() if e.get("zone") == "desert")
     nn = sum(1 for e in res.values() if e.get("zone") == "nocrop")
