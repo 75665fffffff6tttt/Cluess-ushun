@@ -426,7 +426,6 @@
         lines.push(nm + ": " + dfc(e.from) + " – " + (e.to ? dfc(e.to) + (e.w ? "" : " ✓") : "…"));
       });
       if (P.end && P.end.g === g && P.cells[g]) { var s = R.st[P.end.s]; lines.push(T.pcTipAcc + ": " + Math.round(P.end.acc) + " / " + Math.round(s.dd) + " °C (" + s.nm + ")"); }
-      if (P.win[g]) lines.push("⚠ " + T.pcWinL);
       if (P.fc) lines.push(T.pcFcL);
       return lines.join("\n");
     }
@@ -449,7 +448,7 @@
       gens.forEach(function (g, gi) {
         h += '<tr class="pc-gen' + (gi === 0 ? " pc-g1" : "") + '"><th class="pc-rh">' + g + "-" + T.genAbbr + '</th>' + ps.map(function (P) {
           var arr = P.days ? P.cells[g] : null, has = arr && arr.length;
-          return '<td class="' + cls(P) + (P.win[g] ? " pc-win" : "") + '"' + (has ? ' style="' + cellBg(arr) + '" data-tip="' + esc(tipFor(P, g)) + '"' : "") + '>' + (has ? cellHtml(arr) : "") + '</td>';
+          return '<td class="' + cls(P) + '"' + (has ? ' style="' + cellBg(arr) + '" data-tip="' + esc(tipFor(P, g)) + '"' : "") + '>' + (has ? cellHtml(arr) : "") + '</td>';
         }).join("") + '</tr>';
       });
       if (!gens.length) h += '<tr class="pc-gen pc-g1"><th class="pc-rh">—</th>' + ps.map(function () { return '<td></td>'; }).join("") + '</tr>';
@@ -459,19 +458,18 @@
     var cols = R.st.map(function (x) { return x.nm + " " + x.sym; });
     var sumRows = "";
     var wSpring = R.ev.filter(function (e) { return e.w && e.g === 1 && e.from.getMonth() < 6; })[0];
-    if (wSpring) sumRows += '<tr class="pc-sw-row"><th>' + T.pcWinterSpring + '</th><td colspan="' + (cols.length + 1) + '">' + R.wnm + ' (' + R.wsym + ') — ' + (wSpring.to ? T.pcUntil.replace("{D}", dfc(wSpring.to)) : T.pcOngoing) + '</td></tr>';
+    if (wSpring) sumRows += '<tr class="pc-sw-row"><th>' + T.pcWinterSpring + '</th><td colspan="' + cols.length + '">' + R.wnm + ' (' + R.wsym + ') — ' + (wSpring.to ? T.pcUntil.replace("{D}", dfc(wSpring.to)) : T.pcOngoing) + '</td></tr>';
     for (var g = 1; g <= nG; g++) {
       var cells = R.st.map(function (x, si) {
         var e = R.ev.filter(function (z) { return z.g === g && z.s === si; })[0];
         return '<td>' + (e ? dfc(e.from) + " – " + (e.to ? dfc(e.to) : "…") : "") + '</td>';
       }).join("");
-      var W = R.wins[g];
-      sumRows += '<tr><th>' + g + '</th>' + cells + '<td class="' + (W ? "pc-wincell" : "") + '">' + (W ? dfc(W.from) + " – " + dfc(W.to) : "") + '</td></tr>';
+      sumRows += '<tr><th>' + g + '</th>' + cells + '</tr>';
     }
     var wAut = R.ev.filter(function (e) { return e.w && e.from.getMonth() >= 6; })[0];
-    if (wAut) sumRows += '<tr class="pc-sw-row"><th>' + T.pcWinterAut + '</th><td colspan="' + (cols.length + 1) + '">' + R.wnm + ' (' + R.wsym + ') — ' + T.pcFrom.replace("{D}", dfc(wAut.from)) + '</td></tr>';
+    if (wAut) sumRows += '<tr class="pc-sw-row"><th>' + T.pcWinterAut + '</th><td colspan="' + cols.length + '">' + R.wnm + ' (' + R.wsym + ') — ' + T.pcFrom.replace("{D}", dfc(wAut.from)) + '</td></tr>';
     var sumTbl = '<div class="pc-sumt"><div class="pc-h2">' + T.pcSumTitle + '</div><div class="pc-scroll"><table class="pc-st"><tr><th>' + T.gen + '</th>' +
-      cols.map(function (c) { return '<th>' + c + '</th>'; }).join("") + '<th>⚠ ' + T.pcWinL + '</th></tr>' + sumRows + '</table></div>' +
+      cols.map(function (c) { return '<th>' + c + '</th>'; }).join("") + '</tr>' + sumRows + '</table></div>' +
       '<div class="pc-note">' + T.pcFcMark + '</div></div>';
     box.innerHTML =
       pcSelectors() +
@@ -482,7 +480,7 @@
       '<button type="button" class="pc-btn" id="pc-xls">⬇ Excel</button>' +
       '<button type="button" class="pc-btn pc-print" id="pc-print">🖨 ' + T.pcPrint + '</button></div></div>' +
       '<div class="pc-org"><label>' + T.pcOrg + ' <input id="pc-org" type="text" maxlength="160" value="' + esc(lsGet("pcOrg")) + '" placeholder="' + T.pcOrgPh + '"></label></div>' +
-      '<div class="pc-legend">' + leg + '<span class="pc-lg"><span class="pc-done">' + R.st[0].sym + '</span> — ' + T.pcDoneL + '</span><span class="pc-lg"><i class="pc-winbox"></i> ' + T.pcWinL + '</span><span class="pc-lg"><i class="pc-fcbox"></i> ' + T.pcFcL + '</span></div>' +
+      '<div class="pc-legend">' + leg + '<span class="pc-lg"><span class="pc-done">' + R.st[0].sym + '</span> — ' + T.pcDoneL + '</span><span class="pc-lg"><i class="pc-fcbox"></i> ' + T.pcFcL + '</span></div>' +
       h + sumTbl +
       '<div class="pc-note">' + T.pcNote + '</div><div class="pc-tip" id="pc-tip"></div>';
     bindSelectors(box);
@@ -535,7 +533,7 @@
     function cellTxt(arr) { return arr ? arr.map(function (o) { return o.w ? (o.act ? R.wsym : "(" + R.wsym + ")") : R.st[o.s].sym + (o.done ? "*" : ""); }).join("") : ""; }
     // 1-варақ: 5 кунлик календар (3 блок)
     var s1 = [[title], [pest.nm], [T.pcBase + " " + pest.base + " °C; " + T.pcGen + " " + Math.round(pest.gen) + " °C; " + T.pcStart + " " + pest.emerge + " °C"],
-      [R.st.map(function (x) { return x.sym + " " + x.nm + " (" + Math.round(x.dd) + " °C)"; }).join("; ") + "; (" + R.wsym + ") " + T.pcWinter + "; * — " + T.pcDoneL + "; ! — " + T.pcWinL], []];
+      [R.st.map(function (x) { return x.sym + " " + x.nm + " (" + Math.round(x.dd) + " °C)"; }).join("; ") + "; (" + R.wsym + ") " + T.pcWinter + "; * — " + T.pcDoneL], []];
     var merges = [], bold = {};
     for (var blk = 0; blk < 3; blk++) {
       var ps = R.pents.slice(blk * 24, blk * 24 + 24), r0 = s1.length;
@@ -547,20 +545,20 @@
       s1.push([T.pcAcc].concat(ps.map(function (P) { return P.acc == null ? "" : Math.round(P.acc); })));
       for (var g = 1; g <= nG; g++) {
         if (!pcAll && !ps.some(function (P) { return P.cells[g] && P.cells[g].length; })) continue;
-        s1.push([g + "-" + T.genAbbr].concat(ps.map(function (P) { return P.days ? cellTxt(P.cells[g]) + (P.win[g] ? "!" : "") : ""; })));
+        s1.push([g + "-" + T.genAbbr].concat(ps.map(function (P) { return P.days ? cellTxt(P.cells[g]) : ""; })));
       }
       s1.push([]);
     }
     s1.push([T.pcNote]);
     // 2-варақ: авлодлар бўйича саналар
-    var s2 = [[title], [pest.nm], [], [T.gen].concat(R.st.map(function (x) { return x.nm + " " + x.sym; })).concat([T.pcWinL])];
+    var s2 = [[title], [pest.nm], [], [T.gen].concat(R.st.map(function (x) { return x.nm + " " + x.sym; }))];
     var b2 = { 3: 1 };
     var wS = R.ev.filter(function (e) { return e.w && e.g === 1 && e.from.getMonth() < 6; })[0];
     if (wS) s2.push([T.pcWinterSpring, R.wnm + " — " + (wS.to ? T.pcUntil.replace("{D}", dfc(wS.to)) : T.pcOngoing)]);
     for (var gg = 1; gg <= nG; gg++) {
       var rw = [gg];
       R.st.forEach(function (x, si) { var e = R.ev.filter(function (z) { return z.g === gg && z.s === si; })[0]; rw.push(e ? dfc(e.from) + " – " + (e.to ? dfc(e.to) : "…") : ""); });
-      var W = R.wins[gg]; rw.push(W ? dfc(W.from) + " – " + dfc(W.to) : ""); s2.push(rw);
+      s2.push(rw);
     }
     var wA = R.ev.filter(function (e) { return e.w && e.from.getMonth() >= 6; })[0];
     if (wA) s2.push([T.pcWinterAut, R.wnm + " — " + T.pcFrom.replace("{D}", dfc(wA.from))]);
