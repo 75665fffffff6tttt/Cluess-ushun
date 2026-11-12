@@ -253,6 +253,8 @@
       var t = b === 1 ? (c === 1 ? lgFirst : (c < 6 ? String(c) : "6+")) : (c < 6 ? ((c - 1) * b + 1) + "–" + (c * b) : (5 * b + 1) + "+");
       if (b > 1 && c === 1) t += " " + T.genAbbr;
       bs[c - 1].textContent = t;
+      // ғўза ва кузги тунлам: 6 авлод бўлмайди (энг кўпи 5) — «6+» кўрсатилмайди
+      bs[c - 1].parentNode.style.display = (b === 1 && c === 6) ? "none" : "";
     }
   }
   function pestOf() { return PESTS[curPest]; }
