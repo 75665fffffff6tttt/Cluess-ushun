@@ -242,7 +242,6 @@
       var wk = def.w >= 0 ? st[def.w].k : "eg", wnm = def.w >= 0 ? st[def.w].nm : (LANG === "ru" ? "Яйцо" : "Тухум");
       lg.innerHTML = st.map(function (x) { return '<div class="lg full">' + ico(pest.id, x.k) + '<i style="background:' + phc(x.k) + '"></i><b>' + x.nm + '</b></div>'; }).join("") +
         '<div class="lg full">' + ico(pest.id, wk, "pc-wi") + '<i style="background:' + PHCOL.w + '"></i><b>❄ ' + T.pcWinter + ' (' + wnm + ')</b></div>' +
-        '<div class="lg full"><i style="background:' + DESERT_COL + ';border:1px solid #b0b0b0"></i><b>' + T.lgDesert + '</b></div>' +
         '<div class="lg full"><i class="lg-spr"></i><b>' + T.sprLeg + '</b></div>';
       return;
     }
