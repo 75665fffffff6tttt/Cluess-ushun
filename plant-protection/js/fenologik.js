@@ -129,11 +129,11 @@
   }
   items.forEach(function (it) { it.ctr = centroid(it.d); });
 
-  stage.querySelector(".title") && (stage.querySelector(".title").textContent = T.title);
+  var ctlT = document.querySelector(".feno-ctl .title"); if (ctlT) ctlT.textContent = T.title;
 
   var pestBox = document.getElementById("pestsel");
   (function () { // харита кўриниши: авлод / фаза
-    var tb = stage.querySelector(".titleband"); if (!tb) return;
+    var tb = document.querySelector(".feno-ctl"); if (!tb) return;
     var row = document.createElement("div"); row.className = "selrow";
     row.innerHTML = '<span class="sellab">' + T.mapMode + ':</span><div class="pestsel" id="modesel">' +
       '<button class="pbtn on" data-m="gen">' + T.modeGen + '</button><button class="pbtn" data-m="phase">' + T.modePhase + '</button>' +
@@ -1430,7 +1430,7 @@
   var wrap = stage.parentElement;
   // кенг экранда — кенгроқ саҳна (харита каттароқ), телефонда — эски квадрат (матн кичраймаслиги учун)
   function fit() {
-    var w = wrap.clientWidth, wide = w >= 760, W = wide ? 1500 : 1080, H = wide ? 1180 : 1080, s = w / W;
+    var w = wrap.clientWidth, wide = w >= 760, W = wide ? 1500 : 1080, H = wide ? 1000 : 920, s = w / W;
     stage.style.width = W + "px"; stage.style.height = H + "px"; stage.classList.toggle("narrow", !wide);
     stage.style.transform = "scale(" + s + ")"; wrap.style.height = (H * s) + "px";
   }

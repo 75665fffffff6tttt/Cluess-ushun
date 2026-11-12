@@ -90,6 +90,18 @@
   .stage .legend{bottom:56px !important}
   .stage.narrow .mapwrap{bottom:150px !important}
   .stage.narrow .legend{bottom:44px !important}
+  .feno-ctl{max-width:1180px;margin:0 auto 12px;padding:2px 2px 0}
+  .feno-ctl .title{font-size:24px;font-weight:800;color:#0f2b1f;margin:0 0 4px;letter-spacing:.2px}
+  .feno-ctl .selrow{display:flex;align-items:center;gap:8px 10px;margin-top:8px;flex-wrap:wrap}
+  .feno-ctl .sellab{font-size:14px;font-weight:700;color:#5a7a6a;min-width:105px}
+  .feno-ctl .pestsel{display:flex;flex-wrap:wrap;gap:7px}
+  .feno-ctl .pbtn{font:inherit;font-size:14.5px;font-weight:600;padding:6px 13px;border-radius:18px;border:1.5px solid #cfe0cf;background:#fff;color:#2e5d3a;cursor:pointer;transition:all .15s}
+  .feno-ctl .pbtn:hover{border-color:#1b5e20}
+  .feno-ctl .pbtn.on{background:#1b5e20;color:#fff;border-color:#1b5e20}
+  .feno-ctl .pbtn.spr.on{background:#c62828;border-color:#c62828;color:#fff}
+  .stage .mapwrap{top:20px !important}
+  .stage .zoomctl{top:130px !important}
+  .stage.narrow .bigdate{top:24px !important;right:44px !important}
   .feno-time{max-width:1180px;margin:14px auto 0;background:#fff;border:1px solid #e6ece6;border-radius:14px;padding:12px 16px 10px;box-shadow:0 3px 14px rgba(0,0,0,.06)}
   .feno-time .tl-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-top:8px;padding-top:8px;border-top:1px dashed #e0e7e0;font-size:12.5px;color:#5a6b60}
   .feno-time .tl-yr select{font:inherit;font-weight:700;padding:3px 8px;border:1.5px solid #cfe0cf;border-radius:8px;background:#fff;margin-left:4px}
@@ -246,12 +258,12 @@
 </div>
 <div class="content-block">
   <div class="container">
+    <div class="feno-ctl titleband">
+      <div class="title">ФЕНОЛОГИК ПРОГНОЗ</div>
+      <div class="selrow"><span class="sellab">Зараркунанда:</span><div class="pestsel" id="pestsel"></div></div>
+    </div>
     <div class="zk-wrap"><div class="stage" id="stage">
       <div class="bigdate" id="bigdate"></div>
-      <div class="titleband">
-        <div class="title">ФЕНОЛОГИК ПРОГНОЗ</div>
-        <div class="selrow"><span class="sellab">Зараркунанда:</span><div class="pestsel" id="pestsel"></div></div>
-      </div>
       <div class="mapwrap"><div id="uzmap" class="uzmap"></div><div id="zktip" class="zktip"></div></div>
       <div class="legend" id="legend">
         <div class="lg"><i style="background:#fee5d9"></i><b>1-авлод</b></div>
@@ -284,7 +296,7 @@
 <script src="js/main.js?v=2"></script>
 <script src="js/uz-districts.js?v=5"></script>
 <script src="js/uz-geo.js?v=1"></script>
-<script src="js/fenologik.js?v=42"></script>
+<script src="js/fenologik.js?v=43"></script>
 <script src="js/counter.js?v=2"></script>
 </body>
 </html>
