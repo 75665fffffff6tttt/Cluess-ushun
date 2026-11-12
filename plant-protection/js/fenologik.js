@@ -1326,7 +1326,7 @@
     var cv = document.createElement("canvas"); cv.width = W; cv.height = H;
     var x = cv.getContext("2d", { willReadFrequently: true });
     var sx = W / ((m.e - m.w) * PS), sy = H / ((m.n - m.s) * PS);
-    // қатламлар: 0..5 — фазалар (5 — маълумот йўқ), 6 — Ўзбекистон улуши (қўшнилар очроқ)
+    // қатламлар: 0..5 — фазалар (5 — маълумот йўқ)
     var L = [];
     function layer(fn) {
       x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, W, H);
@@ -1342,7 +1342,6 @@
         for (var k = 0; k < npaths.length; k++) if (cls.n[k] === c) x.fill(p2d("n" + k, npaths[k].getAttribute("d")));
       }));
     }
-    L.push(layer(function () { for (var i = 0; i < items.length; i++) x.fill(p2d("u" + i, items[i].d)); }));
     // текислаш: радиус ≈ 0.12° (3 марта box-blur ≈ Гаусс)
     var R = Math.max(2, Math.round(0.12 / ((m.e - m.w) / W))), tmp = new Float32Array(N);
     function blur(f) {
@@ -1364,8 +1363,8 @@
       var best = 5, bv = 0, tot = 0;
       for (var c2 = 0; c2 < 6; c2++) { var v = L[c2][p]; tot += v; if (v > bv) { bv = v; best = c2; } }
       if (tot < 0.5 || best === 5) continue;
-      var col = rgb[best], a = 0.45 + 0.55 * Math.min(1, L[6][p] / tot);
-      px[p * 4] = col[0]; px[p * 4 + 1] = col[1]; px[p * 4 + 2] = col[2]; px[p * 4 + 3] = Math.round(255 * a);
+      var col = rgb[best]; // қўшни давлатлар ҳам Ўзбекистон билан бир хил ёрқинликда
+      px[p * 4] = col[0]; px[p * 4 + 1] = col[1]; px[p * 4 + 2] = col[2]; px[p * 4 + 3] = 255;
     }
     x.setTransform(1, 0, 0, 1, 0, 0); x.putImageData(img, 0, 0);
     if (!FLD.im) {
