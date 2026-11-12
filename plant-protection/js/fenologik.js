@@ -286,6 +286,8 @@
     return d.s.map(function (x) { return { k: x[0], sym: x[1], dd: pest.gen * x[2] / tot, nm: STN[x[0] + "_" + pest.id] || STN[x[0]] }; });
   }
   function pcalTarget() {
+    if (selDist && selDist.t === "u" && zoneD[selDist.i]) return { zone: zoneD[selDist.i], who: dname(items[selDist.i]) };
+    if (selDist && selDist.t === "n" && zoneN[selDist.i]) return { zone: zoneN[selDist.i], who: NB[selDist.i].nm || NB[selDist.i].cn };
     if (selDist && selDist.t === "u" && !zoneD[selDist.i]) { var it = items[selDist.i]; return { ser: dseries[selDist.i], lat: GEO[selDist.i][0], who: rname(regById[it.r]) + " · " + dname(it) }; }
     if (selDist && selDist.t === "n" && !zoneN[selDist.i]) { var n = NB[selDist.i]; return { ser: nseries[selDist.i], lat: n.ll[0], who: n.cn + " · " + (n.nm || "") }; }
     if (curReg) { var ds = regDistricts[curReg] || [], la = 0; ds.forEach(function (i) { la += GEO[i][0]; }); return { ser: regSeries[curReg], lat: ds.length ? la / ds.length : 41.3, who: rname(regById[curReg]) + " — " + T.pcRegAvg }; }
@@ -342,6 +344,7 @@
     var box = document.getElementById("fenopcal"); if (!box) return;
     if (loadState !== "ok") { box.innerHTML = ""; return; }
     var tg = pcalTarget(), pest = pestOf();
+    if (tg.zone) { box.innerHTML = '<div class="fc-empty"><b>' + tg.who + '</b> — ' + T[tg.zone + "Tip"] + '</div>'; return; }
     if (!tg.ser || !tg.ser.length) { box.innerHTML = '<div class="fc-empty">' + tg.who + ' — ' + T.nodata + '</div>'; return; }
     var R = pentCal(tg.ser, pest, tg.lat), y = tg.ser[0].t.getFullYear();
     var nG = Math.max(1, R.maxGen), compact = nG > 40; // расмий календардагидек — ҳар авлод алоҳида қаторда
