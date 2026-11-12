@@ -66,7 +66,7 @@
   // авлод рақами → ранг (кўп авлод = кучли босим)
   var GENCOL = ["#d6dde2", "#fee5d9", "#fcbba1", "#fc9272", "#fb6a4a", "#de2d26", "#a50f15"];
   var DIA_COL = "#90a4ae"; // диапауза (қишлов) — нейтрал кулранг-кўк, фаол эмас (хавфсиз эмас!)
-  var DESERT_COL = "#ead9b0"; // чўл / экин майдони йўқ — прогноз йўқ (ESA WorldCover)
+  var DESERT_COL = "#ffffff"; // чўл / экин майдони йўқ — прогноз йўқ (ESA WorldCover)
   var zoneD = {}, zoneN = {}; // туман → "desert" | "nocrop" (data/wx-points.json)
   function genColor(g) { if (g == null || g < 1) return GENCOL[0]; var b = (PESTS[curPest] && PESTS[curPest].bin) || 1; return GENCOL[Math.min(Math.ceil(g / b), GENCOL.length - 1)]; }
   // қишловдаги туман: ранг — мавсумда етишган авлод сони, устида кулранг штрих (❄)
@@ -242,7 +242,7 @@
       var wk = def.w >= 0 ? st[def.w].k : "eg", wnm = def.w >= 0 ? st[def.w].nm : (LANG === "ru" ? "Яйцо" : "Тухум");
       lg.innerHTML = st.map(function (x) { return '<div class="lg full">' + ico(pest.id, x.k) + '<i style="background:' + phc(x.k) + '"></i><b>' + x.nm + '</b></div>'; }).join("") +
         '<div class="lg full">' + ico(pest.id, wk, "pc-wi") + '<i style="background:' + PHCOL.w + '"></i><b>❄ ' + T.pcWinter + ' (' + wnm + ')</b></div>' +
-        '<div class="lg full"><i style="background:' + DESERT_COL + '"></i><b>' + T.lgDesert + '</b></div>' +
+        '<div class="lg full"><i style="background:' + DESERT_COL + ';border:1px solid #b0b0b0"></i><b>' + T.lgDesert + '</b></div>' +
         '<div class="lg full"><i class="lg-spr"></i><b>' + T.sprLeg + '</b></div>';
       return;
     }
@@ -1209,7 +1209,7 @@
   function addDesertLayer(X) {
     var m = X && X.desertMask; if (!m || svg.querySelector("#desertlayer")) return;
     var im = document.createElementNS(ns, "image");
-    im.setAttribute("id", "desertlayer"); im.setAttribute("href", m.png + "?v=2");
+    im.setAttribute("id", "desertlayer"); im.setAttribute("href", m.png + "?v=4");
     im.setAttribute("x", (m.w - PX0) * PS); im.setAttribute("y", (PY0 - m.n) * PS);
     im.setAttribute("width", (m.e - m.w) * PS); im.setAttribute("height", (m.n - m.s) * PS);
     im.setAttribute("preserveAspectRatio", "none"); im.setAttribute("style", "pointer-events:none");
@@ -1225,7 +1225,7 @@
         SPR.mask = { m: m, W: c.width, H: c.height, a: a }; SPR.key = null; spreadSoon();
       } catch (e) {}
     };
-    img.src = m.png + "?v=2";
+    img.src = m.png + "?v=4";
   }
   // ===== тарқалган майдон чегараси: мавсуми бошланган туманлардаги экин майдонининг чети =====
   var SPR = { mask: null, key: null, on: true, t: 0 };
