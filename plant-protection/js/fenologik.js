@@ -262,6 +262,7 @@
 
   function paint() {
     if (gI.nextSibling !== gl) svg.insertBefore(gI, gl); // номлар — чўл қатлами ва чегара устида
+    var ub = svg.querySelector("#uzborder"); if (ub && ub.nextSibling !== gI) svg.insertBefore(ub, gI); // давлат чегараси — тарқалиш чизиғи устида
     spreadSoon();
     gI.style.display = curReg ? "none" : "";
     var bd = document.getElementById("bigdate"), dd = updatedAt || new Date();
@@ -1186,9 +1187,9 @@
         });
         if (!d) return;
         var bl = document.createElementNS(ns, "path");
-        bl.setAttribute("d", d); bl.setAttribute("fill", "none"); bl.setAttribute("stroke", "#263238");
-        bl.setAttribute("stroke-width", "1.3"); bl.setAttribute("stroke-linejoin", "round"); bl.setAttribute("opacity", "0.8");
-        bl.setAttribute("style", "pointer-events:none"); bl.setAttribute("id", "uzborder"); svg.insertBefore(bl, svg.querySelector("#desertlayer") ? svg.querySelector("#desertlayer").nextSibling : gl);
+        bl.setAttribute("d", d); bl.setAttribute("fill", "none"); bl.setAttribute("stroke", "#000");
+        bl.setAttribute("stroke-width", "2.2"); bl.setAttribute("stroke-linejoin", "round");
+        bl.setAttribute("style", "pointer-events:none"); bl.setAttribute("id", "uzborder"); svg.insertBefore(bl, gI);
       });
     }).catch(function () {});
   }
@@ -1242,7 +1243,8 @@
     return { u: u, n: n, key: curPest + "|" + u.join(",") + "|" + n.join(",") };
   }
   function drawSpread() {
-    if (gS.parentNode !== svg || gS.nextSibling !== gI) svg.insertBefore(gS, gI);
+    var ub2 = svg.querySelector("#uzborder"), top = ub2 || gI;
+    if (gS.parentNode !== svg || gS.nextSibling !== top) svg.insertBefore(gS, top);
     gS.style.display = SPR.on ? "" : "none";
     var M = SPR.mask; if (!M || !SPR.on || loadState !== "ok") return;
     var Z = spreadZone(); if (Z.key === SPR.key) return; SPR.key = Z.key;
