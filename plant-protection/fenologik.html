@@ -81,6 +81,10 @@
   .ig-city.cap{font-size:12.5px;font-weight:800}
   .ig-dot{fill:#111;stroke:#fff;stroke-width:1.2}
   .ig-cap{fill:#111;stroke:#fff;stroke-width:1.2}
+  .spr-line{fill:none;stroke:#c62828;stroke-width:1.7px;stroke-linecap:round;vector-effect:non-scaling-stroke}
+  .spr-halo{fill:none;stroke:#fff;stroke-width:4px;stroke-linecap:round;stroke-opacity:.85;vector-effect:non-scaling-stroke}
+  .stage .lg i.lg-spr{height:0;border-radius:0;border-top:3px solid #c62828;box-shadow:0 0 0 1.5px #fff;margin:0 1px}
+  .stage .pbtn.spr.on{background:#c62828;border-color:#c62828;color:#fff}
   .feno-time{max-width:1180px;margin:14px auto 0;background:#fff;border:1px solid #e6ece6;border-radius:14px;padding:12px 16px 10px;box-shadow:0 3px 14px rgba(0,0,0,.06)}
   .feno-time .tl-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-top:8px;padding-top:8px;border-top:1px dashed #e0e7e0;font-size:12.5px;color:#5a6b60}
   .feno-time .tl-yr select{font:inherit;font-weight:700;padding:3px 8px;border:1.5px solid #cfe0cf;border-radius:8px;background:#fff;margin-left:4px}
@@ -254,6 +258,7 @@
         <div class="lg full"><i style="background:repeating-linear-gradient(45deg,#fc9272 0 3px,#90a4ae 3px 5px)"></i><b>❄ Қишлов (штрих; ранг — мавсумдаги авлодлар)</b></div>
         <div class="lg full"><i style="background:#ead9b0"></i><b>🏜 Экин майдони йўқ (чўл, дашт, тоғ — ESA WorldCover)</b></div>
         <div class="lg full"><i style="background:#e3e8ea;border:1.5px dashed #607d8b"></i><b>Қўшни давлат туманлари</b></div>
+        <div class="lg full"><i class="lg-spr"></i><b>Тарқалган майдон чегараси (мавсуми бошланган экин майдонлари)</b></div>
       </div>
       <div class="zkpanel" id="zkpanel"></div>
       <div class="note">GDD модели · Open-Meteo</div>
@@ -274,7 +279,7 @@
 <script src="js/main.js?v=2"></script>
 <script src="js/uz-districts.js?v=5"></script>
 <script src="js/uz-geo.js?v=1"></script>
-<script src="js/fenologik.js?v=38"></script>
+<script src="js/fenologik.js?v=39"></script>
 <script src="js/counter.js?v=2"></script>
 </body>
 </html>
