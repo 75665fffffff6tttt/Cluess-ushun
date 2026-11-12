@@ -42,7 +42,7 @@
   var CROPS = window.UZ_CROPS.crops;
   var regById = {}; regions.forEach(function (r) { regById[r.id] = r; });
   function rname(r) { return LANG === "ru" ? r.ru : r.c; }
-  function dname(it) { return LANG === "ru" ? it.n : it.c; }
+  function dname(it) { return LANG === "ru" ? (it.ru || it.n) : (it.u || it.c); }
 
   var curCrop = 0, curPest = 0, curReg = null;
   function crop() { return CROPS[curCrop]; }
