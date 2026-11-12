@@ -145,8 +145,8 @@ def main():
     alpha = np.clip(nocrop * (1 - builtf * 3) * inside * 1.15, 0, 1)
     alpha[alpha < 0.12] = 0
     rgba = np.zeros((Hm, Wm, 4), dtype=np.uint8)
-    rgba[..., 0], rgba[..., 1], rgba[..., 2] = 0xEA, 0xD9, 0xB0
-    rgba[..., 3] = (alpha * 235).astype(np.uint8)
+    rgba[..., 0], rgba[..., 1], rgba[..., 2] = 0xFF, 0xFF, 0xFF  # экин майдони йўқ — оқ
+    rgba[..., 3] = (alpha * 255).astype(np.uint8)
     Image.fromarray(rgba, "RGBA").save(MASK, optimize=True)
     mask_meta = {"png": "data/desert-mask.png", "w": lon0, "n": lat1,
                  "e": lon0 + Wm * f * PX, "s": lat1 - Hm * f * PX}
