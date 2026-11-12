@@ -74,8 +74,8 @@
   function phFill(ph) { if (!ph) return GENCOL[0]; if (!ph.ended) return genColor(ph.gen); var k = genIdx(ph.gen); return k ? "url(#dia" + k + ")" : DIA_COL; }
   function fillFor(i) { if (zoneD[i]) return DESERT_COL; if (MAPMODE === "phase") return phaseCol(phaseOf("u", i)); return phFill(dpheno[i]); }
   // ===== фаза харитаси: танланган кунда ҳар туманда қайси фаза (тухум/қурт/ғумбак/етук зот/қишлов) =====
-  var MAPMODE = "gen", PHC = {};
-  var PHCOL = { im: "#4f86c6", eg: "#e8b923", la: "#4caf50", pu: "#8d6e63", w: "#b0bec5" };
+  var MAPMODE = "phase", PHC = {}; // харита очилганда — фаза режими
+  var PHCOL = { im: "#4f86c6", eg: "#f2c12e", la: "#e53935", pu: "#43a047", w: "#b0bec5" }; // тухум — сариқ, қурт/личинка — қизил, ғумбак — яшил
   function phaseR(t, i) {
     var pest = pestOf(), key = pest.id + ":" + t + i;
     if (!(key in PHC)) {
@@ -136,7 +136,7 @@
     var tb = document.querySelector(".feno-ctl"); if (!tb) return;
     var row = document.createElement("div"); row.className = "selrow";
     row.innerHTML = '<span class="sellab">' + T.mapMode + ':</span><div class="pestsel" id="modesel">' +
-      '<button class="pbtn on" data-m="gen">' + T.modeGen + '</button><button class="pbtn" data-m="phase">' + T.modePhase + '</button>' +
+      '<button class="pbtn" data-m="gen">' + T.modeGen + '</button><button class="pbtn on" data-m="phase">' + T.modePhase + '</button>' +
       '<button class="pbtn spr on" data-spr="1">▬ ' + T.sprBtn + '</button></div>';
     tb.appendChild(row);
     row.addEventListener("click", function (e) {
