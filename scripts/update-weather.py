@@ -22,6 +22,7 @@ Open-Meteo'ни умуман чақирмайди (бепул лимит туг�
 """
 import datetime as dt
 import json
+import re
 import math
 import os
 import sys
@@ -124,13 +125,55 @@ def load_state(today):
                 st = json.load(fh)
         except Exception:
             st = None
-    if not st or st.get("start") != start.isoformat():
+    if st and st.get("start") != start.isoformat():
+        archive_year(st)  # янги йил: ўтган йил маълумоти data/wx-YYYY.json га сақланади
+        st = None
+    if not st:
         st = {"v": 1, "start": start.isoformat(), "days": days, "tz": TZ, "step": STEP, "cells": {}}
+    update_years(year)
     if st["days"] < days:
         for k in st["cells"]:
             st["cells"][k] += [None] * (2 * (days - st["days"]))
         st["days"] = days
     return st, start
+
+
+def archive_year(st):
+    """Ўтган йил маълумотини (1-январ – 31-декабр) data/wx-YYYY.json га ёзади (бир марта)."""
+    try:
+        s0 = dt.date.fromisoformat(st["start"])
+    except Exception:
+        return
+    y = s0.year
+    path = os.path.join(P, "data", "wx-%d.json" % y)
+    if os.path.exists(path):
+        return
+    n = min(st.get("days", 0), (dt.date(y, 12, 31) - s0).days + 1)
+    arc = {"v": st.get("v", 1), "start": st["start"], "days": n, "tz": st.get("tz", TZ), "step": st.get("step", STEP),
+           "updated": st.get("updated"), "archived": True,
+           "cells": {k: v[:2 * n] for k, v in st.get("cells", {}).items()}}
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(arc, fh, separators=(",", ":"), sort_keys=True)
+    log("archived %d → %s (%d days, %d cells)" % (y, path, n, len(arc["cells"])))
+
+
+def update_years(cur):
+    """data/wx-years.json: {"cur": жорий йил, "years": [архив ва жорий йиллар]} — саҳифадаги йил танлаш учун."""
+    years = {cur}
+    for fn in os.listdir(os.path.join(P, "data")):
+        m = re.match(r"wx-(\d{4})\.json$", fn)
+        if m:
+            years.add(int(m.group(1)))
+    path = os.path.join(P, "data", "wx-years.json")
+    data = {"cur": cur, "years": sorted(years)}
+    try:
+        with open(path, encoding="utf-8") as fh:
+            if json.load(fh) == data:
+                return
+    except Exception:
+        pass
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(data, fh)
 
 
 def save_state(st):

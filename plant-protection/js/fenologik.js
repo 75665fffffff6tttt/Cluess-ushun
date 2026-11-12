@@ -37,11 +37,11 @@
     phasePre: "ЗИМОВКА — ожидается весеннее пробуждение", winterLabel: "Форма зимовки", recLabel: "Рекомендация",
     windowLabel: "Окно обработки", windowTxt: "перед яйцекладкой следующего поколения",
     sumTitle: "Заключение", sumUnit: "р-нов", sumActive: "Активное развитие", sumDiap: "Зимовка (диапауза)",
-    sumMaxGen: "Макс. поколений", sumAvgGen: "В среднем", sumTop: "Наибольшее давление", desertTip: "🏜 Пустыня — посевов нет, прогноз не даётся", nocropTip: "Посевов нет (степь/горы) — прогноз не даётся", sumNoFc: "Без прогноза (пустыня/нет посевов)", diToday: "Сегодня (max / min)", di7: "Средняя за 7 дней", diCrop: "Посевы", diCity: "Городская территория — температура по центру района", diClose: "Закрыть", bioL: "Начало сезона (выход с зимовки)", cutL: "Осенняя диапауза (короткий день)", noNextCut: "новое поколение не начнётся — короткий день", genAbbr: "пок.", winNow: "ОТКРЫТО сейчас", winOpenL: "⚠ Окно обработки открыто сейчас", winSoonL: "Откроется в ближайшие 7 дней", winShort: "время обработки", winNone: "в этом сезоне больше нет", dateL: "Показана дата", tlLabel: "Дата", tlToday: "Сегодня", tlPlay: "▶ Сезон", tlPause: "⏸ Пауза", tlFc: "прогноз", tlPast: "прошлое", tlHint: "Двигайте ползунок — карта, календарь и окна обработки покажут состояние на выбранную дату.",
+    sumMaxGen: "Макс. поколений", sumAvgGen: "В среднем", sumTop: "Наибольшее давление", desertTip: "🏜 Пустыня — посевов нет, прогноз не даётся", nocropTip: "Посевов нет (степь/горы) — прогноз не даётся", sumNoFc: "Без прогноза (пустыня/нет посевов)", diToday: "Сегодня (max / min)", di7: "Средняя за 7 дней", diCrop: "Посевы", diCity: "Городская территория — температура по центру района", diClose: "Закрыть", bioL: "Начало сезона (выход с зимовки)", cutL: "Осенняя диапауза (короткий день)", noNextCut: "новое поколение не начнётся — короткий день", genAbbr: "пок.", winNow: "ОТКРЫТО сейчас", winOpenL: "⚠ Окно обработки открыто сейчас", winSoonL: "Откроется в ближайшие 7 дней", winShort: "время обработки", winNone: "в этом сезоне больше нет", dateL: "Показана дата", cmpAdd: "К сравнению", cmpAdded: "В сравнении", cmpTitle: "Сравнение районов", cmpSub: "Даты начала поколений (для 1-го — выход с зимовки, начало сезона)", cmpMore: "(показаны первые 8 из {N})", cmpDist: "Район", cmpSeason: "начало сезона", cmpGens: "Поколений", cmpClear: "Очистить", cmpNote: "Жирным — самая ранняя дата в столбце. До 5 районов: выберите район и нажмите «К сравнению».", cmpXls: "Сравнение", mapMode: "Карта", modeGen: "Поколения", modePhase: "Фаза (стадия)", phaseNow: "Фаза на дату", lgDesert: "🏜 Нет посевов", tlYear: "Год", tlYearEnd: "Конец года", wxFresh: "🔄 Данные о температуре обновлены: {D} ({H} ч назад)", wxStale: "⚠ Данные о температуре не обновлялись {H} ч (последнее: {D}) — прогноз может быть устаревшим.", wxArchive: "📦 Архив {Y} г. — данные о температуре по 31 декабря", tlLabel: "Дата", tlToday: "Сегодня", tlPlay: "▶ Сезон", tlPause: "⏸ Пауза", tlFc: "прогноз", tlPast: "прошлое", tlHint: "Двигайте ползунок — карта, календарь и окна обработки покажут состояние на выбранную дату.",
     sumOverLead: "Сезон в основном завершён", sumActiveLead: "Вредитель ещё активен",
     sumOverTxt: "из {N} районов {E} перешли в диапаузу (зимовку). За сезон накоплено до {G} поколений.",
-    sumActiveTxt: "в {A} районах идёт активное развитие (до {G} поколений). Проведите обработку перед яйцекладкой следующего поколения.",
-    pcSymMode: "+ • — Символы", pcIcoMode: "🐛 Рисунки", pcAllRows: "Все строки", pcActRows: "Только активные строки", pcWinL: "окно обработки (яйца и молодые личинки)", pcSumTitle: "Даты по поколениям", pcWinterSpring: "Зимовка (весна)", pcWinterAut: "Уход на зимовку", pcUntil: "до {D}", pcFrom: "с {D}", pcOngoing: "продолжается", pcFcMark: "≈ — по прогнозу погоды; ✓ — фаза завершена.", pcDistSel: "Район", pcRegAvgOpt: "— среднее по области —", pcOrg: "Организация (для печати):", pcOrgPh: "напр.: Андижанский областной центр защиты растений", pcOrgCap: "(наименование организации)", pcApprove: "УТВЕРЖДАЮ", pcDateLine: "«___» ____________ {Y} г.", pcCompiled: "Составил", pcResp: "Ответственный специалист", pcSign: "(Ф.И.О., подпись)", pcPrinted: "Дата печати", pcTipAcc: "накоплено", pcXlsSheet1: "Календарь", pcXlsSheet2: "Даты", pcXlsFile: "Фенокалендарь", pcTitle: "{Y} г. — фенологический календарь: {W}", pcRegAvg: "среднее по области", pcBase: "Нижний порог развития", pcGen: "сумма эффективных температур на поколение", pcStart: "весенний выход с зимовки", pcWinter: "Зимующая фаза", pcPrint: "Печать / PDF", pc5: "5 дней", pcMean: "Средняя °C", pcEff: "Эффект. °C (5 дн.)", pcAcc: "Накоплено в фазе °C", pcDoneL: "фаза завершилась в эти 5 дней", pcFcL: "прогноз", pcNote: "Эффективные температуры — синус-метод по суточным max/min (нижний и верхний порог), до весеннего выхода с зимовки идёт развитие зимующей фазы; осенью при коротком дне развитие останавливается на зимующей фазе. Модельная оценка, не официальный мониторинг.", monthsFull: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+    sumActiveTxt: "в {A} районах идёт активное развитие (до {G} поколений).",
+    pcCmpOn: "☰ Компактно", pcCmpOff: "☷ Каждое поколение отдельно", pcSymMode: "+ • — Символы", pcIcoMode: "🐛 Рисунки", pcAllRows: "Все строки", pcActRows: "Только активные строки", pcWinL: "окно обработки (яйца и молодые личинки)", pcSumTitle: "Даты по поколениям", pcWinterSpring: "Зимовка (весна)", pcWinterAut: "Уход на зимовку", pcUntil: "до {D}", pcFrom: "с {D}", pcOngoing: "продолжается", pcFcMark: "≈ — по прогнозу погоды; ✓ — фаза завершена.", pcDistSel: "Район", pcRegAvgOpt: "— среднее по области —", pcOrg: "Организация (для печати):", pcOrgPh: "напр.: Андижанский областной центр защиты растений", pcOrgCap: "(наименование организации)", pcApprove: "УТВЕРЖДАЮ", pcDateLine: "«___» ____________ {Y} г.", pcCompiled: "Составил", pcResp: "Ответственный специалист", pcSign: "(Ф.И.О., подпись)", pcPrinted: "Дата печати", pcTipAcc: "накоплено", pcXlsSheet1: "Календарь", pcXlsSheet2: "Даты", pcXlsFile: "Фенокалендарь", pcTitle: "{Y} г. — фенологический календарь: {W}", pcRegAvg: "среднее по области", pcBase: "Нижний порог развития", pcGen: "сумма эффективных температур на поколение", pcStart: "весенний выход с зимовки", pcWinter: "Зимующая фаза", pcPrint: "Печать / PDF", pc5: "5 дней", pcMean: "Средняя °C", pcEff: "Эффект. °C (5 дн.)", pcAcc: "Накоплено в фазе °C", pcDoneL: "фаза завершилась в эти 5 дней", pcFcL: "прогноз", pcNote: "Эффективные температуры — синус-метод по суточным max/min (нижний и верхний порог), до весеннего выхода с зимовки идёт развитие зимующей фазы; осенью при коротком дне развитие останавливается на зимующей фазе. Модельная оценка, не официальный мониторинг.", monthsFull: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
     sumToGen: "до {G} поколений"
   } : {
     title: "ФЕНОЛОГИК ПРОГНОЗ", label: "Зараркунанда", region: "Вилоят", districts: "туман",
@@ -55,11 +55,11 @@
     phasePre: "ҚИШЛОВ — баҳорда уйғониш кутилмоқда", winterLabel: "Қишлаш шакли", recLabel: "Тавсия",
     windowLabel: "Ишлов бериш ойнаси", windowTxt: "навбатдаги авлод тухум қўйиши олдидан",
     sumTitle: "Хулоса", sumUnit: "туман", sumActive: "Фаол ривожланиш", sumDiap: "Қишлов (диапауза)",
-    sumMaxGen: "Энг кўп авлод", sumAvgGen: "Ўртача", sumTop: "Энг юқори босим", desertTip: "🏜 Чўл — экин майдони йўқ, прогноз берилмайди", nocropTip: "Экин майдони йўқ (дашт/тоғ) — прогноз берилмайди", sumNoFc: "Прогноз берилмади (чўл/экин майдони йўқ)", diToday: "Бугун (max / min)", di7: "Охирги 7 кун ўртача", diCrop: "Экин майдони", diCity: "Шаҳар ҳудуди — ҳарорат туман марказидан", diClose: "Ёпиш", bioL: "Мавсум боши (қишловдан чиқиш)", cutL: "Кузги диапауза (кун қисқариши)", noNextCut: "янги авлод бошланмайди — кун қисқа", genAbbr: "авлод", winNow: "ҲОЗИР очиқ", winOpenL: "⚠ Ишлов бериш ойнаси ҳозир очиқ", winSoonL: "7 кун ичида очилади", winShort: "ишлов бериш вақти", winNone: "бу мавсумда бошқа йўқ", dateL: "Кўрсатилган сана", tlLabel: "Сана", tlToday: "Бугун", tlPlay: "▶ Мавсум", tlPause: "⏸ Тўхтатиш", tlFc: "прогноз", tlPast: "ўтган кун", tlHint: "Сургични суринг — харита, календар ва ишлов бериш ойналари танланган кундаги ҳолатни кўрсатади.",
+    sumMaxGen: "Энг кўп авлод", sumAvgGen: "Ўртача", sumTop: "Энг юқори босим", desertTip: "🏜 Чўл — экин майдони йўқ, прогноз берилмайди", nocropTip: "Экин майдони йўқ (дашт/тоғ) — прогноз берилмайди", sumNoFc: "Прогноз берилмади (чўл/экин майдони йўқ)", diToday: "Бугун (max / min)", di7: "Охирги 7 кун ўртача", diCrop: "Экин майдони", diCity: "Шаҳар ҳудуди — ҳарорат туман марказидан", diClose: "Ёпиш", bioL: "Мавсум боши (қишловдан чиқиш)", cutL: "Кузги диапауза (кун қисқариши)", noNextCut: "янги авлод бошланмайди — кун қисқа", genAbbr: "авлод", winNow: "ҲОЗИР очиқ", winOpenL: "⚠ Ишлов бериш ойнаси ҳозир очиқ", winSoonL: "7 кун ичида очилади", winShort: "ишлов бериш вақти", winNone: "бу мавсумда бошқа йўқ", dateL: "Кўрсатилган сана", cmpAdd: "Солиштиришга", cmpAdded: "Солиштиришда", cmpTitle: "Туманларни солиштириш", cmpSub: "Авлодлар бошланиш саналари (1-авлод — қишловдан чиқиш, мавсум боши)", cmpMore: "({N} тадан биринчи 8 таси)", cmpDist: "Туман", cmpSeason: "мавсум боши", cmpGens: "Авлодлар", cmpClear: "Тозалаш", cmpNote: "Қалин — устундаги энг эрта сана. 5 тагача туман: туманни танланг ва «Солиштиришга» тугмасини босинг.", cmpXls: "Солиштириш", mapMode: "Харита", modeGen: "Авлодлар", modePhase: "Фаза (босқич)", phaseNow: "Шу кундаги фаза", lgDesert: "🏜 Экин майдони йўқ", tlYear: "Йил", tlYearEnd: "Йил охири", wxFresh: "🔄 Ҳарорат маълумоти янгиланган: {D} ({H} соат олдин)", wxStale: "⚠ Ҳарорат маълумоти {H} соатдан бери янгиланмаган (охирги: {D}) — прогноз эскирган бўлиши мумкин.", wxArchive: "📦 {Y} йил архиви — ҳарорат маълумоти 31-декабргача", tlLabel: "Сана", tlToday: "Бугун", tlPlay: "▶ Мавсум", tlPause: "⏸ Тўхтатиш", tlFc: "прогноз", tlPast: "ўтган кун", tlHint: "Сургични суринг — харита, календар ва ишлов бериш ойналари танланган кундаги ҳолатни кўрсатади.",
     sumOverLead: "Мавсум асосан якунланди", sumActiveLead: "Зараркунанда ҳали фаол",
     sumOverTxt: "{N} тумандан {E} таси диапаузага (қишловга) ўтган. Мавсум давомида {G} авлодгача ривожланган.",
-    sumActiveTxt: "{A} туманда фаол ривожланиш кетмоқда ({G} авлодгача). Навбатдаги авлод тухум қўйишидан олдин ишлов беринг.",
-    pcSymMode: "+ • — Белгилар", pcIcoMode: "🐛 Расмлар", pcAllRows: "Барча қаторлар", pcActRows: "Фақат фаол қаторлар", pcWinL: "ишлов бериш ойнаси (тухум ва ёш личинкалар)", pcSumTitle: "Авлодлар бўйича саналар", pcWinterSpring: "Қишлов (баҳор)", pcWinterAut: "Қишловга кетиш", pcUntil: "{D} гача", pcFrom: "{D} дан", pcOngoing: "давом этмоқда", pcFcMark: "≈ — об-ҳаво прогнози бўйича; ✓ — фаза тугади.", pcDistSel: "Туман", pcRegAvgOpt: "— вилоят ўртачаси —", pcOrg: "Ташкилот (чоп этиш учун):", pcOrgPh: "мас.: Андижон вилояти ўсимликларни ҳимоя қилиш маркази", pcOrgCap: "(ташкилот номи)", pcApprove: "ТАСДИҚЛАЙМАН", pcDateLine: "«___» ____________ {Y} й.", pcCompiled: "Тузувчи", pcResp: "Масъул мутахассис", pcSign: "(Ф.И.Ш., имзо)", pcPrinted: "Чоп этилган сана", pcTipAcc: "тўпланган", pcXlsSheet1: "Календар", pcXlsSheet2: "Саналар", pcXlsFile: "Фенокалендар", pcTitle: "{Y} йил — фенологик календар: {W}", pcRegAvg: "вилоят ўртачаси", pcBase: "Ривожланишнинг қуйи ҳарорат чегараси", pcGen: "бир авлод учун самарали ҳарорат йиғиндиси", pcStart: "баҳорги уйғониш", pcWinter: "Қишловчи фаза", pcPrint: "Чоп этиш / PDF", pc5: "5 кун", pcMean: "Ўртача °C", pcEff: "Самарали °C (5 кун)", pcAcc: "Фазада тўпланган °C", pcDoneL: "фаза шу 5 кунликда тугади", pcFcL: "прогноз", pcNote: "Самарали ҳарорат — кунлик max/min бўйича синус усулида (қуйи ва юқори чегара); баҳорги уйғонишгача қишловчи фаза ривожланади; кузда кун қисқаргач ривожланиш қишловчи фазада тўхтайди. Модел баҳоси, расмий мониторинг эмас.", monthsFull: ["Январ", "Феврал", "Март", "Апрел", "Май", "Июн", "Июл", "Август", "Сентябр", "Октябр", "Ноябр", "Декабр"],
+    sumActiveTxt: "{A} туманда фаол ривожланиш кетмоқда ({G} авлодгача).",
+    pcCmpOn: "☰ Ихчам кўриниш", pcCmpOff: "☷ Ҳар авлод алоҳида", pcSymMode: "+ • — Белгилар", pcIcoMode: "🐛 Расмлар", pcAllRows: "Барча қаторлар", pcActRows: "Фақат фаол қаторлар", pcWinL: "ишлов бериш ойнаси (тухум ва ёш личинкалар)", pcSumTitle: "Авлодлар бўйича саналар", pcWinterSpring: "Қишлов (баҳор)", pcWinterAut: "Қишловга кетиш", pcUntil: "{D} гача", pcFrom: "{D} дан", pcOngoing: "давом этмоқда", pcFcMark: "≈ — об-ҳаво прогнози бўйича; ✓ — фаза тугади.", pcDistSel: "Туман", pcRegAvgOpt: "— вилоят ўртачаси —", pcOrg: "Ташкилот (чоп этиш учун):", pcOrgPh: "мас.: Андижон вилояти ўсимликларни ҳимоя қилиш маркази", pcOrgCap: "(ташкилот номи)", pcApprove: "ТАСДИҚЛАЙМАН", pcDateLine: "«___» ____________ {Y} й.", pcCompiled: "Тузувчи", pcResp: "Масъул мутахассис", pcSign: "(Ф.И.Ш., имзо)", pcPrinted: "Чоп этилган сана", pcTipAcc: "тўпланган", pcXlsSheet1: "Календар", pcXlsSheet2: "Саналар", pcXlsFile: "Фенокалендар", pcTitle: "{Y} йил — фенологик календар: {W}", pcRegAvg: "вилоят ўртачаси", pcBase: "Ривожланишнинг қуйи ҳарорат чегараси", pcGen: "бир авлод учун самарали ҳарорат йиғиндиси", pcStart: "баҳорги уйғониш", pcWinter: "Қишловчи фаза", pcPrint: "Чоп этиш / PDF", pc5: "5 кун", pcMean: "Ўртача °C", pcEff: "Самарали °C (5 кун)", pcAcc: "Фазада тўпланган °C", pcDoneL: "фаза шу 5 кунликда тугади", pcFcL: "прогноз", pcNote: "Самарали ҳарорат — кунлик max/min бўйича синус усулида (қуйи ва юқори чегара); баҳорги уйғонишгача қишловчи фаза ривожланади; кузда кун қисқаргач ривожланиш қишловчи фазада тўхтайди. Модел баҳоси, расмий мониторинг эмас.", monthsFull: ["Январ", "Феврал", "Март", "Апрел", "Май", "Июн", "Июл", "Август", "Сентябр", "Октябр", "Ноябр", "Декабр"],
     sumToGen: "{G} авлодгача"
   };
 
@@ -72,12 +72,32 @@
   // қишловдаги туман: ранг — мавсумда етишган авлод сони, устида кулранг штрих (❄)
   function genIdx(g) { if (g == null || g < 1) return 0; var b = (PESTS[curPest] && PESTS[curPest].bin) || 1; return Math.min(Math.ceil(g / b), GENCOL.length - 1); }
   function phFill(ph) { if (!ph) return GENCOL[0]; if (!ph.ended) return genColor(ph.gen); var k = genIdx(ph.gen); return k ? "url(#dia" + k + ")" : DIA_COL; }
-  function fillFor(i) { if (zoneD[i]) return DESERT_COL; return phFill(dpheno[i]); }
+  function fillFor(i) { if (zoneD[i]) return DESERT_COL; if (MAPMODE === "phase") return phaseCol(phaseOf("u", i)); return phFill(dpheno[i]); }
+  // ===== фаза харитаси: танланган кунда ҳар туманда қайси фаза (тухум/қурт/ғумбак/етук зот/қишлов) =====
+  var MAPMODE = "gen", PHC = {};
+  var PHCOL = { im: "#4f86c6", eg: "#e8b923", la: "#4caf50", pu: "#8d6e63", w: "#b0bec5" };
+  function phaseR(t, i) {
+    var pest = pestOf(), key = pest.id + ":" + t + i;
+    if (!(key in PHC)) {
+      var ser = t === "u" ? dseries[i] : nseries[i], lat = t === "u" ? GEO[i][0] : NB[i].ll[0];
+      PHC[key] = ser && ser.length ? pentCal(ser, pest, lat) : null;
+    }
+    return PHC[key];
+  }
+  function phaseOf(t, i) {
+    var R = phaseR(t, i); if (!R) return null;
+    var d = updatedAt || new Date(), dd = new Date(d.getFullYear(), d.getMonth(), d.getDate()), hit = null;
+    for (var j = 0; j < R.ev.length; j++) { var e = R.ev[j]; if (e.from <= dd && (!e.to || e.to >= dd)) hit = e; }
+    if (!hit) return null;
+    return { k: hit.w ? "w" : R.st[hit.s].k, g: hit.g, nm: hit.w ? T.pcWinter + " — " + R.wnm : R.st[hit.s].nm, w: !!hit.w, R: R };
+  }
+  function phaseCol(ph) { return ph ? PHCOL[ph.k] : GENCOL[0]; }
+  function phaseTxt(ph) { return ph ? (ph.w ? "❄ " + ph.nm : ph.g + "-" + T.genAbbr + ": " + ph.nm) : T.nodata; }
 
   var DATA = window.UZ_DISTRICTS, items = DATA.items, regions = DATA.regions, GEO = window.UZ_GEO;
   var regById = {}; regions.forEach(function (r) { regById[r.id] = r; });
   function rname(r) { return LANG === "ru" ? r.ru : r.c; }
-  function dname(it) { return LANG === "ru" ? it.n : it.c; }
+  function dname(it) { return LANG === "ru" ? (it.ru || it.n) : (it.u || it.c); }
 
   // туман индекслари (координатаси бор) ва вилоят → туманлар
   var dIdx = [];
@@ -93,6 +113,9 @@
   // ?sana=YYYY-MM-DD — исталган санадаги ҳолатни кўриш (масалан, ёзги ишлов бериш ойналари)
   var NOW = (function () { var m = /[?&]sana=(\d{4})-(\d{2})-(\d{2})/.exec(location.search); return m ? new Date(+m[1], +m[2] - 1, +m[3], 12) : null; })();
   var WXR = null; // ҳарорат маълумоти санаси оралиғи (wx.json: start, days)
+  // йил архиви: ?yil=YYYY → data/wx-YYYY.json; январ–февралда ўтган мавсум (бор бўлса) кўрсатилади
+  var YQ = (function () { var m = /[?&]yil=(\d{4})/.exec(location.search); return m ? +m[1] : null; })();
+  var YEAR = null, CURY = null, YEARS = [], PAST = false, WXU = null;
   var loadState = "loading", updatedAt = null, wxPending = false, selDist = null, WXP = null;
 
   function centroid(d) {
@@ -106,6 +129,19 @@
   stage.querySelector(".title") && (stage.querySelector(".title").textContent = T.title);
 
   var pestBox = document.getElementById("pestsel");
+  (function () { // харита кўриниши: авлод / фаза
+    var tb = stage.querySelector(".titleband"); if (!tb) return;
+    var row = document.createElement("div"); row.className = "selrow";
+    row.innerHTML = '<span class="sellab">' + T.mapMode + ':</span><div class="pestsel" id="modesel">' +
+      '<button class="pbtn on" data-m="gen">' + T.modeGen + '</button><button class="pbtn" data-m="phase">' + T.modePhase + '</button></div>';
+    tb.appendChild(row);
+    row.addEventListener("click", function (e) {
+      var b = e.target.closest(".pbtn"); if (!b) return;
+      MAPMODE = b.getAttribute("data-m");
+      [].forEach.call(row.querySelectorAll(".pbtn"), function (x) { x.classList.toggle("on", x === b); });
+      paint(); renderLegend(); renderDistrict();
+    });
+  })();
   if (pestBox) pestBox.innerHTML = PESTS.map(function (p, i) {
     return '<button class="pbtn' + (i === 0 ? ' on' : '') + '" data-p="' + i + '">' + p.nm + '</button>';
   }).join("");
@@ -164,8 +200,19 @@
 
   // легенда: авлод синфлари танланган зараркунанданинг шкаласи бўйича
   var lgFirst = null;
+  var lgGenHtml = null;
   function renderLegend() {
     var lg = document.getElementById("legend"); if (!lg) return;
+    if (lgGenHtml == null) lgGenHtml = lg.innerHTML;
+    if (MAPMODE === "phase") {
+      var pest = pestOf(), st = stageList(pest), def = STG[pest.id];
+      var wk = def.w >= 0 ? st[def.w].k : "eg", wnm = def.w >= 0 ? st[def.w].nm : (LANG === "ru" ? "Яйцо" : "Тухум");
+      lg.innerHTML = st.map(function (x) { return '<div class="lg">' + ico(pest.id, x.k) + '<i style="background:' + PHCOL[x.k] + '"></i><b>' + x.nm + '</b></div>'; }).join("") +
+        '<div class="lg">' + ico(pest.id, wk, "pc-wi") + '<i style="background:' + PHCOL.w + '"></i><b>❄ ' + T.pcWinter + ' (' + wnm + ')</b></div>' +
+        '<div class="lg"><i style="background:' + DESERT_COL + '"></i><b>' + T.lgDesert + '</b></div>';
+      return;
+    }
+    if (lg.innerHTML !== lgGenHtml) lg.innerHTML = lgGenHtml;
     var bs = lg.querySelectorAll(".lg b"), b = pestOf().bin || 1;
     if (lgFirst == null && bs[0]) lgFirst = bs[0].textContent;
     for (var c = 1; c <= 6 && c <= bs.length; c++) {
@@ -182,13 +229,12 @@
       paths[i].setAttribute("fill", fillFor(i));
       paths[i].setAttribute("opacity", inReg ? "1" : "0.12");
       var selU = selDist && selDist.t === "u" && selDist.i === i;
-      var wOpen = !zoneD[i] && dpheno[i] && dpheno[i].win && dpheno[i].win.open;
-      paths[i].setAttribute("stroke", selU ? "#0f2b1f" : (wOpen ? "#e65100" : "#fff"));
-      paths[i].setAttribute("stroke-width", selU ? "2.2" : (wOpen ? "1.1" : (curReg && items[i].r === curReg ? "0.9" : "0.5")));
+      paths[i].setAttribute("stroke", selU ? "#0f2b1f" : "#fff");
+      paths[i].setAttribute("stroke-width", selU ? "2.2" : (curReg && items[i].r === curReg ? "0.9" : "0.5"));
     }
     for (var k = 0; k < npaths.length; k++) {
       var nph = npheno[k];
-      npaths[k].setAttribute("fill", zoneN[k] ? DESERT_COL : (nph ? phFill(nph) : "#e3e8ea"));
+      npaths[k].setAttribute("fill", zoneN[k] ? DESERT_COL : (MAPMODE === "phase" ? (nph ? phaseCol(phaseOf("n", k)) : "#e3e8ea") : (nph ? phFill(nph) : "#e3e8ea")));
       var selN = selDist && selDist.t === "n" && selDist.i === k;
       npaths[k].setAttribute("opacity", selN ? "0.9" : (curReg ? "0.12" : "0.55"));
       npaths[k].setAttribute("stroke", selN ? "#0f2b1f" : "#607d8b");
@@ -288,8 +334,8 @@
   function pcalTarget() {
     if (selDist && selDist.t === "u" && zoneD[selDist.i]) return { zone: zoneD[selDist.i], who: dname(items[selDist.i]) };
     if (selDist && selDist.t === "n" && zoneN[selDist.i]) return { zone: zoneN[selDist.i], who: NB[selDist.i].nm || NB[selDist.i].cn };
-    if (selDist && selDist.t === "u" && !zoneD[selDist.i]) { var it = items[selDist.i]; return { ser: dseries[selDist.i], lat: GEO[selDist.i][0], who: rname(regById[it.r]) + " · " + dname(it) }; }
-    if (selDist && selDist.t === "n" && !zoneN[selDist.i]) { var n = NB[selDist.i]; return { ser: nseries[selDist.i], lat: n.ll[0], who: n.cn + " · " + (n.nm || "") }; }
+    if (selDist && selDist.t === "u" && !zoneD[selDist.i]) { var it = items[selDist.i]; return { ser: dseries[selDist.i], lat: GEO[selDist.i][0], who: rname(regById[it.r]) + " · " + dname(it), key: "u" + selDist.i }; }
+    if (selDist && selDist.t === "n" && !zoneN[selDist.i]) { var n = NB[selDist.i]; return { ser: nseries[selDist.i], lat: n.ll[0], who: n.cn + " · " + (n.nm || ""), key: "n" + selDist.i }; }
     if (curReg) { var ds = regDistricts[curReg] || [], la = 0; ds.forEach(function (i) { la += GEO[i][0]; }); return { ser: regSeries[curReg], lat: ds.length ? la / ds.length : 41.3, who: rname(regById[curReg]) + " — " + T.pcRegAvg }; }
     return { ser: countrySeries, lat: 41.3, who: T.country };
   }
@@ -385,6 +431,7 @@
   })();
   function ico(pestId, k, cls) { var g = (ICO[pestId] || {})[k]; return g ? '<svg class="pc-ic' + (cls ? " " + cls : "") + '" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' + g + '</svg>' : ""; }
   var pcIco = lsGet("pcIco") !== "0";
+  var pcCmp = lsGet("pcCmp") === "1";
   // туман/вилоят танлаш (рўйхатдан)
   function pcSelectRegion(rid) {
     selDist = null;
@@ -410,7 +457,8 @@
     if (r) r.onchange = function () { pcSelectRegion(r.value); };
     if (d) d.onchange = function () { if (d.value === "") pcSelectRegion(curReg); else pcSelectDistrict(+d.value); };
   }
-  function drawPentCal() {
+  function drawPentCal() { drawPentCal0(); drawCmp(); }
+  function drawPentCal0() {
     var box = document.getElementById("fenopcal"); if (!box) return;
     if (loadState !== "ok") { box.innerHTML = ""; return; }
     var tg = pcalTarget(), pest = pestOf();
@@ -466,13 +514,23 @@
         row(T.pcMean, function (P) { return P.mean.toFixed(1); }) +
         row(T.pcEff, function (P) { return P.dd.toFixed(1); }) +
         row(T.pcAcc, function (P) { return P.acc == null ? "" : P.acc.toFixed(0); });
+      if (pcCmp && nG > 6) {
+        h += '<tr class="pc-gen pc-g1 pc-cmp"><th class="pc-rh">' + T.gen + '</th>' + ps.map(function (P) {
+          var ks = P.days ? Object.keys(P.cells).map(Number).filter(function (k) { return P.cells[k].length; }).sort(function (a, b) { return a - b; }) : [];
+          if (!ks.length) return '<td class="' + cls(P) + '"></td>';
+          var all = []; ks.forEach(function (k) { all = all.concat(P.cells[k]); });
+          return '<td class="' + cls(P) + '" style="background:#f7faf7" data-tip="' + esc(ks.map(function (k) { return tipFor(P, k); }).join("\n\n")) + '">' +
+            ks.map(function (k) { return '<span class="pc-cg"><span class="pc-gn">' + k + '</span>' + cellHtml(P.cells[k]) + '</span>'; }).join("") + '</td>';
+        }).join("") + '</tr>';
+        gens = [];
+      }
       gens.forEach(function (g, gi) {
         h += '<tr class="pc-gen' + (gi === 0 ? " pc-g1" : "") + '"><th class="pc-rh">' + g + "-" + T.genAbbr + '</th>' + ps.map(function (P) {
           var arr = P.days ? P.cells[g] : null, has = arr && arr.length;
           return '<td class="' + cls(P) + '"' + (has ? ' style="' + cellBg(arr) + '" data-tip="' + esc(tipFor(P, g)) + '"' : "") + '>' + (has ? cellHtml(arr) : "") + '</td>';
         }).join("") + '</tr>';
       });
-      if (!gens.length) h += '<tr class="pc-gen pc-g1"><th class="pc-rh">—</th>' + ps.map(function () { return '<td></td>'; }).join("") + '</tr>';
+      if (!gens.length && !(pcCmp && nG > 6)) h += '<tr class="pc-gen pc-g1"><th class="pc-rh">—</th>' + ps.map(function () { return '<td></td>'; }).join("") + '</tr>';
       h += '</table></div>';
     }
     // авлодлар бўйича саналар жадвали
@@ -497,7 +555,7 @@
       '<div class="pc-top"><div><div class="pc-title">' + T.pcTitle.replace("{Y}", y).replace("{W}", tg.who) + '</div>' +
       '<div class="pc-pest">' + pest.nm + '</div>' +
       '<div class="pc-sub">' + T.pcBase + ' ' + pest.base + ' °C · ' + T.pcGen + ' ' + Math.round(pest.gen) + ' °C · ' + T.pcStart + ' ' + pest.emerge + ' °C</div></div>' +
-      '<div class="pc-btns"><button type="button" class="pc-btn" id="pc-ico">' + (pcIco ? T.pcSymMode : T.pcIcoMode) + '</button><button type="button" class="pc-btn" id="pc-rows">' + (pcAll ? T.pcActRows : T.pcAllRows) + '</button>' +
+      '<div class="pc-btns">' + (tg.key ? '<button type="button" class="pc-btn" id="pc-add"' + (cmpHas(tg.key) || CMP.length >= 5 ? ' disabled' : '') + '>➕ ' + (cmpHas(tg.key) ? T.cmpAdded : T.cmpAdd) + '</button>' : '') + '<button type="button" class="pc-btn" id="pc-ico">' + (pcIco ? T.pcSymMode : T.pcIcoMode) + '</button>' + (nG > 6 ? '<button type="button" class="pc-btn" id="pc-cmp">' + (pcCmp ? T.pcCmpOff : T.pcCmpOn) + '</button>' : '') + '<button type="button" class="pc-btn" id="pc-rows"' + (pcCmp && nG > 6 ? ' style="display:none"' : '') + '>' + (pcAll ? T.pcActRows : T.pcAllRows) + '</button>' +
       '<button type="button" class="pc-btn" id="pc-xls">⬇ Excel</button>' +
       '<button type="button" class="pc-btn pc-print" id="pc-print">🖨 ' + T.pcPrint + '</button></div></div>' +
       '<div class="pc-org"><label>' + T.pcOrg + ' <input id="pc-org" type="text" maxlength="160" value="' + esc(lsGet("pcOrg")) + '" placeholder="' + T.pcOrgPh + '"></label></div>' +
@@ -507,8 +565,10 @@
     bindSelectors(box);
     box.querySelector("#pc-org").oninput = function () { lsSet("pcOrg", this.value); };
     box.querySelector("#pc-rows").onclick = function () { pcAll = !pcAll; drawPentCal(); };
+    var cmpB = box.querySelector("#pc-cmp"); if (cmpB) cmpB.onclick = function () { pcCmp = !pcCmp; lsSet("pcCmp", pcCmp ? "1" : "0"); drawPentCal(); };
     box.querySelector("#pc-ico").onclick = function () { pcIco = !pcIco; lsSet("pcIco", pcIco ? "1" : "0"); drawPentCal(); };
     box.querySelector("#pc-xls").onclick = function () { pcExcel(); };
+    var addB = box.querySelector("#pc-add"); if (addB) addB.onclick = function () { if (!cmpHas(tg.key) && CMP.length < 5) { CMP.push(tg.key); cmpSave(); drawPentCal(); var c = document.getElementById("fenocmp"); if (c) c.scrollIntoView({ behavior: "smooth", block: "nearest" }); } };
     box.querySelector("#pc-print").onclick = function () { pcPrint(box); };
     // катак изоҳи (сичқонча ёки бармоқ)
     var tipEl = box.querySelector("#pc-tip");
@@ -521,6 +581,92 @@
     box.onmouseover = function (e) { var td = e.target.closest("td[data-tip]"); if (td) showTipFor(td); };
     box.onmouseout = function (e) { if (e.target.closest("td[data-tip]") && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest("td[data-tip]"))) tipEl.style.display = "none"; };
     box.onclick = function (e) { var td = e.target.closest("td[data-tip]"); if (td) showTipFor(td); else if (!e.target.closest(".pc-tip")) tipEl.style.display = "none"; };
+  }
+  // ===== туманларни солиштириш (2–5 туман): авлодлар бошланиш саналари =====
+  var CMP = (function () { try { var a = JSON.parse(localStorage.getItem("pcCmpList") || "[]"); return Array.isArray(a) ? a.slice(0, 5) : []; } catch (e) { return []; } })();
+  function cmpSave() { lsSet("pcCmpList", JSON.stringify(CMP)); }
+  function cmpHas(k) { return CMP.indexOf(k) >= 0; }
+  function cmpName(k) {
+    var t = k.charAt(0), i = +k.slice(1);
+    if (t === "u") return items[i] ? rname(regById[items[i].r]) + " · " + dname(items[i]) : k;
+    return NB[i] ? NB[i].cn + " · " + (NB[i].nm || "") : k;
+  }
+  function cmpData() {
+    var rows = [], maxG = 0;
+    CMP.forEach(function (k) {
+      var t = k.charAt(0), i = +k.slice(1);
+      var zone = t === "u" ? zoneD[i] : zoneN[i];
+      var R = zone ? null : phaseR(t, i);
+      var r = { k: k, nm: cmpName(k), starts: [], wout: null, gens: 0, zone: zone };
+      if (R) {
+        R.ev.forEach(function (e) {
+          if (!e.w && r.starts[e.g - 1] == null) r.starts[e.g - 1] = e.from;
+          if (e.w && e.from.getMonth() >= 6 && !r.wout) r.wout = e.from;
+        });
+        r.gens = R.maxGen; if (R.maxGen > maxG) maxG = R.maxGen;
+      }
+      rows.push(r);
+    });
+    return { rows: rows, maxG: maxG, cols: Math.min(maxG, 8) };
+  }
+  function drawCmp() {
+    var box = document.getElementById("fenocmp"); if (!box) return;
+    if (loadState !== "ok" || !CMP.length) { box.innerHTML = ""; return; }
+    var D = cmpData(), pest = pestOf(), h = "";
+    var hdr = '<tr><th>' + T.cmpDist + '</th>';
+    for (var g = 1; g <= D.cols; g++) hdr += '<th>' + g + '-' + T.genAbbr + (g === 1 ? '<br><small>' + T.cmpSeason + '</small>' : '') + '</th>';
+    hdr += '<th>' + T.pcWinterAut + '</th><th>' + T.cmpGens + '</th><th></th></tr>';
+    // ҳар устунда энг эрта сана — қалин
+    var early = [];
+    for (var c = 0; c < D.cols; c++) { var mn = null; D.rows.forEach(function (r) { var d = r.starts[c]; if (d && (!mn || d < mn)) mn = d; }); early.push(mn); }
+    D.rows.forEach(function (r, ri) {
+      h += '<tr><th>' + esc(r.nm) + '</th>';
+      if (r.zone) { h += '<td colspan="' + (D.cols + 2) + '" class="cmp-z">' + T[r.zone + "Tip"] + '</td>'; }
+      else {
+        for (var c2 = 0; c2 < D.cols; c2++) { var d = r.starts[c2]; h += '<td' + (d && early[c2] && d.getTime() === early[c2].getTime() && D.rows.length > 1 ? ' class="cmp-early"' : '') + '>' + (d ? dfc(d) : "—") + '</td>'; }
+        h += '<td>' + (r.wout ? dfc(r.wout) : "—") + '</td><td><b>' + r.gens + '</b></td>';
+      }
+      h += '<td><button type="button" class="cmp-x" data-k="' + r.k + '" title="' + T.diClose + '">×</button></td></tr>';
+    });
+    box.innerHTML = '<div class="pc-top"><div><div class="pc-title">' + T.cmpTitle + '</div><div class="pc-pest">' + pest.nm + '</div>' +
+      '<div class="pc-sub">' + T.cmpSub + (D.maxG > D.cols ? ' ' + T.cmpMore.replace("{N}", D.maxG) : '') + '</div></div>' +
+      '<div class="pc-btns"><button type="button" class="pc-btn" id="cmp-xls">⬇ Excel</button><button type="button" class="pc-btn" id="cmp-print">🖨 ' + T.pcPrint + '</button><button type="button" class="pc-btn" id="cmp-clear">' + T.cmpClear + '</button></div></div>' +
+      '<div class="pc-scroll"><table class="pc-st cmp-t">' + hdr + h + '</table></div>' +
+      '<div class="pc-note">' + T.cmpNote + ' ' + T.pcFcMark + '</div>';
+    [].forEach.call(box.querySelectorAll(".cmp-x"), function (b) { b.onclick = function () { CMP = CMP.filter(function (k) { return k !== b.getAttribute("data-k"); }); cmpSave(); drawPentCal(); }; });
+    box.querySelector("#cmp-clear").onclick = function () { CMP = []; cmpSave(); drawPentCal(); };
+    box.querySelector("#cmp-print").onclick = function () { printDoc(box, T.cmpTitle + " — " + pest.nm); };
+    box.querySelector("#cmp-xls").onclick = function () {
+      var rows = [[T.cmpTitle + " — " + pest.nm + " — " + (YEAR || "")], [T.cmpSub], [],
+        [T.cmpDist].concat((function () { var a = []; for (var g = 1; g <= D.maxG; g++) a.push(g + "-" + T.genAbbr); return a; })()).concat([T.pcWinterAut, T.cmpGens])];
+      D.rows.forEach(function (r) {
+        if (r.zone) { rows.push([r.nm, T[r.zone + "Tip"]]); return; }
+        var a = [r.nm]; for (var g = 0; g < D.maxG; g++) a.push(r.starts[g] ? dfc(r.starts[g]) : "");
+        rows.push(a.concat([r.wout ? dfc(r.wout) : "", r.gens]));
+      });
+      rows.push([]); rows.push([T.cmpNote + " " + T.pcFcMark]);
+      saveBlob(xlsxBlob([{ name: T.cmpXls, rows: rows, merges: [], bold: { 3: 1 }, w0: 30, w: 11 }]), (T.cmpXls + "_" + pest.id + "_" + (YEAR || "")) + ".xlsx");
+    };
+  }
+  function saveBlob(blob, name) {
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name.replace(/[\\/:*?"<>|·—\s]+/g, "_");
+    document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+  // умумий чоп этиш (сарлавҳа: ташкилот + ТАСДИҚЛАЙМАН; пастда имзо қаторлари)
+  function printDoc(box, title) {
+    var css = [].map.call(document.querySelectorAll("style"), function (x) { return x.textContent; }).join("\n");
+    var w = window.open("", "_blank"); if (!w) { window.print(); return; }
+    var org = lsGet("pcOrg"), y = YEAR || new Date().getFullYear(), today = new Date();
+    var clone = box.cloneNode(true);
+    [].forEach.call(clone.querySelectorAll(".pc-btns,.cmp-x,.pc-sel,.pc-org,#pc-tip"), function (x) { x.parentNode.removeChild(x); });
+    w.document.write('<!doctype html><html lang="' + document.documentElement.lang + '"><head><meta charset="utf-8"><title>' + esc(title) + '</title><style>' + css +
+      '@page{size:A4 landscape;margin:10mm}body{margin:0;font-family:"Segoe UI",system-ui,Arial,sans-serif;color:#111}.feno-pcal{max-width:none;margin:0;border:none;box-shadow:none;padding:0}.pc-scroll{overflow:visible}' +
+      '.pp-head{display:flex;justify-content:space-between;gap:20px;margin-bottom:10px;font-size:12px}.pp-org{font-weight:700;max-width:55%}.pp-cap{font-weight:400;font-size:9px;color:#555}.pp-appr{min-width:230px;line-height:1.6}.pp-appr b{letter-spacing:.06em}' +
+      '.pp-foot{display:flex;justify-content:space-between;gap:16px;margin-top:18px;font-size:11px;flex-wrap:wrap}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body>' +
+      '<div class="pp-head"><div class="pp-org">' + (org ? esc(org) : "_______________________________________") + '<div class="pp-cap">' + T.pcOrgCap + '</div></div><div class="pp-appr"><b>' + T.pcApprove + '</b><div>____________________________</div><div>____________________________</div><div>' + T.pcDateLine.replace("{Y}", y) + '</div></div></div>' +
+      '<div class="feno-pcal">' + clone.innerHTML + '</div>' +
+      '<div class="pp-foot"><div>' + T.pcCompiled + ': ____________________ ' + T.pcSign + '</div><div>' + T.pcResp + ': ____________________ ' + T.pcSign + '</div><div>' + T.pcPrinted + ': ' + d2(today) + '.' + today.getFullYear() + '</div></div></body></html>');
+    w.document.close(); w.focus(); setTimeout(function () { w.print(); }, 300);
   }
   // чоп этиш: сарлавҳа (ташкилот, ТАСДИҚЛАЙМАН), календар, саналар, имзо қаторлари
   function pcPrint(box) {
@@ -650,8 +796,7 @@
     if (!ph.ended) {
       cls = "active"; phase = T.phaseActive;
       var nextTxt = ph.next ? (fmtDate(ph.next) + (ph.approx ? " " + T.approx : "")) : "—";
-      body = T.gen + ': <b>' + ph.gen + '</b> (' + Math.round(ph.progress * 100) + '% ' + T.progress + ') · ' + T.next + ': <b>' + nextTxt + '</b>' +
-        '<div class="fn-rec"><b>' + T.windowLabel + ':</b> ' + (ph.win ? winText(ph.win, pest) : T.winNone) + '</div>';
+      body = T.gen + ': <b>' + ph.gen + '</b> (' + Math.round(ph.progress * 100) + '% ' + T.progress + ') · ' + T.next + ': <b>' + nextTxt + '</b>';
     } else {
       var pre = !!ph.pre;
       cls = "diapause"; phase = pre ? T.phasePre : T.phaseDiapause;
@@ -664,16 +809,6 @@
   }
 
   // ===== Хулоса (бутун мамлакат бўйича синтез) =====
-  function winSummary() {
-    var now = (updatedAt || new Date()).getTime(), open = [], soon = [];
-    dIdx.forEach(function (i) {
-      var w = dpheno[i] && dpheno[i].win; if (!w || zoneD[i]) return;
-      if (w.open) open.push(dname(items[i])); else if (w.from.getTime() - now <= 7 * 86400000) soon.push(dname(items[i]));
-    });
-    function lst(a) { return a.length + " (" + a.slice(0, 8).join(", ") + (a.length > 8 ? ", …" : "") + ")"; }
-    return (open.length ? '<div class="fn-rec" style="color:#bf360c"><b>' + T.winOpenL + ':</b> ' + lst(open) + '</div>' : '') +
-           (soon.length ? '<div class="fn-rec"><b>' + T.winSoonL + ':</b> ' + lst(soon) + '</div>' : '');
-  }
   function renderSummary() {
     var box = document.getElementById("fenosum"); if (!box) return;
     if (loadState !== "ok") { box.style.display = "none"; return; }
@@ -707,7 +842,6 @@
       '</div>' +
       '<div class="fn-body">' + (over ? fill(T.sumOverTxt) : fill(T.sumActiveTxt)) +
         '<div class="fn-rec"><b>' + T.sumTop + ':</b> ' + (topRegs.join(", ") || "—") + '</div>' +
-        winSummary() +
         (Object.keys(zoneD).length ? '<div class="fn-rec"><b>' + T.sumNoFc + ':</b> ' + Object.keys(zoneD).map(function (i) { return dname(items[i]); }).join(", ") + '</div>' : '') +
         (over ? '<div class="fn-rec"><b>' + T.recLabel + ':</b> ' + pest.rec + '</div>' : '') +
       '</div>' +
@@ -716,21 +850,15 @@
 
   // ===== ҳодисалар =====
   function drill(i) { var rid = items[i].r; if (curReg !== rid) { curReg = rid; tweenTo(fitRegion(regById[rid].bbox), 500); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict(); renderLegend(); } }
-  function winText(w, pest) {
-    if (!w) return "—";
-    var t = w.open ? (LANG === "ru" ? T.winNow + " — до " + fmtDate(w.to) : T.winNow + " — " + fmtDate(w.to) + "гача")
-                   : fmtDate(w.from) + " – " + fmtDate(w.to);
-    return t + (w.approx ? " " + T.approx : "") + " <span class=\"di-sub\">(" + w.gen + (LANG === "ru" ? "-е пок.: " : "-авлод: ") + pest.wst + ")</span>";
-  }
-  function phLine(ph) { return ph ? (ph.ended ? "❄ " + T.phaseDiapause : (T.gen + " " + ph.gen + " · " + Math.round(ph.gdd) + "°Д" + (ph.win && ph.win.open ? " · ⚠ " + T.winShort : ""))) : (loadState === "loading" ? T.loading : T.nodata); }
+  function phLine(ph) { return ph ? (ph.ended ? "❄ " + T.phaseDiapause : (T.gen + " " + ph.gen + " · " + Math.round(ph.gdd) + "°Д")) : (loadState === "loading" ? T.loading : T.nodata); }
   function showTip(e) {
     var t = e.target, html = null;
     if (t && t.tagName === "path" && t.hasAttribute("data-i")) {
       var i = +t.getAttribute("data-i"), it = items[i];
-      html = "<b>" + dname(it) + "</b><br>" + rname(regById[it.r]) + "<br>" + (zoneD[i] ? T[zoneD[i] + "Tip"] : phLine(dpheno[i]));
+      html = "<b>" + dname(it) + "</b><br>" + rname(regById[it.r]) + "<br>" + (zoneD[i] ? T[zoneD[i] + "Tip"] : (MAPMODE === "phase" ? phaseTxt(phaseOf("u", i)) : phLine(dpheno[i])));
     } else if (t && t.tagName === "path" && t.hasAttribute("data-n")) {
       var k = +t.getAttribute("data-n"), n = NB[k];
-      html = (n.nm ? "<b>" + n.nm + "</b><br>" : "") + n.cn + "<br>" + (zoneN[k] ? T[zoneN[k] + "Tip"] : phLine(npheno[k]));
+      html = (n.nm ? "<b>" + n.nm + "</b><br>" : "") + n.cn + "<br>" + (zoneN[k] ? T[zoneN[k] + "Tip"] : (MAPMODE === "phase" ? phaseTxt(phaseOf("n", k)) : phLine(npheno[k])));
     }
     if (html) {
       tip.innerHTML = html;
@@ -797,12 +925,13 @@
     else if (!ph) h += '<div class="di-row">' + T.nodata + '</div>';
     else {
       h += '<div class="di-phase ' + (ph.ended ? "dia" : "active") + '">' + (ph.pre ? "❄ " + T.phasePre : (ph.ended ? "❄ " + T.phaseDiapause : T.phaseActive)) + '</div>';
+      var phN = phaseOf(selDist.t, i);
       var rows = [
+        [T.phaseNow, '<b>' + phaseTxt(phN) + '</b>'],
         [T.gen, '<b>' + ph.gen + '</b> <span class="di-sub">(' + Math.round(ph.progress * 100) + '% ' + T.progress + ')</span>'],
         [T.gdd, '<b>' + Math.round(ph.gdd) + '</b> °Д <span class="di-sub">(' + T.base + ' ' + pest.base + '°C)</span>'],
         [T.next, '<b>' + (ph.ended ? T.ended : (ph.noNext ? T.noNextCut : (ph.next ? fmtDate(ph.next) + (ph.approx ? " " + T.approx : "") : "—"))) + '</b>']
       ];
-      if (!ph.ended || ph.win) rows.push([T.windowLabel, '<b>' + (ph.win ? winText(ph.win, pest) : T.winNone) + '</b>']);
       if (ph.seasonStart) rows.push([T.bioL, '<b>' + fmtDate(ph.seasonStart) + '</b>']);
       if (ph.cutoff) rows.push([T.cutL, '<b>' + fmtDate(ph.cutoff) + '</b>']);
       var now = updatedAt || new Date(), td = dayOf(ser, iso(now)), s7 = 0, c7 = 0;
@@ -1071,6 +1200,7 @@
     return maps;
   }
   function finish(maps) {
+    PHC = {};
     buildSeries(maps);
     nseries = {};
     NB.forEach(function (n, k) { var m = maps["n" + k] || {}, keys = Object.keys(m).sort(); nseries[k] = keys.map(function (ds) { return { t: new Date(ds + "T00:00:00"), mx: m[ds].mx, mn: m[ds].mn }; }); });
@@ -1082,17 +1212,34 @@
   var tlPlay = null;
   function refreshAt(d) {
     var today = new Date(); today.setHours(12, 0, 0, 0);
-    NOW = (d && iso(d) !== iso(today)) ? d : null;
+    NOW = (d && (PAST || iso(d) !== iso(today))) ? d : null;
     updatedAt = NOW || new Date();
     recompute(); paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict(); renderLegend();
-    try { history.replaceState(null, "", location.pathname + (NOW ? "?sana=" + iso(NOW) : "") + location.hash); } catch (e) {}
+    var q = [];
+    if (PAST) q.push("yil=" + YEAR);
+    if (NOW && !(PAST && NOW.getMonth() === 11 && NOW.getDate() === 31)) q.push("sana=" + iso(NOW));
+    try { history.replaceState(null, "", location.pathname + (q.length ? "?" + q.join("&") : "") + location.hash); } catch (e) {}
+  }
+  // йил танлаш + ҳарорат маълумоти янгилангани
+  function tlMeta() {
+    var h = '<div class="tl-meta">';
+    if (YEARS.length > 1) h += '<label class="tl-yr">' + T.tlYear + ': <select id="tl-year">' + YEARS.slice().reverse().map(function (y) { return '<option value="' + y + '"' + (y === YEAR ? " selected" : "") + '>' + y + '</option>'; }).join("") + '</select></label>';
+    if (PAST) h += '<span class="tl-fresh">' + T.wxArchive.replace("{Y}", YEAR) + '</span>';
+    else if (WXU) {
+      var u = new Date(WXU), hrs = Math.max(0, Math.round((Date.now() - u.getTime()) / 3600000));
+      var ds = fmtDate(u) + " " + ("0" + u.getHours()).slice(-2) + ":" + ("0" + u.getMinutes()).slice(-2);
+      h += hrs > 18 ? '<span class="tl-fresh stale">' + T.wxStale.replace("{H}", hrs).replace("{D}", ds) + '</span>'
+                    : '<span class="tl-fresh">' + T.wxFresh.replace("{H}", hrs).replace("{D}", ds) + '</span>';
+    }
+    return h + '</div>';
   }
   function buildTimeline() {
     var box = document.getElementById("fenotime"); if (!box || !WXR || loadState !== "ok") return;
     var p0 = WXR.start.split("-").map(Number), d0 = new Date(p0[0], p0[1] - 1, p0[2], 12);
     var dayAt = function (k) { return new Date(p0[0], p0[1] - 1, p0[2] + k, 12); };
-    var today = new Date(); today.setHours(12, 0, 0, 0);
+    var today = PAST ? new Date(YEAR, 11, 31, 12) : new Date(); today.setHours(12, 0, 0, 0);
     var tIdx = Math.max(0, Math.min(WXR.days - 1, Math.round((today - d0) / 86400000)));
+    var todayLbl = PAST ? T.tlYearEnd : T.tlToday;
     var cur = NOW ? Math.max(0, Math.min(WXR.days - 1, Math.round((NOW - d0) / 86400000))) : tIdx;
     var ticks = T.months.map(function (m, i) {
       var k = Math.round((new Date(p0[0], i, 1, 12) - d0) / 86400000);
@@ -1101,16 +1248,18 @@
     box.innerHTML =
       '<div class="tl-row"><b class="tl-lbl">📅 ' + T.tlLabel + ':</b>' +
       '<span class="tl-date" id="tl-date"></span>' +
-      '<button type="button" class="tl-btn" id="tl-today">' + T.tlToday + '</button>' +
+      '<button type="button" class="tl-btn" id="tl-today">' + todayLbl + '</button>' +
       '<button type="button" class="tl-btn tl-play" id="tl-play">' + T.tlPlay + '</button></div>' +
       '<div class="tl-track"><input type="range" id="tl-range" min="0" max="' + (WXR.days - 1) + '" step="1" value="' + cur + '" aria-label="' + T.tlLabel + '">' +
       '<div class="tl-todaymark" style="left:' + (tIdx / (WXR.days - 1) * 100) + '%" title="' + T.tlToday + '"></div>' +
       '<div class="tl-fc" style="left:' + (tIdx / (WXR.days - 1) * 100) + '%;width:' + ((WXR.days - 1 - tIdx) / (WXR.days - 1) * 100) + '%"></div></div>' +
       '<div class="tl-ticks">' + ticks + '</div>' +
-      '<div class="tl-hint">' + T.tlHint + '</div>';
+      '<div class="tl-hint">' + T.tlHint + '</div>' + tlMeta();
+    var yrSel = document.getElementById("tl-year");
+    if (yrSel) yrSel.addEventListener("change", function () { location.href = location.pathname + "?yil=" + yrSel.value; });
     var rng = document.getElementById("tl-range"), lab = document.getElementById("tl-date"), raf = 0;
     function label(k) {
-      var d = dayAt(k), tag = k === tIdx ? T.tlToday.toLowerCase() : (k > tIdx ? T.tlFc : T.tlPast);
+      var d = dayAt(k), tag = k === tIdx ? todayLbl.toLowerCase() : (k > tIdx ? T.tlFc : T.tlPast);
       lab.innerHTML = fmtDate(d) + ' ' + d.getFullYear() + ' <span class="tl-tag' + (k > tIdx ? ' fc' : '') + '">' + tag + '</span>';
     }
     function go(k) { label(k); if (raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(function () { raf = 0; refreshAt(dayAt(k)); }); }
@@ -1134,10 +1283,20 @@
     var pts = dIdx.map(function (i) { return { key: i, pk: String(i), lat: GEO[i][0], lon: GEO[i][1] }; })
       .concat(NB.map(function (n, k) { return { key: "n" + k, pk: "n" + n.fi, lat: n.ll[0], lon: n.ll[1] }; }));
     var t = new Date(), stamp = t.getFullYear() + "-" + (t.getMonth() + 1) + "-" + t.getDate() + "-" + t.getHours();
-    Promise.all([
-      fetch("data/wx.json?h=" + stamp).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }),
-      fetch("data/wx-points.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
-    ]).then(function (res) { WXP = res[1]; WXR = { start: res[0].start, days: res[0].days }; addDesertLayer(res[1]); finish(wxMaps(res[0], pts, res[1])); buildTimeline(); })
+    fetch("data/wx-years.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }).then(function (yrs) {
+      YEARS = yrs && yrs.years ? yrs.years : []; CURY = yrs ? yrs.cur : null;
+      var want = YQ || (CURY && t.getMonth() < 2 && YEARS.indexOf(CURY - 1) >= 0 ? CURY - 1 : null);
+      PAST = !!(want && want !== CURY && YEARS.indexOf(want) >= 0);
+      return Promise.all([
+        fetch((PAST ? "data/wx-" + want + ".json" : "data/wx.json") + "?h=" + stamp).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }),
+        fetch("data/wx-points.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+      ]);
+    }).then(function (res) {
+      WXP = res[1]; WXR = { start: res[0].start, days: res[0].days }; WXU = res[0].updated || null;
+      YEAR = +res[0].start.slice(0, 4);
+      if (PAST && !NOW) NOW = new Date(YEAR, 11, 31, 12);
+      addDesertLayer(res[1]); finish(wxMaps(res[0], pts, res[1])); buildTimeline();
+    })
       .catch(function (e) { wxPending = !!(e && e.message === "404"); loadState = "error"; updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict(); renderLegend(); });
   }
 

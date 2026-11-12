@@ -37,10 +37,11 @@ jobs:
 
       - name: Commit if changed
         run: |
-          if [ -n "$(git status --porcelain plant-protection/data/wx.json)" ]; then
+          if [ -n "$(git status --porcelain plant-protection/data/)" ]; then
             git config user.name "agro-weather-bot"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add plant-protection/data/wx.json
+            git add plant-protection/data/wx.json plant-protection/data/wx-years.json
+            git add plant-protection/data/wx-[0-9]*.json 2>/dev/null || true
             git commit -m "Авто: ҳарорат маълумоти янгиланди (wx.json)"
             git pull --rebase origin "${GITHUB_REF_NAME}"
             git push
