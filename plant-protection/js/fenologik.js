@@ -1227,7 +1227,8 @@
   // ===== тарқалган майдон чегараси: мавсуми бошланган туманлардаги экин майдонининг чети =====
   var SPR = { mask: null, key: null, on: true, t: 0 };
   var gS = document.createElementNS(ns, "g"); gS.setAttribute("id", "spreadlayer"); gS.setAttribute("pointer-events", "none");
-  function spreadSoon() { clearTimeout(SPR.t); SPR.t = setTimeout(drawSpread, 120); }
+  // сургич сурилаётганда чизиқ яширинади (катта контурни ҳар кадрда қайта чизиш секин), тўхтагач пайдо бўлади
+  function spreadSoon() { gS.style.visibility = "hidden"; clearTimeout(SPR.t); SPR.t = setTimeout(function () { drawSpread(); gS.style.visibility = ""; }, tlPlay ? 700 : 250); }
   function spreadZone() {
     var u = [], n = [];
     dIdx.forEach(function (i) { var ph = dpheno[i]; if (!zoneD[i] && ph && !ph.pre) u.push(i); });
@@ -1253,16 +1254,13 @@
     // 2) туман ичида ВА экин майдони (чўл маскаси йўқ) → 1
     var f = new Float32Array(W * H);
     for (var k = 0; k < f.length; k++) f[k] = (dp[k * 4 + 3] > 127 && M.a[k] < 40) ? 1 : 0;
-    // 3) силлиқлаш (2 марта 3×3 ўртача)
+    // 3) силлиқлаш: 2 марта 3×3 ўртача (алоҳида горизонтал ва вертикал ўтиш — тез)
+    var tmp = new Float32Array(W * H);
     for (var pass = 0; pass < 2; pass++) {
-      var g = new Float32Array(W * H);
-      for (var yy = 0; yy < H; yy++) for (var xx = 0; xx < W; xx++) {
-        var sum = 0, cnt = 0;
-        for (var dy = -1; dy <= 1; dy++) { var y2 = yy + dy; if (y2 < 0 || y2 >= H) continue;
-          for (var dx = -1; dx <= 1; dx++) { var x2 = xx + dx; if (x2 < 0 || x2 >= W) continue; sum += f[y2 * W + x2]; cnt++; } }
-        g[yy * W + xx] = sum / cnt;
-      }
-      f = g;
+      for (var yy = 0; yy < H; yy++) { var o = yy * W;
+        for (var xx = 0; xx < W; xx++) { var l = xx > 0 ? f[o + xx - 1] : f[o + xx], r = xx < W - 1 ? f[o + xx + 1] : f[o + xx]; tmp[o + xx] = (l + f[o + xx] + r) / 3; } }
+      for (var y3 = 0; y3 < H; y3++) { var up = y3 > 0 ? -W : 0, dn = y3 < H - 1 ? W : 0;
+        for (var x3 = 0; x3 < W; x3++) { var q0 = y3 * W + x3; f[q0] = (tmp[q0 + up] + tmp[q0] + tmp[q0 + dn]) / 3; } }
     }
     // 4) marching squares (0.5 даражада) → SVG чизиқлари
     var kx = (m.e - m.w) / W, ky = (m.n - m.s) / H;
