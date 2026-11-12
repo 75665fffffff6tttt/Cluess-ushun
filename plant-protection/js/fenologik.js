@@ -41,7 +41,7 @@
     sumOverLead: "Сезон в основном завершён", sumActiveLead: "Вредитель ещё активен",
     sumOverTxt: "из {N} районов {E} перешли в диапаузу (зимовку). За сезон накоплено до {G} поколений.",
     sumActiveTxt: "в {A} районах идёт активное развитие (до {G} поколений). Проведите обработку перед яйцекладкой следующего поколения.",
-    pcAllRows: "Все строки", pcActRows: "Только активные строки", pcWinL: "окно обработки (яйца и молодые личинки)", pcSumTitle: "Даты по поколениям", pcWinterSpring: "Зимовка (весна)", pcWinterAut: "Уход на зимовку", pcUntil: "до {D}", pcFrom: "с {D}", pcOngoing: "продолжается", pcFcMark: "≈ — по прогнозу погоды; ✓ — фаза завершена.", pcDistSel: "Район", pcRegAvgOpt: "— среднее по области —", pcOrg: "Организация (для печати):", pcOrgPh: "напр.: Андижанский областной центр защиты растений", pcOrgCap: "(наименование организации)", pcApprove: "УТВЕРЖДАЮ", pcDateLine: "«___» ____________ {Y} г.", pcCompiled: "Составил", pcResp: "Ответственный специалист", pcSign: "(Ф.И.О., подпись)", pcPrinted: "Дата печати", pcTipAcc: "накоплено", pcXlsSheet1: "Календарь", pcXlsSheet2: "Даты", pcXlsFile: "Фенокалендарь", pcTitle: "{Y} г. — фенологический календарь: {W}", pcRegAvg: "среднее по области", pcBase: "Нижний порог развития", pcGen: "сумма эффективных температур на поколение", pcStart: "весенний выход с зимовки", pcWinter: "Зимующая фаза", pcPrint: "Печать / PDF", pc5: "5 дней", pcMean: "Средняя °C", pcEff: "Эффект. °C (5 дн.)", pcAcc: "Накоплено в фазе °C", pcDoneL: "фаза завершилась в эти 5 дней", pcFcL: "прогноз", pcNote: "Эффективные температуры — синус-метод по суточным max/min (нижний и верхний порог), до весеннего выхода с зимовки идёт развитие зимующей фазы; осенью при коротком дне развитие останавливается на зимующей фазе. Модельная оценка, не официальный мониторинг.", monthsFull: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+    pcSymMode: "+ • — Символы", pcIcoMode: "🐛 Рисунки", pcAllRows: "Все строки", pcActRows: "Только активные строки", pcWinL: "окно обработки (яйца и молодые личинки)", pcSumTitle: "Даты по поколениям", pcWinterSpring: "Зимовка (весна)", pcWinterAut: "Уход на зимовку", pcUntil: "до {D}", pcFrom: "с {D}", pcOngoing: "продолжается", pcFcMark: "≈ — по прогнозу погоды; ✓ — фаза завершена.", pcDistSel: "Район", pcRegAvgOpt: "— среднее по области —", pcOrg: "Организация (для печати):", pcOrgPh: "напр.: Андижанский областной центр защиты растений", pcOrgCap: "(наименование организации)", pcApprove: "УТВЕРЖДАЮ", pcDateLine: "«___» ____________ {Y} г.", pcCompiled: "Составил", pcResp: "Ответственный специалист", pcSign: "(Ф.И.О., подпись)", pcPrinted: "Дата печати", pcTipAcc: "накоплено", pcXlsSheet1: "Календарь", pcXlsSheet2: "Даты", pcXlsFile: "Фенокалендарь", pcTitle: "{Y} г. — фенологический календарь: {W}", pcRegAvg: "среднее по области", pcBase: "Нижний порог развития", pcGen: "сумма эффективных температур на поколение", pcStart: "весенний выход с зимовки", pcWinter: "Зимующая фаза", pcPrint: "Печать / PDF", pc5: "5 дней", pcMean: "Средняя °C", pcEff: "Эффект. °C (5 дн.)", pcAcc: "Накоплено в фазе °C", pcDoneL: "фаза завершилась в эти 5 дней", pcFcL: "прогноз", pcNote: "Эффективные температуры — синус-метод по суточным max/min (нижний и верхний порог), до весеннего выхода с зимовки идёт развитие зимующей фазы; осенью при коротком дне развитие останавливается на зимующей фазе. Модельная оценка, не официальный мониторинг.", monthsFull: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
     sumToGen: "до {G} поколений"
   } : {
     title: "ФЕНОЛОГИК ПРОГНОЗ", label: "Зараркунанда", region: "Вилоят", districts: "туман",
@@ -59,7 +59,7 @@
     sumOverLead: "Мавсум асосан якунланди", sumActiveLead: "Зараркунанда ҳали фаол",
     sumOverTxt: "{N} тумандан {E} таси диапаузага (қишловга) ўтган. Мавсум давомида {G} авлодгача ривожланган.",
     sumActiveTxt: "{A} туманда фаол ривожланиш кетмоқда ({G} авлодгача). Навбатдаги авлод тухум қўйишидан олдин ишлов беринг.",
-    pcAllRows: "Барча қаторлар", pcActRows: "Фақат фаол қаторлар", pcWinL: "ишлов бериш ойнаси (тухум ва ёш личинкалар)", pcSumTitle: "Авлодлар бўйича саналар", pcWinterSpring: "Қишлов (баҳор)", pcWinterAut: "Қишловга кетиш", pcUntil: "{D} гача", pcFrom: "{D} дан", pcOngoing: "давом этмоқда", pcFcMark: "≈ — об-ҳаво прогнози бўйича; ✓ — фаза тугади.", pcDistSel: "Туман", pcRegAvgOpt: "— вилоят ўртачаси —", pcOrg: "Ташкилот (чоп этиш учун):", pcOrgPh: "мас.: Андижон вилояти ўсимликларни ҳимоя қилиш маркази", pcOrgCap: "(ташкилот номи)", pcApprove: "ТАСДИҚЛАЙМАН", pcDateLine: "«___» ____________ {Y} й.", pcCompiled: "Тузувчи", pcResp: "Масъул мутахассис", pcSign: "(Ф.И.Ш., имзо)", pcPrinted: "Чоп этилган сана", pcTipAcc: "тўпланган", pcXlsSheet1: "Календар", pcXlsSheet2: "Саналар", pcXlsFile: "Фенокалендар", pcTitle: "{Y} йил — фенологик календар: {W}", pcRegAvg: "вилоят ўртачаси", pcBase: "Ривожланишнинг қуйи ҳарорат чегараси", pcGen: "бир авлод учун самарали ҳарорат йиғиндиси", pcStart: "баҳорги уйғониш", pcWinter: "Қишловчи фаза", pcPrint: "Чоп этиш / PDF", pc5: "5 кун", pcMean: "Ўртача °C", pcEff: "Самарали °C (5 кун)", pcAcc: "Фазада тўпланган °C", pcDoneL: "фаза шу 5 кунликда тугади", pcFcL: "прогноз", pcNote: "Самарали ҳарорат — кунлик max/min бўйича синус усулида (қуйи ва юқори чегара); баҳорги уйғонишгача қишловчи фаза ривожланади; кузда кун қисқаргач ривожланиш қишловчи фазада тўхтайди. Модел баҳоси, расмий мониторинг эмас.", monthsFull: ["Январ", "Феврал", "Март", "Апрел", "Май", "Июн", "Июл", "Август", "Сентябр", "Октябр", "Ноябр", "Декабр"],
+    pcSymMode: "+ • — Белгилар", pcIcoMode: "🐛 Расмлар", pcAllRows: "Барча қаторлар", pcActRows: "Фақат фаол қаторлар", pcWinL: "ишлов бериш ойнаси (тухум ва ёш личинкалар)", pcSumTitle: "Авлодлар бўйича саналар", pcWinterSpring: "Қишлов (баҳор)", pcWinterAut: "Қишловга кетиш", pcUntil: "{D} гача", pcFrom: "{D} дан", pcOngoing: "давом этмоқда", pcFcMark: "≈ — об-ҳаво прогнози бўйича; ✓ — фаза тугади.", pcDistSel: "Туман", pcRegAvgOpt: "— вилоят ўртачаси —", pcOrg: "Ташкилот (чоп этиш учун):", pcOrgPh: "мас.: Андижон вилояти ўсимликларни ҳимоя қилиш маркази", pcOrgCap: "(ташкилот номи)", pcApprove: "ТАСДИҚЛАЙМАН", pcDateLine: "«___» ____________ {Y} й.", pcCompiled: "Тузувчи", pcResp: "Масъул мутахассис", pcSign: "(Ф.И.Ш., имзо)", pcPrinted: "Чоп этилган сана", pcTipAcc: "тўпланган", pcXlsSheet1: "Календар", pcXlsSheet2: "Саналар", pcXlsFile: "Фенокалендар", pcTitle: "{Y} йил — фенологик календар: {W}", pcRegAvg: "вилоят ўртачаси", pcBase: "Ривожланишнинг қуйи ҳарорат чегараси", pcGen: "бир авлод учун самарали ҳарорат йиғиндиси", pcStart: "баҳорги уйғониш", pcWinter: "Қишловчи фаза", pcPrint: "Чоп этиш / PDF", pc5: "5 кун", pcMean: "Ўртача °C", pcEff: "Самарали °C (5 кун)", pcAcc: "Фазада тўпланган °C", pcDoneL: "фаза шу 5 кунликда тугади", pcFcL: "прогноз", pcNote: "Самарали ҳарорат — кунлик max/min бўйича синус усулида (қуйи ва юқори чегара); баҳорги уйғонишгача қишловчи фаза ривожланади; кузда кун қисқаргач ривожланиш қишловчи фазада тўхтайди. Модел баҳоси, расмий мониторинг эмас.", monthsFull: ["Январ", "Феврал", "Март", "Апрел", "Май", "Июн", "Июл", "Август", "Сентябр", "Октябр", "Ноябр", "Декабр"],
     sumToGen: "{G} авлодгача"
   };
 
@@ -357,7 +357,7 @@
     function addSym(c, o) { for (var i = 0; i < c.length; i++) if (c[i].s === o.s && c[i].w === o.w) { if (o.act) c[i].act = true; return; } c.push(o); }
     function markDone(c, s) { for (var i = 0; i < c.length; i++) if (c[i].s === s) c[i].done = true; }
     return { pents: pents, st: st, maxGen: maxGen, ev: ev, wins: wins, y: y,
-      wsym: def.w >= 0 ? st[def.w].sym : def.ws, wnm: def.w >= 0 ? st[def.w].nm : (LANG === "ru" ? "Яйцо" : "Тухум") };
+      wsym: def.w >= 0 ? st[def.w].sym : def.ws, wk: def.w >= 0 ? st[def.w].k : "eg", wnm: def.w >= 0 ? st[def.w].nm : (LANG === "ru" ? "Яйцо" : "Тухум") };
   }
   var pcAll = false, pcLast = null;
   var STCOL = { im: "#dbe7fb", eg: "#fff1b8", la: "#d9efcf", pu: "#ead8c4", w: "#e6eaed" };
@@ -366,6 +366,25 @@
   function esc(x) { return String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
   function lsGet(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  // ===== фаза расмлари (SVG, currentColor) =====
+  var ICO = (function () {
+    var L = ' fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"';
+    var egg = '<ellipse cx="12" cy="13" rx="6" ry="8"/><ellipse cx="10" cy="10" rx="1.6" ry="2.4" fill="#fff" opacity=".55"/>';
+    var larva = '<circle cx="4.5" cy="14" r="2.6"/><circle cx="8.3" cy="12.6" r="2.8"/><circle cx="12.2" cy="12.2" r="2.8"/><circle cx="16" cy="12.6" r="2.8"/><circle cx="19.6" cy="11.4" r="3"/><circle cx="20.5" cy="10.5" r=".8" fill="#fff"/><path d="M7.5 15.3v2.4M11.5 15v2.4M15.5 15.3v2.4"' + L + '/>';
+    var pupa = '<path d="M12 2.5c3.6 2.8 5 6.3 5 9.8 0 4.4-2.2 7.7-5 9.2-2.8-1.5-5-4.8-5-9.2 0-3.5 1.4-7 5-9.8z"/><path d="M8.3 12h7.4M8.7 15h6.6M9.7 18h4.6" stroke="#fff" stroke-width=".9" opacity=".6"/>';
+    var moth = '<path d="M12 7c-1 0-1.4 1-1.4 2.2v8.6c0 1.2.6 2.2 1.4 2.2s1.4-1 1.4-2.2V9.2C13.4 8 13 7 12 7z"/><path d="M10.6 10 3 6.5c-.8-.4-1.5.3-1.2 1.1L5 15.5c.3.7 1 .9 1.6.6l4-2.2z"/><path d="M13.4 10 21 6.5c.8-.4 1.5.3 1.2 1.1L19 15.5c-.3.7-1 .9-1.6.6l-4-2.2z"/><path d="M11.5 7.5 9.5 4M12.5 7.5l2-3.5"' + L + '/>';
+    var mite = '<ellipse cx="12" cy="13.2" rx="5" ry="5.6"/><circle cx="12" cy="7" r="1.8"/><circle cx="10.2" cy="12.4" r="1.1" fill="#fff" opacity=".5"/><circle cx="13.8" cy="14" r="1.1" fill="#fff" opacity=".5"/><path d="M7.6 10.4 3.4 7.6M7.1 12.6H2.6M7.2 14.8 3.2 17.6M8.2 16.8 5 21M16.4 10.4l4.2-2.8M16.9 12.6h4.5M16.8 14.8l4 2.8M15.8 16.8 19 21"' + L + '/>';
+    var aphid = '<path d="M12 6.8c2.6 0 4.2 2.6 4.2 6.2 0 4-1.9 7.2-4.2 7.2s-4.2-3.2-4.2-7.2c0-3.6 1.6-6.2 4.2-6.2z"/><circle cx="12" cy="5.6" r="1.7"/><path d="M11.2 4.5 8 1.6M12.8 4.5 16 1.6M8.2 10 4.4 8.4M8 13H3.8M8.4 16 5 18.6M15.8 10l3.8-1.6M16 13h4.2M15.6 16l3.4 2.6M10.2 19.2 9.2 22M13.8 19.2l1 2.8"' + L + '/>';
+    function small(g) { return '<g transform="translate(12 13) scale(.72) translate(-12 -13)">' + g + '</g>'; }
+    var set = { im: moth, eg: egg, la: larva, pu: pupa };
+    return {
+      bollworm: set, cutworm: set,
+      mite: { eg: egg, la: small(mite), im: mite },
+      aphid: { eg: egg, la: small(aphid), im: aphid }
+    };
+  })();
+  function ico(pestId, k, cls) { var g = (ICO[pestId] || {})[k]; return g ? '<svg class="pc-ic' + (cls ? " " + cls : "") + '" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' + g + '</svg>' : ""; }
+  var pcIco = lsGet("pcIco") !== "0";
   // туман/вилоят танлаш (рўйхатдан)
   function pcSelectRegion(rid) {
     selDist = null;
@@ -400,8 +419,10 @@
     var R = pentCal(tg.ser, pest, tg.lat), y = R.y;
     var nG = Math.max(1, R.maxGen);
     pcLast = { R: R, pest: pest, who: tg.who };
-    var leg = R.st.map(function (x) { return '<span class="pc-lg"><i class="pc-sw" style="background:' + STCOL[x.k] + '"></i>' + x.nm + ' <i>(' + Math.round(x.dd) + ' °C)</i> <b>' + x.sym + '</b></span>'; }).join("") +
-      '<span class="pc-lg"><i class="pc-sw" style="background:' + STCOL.w + '"></i>' + T.pcWinter + ': ' + R.wnm + ' <b>(' + R.wsym + ')</b></span>';
+    var pid = pest.id;
+    function symOf(k, sym, cls) { return pcIco ? ico(pid, k, cls) : '<span class="' + (cls || "") + '">' + sym + '</span>'; }
+    var leg = R.st.map(function (x) { return '<span class="pc-lg"><i class="pc-sw" style="background:' + STCOL[x.k] + '"></i>' + (pcIco ? ico(pid, x.k) + " " : "") + x.nm + ' <i>(' + Math.round(x.dd) + ' °C)</i> <b>' + x.sym + '</b></span>'; }).join("") +
+      '<span class="pc-lg"><i class="pc-sw" style="background:' + STCOL.w + '"></i>' + (pcIco ? ico(pid, R.wk, "pc-wi") + " " : "") + T.pcWinter + ': ' + R.wnm + ' <b>(' + R.wsym + ')</b></span>';
     function keyOf(o) { return o.w ? "w" : R.st[o.s].k; }
     function cellBg(arr) {
       if (!arr || !arr.length) return "";
@@ -412,8 +433,8 @@
     function cellHtml(arr) {
       if (!arr) return "";
       return arr.map(function (o) {
-        if (o.w) return '<span class="pc-w">' + (o.act ? R.wsym : "(" + R.wsym + ")") + '</span>';
-        return '<span class="' + (o.done ? "pc-done" : "") + '">' + R.st[o.s].sym + '</span>';
+        if (o.w) return pcIco ? ico(pid, R.wk, o.act ? "pc-wa" : "pc-wi") : '<span class="pc-w">' + (o.act ? R.wsym : "(" + R.wsym + ")") + '</span>';
+        return symOf(R.st[o.s].k, R.st[o.s].sym, o.done ? "pc-done" : "");
       }).join("");
     }
     function tipFor(P, g) {
@@ -455,7 +476,7 @@
       h += '</table></div>';
     }
     // авлодлар бўйича саналар жадвали
-    var cols = R.st.map(function (x) { return x.nm + " " + x.sym; });
+    var cols = R.st.map(function (x) { return (pcIco ? ico(pid, x.k) + " " : "") + x.nm + " " + x.sym; });
     var sumRows = "";
     var wSpring = R.ev.filter(function (e) { return e.w && e.g === 1 && e.from.getMonth() < 6; })[0];
     if (wSpring) sumRows += '<tr class="pc-sw-row"><th>' + T.pcWinterSpring + '</th><td colspan="' + cols.length + '">' + R.wnm + ' (' + R.wsym + ') — ' + (wSpring.to ? T.pcUntil.replace("{D}", dfc(wSpring.to)) : T.pcOngoing) + '</td></tr>';
@@ -476,16 +497,17 @@
       '<div class="pc-top"><div><div class="pc-title">' + T.pcTitle.replace("{Y}", y).replace("{W}", tg.who) + '</div>' +
       '<div class="pc-pest">' + pest.nm + '</div>' +
       '<div class="pc-sub">' + T.pcBase + ' ' + pest.base + ' °C · ' + T.pcGen + ' ' + Math.round(pest.gen) + ' °C · ' + T.pcStart + ' ' + pest.emerge + ' °C</div></div>' +
-      '<div class="pc-btns"><button type="button" class="pc-btn" id="pc-rows">' + (pcAll ? T.pcActRows : T.pcAllRows) + '</button>' +
+      '<div class="pc-btns"><button type="button" class="pc-btn" id="pc-ico">' + (pcIco ? T.pcSymMode : T.pcIcoMode) + '</button><button type="button" class="pc-btn" id="pc-rows">' + (pcAll ? T.pcActRows : T.pcAllRows) + '</button>' +
       '<button type="button" class="pc-btn" id="pc-xls">⬇ Excel</button>' +
       '<button type="button" class="pc-btn pc-print" id="pc-print">🖨 ' + T.pcPrint + '</button></div></div>' +
       '<div class="pc-org"><label>' + T.pcOrg + ' <input id="pc-org" type="text" maxlength="160" value="' + esc(lsGet("pcOrg")) + '" placeholder="' + T.pcOrgPh + '"></label></div>' +
-      '<div class="pc-legend">' + leg + '<span class="pc-lg"><span class="pc-done">' + R.st[0].sym + '</span> — ' + T.pcDoneL + '</span><span class="pc-lg"><i class="pc-fcbox"></i> ' + T.pcFcL + '</span></div>' +
+      '<div class="pc-legend">' + leg + '<span class="pc-lg">' + symOf(R.st[0].k, R.st[0].sym, "pc-done") + ' — ' + T.pcDoneL + '</span><span class="pc-lg"><i class="pc-fcbox"></i> ' + T.pcFcL + '</span></div>' +
       h + sumTbl +
       '<div class="pc-note">' + T.pcNote + '</div><div class="pc-tip" id="pc-tip"></div>';
     bindSelectors(box);
     box.querySelector("#pc-org").oninput = function () { lsSet("pcOrg", this.value); };
     box.querySelector("#pc-rows").onclick = function () { pcAll = !pcAll; drawPentCal(); };
+    box.querySelector("#pc-ico").onclick = function () { pcIco = !pcIco; lsSet("pcIco", pcIco ? "1" : "0"); drawPentCal(); };
     box.querySelector("#pc-xls").onclick = function () { pcExcel(); };
     box.querySelector("#pc-print").onclick = function () { pcPrint(box); };
     // катак изоҳи (сичқонча ёки бармоқ)
