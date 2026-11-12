@@ -138,7 +138,7 @@
     row.innerHTML = '<span class="sellab">' + T.mapMode + ':</span><div class="pestsel" id="modesel">' +
       '<button class="pbtn" data-m="gen">' + T.modeGen + '</button><button class="pbtn on" data-m="phase">' + T.modePhase + '</button>' +
       '<button class="pbtn spr on" data-spr="1">▬ ' + T.sprBtn + '</button>' +
-      '<button class="pbtn smo on" data-smo="1">◐ ' + T.smoBtn + '</button></div>';
+      '<button class="pbtn smo on" data-smo="1"><i class="smo-ic"></i>' + T.smoBtn + '</button></div>';
     tb.appendChild(row);
     row.addEventListener("click", function (e) {
       var b = e.target.closest(".pbtn"); if (!b) return;
@@ -1214,6 +1214,17 @@
   // улар ҳали тайёр бўлмаса — туман марказининг катаги
   // очиқ чўл қатлами (Esri/IO Land Cover 2024, data/desert-mask.png) — барча зараркунандалар учун
   // туман ранглари устидан қумранг; тултиплар ишлайверади (pointer-events:none)
+  // маска кўриниши: 3 марта катталаштириб (билинеар + юмшатиш), ярим даражада кесилади → яқинлаштирганда
+  // зинапоя-катаклар ўрнига силлиқ эгри чет (чети 1 пиксел юмшатилган)
+  function smoothMask(src) {
+    var K = 3, W = src.width * K, H = src.height * K, c = document.createElement("canvas"); c.width = W; c.height = H;
+    var x = c.getContext("2d"); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = "high";
+    x.filter = "blur(" + (K * 0.9) + "px)"; x.drawImage(src, 0, 0, W, H); x.filter = "none"; // бурчакларни юмалоқлаш
+    var id = x.getImageData(0, 0, W, H), d = id.data;
+    for (var k = 3; k < d.length; k += 4) { var v = d[k]; d[k] = v < 112 ? 0 : (v > 144 ? 255 : Math.round((v - 112) * 255 / 32)); d[k - 3] = d[k - 2] = d[k - 1] = 255; }
+    x.putImageData(id, 0, 0);
+    return c.toDataURL("image/png");
+  }
   function addDesertLayer(X) {
     var m = X && X.desertMask; if (!m || svg.querySelector("#desertlayer")) return;
     var im = document.createElementNS(ns, "image");
@@ -1230,6 +1241,20 @@
         var x = c.getContext("2d"); x.drawImage(img, 0, 0);
         var px = x.getImageData(0, 0, c.width, c.height).data, a = new Uint8Array(c.width * c.height);
         for (var k = 0; k < a.length; k++) a[k] = px[k * 4 + 3];
+        // жуда кичик экин доғлари (≤ 12 пиксел ≈ 50 км²) — яқинлаштирганда «юлдузча» бўлиб кўринади → оқ
+        var W0 = c.width, H0 = c.height, seen = new Uint8Array(a.length), st = [], comp = [], nfix = 0;
+        for (var s0 = 0; s0 < a.length; s0++) {
+          if (seen[s0] || a[s0] >= 40) continue;
+          st.length = 0; comp.length = 0; st.push(s0); seen[s0] = 1;
+          while (st.length) {
+            var q = st.pop(); comp.push(q);
+            var qx = q % W0, nb4 = [qx > 0 ? q - 1 : -1, qx < W0 - 1 ? q + 1 : -1, q - W0, q + W0];
+            for (var t = 0; t < 4; t++) { var r = nb4[t]; if (r >= 0 && r < a.length && !seen[r] && a[r] < 40) { seen[r] = 1; st.push(r); } }
+          }
+          if (comp.length <= 12) for (var t2 = 0; t2 < comp.length; t2++) { var z = comp[t2]; a[z] = 255; px[z * 4] = px[z * 4 + 1] = px[z * 4 + 2] = 255; px[z * 4 + 3] = 255; nfix++; }
+        }
+        var id = x.createImageData(W0, H0); id.data.set(px); x.putImageData(id, 0, 0);
+        im.setAttribute("href", smoothMask(c));
         SPR.mask = { m: m, W: c.width, H: c.height, a: a }; SPR.key = null; spreadSoon(); paint();
       } catch (e) {}
     };
@@ -1360,11 +1385,12 @@
     var rgb = FLD_K.map(function (k2) { var h = k2 === "nd" ? "#ffffff" : (k2 === "w" ? PHCOL.w : phc(k2)); return [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]; });
     var img = x.createImageData(W, H), px = img.data;
     for (var p = 0; p < N; p++) {
-      var best = 5, bv = 0, tot = 0;
-      for (var c2 = 0; c2 < 6; c2++) { var v = L[c2][p]; tot += v; if (v > bv) { bv = v; best = c2; } }
-      if (tot < 0.5 || best === 5) continue;
+      var best = -1, bv = 0, ph = 0;
+      for (var c2 = 0; c2 < 5; c2++) { var v = L[c2][p]; ph += v; if (v > bv) { bv = v; best = c2; } }
+      // маълумотли фазалар улуши 0.4…0.6 оралиғида — шаффофлик аста ўзгаради (катталаштирганда чети зинапоя бўлмайди)
+      var al = (ph - 0.4) * 5; if (best < 0 || al <= 0) continue; if (al > 1) al = 1;
       var col = rgb[best]; // қўшни давлатлар ҳам Ўзбекистон билан бир хил ёрқинликда
-      px[p * 4] = col[0]; px[p * 4 + 1] = col[1]; px[p * 4 + 2] = col[2]; px[p * 4 + 3] = 255;
+      px[p * 4] = col[0]; px[p * 4 + 1] = col[1]; px[p * 4 + 2] = col[2]; px[p * 4 + 3] = Math.round(255 * al);
     }
     x.setTransform(1, 0, 0, 1, 0, 0); x.putImageData(img, 0, 0);
     if (!FLD.im) {
