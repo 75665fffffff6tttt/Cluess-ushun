@@ -91,7 +91,10 @@
     if (!hit) return null;
     return { k: hit.w ? "w" : R.st[hit.s].k, g: hit.g, nm: hit.w ? T.pcWinter + " — " + R.wnm : R.st[hit.s].nm, w: !!hit.w, R: R };
   }
-  function phaseCol(ph) { return ph ? PHCOL[ph.k] : GENCOL[0]; }
+  // ғўза тунлами учун харита ранглари: тухум — сариқ, қурт — қизил, ғумбак — яшил
+  var PHCOL_P = { bollworm: { eg: "#f2c12e", la: "#e53935", pu: "#43a047" } };
+  function phc(k) { var o = PHCOL_P[pestOf().id]; return (o && o[k]) || PHCOL[k]; }
+  function phaseCol(ph) { return ph ? phc(ph.k) : GENCOL[0]; }
   function phaseTxt(ph) { return ph ? (ph.w ? "❄ " + ph.nm : ph.g + "-" + T.genAbbr + ": " + ph.nm) : T.nodata; }
 
   var DATA = window.UZ_DISTRICTS, items = DATA.items, regions = DATA.regions, GEO = window.UZ_GEO;
@@ -237,7 +240,7 @@
     if (MAPMODE === "phase") {
       var pest = pestOf(), st = stageList(pest), def = STG[pest.id];
       var wk = def.w >= 0 ? st[def.w].k : "eg", wnm = def.w >= 0 ? st[def.w].nm : (LANG === "ru" ? "Яйцо" : "Тухум");
-      lg.innerHTML = st.map(function (x) { return '<div class="lg full">' + ico(pest.id, x.k) + '<i style="background:' + PHCOL[x.k] + '"></i><b>' + x.nm + '</b></div>'; }).join("") +
+      lg.innerHTML = st.map(function (x) { return '<div class="lg full">' + ico(pest.id, x.k) + '<i style="background:' + phc(x.k) + '"></i><b>' + x.nm + '</b></div>'; }).join("") +
         '<div class="lg full">' + ico(pest.id, wk, "pc-wi") + '<i style="background:' + PHCOL.w + '"></i><b>❄ ' + T.pcWinter + ' (' + wnm + ')</b></div>' +
         '<div class="lg full"><i style="background:' + DESERT_COL + '"></i><b>' + T.lgDesert + '</b></div>' +
         '<div class="lg full"><i class="lg-spr"></i><b>' + T.sprLeg + '</b></div>';
