@@ -92,13 +92,36 @@
   .pc-t .pc-mon{background:#e9f3eb;color:#1b5e20;font-weight:800}
   .pc-t tr.pc-num td{font-weight:700;background:#f8faf8}
   .pc-t tr.pc-gen td{font-size:14px;height:24px;font-weight:700}
-  .pc-t tr.pc-gen:first-of-type td{border-top:2px solid #6b7c70}
   .pc-t td.pc-m0{border-left:2px solid #6b7c70}
   .pc-t td.pc-fc{background:repeating-linear-gradient(45deg,#fff 0 4px,#eef3fa 4px 8px)}
-  .pc-t td.pc-now{box-shadow:inset 0 0 0 2px #e65100}
+  .pc-t td.pc-now{border-left:2px solid #c62828;border-right:2px solid #c62828}
   .pc-done{color:#d32f2f}
   .pc-w{color:#37474f}
   .pc-gn{font-size:10px;color:#5a6b60;margin-right:1px}
+  .pc-sel{display:flex;flex-wrap:wrap;gap:8px 16px;margin:0 0 10px;font-size:13px;font-weight:600;color:#37474f}
+  .pc-sel select{font:inherit;font-weight:500;margin-left:4px;padding:5px 8px;border:1.5px solid #cfe0cf;border-radius:8px;background:#fff;max-width:240px}
+  .pc-sel select:disabled{opacity:.5}
+  .pc-btns{display:flex;flex-wrap:wrap;gap:6px}
+  .pc-btn{font:inherit;font-size:13px;font-weight:700;padding:7px 12px;border-radius:10px;border:1.5px solid #1b5e20;background:#fff;color:#1b5e20;cursor:pointer}
+  .pc-btn:hover{background:#eef5ee}
+  .pc-org{margin:8px 0 0;font-size:12.5px;color:#5a6b60}
+  .pc-org input{font:inherit;width:min(460px,100%);margin-left:4px;padding:4px 8px;border:1px solid #cfd8d2;border-radius:7px}
+  .pc-sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:5px;border:1px solid rgba(0,0,0,.12)}
+  .pc-winbox{display:inline-block;width:14px;height:10px;vertical-align:middle;border:2px solid #ef6c00;border-radius:2px}
+  .pc-t td.pc-win{outline:2px solid #ef6c00;outline-offset:-2px}
+  .pc-t .pc-rh{position:sticky;left:0;z-index:2}
+  .pc-t tr.pc-g1 td,.pc-t tr.pc-g1 th{border-top:2px solid #6b7c70}
+  .pc-t td[data-tip]{cursor:help}
+  .feno-pcal{position:relative}
+  .pc-tip{position:absolute;display:none;z-index:20;width:260px;white-space:pre-line;background:rgba(15,43,31,.95);color:#fff;font-size:12px;line-height:1.4;padding:8px 10px;border-radius:9px;box-shadow:0 6px 18px rgba(0,0,0,.25);pointer-events:none}
+  .pc-sumt{margin-top:16px}
+  .pc-h2{font-weight:800;font-size:15px;color:#0f2b1f;margin-bottom:2px}
+  .pc-st{border-collapse:collapse;min-width:640px;width:100%;font-size:12.5px}
+  .pc-st th,.pc-st td{border:1px solid #cfd8d2;padding:4px 7px;text-align:center;white-space:nowrap}
+  .pc-st tr:first-child th{background:#e9f3eb;color:#1b5e20}
+  .pc-st th:first-child{background:#f4f7f5}
+  .pc-st td.pc-wincell{background:#fff3e0;color:#bf360c;font-weight:700}
+  .pc-st tr.pc-sw-row td{text-align:left;color:#455a64;background:#f6f8f9}
   .pc-note{font-size:11.5px;color:#6b7a70;margin-top:8px}
   .feno-cal{max-width:1180px;margin:16px auto 0;background:#fff;border:1px solid #e6ece6;border-radius:14px;padding:14px 16px;box-shadow:0 3px 14px rgba(0,0,0,.06)}
   .fc-head{font-size:14px;color:#2b3b2b;margin-bottom:10px;line-height:1.4}
@@ -201,7 +224,7 @@
 <script src="js/main.js?v=2"></script>
 <script src="js/uz-districts.js?v=3"></script>
 <script src="js/uz-geo.js?v=1"></script>
-<script src="js/fenologik.js?v=30"></script>
+<script src="js/fenologik.js?v=31"></script>
 <script src="js/counter.js?v=2"></script>
 </body>
 </html>
