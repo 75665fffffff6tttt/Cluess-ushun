@@ -1344,7 +1344,9 @@
   function fieldOn() { return FLD.on && MAPMODE === "phase" && !curReg && loadState === "ok" && !!SPR.mask; }
   function fieldSoon() {
     if (!fieldOn()) { if (FLD.im) FLD.im.style.display = "none"; return; }
-    clearTimeout(FLD.t); FLD.t = setTimeout(drawField, tlPlay ? 160 : 60);
+    // «Мавсум» ўйналаётганда — throttle (интервал 140 мс debounce'дан қисқа эди → харита умуман янгиланмасди)
+    if (tlPlay) { if (!FLD.t) FLD.t = setTimeout(function () { FLD.t = 0; drawField(); }, 20); return; }
+    clearTimeout(FLD.t); FLD.t = setTimeout(function () { FLD.t = 0; drawField(); }, 60);
   }
   function p2d(key, d) { var o = FLD.p2[key]; if (!o) o = FLD.p2[key] = new Path2D(d); return o; }
   function drawField() {
@@ -1368,7 +1370,7 @@
       for (var q = 0; q < N; q++) f[q] = dp[q * 4 + 3] / 255;
       return f;
     }
-    for (var c = 0; c < 6; c++) {
+    for (var c = 0; c < 5; c++) { // 5 — «маълумот йўқ» қатлами керак эмас (шаффоф)
       L.push(layer(function () {
         for (var i = 0; i < items.length; i++) if (cls.u[i] === c) x.fill(p2d("u" + i, items[i].d));
         for (var k = 0; k < npaths.length; k++) if (cls.n[k] === c) x.fill(p2d("n" + k, npaths[k].getAttribute("d")));
