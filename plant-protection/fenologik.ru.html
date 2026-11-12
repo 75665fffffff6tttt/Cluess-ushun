@@ -73,6 +73,33 @@
   .feno-time .tl-ticks{position:relative;height:16px;margin:2px 4px 0}
   .feno-time .tl-ticks span{position:absolute;transform:translateX(-50%);font-size:11px;color:#8a9a8a}
   .feno-time .tl-hint{font-size:12px;color:#8a9a8a;margin-top:4px}
+  .feno-pcal{max-width:1180px;margin:16px auto 0;background:#fff;border:1px solid #e6ece6;border-radius:14px;padding:14px 16px;box-shadow:0 3px 14px rgba(0,0,0,.06);color:#1d2b22}
+  .feno-pcal:empty{display:none}
+  .pc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+  .pc-title{font-weight:800;font-size:17px;color:#0f2b1f}
+  .pc-pest{font-weight:800;font-size:20px;color:#0b7a3b;margin-top:2px}
+  .pc-sub{font-size:12.5px;color:#5a6b60;margin-top:2px}
+  .pc-print{font:inherit;font-size:13px;font-weight:700;padding:7px 14px;border-radius:10px;border:1.5px solid #1b5e20;background:#fff;color:#1b5e20;cursor:pointer}
+  .pc-print:hover{background:#eef5ee}
+  .pc-legend{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 6px}
+  .pc-lg{border:1px solid #d9e2db;border-radius:8px;padding:3px 9px;font-size:12px;background:#fafcfa}
+  .pc-lg i{font-style:normal;color:#5a6b60}.pc-lg b{margin-left:3px}
+  .pc-fcbox{display:inline-block;width:14px;height:10px;vertical-align:middle;background:repeating-linear-gradient(45deg,#fff 0 3px,#e8eef7 3px 6px);border:1px solid #c9d3e0}
+  .pc-scroll{overflow-x:auto;margin-top:10px}
+  .pc-t{border-collapse:collapse;width:100%;min-width:900px;font-size:11.5px;table-layout:fixed}
+  .pc-t th,.pc-t td{border:1px solid #cfd8d2;padding:3px 2px;text-align:center;white-space:nowrap;overflow:hidden}
+  .pc-t .pc-rh{width:118px;text-align:left;padding-left:6px;background:#f4f7f5;font-weight:600;white-space:normal;line-height:1.15}
+  .pc-t .pc-mon{background:#e9f3eb;color:#1b5e20;font-weight:800}
+  .pc-t tr.pc-num td{font-weight:700;background:#f8faf8}
+  .pc-t tr.pc-gen td{font-size:14px;height:24px;font-weight:700}
+  .pc-t tr.pc-gen:first-of-type td{border-top:2px solid #6b7c70}
+  .pc-t td.pc-m0{border-left:2px solid #6b7c70}
+  .pc-t td.pc-fc{background:repeating-linear-gradient(45deg,#fff 0 4px,#eef3fa 4px 8px)}
+  .pc-t td.pc-now{box-shadow:inset 0 0 0 2px #e65100}
+  .pc-done{color:#d32f2f}
+  .pc-w{color:#37474f}
+  .pc-gn{font-size:10px;color:#5a6b60;margin-right:1px}
+  .pc-note{font-size:11.5px;color:#6b7a70;margin-top:8px}
   .feno-cal{max-width:1180px;margin:16px auto 0;background:#fff;border:1px solid #e6ece6;border-radius:14px;padding:14px 16px;box-shadow:0 3px 14px rgba(0,0,0,.06)}
   .fc-head{font-size:14px;color:#2b3b2b;margin-bottom:10px;line-height:1.4}
   .fc-base{color:#8a9a8a;font-weight:400}
@@ -163,6 +190,7 @@
     <div class="feno-time" id="fenotime"></div>
     <div class="feno-now" id="fenostat" style="display:none"></div>
     <div class="feno-cal" id="fenocal"></div>
+    <div class="feno-pcal" id="fenopcal"></div>
     <div class="feno-sum" id="fenosum" style="display:none"></div>
     <!-- Границы районов: geoBoundaries (CC-BY 4.0) · Температура: Open-Meteo (CC-BY 4.0) · Ер қоплами: ESA WorldCover 2021 v200 (CC-BY 4.0) -->
   </div>
@@ -173,7 +201,7 @@
 <script src="js/main.js?v=2"></script>
 <script src="js/uz-districts.js?v=3"></script>
 <script src="js/uz-geo.js?v=1"></script>
-<script src="js/fenologik.js?v=23"></script>
+<script src="js/fenologik.js?v=24"></script>
 <script src="js/counter.js?v=2"></script>
 </body>
 </html>

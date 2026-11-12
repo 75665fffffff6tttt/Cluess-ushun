@@ -15,12 +15,12 @@
   //  кузги тунлам 2–3, ўргимчаккана 12–18, ширалар 20–26); crit — кузги диапаузани қўзғатувчи кун узунлиги (соат);
   //  bin — харита рангида нечта авлод бир синфга киради. ⚠️ Тахминий қийматлар — дала маълумоти билан калибрлаш керак.
   var PESTS = LANG === "ru" ? [
-    { id: "bollworm", nm: "Хлопковая совка", win: [0.05, 0.22], wst: "яйца и молодые гусеницы",  base: 10.5, upper: 35, gen: 650, emerge: 250, crit: 12.9, bin: 1, winter: "куколка — в почве (5–10 см)", rec: "Глубокая зяблевая вспашка уничтожает зимующих куколок." },
+    { id: "bollworm", nm: "Хлопковая совка", win: [0.05, 0.22], wst: "яйца и молодые гусеницы",  base: 10.5, upper: 35, gen: 640, emerge: 250, crit: 12.9, bin: 1, winter: "куколка — в почве (5–10 см)", rec: "Глубокая зяблевая вспашка уничтожает зимующих куколок." },
     { id: "mite", nm: "Паутинный клещ", win: [0, 0.35], wst: "яйца и личинки",  base: 11, upper: 40, gen: 160, emerge: 80, crit: 13.3, bin: 3, winter: "оплодотворённые самки — под растительными остатками и корой", rec: "Удаление и измельчение растительных остатков хлопчатника." },
     { id: "cutworm", nm: "Озимая совка", win: [0.05, 0.2], wst: "яйца и молодые гусеницы",  base: 10, upper: 35, gen: 1100, emerge: 200, crit: 13.0, bin: 1, winter: "гусеницы и куколки — в почве", rec: "Глубокая вспашка и борьба с сорняками." },
     { id: "aphid", nm: "Тли", win: [0, 0.4], wst: "молодые колонии (личинки)",  base: 6.5, upper: 35, gen: 155, emerge: 120, crit: 12.5, bin: 5, winter: "яйца — на сорняках и побегах", rec: "Борьба с сорняками снижает запас зимующих яиц." }
   ] : [
-    { id: "bollworm", nm: "Ғўза тунлами (кўсак қурти)", win: [0.05, 0.22], wst: "тухум ва ёш қуртлар",  base: 10.5, upper: 35, gen: 650, emerge: 250, crit: 12.9, bin: 1, winter: "ғумбак — тупроқда (5–10 см чуқурликда)", rec: "Кузги чуқур шудгор қишлаётган ғумбакларни нобуд қилади." },
+    { id: "bollworm", nm: "Ғўза тунлами (кўсак қурти)", win: [0.05, 0.22], wst: "тухум ва ёш қуртлар",  base: 10.5, upper: 35, gen: 640, emerge: 250, crit: 12.9, bin: 1, winter: "ғумбак — тупроқда (5–10 см чуқурликда)", rec: "Кузги чуқур шудгор қишлаётган ғумбакларни нобуд қилади." },
     { id: "mite", nm: "Ўргимчаккана", win: [0, 0.35], wst: "тухум ва личинкалар",  base: 11, upper: 40, gen: 160, emerge: 80, crit: 13.3, bin: 3, winter: "уруғланган урғочи — ўсимлик қолдиғи ва пўстлоқ остида", rec: "Ғўзапоя ва ўсимлик қолдиқларини йиғиштириш/майдалаш." },
     { id: "cutworm", nm: "Кузги тунлам", win: [0.05, 0.2], wst: "тухум ва ёш қуртлар",  base: 10, upper: 35, gen: 1100, emerge: 200, crit: 13.0, bin: 1, winter: "катта ёшли қурт ва ғумбак — тупроқда", rec: "Кузги чуқур шудгор ва бегона ўтларни йўқотиш." },
     { id: "aphid", nm: "Ширалар", win: [0, 0.4], wst: "ёш колониялар (личинкалар)",  base: 6.5, upper: 35, gen: 155, emerge: 120, crit: 12.5, bin: 5, winter: "тухум — бегона ўт ва новдаларда", rec: "Бегона ўтларни йўқотиш қишлаётган тухумни камайтиради." }
@@ -41,6 +41,7 @@
     sumOverLead: "Сезон в основном завершён", sumActiveLead: "Вредитель ещё активен",
     sumOverTxt: "из {N} районов {E} перешли в диапаузу (зимовку). За сезон накоплено до {G} поколений.",
     sumActiveTxt: "в {A} районах идёт активное развитие (до {G} поколений). Проведите обработку перед яйцекладкой следующего поколения.",
+    pcTitle: "{Y} г. — фенологический календарь: {W}", pcRegAvg: "среднее по области", pcBase: "Нижний порог развития", pcGen: "сумма эффективных температур на поколение", pcStart: "весенний выход с зимовки", pcWinter: "Зимующая фаза", pcPrint: "Печать / PDF", pc5: "5 дней", pcMean: "Средняя °C", pcEff: "Эффект. °C (5 дн.)", pcAcc: "Накоплено в фазе °C", pcDoneL: "фаза завершилась в эти 5 дней", pcFcL: "прогноз", pcNote: "Эффективные температуры — синус-метод по суточным max/min (нижний и верхний порог), до весеннего выхода с зимовки идёт развитие зимующей фазы; осенью при коротком дне развитие останавливается на зимующей фазе. Модельная оценка, не официальный мониторинг.", monthsFull: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
     sumToGen: "до {G} поколений"
   } : {
     title: "ФЕНОЛОГИК ПРОГНОЗ", label: "Зараркунанда", region: "Вилоят", districts: "туман",
@@ -58,6 +59,7 @@
     sumOverLead: "Мавсум асосан якунланди", sumActiveLead: "Зараркунанда ҳали фаол",
     sumOverTxt: "{N} тумандан {E} таси диапаузага (қишловга) ўтган. Мавсум давомида {G} авлодгача ривожланган.",
     sumActiveTxt: "{A} туманда фаол ривожланиш кетмоқда ({G} авлодгача). Навбатдаги авлод тухум қўйишидан олдин ишлов беринг.",
+    pcTitle: "{Y} йил — фенологик календар: {W}", pcRegAvg: "вилоят ўртачаси", pcBase: "Ривожланишнинг қуйи ҳарорат чегараси", pcGen: "бир авлод учун самарали ҳарорат йиғиндиси", pcStart: "баҳорги уйғониш", pcWinter: "Қишловчи фаза", pcPrint: "Чоп этиш / PDF", pc5: "5 кун", pcMean: "Ўртача °C", pcEff: "Самарали °C (5 кун)", pcAcc: "Фазада тўпланган °C", pcDoneL: "фаза шу 5 кунликда тугади", pcFcL: "прогноз", pcNote: "Самарали ҳарорат — кунлик max/min бўйича синус усулида (қуйи ва юқори чегара); баҳорги уйғонишгача қишловчи фаза ривожланади; кузда кун қисқаргач ривожланиш қишловчи фазада тўхтайди. Модел баҳоси, расмий мониторинг эмас.", monthsFull: ["Январ", "Феврал", "Март", "Апрел", "Май", "Июн", "Июл", "Август", "Сентябр", "Октябр", "Ноябр", "Декабр"],
     sumToGen: "{G} авлодгача"
   };
 
@@ -262,6 +264,136 @@
       '<div class="fc-axis">' + mticks + '</div>' +
       '<div class="fc-leg"><span>' + T.gen + ' 1 → ' + (ph.gen) + '</span> · <span class="fc-td">' + T.today + ': ' + fmtDate(updatedAt || new Date()) + '</span></div>' +
       '<div class="fc-note">' + T.note + ' · ' + T.src + (updatedAt ? ' · ' + updatedAt.toLocaleDateString(LANG === "ru" ? "ru-RU" : "ru-RU") : '') + '</div>';
+    drawPentCal();
+  }
+
+  // ===== 5 кунлик фенологик календар (жадвал, PDF шаклида) =====
+  // Фазалар бир авлод GDD'сининг улуши сифатида (ғўза тунлами: 90+50+300+200 = 640 °Д
+  // нисбатида). w — қишловчи фаза: баҳорда уйғонишгача (emerge) шу фаза ривожланади,
+  // кузда кун қисқаргач навбатдаги шу фазага етганда қишловга кетади.
+  var STG = {
+    bollworm: { s: [["im", "+", 90], ["eg", "•", 50], ["la", "—", 300], ["pu", "⬬", 200]], w: 3 },
+    cutworm: { s: [["pu", "⬬", 0.20], ["im", "+", 0.08], ["eg", "•", 0.07], ["la", "—", 0.65]], w: 3 },
+    mite: { s: [["eg", "•", 0.40], ["la", "—", 0.45], ["im", "+", 0.15]], w: 2 },
+    aphid: { s: [["la", "—", 0.80], ["im", "+", 0.20]], w: -1, ws: "•" }
+  };
+  var STN = LANG === "ru"
+    ? { im: "Имаго (взрослые)", eg: "Развитие яиц", la: "Личинка (гусеница)", pu: "Куколка", nm: "Нимфа", la_mite: "Личинка и нимфы", la_aphid: "Личинки (нимфы)", im_mite: "Самка до яйцекладки", im_aphid: "Взрослые (размножение)" }
+    : { im: "Имаго (етук зот)", eg: "Тухум ривожи", la: "Личинка (қуртлик)", pu: "Ғумбак (лик)", la_mite: "Личинка ва нимфалар", la_aphid: "Личинкалар (нимфалар)", im_mite: "Урғочи (тухум қўйгунча)", im_aphid: "Етук зот (кўпайиш)" };
+  function stageList(pest) {
+    var d = STG[pest.id], tot = 0, i;
+    for (i = 0; i < d.s.length; i++) tot += d.s[i][2];
+    return d.s.map(function (x) { return { k: x[0], sym: x[1], dd: pest.gen * x[2] / tot, nm: STN[x[0] + "_" + pest.id] || STN[x[0]] }; });
+  }
+  function pcalTarget() {
+    if (selDist && selDist.t === "u" && !zoneD[selDist.i]) { var it = items[selDist.i]; return { ser: dseries[selDist.i], lat: GEO[selDist.i][0], who: rname(regById[it.r]) + " · " + dname(it) }; }
+    if (selDist && selDist.t === "n" && !zoneN[selDist.i]) { var n = NB[selDist.i]; return { ser: nseries[selDist.i], lat: n.ll[0], who: n.cn + " · " + (n.nm || "") }; }
+    if (curReg) { var ds = regDistricts[curReg] || [], la = 0; ds.forEach(function (i) { la += GEO[i][0]; }); return { ser: regSeries[curReg], lat: ds.length ? la / ds.length : 41.3, who: rname(regById[curReg]) + " — " + T.pcRegAvg }; }
+    return { ser: countrySeries, lat: 41.3, who: T.country };
+  }
+  // кунма-кун: фаза ривожи → 5 кунлик катаклар
+  function pentCal(ser, pest, lat) {
+    var st = stageList(pest), def = STG[pest.id], y = ser[0].t.getFullYear();
+    var byDay = {}; ser.forEach(function (r) { byDay[iso(r.t)] = r; });
+    var pents = [];
+    for (var m = 0; m < 12; m++) {
+      var last = new Date(y, m + 1, 0).getDate();
+      for (var p = 0; p < 6; p++) { var a = 1 + 5 * p, b = p < 5 ? a + 4 : last; pents.push({ m: m, p: p, a: new Date(y, m, a), b: new Date(y, m, b), n: b - a + 1 }); }
+    }
+    var cum = 0, bio = false, cut = false, phase = "w0", si = 0, acc = 0, gen = 0, maxGen = 0, winDone = false;
+    pents.forEach(function (P) {
+      P.days = 0; P.mean = 0; P.dd = 0; P.cells = {}; P.fc = false;
+      for (var d = new Date(P.a); d <= P.b; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)) {
+        var r = byDay[iso(d)]; if (!r) continue;
+        P.days++; P.mean += (r.mx + r.mn) / 2;
+        var dd = sineDD(r.mn, r.mx, pest.base, pest.upper); P.dd += dd;
+        if (d.getTime() > Date.now()) P.fc = true;
+        if (!cut && lat != null && d.getMonth() >= 6 && dayLen(lat, d) < pest.crit) cut = true;
+        var c;
+        if (!bio) { // баҳорги уйғонишгача — қишловчи фаза
+          cum += dd; c = P.cells[1] = P.cells[1] || [];
+          addSym(c, { w: 1, act: dd > 0.5 });
+          if (cum >= pest.emerge) { bio = true; gen = 1; maxGen = 1; si = def.w >= 0 ? (def.w + 1) % st.length : 0; acc = cum - pest.emerge; }
+          continue;
+        }
+        if (winDone) { c = P.cells[gen] = P.cells[gen] || []; addSym(c, { w: 1, act: dd > 0.5 }); continue; }
+        acc += dd; c = P.cells[gen] = P.cells[gen] || [];
+        addSym(c, { s: si });
+        while (!winDone && acc >= st[si].dd) {
+          acc -= st[si].dd; markDone(c, si);
+          si++;
+          if (si >= st.length) { // авлод тугади
+            si = 0;
+            if (cut && def.w < 0) { winDone = true; break; }  // ширалар: кузда тухум қўйиб қишлайди
+            gen++; maxGen = Math.max(maxGen, gen);
+          }
+          if (cut && si === def.w) { winDone = true; acc = 0; }
+          c = P.cells[gen] = P.cells[gen] || []; addSym(c, winDone ? { w: 1, act: true } : { s: si });
+        }
+      }
+      if (P.days) P.mean /= P.days;
+      P.acc = P.days ? (bio && !winDone ? acc : null) : null;
+    });
+    function addSym(c, o) { for (var i = 0; i < c.length; i++) if (c[i].s === o.s && c[i].w === o.w) { if (o.act) c[i].act = true; return; } c.push(o); }
+    function markDone(c, s) { for (var i = 0; i < c.length; i++) if (c[i].s === s) c[i].done = true; }
+    return { pents: pents, st: st, maxGen: maxGen, wsym: def.w >= 0 ? st[def.w].sym : def.ws, wnm: def.w >= 0 ? st[def.w].nm : (LANG === "ru" ? "Яйцо" : "Тухум") };
+  }
+  function drawPentCal() {
+    var box = document.getElementById("fenopcal"); if (!box) return;
+    if (loadState !== "ok") { box.innerHTML = ""; return; }
+    var tg = pcalTarget(), pest = pestOf();
+    if (!tg.ser || !tg.ser.length) { box.innerHTML = '<div class="fc-empty">' + tg.who + ' — ' + T.nodata + '</div>'; return; }
+    var R = pentCal(tg.ser, pest, tg.lat), y = tg.ser[0].t.getFullYear();
+    var nG = Math.max(1, R.maxGen), compact = nG > 6;
+    var leg = R.st.map(function (x) { return '<span class="pc-lg">' + x.nm + ' <i>(' + Math.round(x.dd) + ' °C)</i> <b>' + x.sym + '</b></span>'; }).join("") +
+      '<span class="pc-lg">' + T.pcWinter + ': ' + R.wnm + ' <b>(' + R.wsym + ')</b></span>';
+    function cellHtml(arr) {
+      if (!arr) return "";
+      return arr.map(function (o) {
+        if (o.w) return '<span class="pc-w">' + (o.act ? R.wsym : "(" + R.wsym + ")") + '</span>';
+        return '<span class="' + (o.done ? "pc-done" : "") + '">' + R.st[o.s].sym + '</span>';
+      }).join("");
+    }
+    var nowD = updatedAt || new Date(), h = "";
+    for (var blk = 0; blk < 3; blk++) {
+      var ps = R.pents.slice(blk * 24, blk * 24 + 24);
+      var head1 = '<tr><th class="pc-rh"></th>' + [0, 1, 2, 3].map(function (q) { return '<th colspan="6" class="pc-mon">' + T.monthsFull[blk * 4 + q] + '</th>'; }).join("") + '</tr>';
+      var cls = function (P) { return (P.fc ? " pc-fc" : "") + (nowD >= P.a && nowD < new Date(P.b.getTime() + 86400000) ? " pc-now" : "") + (P.p === 0 ? " pc-m0" : ""); };
+      var row = function (lab, f, rc) { return '<tr' + (rc ? ' class="' + rc + '"' : '') + '><th class="pc-rh">' + lab + '</th>' + ps.map(function (P) { return '<td class="' + cls(P) + '">' + (P.days ? f(P) : "") + '</td>'; }).join("") + '</tr>'; };
+      h += '<div class="pc-scroll"><table class="pc-t">' + head1 +
+        row(T.pc5, function (P) { return ["I", "II", "III", "IV", "V", "VI"][P.p]; }, "pc-num") +
+        row(T.pcMean, function (P) { return P.mean.toFixed(1); }) +
+        row(T.pcEff, function (P) { return P.dd.toFixed(1); }) +
+        row(T.pcAcc, function (P) { return P.acc == null ? "" : P.acc.toFixed(0); });
+      if (compact) {
+        h += row(T.gen, function (P) { var ks = Object.keys(P.cells).map(Number).sort(function (a, b) { return a - b; }); return ks.map(function (k) { return '<span class="pc-gn">' + k + '</span>' + cellHtml(P.cells[k]); }).join(" "); }, "pc-gen");
+      } else {
+        for (var g = 1; g <= nG; g++) (function (g) { h += row(g + "-" + T.genAbbr, function (P) { return cellHtml(P.cells[g]); }, "pc-gen"); })(g);
+      }
+      h += '</table></div>';
+    }
+    box.innerHTML =
+      '<div class="pc-top"><div><div class="pc-title">' + T.pcTitle.replace("{Y}", y).replace("{W}", tg.who) + '</div>' +
+      '<div class="pc-pest">' + pest.nm + '</div>' +
+      '<div class="pc-sub">' + T.pcBase + ' ' + pest.base + ' °C · ' + T.pcGen + ' ' + Math.round(pest.gen) + ' °C · ' + T.pcStart + ' ' + pest.emerge + ' °C</div></div>' +
+      '<button type="button" class="pc-print" id="pc-print">🖨 ' + T.pcPrint + '</button></div>' +
+      '<div class="pc-legend">' + leg + '<span class="pc-lg"><span class="pc-done">' + R.st[0].sym + '</span> — ' + T.pcDoneL + '</span><span class="pc-lg"><i class="pc-fcbox"></i> ' + T.pcFcL + '</span></div>' +
+      h +
+      '<div class="pc-note">' + T.pcNote + '</div>';
+    document.getElementById("pc-print").onclick = function () {
+      // алоҳида ойнада фақат календар — бўш саҳифаларсиз, A4 альбом
+      var css = [].map.call(document.querySelectorAll("style"), function (x) { return x.textContent; }).join("\n");
+      var w = window.open("", "_blank");
+      if (!w) { window.print(); return; }
+      w.document.write('<!doctype html><html lang="' + document.documentElement.lang + '"><head><meta charset="utf-8"><title>' +
+        box.querySelector(".pc-title").textContent + '</title><style>' + css +
+        '@page{size:A4 landscape;margin:8mm}body{margin:0;font-family:"Segoe UI",system-ui,Arial,sans-serif}' +
+        '.feno-pcal{max-width:none;margin:0;border:none;box-shadow:none;padding:0}.pc-print{display:none}.pc-scroll{overflow:visible;break-inside:avoid}' +
+        '.pc-t{min-width:0;font-size:8.5px}.pc-t th,.pc-t td{padding:1px 1px}.pc-t tr.pc-gen td{height:auto;font-size:10.5px}.pc-t .pc-rh{width:96px}.pc-legend{margin:4px 0 2px}.pc-lg{font-size:10px;padding:1px 6px}.pc-scroll{margin-top:5px}.pc-title{font-size:14px}.pc-pest{font-size:15px}.pc-note{font-size:9px;margin-top:4px}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body><div class="feno-pcal">' +
+        box.innerHTML + '</div></body></html>');
+      w.document.close(); w.focus();
+      setTimeout(function () { w.print(); }, 300);
+    };
   }
 
   // ===== Бугунги ҳолат (фаза + қишлаш шакли + тавсия) =====
@@ -411,7 +543,7 @@
   dinfo.addEventListener("click", function (e) { if (e.target.closest(".di-x")) { selDist = null; renderDistrict(); paint(); } });
   function dayOf(ser, ds) { if (!ser) return null; for (var j = ser.length - 1; j >= 0; j--) if (iso(ser[j].t) === ds) return ser[j]; return null; }
   function renderDistrict() {
-    if (!selDist) { dinfo.style.display = "none"; return; }
+    if (!selDist) { dinfo.style.display = "none"; drawPentCal(); return; }
     var i = selDist.i, nm, rg, ph, ser, zone, e;
     if (selDist.t === "u") { var it = items[i]; nm = dname(it); rg = rname(regById[it.r]); ph = dpheno[i]; ser = dseries[i]; zone = zoneD[i]; e = WXP && WXP.d && WXP.d[String(i)]; }
     else { var n = NB[i]; nm = n.nm || n.cn; rg = n.cn; ph = npheno[i]; ser = nseries[i]; zone = zoneN[i]; e = WXP && WXP.d && WXP.d["n" + n.fi]; }
@@ -440,6 +572,7 @@
     if (e && !Array.isArray(e) && e.crop != null)
       h += '<div class="di-crop">' + (e.zone === "city" ? T.diCity : T.diCrop + ': <b>' + Math.round(e.crop) + ' км²</b> (' + e.cropPct + '%)') + '</div>';
     dinfo.innerHTML = h; dinfo.style.display = "";
+    drawPentCal();
   }
 
   var zc = document.createElement("div"); zc.className = "zoomctl";
