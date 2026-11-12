@@ -43,8 +43,13 @@ jobs:
             git add plant-protection/data/wx.json plant-protection/data/wx-years.json
             git add plant-protection/data/wx-[0-9]*.json 2>/dev/null || true
             git commit -m "Авто: ҳарорат маълумоти янгиланди (wx.json)"
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            git push
+            # бошқа ишга тушириш wx.json'ни олдин ёзган бўлса — тўқнашувда шу (янгироқ) нусха қолади
+            for i in 1 2 3; do
+              git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" && git push && exit 0
+              git rebase --abort 2>/dev/null || true
+              sleep $((i * 10))
+            done
+            exit 1
           else
             echo "No weather changes."
           fi
