@@ -58,11 +58,11 @@
   .stage .note{position:absolute;left:40px;bottom:8px;font-size:12px;color:#8aa}
   .stage .watermark{position:absolute;right:40px;bottom:8px;font-size:11px;color:#9ab;font-weight:600}
   .stage{background:#ffffff !important}
-  .stage .bigdate{position:absolute;top:24px;right:44px;text-align:right;z-index:5;pointer-events:none}
+  .stage .bigdate{position:absolute;top:22px;left:50%;right:auto;transform:translateX(-50%);text-align:center;white-space:nowrap;z-index:5;pointer-events:none}
   .stage .bigdate .bd-t{font-size:24px;font-weight:800;color:#1b5e20;margin-bottom:6px;font-family:"Segoe UI",system-ui,Arial,sans-serif}
   .stage.narrow .bigdate .bd-t{font-size:21px}
   .stage .bigdate .bd-y{font-size:.5em;font-weight:800;color:#5a6b60;letter-spacing:0}
-  .stage .bigdate .bd-d{font-size:66px;font-weight:900;color:#0d2b45;letter-spacing:-1px;line-height:1;font-family:"Segoe UI",system-ui,Arial,sans-serif}
+  .stage .bigdate .bd-d{font-size:50px;font-weight:900;color:#0d2b45;letter-spacing:-1px;line-height:1;font-family:"Segoe UI",system-ui,Arial,sans-serif}
   .stage .bigdate .bd-s{font-size:16px;color:#5a6b60;font-weight:700;margin-top:6px}
   .stage .titleband{position:relative}
   .stage .legend{left:40px;right:auto;bottom:214px;width:372px;justify-content:flex-start;gap:6px 12px;padding:12px 14px;background:#fff;border:1px solid #cfcfcf;box-shadow:0 2px 8px rgba(0,0,0,.06);z-index:4}
@@ -75,8 +75,8 @@
   .stage.narrow .legend{left:0;right:0;bottom:148px;width:auto;justify-content:center;gap:9px;padding:0 30px;background:none;border:none;box-shadow:none}
   .stage.narrow .lg{background:#fff;padding:5px 10px;border-radius:9px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
   .stage.narrow .lg.full{flex-basis:auto}
-  .stage.narrow .bigdate{top:176px;right:78px}
-  .stage.narrow .bigdate .bd-d{font-size:50px}
+  .stage.narrow .bigdate{top:176px}
+  .stage.narrow .bigdate .bd-d{font-size:42px}
   .stage.narrow .bigdate .bd-s{font-size:15px}
   .ig-country{font:700 17px "Segoe UI",system-ui,Arial,sans-serif;letter-spacing:5px;fill:#5f5f5f;opacity:.75}
   .ig-uz{font:800 22px "Segoe UI",system-ui,Arial,sans-serif;letter-spacing:7px;fill:#1d1d1d;opacity:.8;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-opacity:.8}
@@ -105,7 +105,7 @@
   .feno-ctl .pbtn.spr.on{background:#c62828;border-color:#c62828;color:#fff}
   .stage .mapwrap{top:20px !important}
   .stage .zoomctl{top:130px !important}
-  .stage.narrow .bigdate{top:24px !important;right:44px !important}
+  .stage.narrow .bigdate{top:22px !important}
   .feno-time{max-width:1180px;margin:14px auto 0;background:#fff;border:1px solid #e6ece6;border-radius:14px;padding:12px 16px 10px;box-shadow:0 3px 14px rgba(0,0,0,.06)}
   .feno-time .tl-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-top:8px;padding-top:8px;border-top:1px dashed #e0e7e0;font-size:12.5px;color:#5a6b60}
   .feno-time .tl-yr select{font:inherit;font-weight:700;padding:3px 8px;border:1.5px solid #cfe0cf;border-radius:8px;background:#fff;margin-left:4px}
