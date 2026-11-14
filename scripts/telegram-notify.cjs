@@ -17,7 +17,7 @@ const SITE_DIR = path.resolve(process.env.SITE_DIR || "plant-protection");
 const SITE_URL = process.env.SITE_URL || "https://75665fffffff6tttt.github.io/Cluess-ushun/fenologik.html";
 const ONLY = (process.env.PESTS || "").split(",").map((s) => s.trim()).filter(Boolean);
 const MONTHS = ["январ", "феврал", "март", "апрел", "май", "июн", "июл", "август", "сентябр", "октябр", "ноябр", "декабр"];
-const ICON = { bollworm: "🐛", cutworm: "🐛", mite: "🕷", aphid: "🦟" };
+const ICON = { bollworm: "🐛", cutworm: "🐛", caradrina: "🐛", mite: "🕷", aphid: "🦟" };
 
 function serve(dir) {
   const types = { ".html": "text/html", ".js": "application/javascript", ".json": "application/json", ".css": "text/css", ".png": "image/png", ".svg": "image/svg+xml", ".geojson": "application/json" };

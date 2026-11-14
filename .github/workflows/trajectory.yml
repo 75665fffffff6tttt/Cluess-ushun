@@ -1,0 +1,49 @@
+name: Moth back-trajectories
+
+# Капалаклар қаердан учиб келган бўлиши мумкин: Урганч, Нукус, Тўрткўлга орқага шамол
+# траекторияси (ERA5 100 м шамол, scripts/trajectory.py) → data-hist/traj-<йил>.json
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "Бошланиш санаси (YYYY-MM-DD)"
+        default: "2026-03-01"
+      end:
+        description: "Тугаш санаси (YYYY-MM-DD)"
+        default: "2026-06-30"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "season-outlook"
+  cancel-in-progress: false
+
+jobs:
+  traj:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Back-trajectories
+        env:
+          TRAJ_START: ${{ github.event.inputs.start }}
+          TRAJ_END: ${{ github.event.inputs.end }}
+          WX_MAX_MINUTES: "50"
+        run: python scripts/trajectory.py
+      - name: Commit
+        run: |
+          git add data-hist/traj-*.json
+          if git diff --cached --quiet; then echo "No changes."; exit 0; fi
+          git config user.name "agro-weather-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Авто: шамол траекториялари (traj)"
+          for i in 1 2 3; do
+            git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" && git push && exit 0
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          exit 1
