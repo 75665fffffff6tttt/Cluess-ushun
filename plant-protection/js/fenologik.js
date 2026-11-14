@@ -1539,6 +1539,25 @@
   paint(); updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict(); renderLegend();
   loadNeighbors().then(loadData);
 
+  // ===== Telegram ҳафталик хабари учун (scripts/telegram-notify.cjs): сайтдаги АЙНАН шу модел натижаси =====
+  // window.FENO_WEEK(7) → ҳар зараркунанда, ҳар туман: бугунги фаза ва кейинги N кунда бошланадиган фазалар
+  window.FENO_WEEK = function (N) {
+    if (loadState !== "ok") return null;
+    var t0 = new Date(), d0 = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate()), d1 = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() + (N || 7));
+    return { from: iso(d0), to: iso(new Date(d1.getTime() - 864e5)), pests: PESTS.map(function (pest) {
+      return { id: pest.id, nm: pest.nm, ttl: pest.ttl, d: dIdx.filter(function (i) { return !zoneD[i]; }).map(function (i) {
+        var ser = dseries[i]; if (!ser || !ser.length) return null;
+        var R = pentCal(ser, pest, GEO[i][0]), cur = null, nx = [];
+        R.ev.forEach(function (e) {
+          var k = e.w ? "w" : R.st[e.s].k, nm = e.w ? T.pcWinter : R.st[e.s].nm;
+          if (e.from <= d0 && (!e.to || e.to >= d0)) cur = { k: k, nm: nm, g: e.g };
+          if (e.from > d0 && e.from < d1) nx.push({ k: k, nm: nm, g: e.g, d: iso(e.from) });
+        });
+        return { n: dname(items[i]), r: rname(regById[items[i].r]), cur: cur, nx: nx };
+      }).filter(Boolean) };
+    }) };
+  };
+
   var wrap = stage.parentElement;
   // кенг экранда — кенгроқ саҳна (харита каттароқ), телефонда — эски квадрат (матн кичраймаслиги учун)
   function fit() {
