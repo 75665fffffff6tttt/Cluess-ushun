@@ -37,7 +37,7 @@
     phasePre: "ЗИМОВКА — ожидается весеннее пробуждение", winterLabel: "Форма зимовки", recLabel: "Рекомендация",
     windowLabel: "Окно обработки", windowTxt: "перед яйцекладкой следующего поколения",
     sumTitle: "Заключение", sumUnit: "р-нов", sumActive: "Активное развитие", sumDiap: "Зимовка (диапауза)",
-    sumMaxGen: "Макс. поколений", sumAvgGen: "В среднем", sumTop: "Наибольшее давление", desertTip: "🏜 Пустыня — посевов нет, прогноз не даётся", nocropTip: "Посевов нет (степь/горы) — прогноз не даётся", sumNoFc: "Без прогноза (пустыня/нет посевов)", diToday: "Сегодня (max / min)", di7: "Средняя за 7 дней", diCrop: "Посевы", diCity: "Городская территория — температура по центру района", diClose: "Закрыть", bioL: "Начало сезона (выход с зимовки)", cutL: "Осенняя диапауза (короткий день)", noNextCut: "новое поколение не начнётся — короткий день", genAbbr: "пок.", winNow: "ОТКРЫТО сейчас", winOpenL: "⚠ Окно обработки открыто сейчас", winSoonL: "Откроется в ближайшие 7 дней", winShort: "время обработки", winNone: "в этом сезоне больше нет", dateL: "Показана дата", cmpAdd: "К сравнению", cmpAdded: "В сравнении", cmpTitle: "Сравнение районов", cmpSub: "Даты начала поколений (для 1-го — выход с зимовки, начало сезона)", cmpMore: "(показаны первые 8 из {N})", cmpDist: "Район", cmpSeason: "начало сезона", cmpGens: "Поколений", cmpClear: "Очистить", cmpNote: "Жирным — самая ранняя дата в столбце. До 5 районов: выберите район и нажмите «К сравнению».", cmpXls: "Сравнение", monthsGen: ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"], smoBtn: "Сплошная заливка", sprBtn: "Граница распространения", sprLeg: "Граница территории распространения (посевы, где сезон вредителя начался)", srcLine: "Источник: Open-Meteo, Esri/IO Land Cover 2024 · модель ГДД", mapMode: "Карта", modeGen: "Поколения", modePhase: "Фаза (стадия)", phaseNow: "Фаза на дату", lgDesert: "🏜 Нет посевов", tlYear: "Год", tlYearEnd: "Конец года", wxFresh: "🔄 Данные о температуре обновлены: {D} ({H} ч назад)", wxStale: "⚠ Данные о температуре не обновлялись {H} ч (последнее: {D}) — прогноз может быть устаревшим.", wxArchive: "📦 Архив {Y} г. — данные о температуре по 31 декабря", tlLabel: "Дата", tlToday: "Сегодня", tlPlay: "▶ Сезон", tlPause: "⏸ Пауза", tlFc: "прогноз", tlPast: "прошлое", tlHint: "Двигайте ползунок — карта, календарь и окна обработки покажут состояние на выбранную дату.",
+    sumMaxGen: "Макс. поколений", sumAvgGen: "В среднем", sumTop: "Наибольшее давление", desertTip: "🏜 Пустыня — посевов нет, прогноз не даётся", nocropTip: "Посевов нет (степь/горы) — прогноз не даётся", sumNoFc: "Без прогноза (пустыня/нет посевов)", diToday: "Сегодня (max / min)", di7: "Средняя за 7 дней", diCrop: "Посевы", diCity: "Городская территория — температура по центру района", diClose: "Закрыть", bioL: "Начало сезона (выход с зимовки)", cutL: "Осенняя диапауза (короткий день)", noNextCut: "новое поколение не начнётся — короткий день", genAbbr: "пок.", winNow: "ОТКРЫТО сейчас", winOpenL: "⚠ Окно обработки открыто сейчас", winSoonL: "Откроется в ближайшие 7 дней", winShort: "время обработки", winNone: "в этом сезоне больше нет", dateL: "Показана дата", cmpAdd: "К сравнению", cmpAdded: "В сравнении", cmpTitle: "Сравнение районов", cmpSub: "Даты начала поколений (для 1-го — выход с зимовки, начало сезона)", cmpMore: "(показаны первые 8 из {N})", cmpDist: "Район", cmpSeason: "начало сезона", cmpGens: "Поколений", cmpClear: "Очистить", cmpNote: "Жирным — самая ранняя дата в столбце. До 5 районов: выберите район и нажмите «К сравнению».", cmpXls: "Сравнение", monthsGen: ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"], smoBtn: "Сплошная заливка", olTitle: "📆 Прогноз до конца сезона", olSub: "по погоде прошлых {N} лет: наиболее вероятная дата (диапазон 10–90%)", olYears: "в {K} из {N} лет", olNone: "до конца года новых фаз не ожидается", sprBtn: "Граница распространения", sprLeg: "Граница территории распространения (посевы, где сезон вредителя начался)", srcLine: "Источник: Open-Meteo, Esri/IO Land Cover 2024 · модель ГДД", mapMode: "Карта", modeGen: "Поколения", modePhase: "Фаза (стадия)", phaseNow: "Фаза на дату", lgDesert: "🏜 Нет посевов", tlYear: "Год", tlYearEnd: "Конец года", wxFresh: "🔄 Данные о температуре обновлены: {D} ({H} ч назад)", wxStale: "⚠ Данные о температуре не обновлялись {H} ч (последнее: {D}) — прогноз может быть устаревшим.", wxArchive: "📦 Архив {Y} г. — данные о температуре по 31 декабря", tlLabel: "Дата", tlToday: "Сегодня", tlPlay: "▶ Сезон", tlPause: "⏸ Пауза", tlFc: "прогноз", tlPast: "прошлое", tlHint: "Двигайте ползунок — карта, календарь и окна обработки покажут состояние на выбранную дату.",
     sumOverLead: "Сезон в основном завершён", sumActiveLead: "Вредитель ещё активен",
     sumOverTxt: "из {N} районов {E} перешли в диапаузу (зимовку). За сезон накоплено до {G} поколений.",
     sumActiveTxt: "в {A} районах идёт активное развитие (до {G} поколений).",
@@ -55,7 +55,7 @@
     phasePre: "ҚИШЛОВ — баҳорда уйғониш кутилмоқда", winterLabel: "Қишлаш шакли", recLabel: "Тавсия",
     windowLabel: "Ишлов бериш ойнаси", windowTxt: "навбатдаги авлод тухум қўйиши олдидан",
     sumTitle: "Хулоса", sumUnit: "туман", sumActive: "Фаол ривожланиш", sumDiap: "Қишлов (диапауза)",
-    sumMaxGen: "Энг кўп авлод", sumAvgGen: "Ўртача", sumTop: "Энг юқори босим", desertTip: "🏜 Чўл — экин майдони йўқ, прогноз берилмайди", nocropTip: "Экин майдони йўқ (дашт/тоғ) — прогноз берилмайди", sumNoFc: "Прогноз берилмади (чўл/экин майдони йўқ)", diToday: "Бугун (max / min)", di7: "Охирги 7 кун ўртача", diCrop: "Экин майдони", diCity: "Шаҳар ҳудуди — ҳарорат туман марказидан", diClose: "Ёпиш", bioL: "Мавсум боши (қишловдан чиқиш)", cutL: "Кузги диапауза (кун қисқариши)", noNextCut: "янги авлод бошланмайди — кун қисқа", genAbbr: "авлод", winNow: "ҲОЗИР очиқ", winOpenL: "⚠ Ишлов бериш ойнаси ҳозир очиқ", winSoonL: "7 кун ичида очилади", winShort: "ишлов бериш вақти", winNone: "бу мавсумда бошқа йўқ", dateL: "Кўрсатилган сана", cmpAdd: "Солиштиришга", cmpAdded: "Солиштиришда", cmpTitle: "Туманларни солиштириш", cmpSub: "Авлодлар бошланиш саналари (1-авлод — қишловдан чиқиш, мавсум боши)", cmpMore: "({N} тадан биринчи 8 таси)", cmpDist: "Туман", cmpSeason: "мавсум боши", cmpGens: "Авлодлар", cmpClear: "Тозалаш", cmpNote: "Қалин — устундаги энг эрта сана. 5 тагача туман: туманни танланг ва «Солиштиришга» тугмасини босинг.", cmpXls: "Солиштириш", smoBtn: "Силлиқ ранг", sprBtn: "Тарқалиш чегараси", sprLeg: "Тарқалган майдон чегараси (мавсуми бошланган экин майдонлари)", srcLine: "Манба: Open-Meteo, Esri/IO Land Cover 2024 · GDD модели", mapMode: "Харита", modeGen: "Авлодлар", modePhase: "Фаза (босқич)", phaseNow: "Шу кундаги фаза", lgDesert: "🏜 Экин майдони йўқ", tlYear: "Йил", tlYearEnd: "Йил охири", wxFresh: "🔄 Ҳарорат маълумоти янгиланган: {D} ({H} соат олдин)", wxStale: "⚠ Ҳарорат маълумоти {H} соатдан бери янгиланмаган (охирги: {D}) — прогноз эскирган бўлиши мумкин.", wxArchive: "📦 {Y} йил архиви — ҳарорат маълумоти 31-декабргача", tlLabel: "Сана", tlToday: "Бугун", tlPlay: "▶ Мавсум", tlPause: "⏸ Тўхтатиш", tlFc: "прогноз", tlPast: "ўтган кун", tlHint: "Сургични суринг — харита, календар ва ишлов бериш ойналари танланган кундаги ҳолатни кўрсатади.",
+    sumMaxGen: "Энг кўп авлод", sumAvgGen: "Ўртача", sumTop: "Энг юқори босим", desertTip: "🏜 Чўл — экин майдони йўқ, прогноз берилмайди", nocropTip: "Экин майдони йўқ (дашт/тоғ) — прогноз берилмайди", sumNoFc: "Прогноз берилмади (чўл/экин майдони йўқ)", diToday: "Бугун (max / min)", di7: "Охирги 7 кун ўртача", diCrop: "Экин майдони", diCity: "Шаҳар ҳудуди — ҳарорат туман марказидан", diClose: "Ёпиш", bioL: "Мавсум боши (қишловдан чиқиш)", cutL: "Кузги диапауза (кун қисқариши)", noNextCut: "янги авлод бошланмайди — кун қисқа", genAbbr: "авлод", winNow: "ҲОЗИР очиқ", winOpenL: "⚠ Ишлов бериш ойнаси ҳозир очиқ", winSoonL: "7 кун ичида очилади", winShort: "ишлов бериш вақти", winNone: "бу мавсумда бошқа йўқ", dateL: "Кўрсатилган сана", cmpAdd: "Солиштиришга", cmpAdded: "Солиштиришда", cmpTitle: "Туманларни солиштириш", cmpSub: "Авлодлар бошланиш саналари (1-авлод — қишловдан чиқиш, мавсум боши)", cmpMore: "({N} тадан биринчи 8 таси)", cmpDist: "Туман", cmpSeason: "мавсум боши", cmpGens: "Авлодлар", cmpClear: "Тозалаш", cmpNote: "Қалин — устундаги энг эрта сана. 5 тагача туман: туманни танланг ва «Солиштиришга» тугмасини босинг.", cmpXls: "Солиштириш", smoBtn: "Силлиқ ранг", olTitle: "📆 Мавсум охиригача прогноз", olSub: "ўтган {N} йил об-ҳавоси бўйича: энг эҳтимолли сана (10–90% оралиқ)", olYears: "{N} йилдан {K} тасида", olNone: "йил охиригача янги фаза кутилмайди", sprBtn: "Тарқалиш чегараси", sprLeg: "Тарқалган майдон чегараси (мавсуми бошланган экин майдонлари)", srcLine: "Манба: Open-Meteo, Esri/IO Land Cover 2024 · GDD модели", mapMode: "Харита", modeGen: "Авлодлар", modePhase: "Фаза (босқич)", phaseNow: "Шу кундаги фаза", lgDesert: "🏜 Экин майдони йўқ", tlYear: "Йил", tlYearEnd: "Йил охири", wxFresh: "🔄 Ҳарорат маълумоти янгиланган: {D} ({H} соат олдин)", wxStale: "⚠ Ҳарорат маълумоти {H} соатдан бери янгиланмаган (охирги: {D}) — прогноз эскирган бўлиши мумкин.", wxArchive: "📦 {Y} йил архиви — ҳарорат маълумоти 31-декабргача", tlLabel: "Сана", tlToday: "Бугун", tlPlay: "▶ Мавсум", tlPause: "⏸ Тўхтатиш", tlFc: "прогноз", tlPast: "ўтган кун", tlHint: "Сургични суринг — харита, календар ва ишлов бериш ойналари танланган кундаги ҳолатни кўрсатади.",
     sumOverLead: "Мавсум асосан якунланди", sumActiveLead: "Зараркунанда ҳали фаол",
     sumOverTxt: "{N} тумандан {E} таси диапаузага (қишловга) ўтган. Мавсум давомида {G} авлодгача ривожланган.",
     sumActiveTxt: "{A} туманда фаол ривожланиш кетмоқда ({G} авлодгача).",
@@ -120,6 +120,7 @@
   var YQ = (function () { var m = /[?&]yil=(\d{4})/.exec(location.search); return m ? +m[1] : null; })();
   var YEAR = null, CURY = null, YEARS = [], PAST = false, WXU = null;
   var loadState = "loading", updatedAt = null, wxPending = false, selDist = null, WXP = null;
+  var WXRAW = null, OUTLOOK = null; // OUTLOOK — data/outlook.json (scripts/build-outlook.cjs)
 
   function centroid(d) {
     var nums = d.match(/-?\d+(?:\.\d+)?/g); if (!nums) return [0, 0];
@@ -966,6 +967,21 @@
   ["pointerdown", "pointerup", "wheel"].forEach(function (ev) { dinfo.addEventListener(ev, function (e) { e.stopPropagation(); }); });
   dinfo.addEventListener("click", function (e) { if (e.target.closest(".di-x")) { selDist = null; renderDistrict(); paint(); } });
   function dayOf(ser, ds) { if (!ser) return null; for (var j = ser.length - 1; j >= 0; j--) if (iso(ser[j].t) === ds) return ser[j]; return null; }
+  // узоқ муддатли прогноз: ўтган йиллар об-ҳавоси билан ҳисобланган кейинги фазалар (data/outlook.json)
+  function outlookHtml(i, pest) {
+    var P = OUTLOOK.p && OUTLOOK.p[pest.id], L = P && P[String(i)]; if (!L) return "";
+    var N = OUTLOOK.years.length, t = updatedAt || new Date(), t0 = Math.floor((new Date(t.getFullYear(), t.getMonth(), t.getDate()) - new Date(YEAR, 0, 1)) / 864e5);
+    var st = stageList(pest), nm = {}; st.forEach(function (x) { nm[x.k] = x.nm; });
+    function dd(k) { return fmtDate(new Date(YEAR, 0, 1 + k)); }
+    var rows = L.filter(function (r) { return r[3] >= t0; }).slice(0, 10).map(function (r) {
+      var lab = r[1] === "w" ? "❄ " + T.pcWinter : (nm[r[1]] || r[1]) + " · " + r[0] + "-" + T.genAbbr;
+      var rng = r[2] === r[4] ? "" : ' <span class="di-sub">(' + dd(r[2]) + " – " + dd(r[4]) + ")</span>";
+      var yrs = r[5] < N ? ' <span class="di-sub">· ' + T.olYears.replace("{K}", r[5]).replace("{N}", N) + "</span>" : "";
+      return "<tr><td>" + lab + "</td><td><b>" + dd(r[3]) + "</b>" + rng + yrs + "</td></tr>";
+    });
+    return '<div class="di-ol"><div class="di-olh">' + T.olTitle + '</div><div class="di-ols">' + T.olSub.replace("{N}", N) + '</div>' +
+      (rows.length ? '<table class="di-t">' + rows.join("") + "</table>" : '<div class="di-ols">' + T.olNone + "</div>") + "</div>";
+  }
   function renderDistrict() {
     if (!selDist) { dinfo.style.display = "none"; drawPentCal(); return; }
     var i = selDist.i, nm, rg, ph, ser, zone, e;
@@ -994,6 +1010,7 @@
       if (c7) rows.push([T.di7, '<b>' + (s7 / c7).toFixed(1) + '°C</b>']);
       h += '<table class="di-t">' + rows.map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>'; }).join("") + '</table>';
     }
+    if (OUTLOOK && selDist.t === "u" && !zone && ph) h += outlookHtml(i, pest);
     if (e && !Array.isArray(e) && e.crop != null)
       h += '<div class="di-crop">' + (e.zone === "city" ? T.diCity : T.diCrop + ': <b>' + Math.round(e.crop) + ' км²</b> (' + e.cropPct + '%)') + '</div>';
     dinfo.innerHTML = h; dinfo.style.display = "";
@@ -1530,7 +1547,11 @@
       WXP = res[1]; WXR = { start: res[0].start, days: res[0].days }; WXU = res[0].updated || null;
       YEAR = +res[0].start.slice(0, 4);
       if (PAST && !NOW) NOW = new Date(YEAR, 11, 31, 12);
+      WXRAW = res[0];
       addDesertLayer(res[1]); finish(wxMaps(res[0], pts, res[1])); buildTimeline();
+      OUTLOOK = null;
+      if (!PAST) fetch("data/outlook.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+        .then(function (o) { if (o && o.year === YEAR) { OUTLOOK = o; renderDistrict(); } });
     })
       .catch(function (e) { wxPending = !!(e && e.message === "404"); loadState = "error"; updatePanel(); drawCal(); renderStatus(); renderSummary(); renderDistrict(); renderLegend(); });
   }
@@ -1556,6 +1577,77 @@
         return { n: dname(items[i]), r: rname(regById[items[i].r]), cur: cur, nx: nx };
       }).filter(Boolean) };
     }) };
+  };
+
+  // ===== узоқ муддатли прогноз ҳисоби (scripts/build-outlook.cjs чақиради): H — data-hist/hist-1deg.json =====
+  // Ҳар туман: ҳақиқий + 16 кунлик прогноз, ундан кейин — ўтган ҳар бир йилнинг (1° нуқта) ҳарорати +
+  // ойлик тузатма (туман сериясининг жорий йилдаги 1° нуқтадан фарқи). Ҳар йил учун модел → фаза бошланиш
+  // саналарининг 10/50/90% квантиллари.
+  window.FENO_OUTLOOK = function (H, cutAt) { // cutAt (YYYY-MM-DD) — синов: шу кундан кейинги ҳақиқий маълумот ташланади
+    if (loadState !== "ok" || PAST || !H || !H.cells) return null;
+    var Y0 = new Date(YEAR, 0, 1), t = new Date(), today = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+    var cs = H.curStart ? new Date(H.curStart + "T00:00:00") : Y0;
+    function ck(k) { var a = k.split(","); return Math.floor(+a[0] + 0.5) + "," + Math.floor(+a[1] + 0.5); }
+    function doy(d) { return Math.round((d - new Date(d.getFullYear(), 0, 1)) / 864e5); }
+    function q(a, p) { var x = (a.length - 1) * p, lo = Math.floor(x), hi = Math.ceil(x); return Math.round(a[lo] + (a[hi] - a[lo]) * (x - lo)); }
+    var years = (H.years || []).filter(function (y) { return Object.keys(H.cells).some(function (k) { return H.cells[k][y]; }); });
+    var out = { year: YEAR, made: iso(today), years: years, p: {} };
+    PESTS.forEach(function (pest) { out.p[pest.id] = {}; });
+    var fcEnd = null;
+    dIdx.forEach(function (i) {
+      if (zoneD[i]) return;
+      var ser = dseries[i]; if (cutAt && ser) ser = ser.filter(function (r) { return iso(r.t) <= cutAt; });
+      if (!ser || !ser.length) return;
+      var last = ser[ser.length - 1].t; if (!fcEnd || last > fcEnd) fcEnd = last;
+      // туман катаклари → 1° нуқталар вазни
+      var e = WXP && WXP.d && WXP.d[String(i)], ks = !e ? [] : (Array.isArray(e) ? e.map(function (k) { return [k, 1]; }) : (e.c || []));
+      if (!ks.length) ks = [[snapC(GEO[i][0]).toFixed(2) + "," + snapC(GEO[i][1]).toFixed(2), 1]];
+      var cw = {}; ks.forEach(function (kw) { var c = ck(kw[0]); if (H.cells[c]) cw[c] = (cw[c] || 0) + kw[1]; });
+      var cks = Object.keys(cw); if (!cks.length) return;
+      function coarse(arr, j) { var sx = 0, sn = 0, sw = 0; cks.forEach(function (c) { var a = arr(c); if (a && a[2 * j] != null && a[2 * j + 1] != null) { sx += cw[c] * a[2 * j]; sn += cw[c] * a[2 * j + 1]; sw += cw[c]; } }); return sw ? [sx / sw / 10, sn / sw / 10] : null; }
+      // ойлик тузатма: туман (0.25°, Open-Meteo) − 1° (ERA5), жорий йил
+      var om = [], on = [];
+      for (var m = 0; m < 12; m++) { om.push([0, 0]); on.push(0); }
+      ser.forEach(function (r) {
+        var j = Math.round((r.t - cs) / 864e5); if (j < 0) return;
+        var c = coarse(function (k) { return H.cells[k].cur; }, j); if (!c) return;
+        var mo = r.t.getMonth(); om[mo][0] += r.mx - c[0]; om[mo][1] += r.mn - c[1]; on[mo]++;
+      });
+      var off = om.map(function (v, mo) {
+        for (var dm = 0; dm < 12; dm++) for (var sg = -1; sg <= 1; sg += 2) { var k = ((mo + sg * dm) % 12 + 12) % 12; if (on[k]) return [om[k][0] / on[k], om[k][1] / on[k]]; }
+        return [0, 0];
+      });
+      var acc = {}; PESTS.forEach(function (pest) { acc[pest.id] = {}; });
+      years.forEach(function (y) {
+        var tail = [], ok = true;
+        for (var d = new Date(last.getFullYear(), last.getMonth(), last.getDate() + 1); d.getFullYear() === YEAR; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)) {
+          var mo = d.getMonth(), da = d.getDate(); if (mo === 1 && da === 29 && y % 4) da = 28;
+          var c = coarse(function (k) { return H.cells[k][y]; }, doy(new Date(y, mo, da)));
+          if (!c) { ok = false; break; }
+          tail.push({ t: d, mx: c[0] + off[mo][0], mn: c[1] + off[mo][1] });
+        }
+        if (!ok) return;
+        var full = ser.concat(tail);
+        PESTS.forEach(function (pest) {
+          var R = pentCal(full, pest, GEO[i][0]), seen = {};
+          R.ev.forEach(function (ev) {
+            if (ev.from <= today) return;
+            var key = ev.g + "|" + (ev.w ? "w" : R.st[ev.s].k); if (seen[key]) return; seen[key] = 1;
+            (acc[pest.id][key] = acc[pest.id][key] || []).push(Math.round((ev.from - Y0) / 864e5));
+          });
+        });
+      });
+      PESTS.forEach(function (pest) {
+        var A = acc[pest.id], rows = Object.keys(A).map(function (key) {
+          var v = A[key].sort(function (a, b) { return a - b; }), kk = key.split("|");
+          return [+kk[0], kk[1], q(v, 0.1), q(v, 0.5), q(v, 0.9), v.length];
+        }).filter(function (r) { return r[5] * 2 >= years.length; }) // ярмидан кам йилда учраган фазалар — тасодифий
+          .sort(function (a, b) { return a[3] - b[3]; }).slice(0, 12); // карточкада 10 тагача кўрсатилади
+        out.p[pest.id][String(i)] = rows;
+      });
+    });
+    out.fcEnd = fcEnd ? iso(fcEnd) : null;
+    return out;
   };
 
   var wrap = stage.parentElement;

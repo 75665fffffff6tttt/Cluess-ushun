@@ -1,0 +1,66 @@
+name: Season outlook
+
+# Узоқ муддатли прогноз (мавсум охиригача):
+# 1) scripts/build-hist.py — ўтган 10 йил ҳарорати (ERA5, 1° тўр) → data-hist/hist-1deg.json
+#    (биринчи марта бир неча кун давомида бўлиб-бўлиб тўлади — Open-Meteo кунлик лимити туфайли;
+#    кейин ҳар куни фақат жорий йилнинг янги кунлари)
+# 2) scripts/build-outlook.cjs — сайт модели ҳар бир ўтган йил об-ҳавоси билан → plant-protection/data/outlook.json
+
+on:
+  schedule:
+    - cron: "17 1,13 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "season-outlook" # об-ҳаво иши (weather-data) билан бир гуруҳ эмас: навбатдаги иш бекор бўлиб кетмасин
+  cancel-in-progress: false
+
+jobs:
+  outlook:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch past years (ERA5, paced)
+        env:
+          HIST_BUDGET: "4000"
+          WX_MAX_MINUTES: "60"
+        run: python scripts/build-hist.py
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Playwright (Chromium)
+        run: |
+          npm install --no-save --no-package-lock playwright@1.49.1
+          npx playwright install --with-deps chromium
+
+      - name: Build outlook
+        run: node scripts/build-outlook.cjs
+
+      - name: Commit if changed
+        run: |
+          git add data-hist/hist-1deg.json 2>/dev/null || true
+          git add plant-protection/data/outlook.json 2>/dev/null || true
+          if git diff --cached --quiet; then echo "No changes."; exit 0; fi
+          git config user.name "agro-weather-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Авто: узоқ муддатли прогноз янгиланди (outlook.json)"
+          for i in 1 2 3; do
+            git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" && git push && exit 0
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          exit 1
