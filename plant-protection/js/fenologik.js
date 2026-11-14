@@ -15,15 +15,15 @@
   //  кузги тунлам 2–3, ўргимчаккана 12–18, ширалар 20–26); crit — кузги диапаузани қўзғатувчи кун узунлиги (соат);
   //  bin — харита рангида нечта авлод бир синфга киради. ⚠️ Тахминий қийматлар — дала маълумоти билан калибрлаш керак.
   var PESTS = LANG === "ru" ? [
-    { id: "bollworm", nm: "Хлопковая совка", ttl: "Прогноз распространения хлопковой совки", win: [0.14, 0.37], wst: "яйца и молодые гусеницы",  base: 11, upper: 35, gen: 640, emerge: 250, crit: 12.9, bin: 1, winter: "куколка — в почве (5–10 см)", rec: "Глубокая зяблевая вспашка уничтожает зимующих куколок." },
-    { id: "mite", nm: "Паутинный клещ", ttl: "Прогноз распространения паутинного клеща", win: [0, 0.45], wst: "яйца и личинки",  base: 7.1, upper: 40, gen: 190, emerge: 70, crit: 12.8, bin: 4, winter: "оплодотворённые самки — под растительными остатками и корой", rec: "Удаление и измельчение растительных остатков хлопчатника." },
-    { id: "cutworm", nm: "Озимая совка", ttl: "Прогноз распространения озимой совки", win: [0.18, 0.4], wst: "яйца и молодые гусеницы",  base: 10, upper: 35, gen: 670, emerge: 150, crit: 13.0, bin: 1, winter: "куколка — в почве", rec: "Глубокая вспашка и борьба с сорняками." },
-    { id: "aphid", nm: "Тли", ttl: "Прогноз распространения тлей", win: [0, 0.35], wst: "молодые колонии (личинки)",  base: 5, upper: 30, gen: 140, emerge: 25, crit: 12.5, bin: 5, winter: "яйца — на сорняках и побегах", rec: "Борьба с сорняками снижает запас зимующих яиц." }
+    { id: "bollworm", heat: 36, harm: ["la"], etl: "Экономический порог: 3–5 гусениц на 100 растений (тонковолокнистый хлопчатник), 8–12 — средневолокнистый.", nm: "Хлопковая совка", ttl: "Прогноз распространения хлопковой совки", win: [0.14, 0.37], wst: "яйца и молодые гусеницы",  base: 11, upper: 35, gen: 640, emerge: 250, crit: 12.9, bin: 1, winter: "куколка — в почве (5–10 см)", rec: "Глубокая зяблевая вспашка уничтожает зимующих куколок." },
+    { id: "mite", harm: ["la", "im"], nm: "Паутинный клещ", ttl: "Прогноз распространения паутинного клеща", win: [0, 0.45], wst: "яйца и личинки",  base: 7.1, upper: 40, gen: 190, emerge: 70, crit: 12.8, bin: 4, winter: "оплодотворённые самки — под растительными остатками и корой", rec: "Удаление и измельчение растительных остатков хлопчатника." },
+    { id: "cutworm", harm: ["la"], nm: "Озимая совка", ttl: "Прогноз распространения озимой совки", win: [0.18, 0.4], wst: "яйца и молодые гусеницы",  base: 10, upper: 35, gen: 670, emerge: 150, crit: 13.0, bin: 1, winter: "куколка — в почве", rec: "Глубокая вспашка и борьба с сорняками." },
+    { id: "aphid", harm: ["la", "im"], nm: "Тли", ttl: "Прогноз распространения тлей", win: [0, 0.35], wst: "молодые колонии (личинки)",  base: 5, upper: 30, gen: 140, emerge: 25, crit: 12.5, bin: 5, winter: "яйца — на сорняках и побегах", rec: "Борьба с сорняками снижает запас зимующих яиц." }
   ] : [
-    { id: "bollworm", nm: "Ғўза тунлами (кўсак қурти)", ttl: "Ғўза тунламини тарқалиш прогнози", win: [0.14, 0.37], wst: "тухум ва ёш қуртлар",  base: 11, upper: 35, gen: 640, emerge: 250, crit: 12.9, bin: 1, winter: "ғумбак — тупроқда (5–10 см чуқурликда)", rec: "Кузги чуқур шудгор қишлаётган ғумбакларни нобуд қилади." },
-    { id: "mite", nm: "Ўргимчаккана", ttl: "Ўргимчакканани тарқалиш прогнози", win: [0, 0.45], wst: "тухум ва личинкалар",  base: 7.1, upper: 40, gen: 190, emerge: 70, crit: 12.8, bin: 4, winter: "уруғланган урғочи — ўсимлик қолдиғи ва пўстлоқ остида", rec: "Ғўзапоя ва ўсимлик қолдиқларини йиғиштириш/майдалаш." },
-    { id: "cutworm", nm: "Кузги тунлам", ttl: "Кузги тунламни тарқалиш прогнози", win: [0.18, 0.4], wst: "тухум ва ёш қуртлар",  base: 10, upper: 35, gen: 670, emerge: 150, crit: 13.0, bin: 1, winter: "ғумбак — тупроқда", rec: "Кузги чуқур шудгор ва бегона ўтларни йўқотиш." },
-    { id: "aphid", nm: "Ширалар", ttl: "Шираларни тарқалиш прогнози", win: [0, 0.35], wst: "ёш колониялар (личинкалар)",  base: 5, upper: 30, gen: 140, emerge: 25, crit: 12.5, bin: 5, winter: "тухум — бегона ўт ва новдаларда", rec: "Бегона ўтларни йўқотиш қишлаётган тухумни камайтиради." }
+    { id: "bollworm", heat: 36, harm: ["la"], etl: "Иқтисодий зарар чегараси: 100 ўсимликда 3–5 қурт (ингичка толали ғўза), 8–12 қурт (ўрта толали).", nm: "Ғўза тунлами (кўсак қурти)", ttl: "Ғўза тунламини тарқалиш прогнози", win: [0.14, 0.37], wst: "тухум ва ёш қуртлар",  base: 11, upper: 35, gen: 640, emerge: 250, crit: 12.9, bin: 1, winter: "ғумбак — тупроқда (5–10 см чуқурликда)", rec: "Кузги чуқур шудгор қишлаётган ғумбакларни нобуд қилади." },
+    { id: "mite", harm: ["la", "im"], nm: "Ўргимчаккана", ttl: "Ўргимчакканани тарқалиш прогнози", win: [0, 0.45], wst: "тухум ва личинкалар",  base: 7.1, upper: 40, gen: 190, emerge: 70, crit: 12.8, bin: 4, winter: "уруғланган урғочи — ўсимлик қолдиғи ва пўстлоқ остида", rec: "Ғўзапоя ва ўсимлик қолдиқларини йиғиштириш/майдалаш." },
+    { id: "cutworm", harm: ["la"], nm: "Кузги тунлам", ttl: "Кузги тунламни тарқалиш прогнози", win: [0.18, 0.4], wst: "тухум ва ёш қуртлар",  base: 10, upper: 35, gen: 670, emerge: 150, crit: 13.0, bin: 1, winter: "ғумбак — тупроқда", rec: "Кузги чуқур шудгор ва бегона ўтларни йўқотиш." },
+    { id: "aphid", harm: ["la", "im"], nm: "Ширалар", ttl: "Шираларни тарқалиш прогнози", win: [0, 0.35], wst: "ёш колониялар (личинкалар)",  base: 5, upper: 30, gen: 140, emerge: 25, crit: 12.5, bin: 5, winter: "тухум — бегона ўт ва новдаларда", rec: "Бегона ўтларни йўқотиш қишлаётган тухумни камайтиради." }
   ];
   var T = LANG === "ru" ? {
     title: "ФЕНОЛОГИЧЕСКИЙ ПРОГНОЗ", label: "Вредитель", region: "Область", districts: "районов",
@@ -37,7 +37,7 @@
     phasePre: "ЗИМОВКА — ожидается весеннее пробуждение", winterLabel: "Форма зимовки", recLabel: "Рекомендация",
     windowLabel: "Окно обработки", windowTxt: "перед яйцекладкой следующего поколения",
     sumTitle: "Заключение", sumUnit: "р-нов", sumActive: "Активное развитие", sumDiap: "Зимовка (диапауза)",
-    sumMaxGen: "Макс. поколений", sumAvgGen: "В среднем", sumTop: "Наибольшее давление", desertTip: "🏜 Пустыня — посевов нет, прогноз не даётся", nocropTip: "Посевов нет (степь/горы) — прогноз не даётся", sumNoFc: "Без прогноза (пустыня/нет посевов)", diToday: "Сегодня (max / min)", di7: "Средняя за 7 дней", diCrop: "Посевы", diCity: "Городская территория — температура по центру района", diClose: "Закрыть", bioL: "Начало сезона (выход с зимовки)", cutL: "Осенняя диапауза (короткий день)", noNextCut: "новое поколение не начнётся — короткий день", genAbbr: "пок.", winNow: "ОТКРЫТО сейчас", winOpenL: "⚠ Окно обработки открыто сейчас", winSoonL: "Откроется в ближайшие 7 дней", winShort: "время обработки", winNone: "в этом сезоне больше нет", dateL: "Показана дата", cmpAdd: "К сравнению", cmpAdded: "В сравнении", cmpTitle: "Сравнение районов", cmpSub: "Даты начала поколений (для 1-го — выход с зимовки, начало сезона)", cmpMore: "(показаны первые 8 из {N})", cmpDist: "Район", cmpSeason: "начало сезона", cmpGens: "Поколений", cmpClear: "Очистить", cmpNote: "Жирным — самая ранняя дата в столбце. До 5 районов: выберите район и нажмите «К сравнению».", cmpXls: "Сравнение", monthsGen: ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"], smoBtn: "Сплошная заливка", olTitle: "📆 Прогноз до конца сезона", olSub: "по погоде прошлых {N} лет: наиболее вероятная дата (диапазон 10–90%)", olYears: "в {K} из {N} лет", olNone: "до конца года новых фаз не ожидается", sprBtn: "Граница распространения", sprLeg: "Граница территории распространения (посевы, где сезон вредителя начался)", srcLine: "Источник: Open-Meteo, Esri/IO Land Cover 2024 · модель ГДД", mapMode: "Карта", modeGen: "Поколения", modePhase: "Фаза (стадия)", phaseNow: "Фаза на дату", lgDesert: "🏜 Нет посевов", tlYear: "Год", tlYearEnd: "Конец года", wxFresh: "🔄 Данные о температуре обновлены: {D} ({H} ч назад)", wxStale: "⚠ Данные о температуре не обновлялись {H} ч (последнее: {D}) — прогноз может быть устаревшим.", wxArchive: "📦 Архив {Y} г. — данные о температуре по 31 декабря", tlLabel: "Дата", tlToday: "Сегодня", tlPlay: "▶ Сезон", tlPause: "⏸ Пауза", tlFc: "прогноз", tlPast: "прошлое", tlHint: "Двигайте ползунок — карта, календарь и окна обработки покажут состояние на выбранную дату.",
+    sumMaxGen: "Макс. поколений", sumAvgGen: "В среднем", sumTop: "Наибольшее давление", desertTip: "🏜 Пустыня — посевов нет, прогноз не даётся", nocropTip: "Посевов нет (степь/горы) — прогноз не даётся", sumNoFc: "Без прогноза (пустыня/нет посевов)", diToday: "Сегодня (max / min)", di7: "Средняя за 7 дней", diCrop: "Посевы", diCity: "Городская территория — температура по центру района", diClose: "Закрыть", bioL: "Начало сезона (выход с зимовки)", cutL: "Осенняя диапауза (короткий день)", noNextCut: "новое поколение не начнётся — короткий день", genAbbr: "пок.", winNow: "ОТКРЫТО сейчас", winOpenL: "⚠ Окно обработки открыто сейчас", winSoonL: "Откроется в ближайшие 7 дней", winShort: "время обработки", winNone: "в этом сезоне больше нет", dateL: "Показана дата", cmpAdd: "К сравнению", cmpAdded: "В сравнении", cmpTitle: "Сравнение районов", cmpSub: "Даты начала поколений (для 1-го — выход с зимовки, начало сезона)", cmpMore: "(показаны первые 8 из {N})", cmpDist: "Район", cmpSeason: "начало сезона", cmpGens: "Поколений", cmpClear: "Очистить", cmpNote: "Жирным — самая ранняя дата в столбце. До 5 районов: выберите район и нажмите «К сравнению».", cmpXls: "Сравнение", monthsGen: ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"], smoBtn: "Сплошная заливка", harmBtn: "Вредящая стадия", harmNote: "Вредящая стадия — проведите учёт численности на полях.", heatDia: "риск летней диапаузы (жара)", heatLeg: "Куколка в жару — риск летней диапаузы (max ≥ {T}°C)", heatNote: "☀ Перед окукливанием 5 дней средний max {A}°C — часть куколок может впасть в летнюю диапаузу; вылет бабочек может задержаться (в модели не учтено).", olTitle: "📆 Прогноз до конца сезона", olSub: "по погоде прошлых {N} лет: наиболее вероятная дата (диапазон 10–90%)", olYears: "в {K} из {N} лет", olNone: "до конца года новых фаз не ожидается", sprBtn: "Граница распространения", sprLeg: "Граница территории распространения (посевы, где сезон вредителя начался)", srcLine: "Источник: Open-Meteo, Esri/IO Land Cover 2024 · модель ГДД", mapMode: "Карта", modeGen: "Поколения", modePhase: "Фаза (стадия)", phaseNow: "Фаза на дату", lgDesert: "🏜 Нет посевов", tlYear: "Год", tlYearEnd: "Конец года", wxFresh: "🔄 Данные о температуре обновлены: {D} ({H} ч назад)", wxStale: "⚠ Данные о температуре не обновлялись {H} ч (последнее: {D}) — прогноз может быть устаревшим.", wxArchive: "📦 Архив {Y} г. — данные о температуре по 31 декабря", tlLabel: "Дата", tlToday: "Сегодня", tlPlay: "▶ Сезон", tlPause: "⏸ Пауза", tlFc: "прогноз", tlPast: "прошлое", tlHint: "Двигайте ползунок — карта, календарь и окна обработки покажут состояние на выбранную дату.",
     sumOverLead: "Сезон в основном завершён", sumActiveLead: "Вредитель ещё активен",
     sumOverTxt: "из {N} районов {E} перешли в диапаузу (зимовку). За сезон накоплено до {G} поколений.",
     sumActiveTxt: "в {A} районах идёт активное развитие (до {G} поколений).",
@@ -55,7 +55,7 @@
     phasePre: "ҚИШЛОВ — баҳорда уйғониш кутилмоқда", winterLabel: "Қишлаш шакли", recLabel: "Тавсия",
     windowLabel: "Ишлов бериш ойнаси", windowTxt: "навбатдаги авлод тухум қўйиши олдидан",
     sumTitle: "Хулоса", sumUnit: "туман", sumActive: "Фаол ривожланиш", sumDiap: "Қишлов (диапауза)",
-    sumMaxGen: "Энг кўп авлод", sumAvgGen: "Ўртача", sumTop: "Энг юқори босим", desertTip: "🏜 Чўл — экин майдони йўқ, прогноз берилмайди", nocropTip: "Экин майдони йўқ (дашт/тоғ) — прогноз берилмайди", sumNoFc: "Прогноз берилмади (чўл/экин майдони йўқ)", diToday: "Бугун (max / min)", di7: "Охирги 7 кун ўртача", diCrop: "Экин майдони", diCity: "Шаҳар ҳудуди — ҳарорат туман марказидан", diClose: "Ёпиш", bioL: "Мавсум боши (қишловдан чиқиш)", cutL: "Кузги диапауза (кун қисқариши)", noNextCut: "янги авлод бошланмайди — кун қисқа", genAbbr: "авлод", winNow: "ҲОЗИР очиқ", winOpenL: "⚠ Ишлов бериш ойнаси ҳозир очиқ", winSoonL: "7 кун ичида очилади", winShort: "ишлов бериш вақти", winNone: "бу мавсумда бошқа йўқ", dateL: "Кўрсатилган сана", cmpAdd: "Солиштиришга", cmpAdded: "Солиштиришда", cmpTitle: "Туманларни солиштириш", cmpSub: "Авлодлар бошланиш саналари (1-авлод — қишловдан чиқиш, мавсум боши)", cmpMore: "({N} тадан биринчи 8 таси)", cmpDist: "Туман", cmpSeason: "мавсум боши", cmpGens: "Авлодлар", cmpClear: "Тозалаш", cmpNote: "Қалин — устундаги энг эрта сана. 5 тагача туман: туманни танланг ва «Солиштиришга» тугмасини босинг.", cmpXls: "Солиштириш", smoBtn: "Силлиқ ранг", olTitle: "📆 Мавсум охиригача прогноз", olSub: "ўтган {N} йил об-ҳавоси бўйича: энг эҳтимолли сана (10–90% оралиқ)", olYears: "{N} йилдан {K} тасида", olNone: "йил охиригача янги фаза кутилмайди", sprBtn: "Тарқалиш чегараси", sprLeg: "Тарқалган майдон чегараси (мавсуми бошланган экин майдонлари)", srcLine: "Манба: Open-Meteo, Esri/IO Land Cover 2024 · GDD модели", mapMode: "Харита", modeGen: "Авлодлар", modePhase: "Фаза (босқич)", phaseNow: "Шу кундаги фаза", lgDesert: "🏜 Экин майдони йўқ", tlYear: "Йил", tlYearEnd: "Йил охири", wxFresh: "🔄 Ҳарорат маълумоти янгиланган: {D} ({H} соат олдин)", wxStale: "⚠ Ҳарорат маълумоти {H} соатдан бери янгиланмаган (охирги: {D}) — прогноз эскирган бўлиши мумкин.", wxArchive: "📦 {Y} йил архиви — ҳарорат маълумоти 31-декабргача", tlLabel: "Сана", tlToday: "Бугун", tlPlay: "▶ Мавсум", tlPause: "⏸ Тўхтатиш", tlFc: "прогноз", tlPast: "ўтган кун", tlHint: "Сургични суринг — харита, календар ва ишлов бериш ойналари танланган кундаги ҳолатни кўрсатади.",
+    sumMaxGen: "Энг кўп авлод", sumAvgGen: "Ўртача", sumTop: "Энг юқори босим", desertTip: "🏜 Чўл — экин майдони йўқ, прогноз берилмайди", nocropTip: "Экин майдони йўқ (дашт/тоғ) — прогноз берилмайди", sumNoFc: "Прогноз берилмади (чўл/экин майдони йўқ)", diToday: "Бугун (max / min)", di7: "Охирги 7 кун ўртача", diCrop: "Экин майдони", diCity: "Шаҳар ҳудуди — ҳарорат туман марказидан", diClose: "Ёпиш", bioL: "Мавсум боши (қишловдан чиқиш)", cutL: "Кузги диапауза (кун қисқариши)", noNextCut: "янги авлод бошланмайди — кун қисқа", genAbbr: "авлод", winNow: "ҲОЗИР очиқ", winOpenL: "⚠ Ишлов бериш ойнаси ҳозир очиқ", winSoonL: "7 кун ичида очилади", winShort: "ишлов бериш вақти", winNone: "бу мавсумда бошқа йўқ", dateL: "Кўрсатилган сана", cmpAdd: "Солиштиришга", cmpAdded: "Солиштиришда", cmpTitle: "Туманларни солиштириш", cmpSub: "Авлодлар бошланиш саналари (1-авлод — қишловдан чиқиш, мавсум боши)", cmpMore: "({N} тадан биринчи 8 таси)", cmpDist: "Туман", cmpSeason: "мавсум боши", cmpGens: "Авлодлар", cmpClear: "Тозалаш", cmpNote: "Қалин — устундаги энг эрта сана. 5 тагача туман: туманни танланг ва «Солиштиришга» тугмасини босинг.", cmpXls: "Солиштириш", smoBtn: "Силлиқ ранг", harmBtn: "Зарарли босқич", harmNote: "Зарарли босқич — далада зараркунанда сонини ҳисобга олинг.", heatDia: "ёзги диапауза хавфи (жазирама)", heatLeg: "Жазирамадаги ғумбак — ёзги диапауза хавфи (max ≥ {T}°C)", heatNote: "☀ Ғумбакка ўтиш олдидан 5 кун ўртача max {A}°C — ғумбакларнинг бир қисми ёзги диапаузага кириши мумкин; капалак учиб чиқиши кечикиши мумкин (моделда ҳисобга олинмаган).", olTitle: "📆 Мавсум охиригача прогноз", olSub: "ўтган {N} йил об-ҳавоси бўйича: энг эҳтимолли сана (10–90% оралиқ)", olYears: "{N} йилдан {K} тасида", olNone: "йил охиригача янги фаза кутилмайди", sprBtn: "Тарқалиш чегараси", sprLeg: "Тарқалган майдон чегараси (мавсуми бошланган экин майдонлари)", srcLine: "Манба: Open-Meteo, Esri/IO Land Cover 2024 · GDD модели", mapMode: "Харита", modeGen: "Авлодлар", modePhase: "Фаза (босқич)", phaseNow: "Шу кундаги фаза", lgDesert: "🏜 Экин майдони йўқ", tlYear: "Йил", tlYearEnd: "Йил охири", wxFresh: "🔄 Ҳарорат маълумоти янгиланган: {D} ({H} соат олдин)", wxStale: "⚠ Ҳарорат маълумоти {H} соатдан бери янгиланмаган (охирги: {D}) — прогноз эскирган бўлиши мумкин.", wxArchive: "📦 {Y} йил архиви — ҳарорат маълумоти 31-декабргача", tlLabel: "Сана", tlToday: "Бугун", tlPlay: "▶ Мавсум", tlPause: "⏸ Тўхтатиш", tlFc: "прогноз", tlPast: "ўтган кун", tlHint: "Сургични суринг — харита, календар ва ишлов бериш ойналари танланган кундаги ҳолатни кўрсатади.",
     sumOverLead: "Мавсум асосан якунланди", sumActiveLead: "Зараркунанда ҳали фаол",
     sumOverTxt: "{N} тумандан {E} таси диапаузага (қишловга) ўтган. Мавсум давомида {G} авлодгача ривожланган.",
     sumActiveTxt: "{A} туманда фаол ривожланиш кетмоқда ({G} авлодгача).",
@@ -75,7 +75,8 @@
   function fillFor(i) { if (zoneD[i]) return DESERT_COL; if (MAPMODE === "phase") return phaseCol(phaseOf("u", i)); return phFill(dpheno[i]); }
   // ===== фаза харитаси: танланган кунда ҳар туманда қайси фаза (тухум/қурт/ғумбак/етук зот/қишлов) =====
   var MAPMODE = "phase", PHC = {}; // харита очилганда — фаза режими
-  var PHCOL = { im: "#4f86c6", eg: "#f2c12e", la: "#e53935", pu: "#43a047", w: "#b0bec5" }; // тухум — сариқ, қурт/личинка — қизил, ғумбак — яшил
+  var PHCOL = { im: "#4f86c6", eg: "#f2c12e", la: "#e53935", pu: "#43a047", ph: "#1b4d20", w: "#b0bec5" }; // ph — жазирамада ғумбак (ёзги диапауза хавфи)
+  var HARM = false, HARM_OFF = "#e6e9eb"; // «Зарарли босқич» режими: бошқа фазалар хира // тухум — сариқ, қурт/личинка — қизил, ғумбак — яшил
   function phaseR(t, i) {
     var pest = pestOf(), key = pest.id + ":" + t + i;
     if (!(key in PHC)) {
@@ -89,12 +90,16 @@
     var d = updatedAt || new Date(), dd = new Date(d.getFullYear(), d.getMonth(), d.getDate()), hit = null;
     for (var j = 0; j < R.ev.length; j++) { var e = R.ev[j]; if (e.from <= dd && (!e.to || e.to >= dd)) hit = e; }
     if (!hit) return null;
-    return { k: hit.w ? "w" : R.st[hit.s].k, g: hit.g, nm: hit.w ? T.pcWinter + " — " + R.wnm : R.st[hit.s].nm, w: !!hit.w, R: R };
+    var k = hit.w ? "w" : R.st[hit.s].k, nm = hit.w ? T.pcWinter + " — " + R.wnm : R.st[hit.s].nm;
+    if (k === "pu" && hit.heat) { k = "ph"; nm += " — ☀ " + T.heatDia; }
+    return { k: k, g: hit.g, nm: nm, w: !!hit.w, heat: hit.heat || null, R: R };
   }
   // ғўза тунлами учун харита ранглари: тухум — сариқ, қурт — қизил, ғумбак — яшил
   var PHCOL_P = { bollworm: { eg: "#f2c12e", la: "#e53935", pu: "#43a047" } };
   function phc(k) { var o = PHCOL_P[pestOf().id]; return (o && o[k]) || PHCOL[k]; }
-  function phaseCol(ph) { return ph ? phc(ph.k) : GENCOL[0]; }
+  function isHarm(k) { var h = pestOf().harm || ["la"]; return h.indexOf(k) >= 0; }
+  function phcM(k) { return HARM && !isHarm(k) ? HARM_OFF : phc(k); } // харита ранги (режимни ҳисобга олиб)
+  function phaseCol(ph) { return ph ? phcM(ph.k) : GENCOL[0]; }
   function phaseTxt(ph) { return ph ? (ph.w ? "❄ " + ph.nm : ph.g + "-" + T.genAbbr + ": " + ph.nm) : T.nodata; }
 
   var DATA = window.UZ_DISTRICTS, items = DATA.items, regions = DATA.regions, GEO = window.UZ_GEO;
@@ -139,12 +144,18 @@
     row.innerHTML = '<span class="sellab">' + T.mapMode + ':</span><div class="pestsel" id="modesel">' +
       '<button class="pbtn" data-m="gen">' + T.modeGen + '</button><button class="pbtn on" data-m="phase">' + T.modePhase + '</button>' +
       '<button class="pbtn spr on" data-spr="1">▬ ' + T.sprBtn + '</button>' +
-      '<button class="pbtn smo on" data-smo="1"><i class="smo-ic"></i>' + T.smoBtn + '</button></div>';
+      '<button class="pbtn smo on" data-smo="1"><i class="smo-ic"></i>' + T.smoBtn + '</button>' +
+      '<button class="pbtn harm" data-harm="1">⚠ ' + T.harmBtn + '</button></div>';
     tb.appendChild(row);
     row.addEventListener("click", function (e) {
       var b = e.target.closest(".pbtn"); if (!b) return;
       if (b.hasAttribute("data-spr")) { SPR.on = !SPR.on; b.classList.toggle("on", SPR.on); SPR.key = null; drawSpread(); return; }
       if (b.hasAttribute("data-smo")) { FLD.on = !FLD.on; b.classList.toggle("on", FLD.on); FLD.key = null; paint(); return; }
+      if (b.hasAttribute("data-harm")) {
+        HARM = !HARM; b.classList.toggle("on", HARM); FLD.key = null;
+        if (HARM && MAPMODE !== "phase") { MAPMODE = "phase"; [].forEach.call(row.querySelectorAll(".pbtn[data-m]"), function (x) { x.classList.toggle("on", x.getAttribute("data-m") === "phase"); }); }
+        paint(); renderLegend(); renderDistrict(); return;
+      }
       MAPMODE = b.getAttribute("data-m");
       [].forEach.call(row.querySelectorAll(".pbtn[data-m]"), function (x) { x.classList.toggle("on", x === b); });
       paint(); renderLegend(); renderDistrict();
@@ -243,8 +254,12 @@
     if (MAPMODE === "phase") {
       var pest = pestOf(), st = stageList(pest), def = STG[pest.id];
       var wk = def.w >= 0 ? st[def.w].k : "eg", wnm = def.w >= 0 ? st[def.w].nm : (LANG === "ru" ? "Яйцо" : "Тухум");
-      lg.innerHTML = st.map(function (x) { return '<div class="lg full">' + ico(pest.id, x.k) + '<i style="background:' + phc(x.k) + '"></i><b>' + x.nm + '</b></div>'; }).join("") +
-        '<div class="lg full">' + ico(pest.id, wk, "pc-wi") + '<i style="background:' + PHCOL.w + '"></i><b>❄ ' + T.pcWinter + ' (' + wnm + ')</b></div>' +
+      lg.innerHTML = st.map(function (x) {
+        var row = '<div class="lg full">' + ico(pest.id, x.k) + '<i style="background:' + phcM(x.k) + '"></i><b>' + x.nm + (HARM && isHarm(x.k) ? " ⚠" : "") + '</b></div>';
+        if (x.k === "pu" && pest.heat) row += '<div class="lg full">' + ico(pest.id, "pu") + '<i style="background:' + phcM("ph") + '"></i><b>☀ ' + T.heatLeg.replace("{T}", pest.heat) + '</b></div>';
+        return row;
+      }).join("") +
+        '<div class="lg full">' + ico(pest.id, wk, "pc-wi") + '<i style="background:' + (HARM ? HARM_OFF : PHCOL.w) + '"></i><b>❄ ' + T.pcWinter + ' (' + wnm + ')</b></div>' +
         '<div class="lg full"><i class="lg-spr"></i><b>' + T.sprLeg + '</b></div>';
       return;
     }
@@ -396,7 +411,7 @@
       var last = new Date(y, m + 1, 0).getDate();
       for (var p = 0; p < 6; p++) { var a = 1 + 5 * p, b = p < 5 ? a + 4 : last; pents.push({ m: m, p: p, a: new Date(y, m, a), b: new Date(y, m, b), n: b - a + 1 }); }
     }
-    var cum = 0, bio = false, cut = false, si = 0, acc = 0, gen = 0, maxGen = 0, winDone = false, eff = 0, dd10 = [];
+    var cum = 0, bio = false, cut = false, si = 0, acc = 0, gen = 0, maxGen = 0, winDone = false, eff = 0, dd10 = [], mx5 = [];
     var ev = [], cur = null, wins = {}, w0 = pest.win ? pest.win[0] : null, w1 = pest.win ? pest.win[1] : null;
     function open(o, d) { cur = o; cur.from = d; ev.push(cur); }
     function close(d) { if (cur) cur.to = d; }
@@ -404,6 +419,7 @@
       P.days = 0; P.mean = 0; P.dd = 0; P.cells = {}; P.fc = false; P.win = {}; P.end = null;
       for (var d = new Date(P.a); d <= P.b; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)) {
         var r = byDay[iso(d)]; if (!r) continue;
+        mx5.push(r.mx); if (mx5.length > 5) mx5.shift();
         P.days++; P.mean += (r.mx + r.mn) / 2;
         var dd = sineDD(r.mn, r.mx, pest.base, pest.upper); P.dd += dd;
         if (d.getTime() > nowMs) P.fc = true;
@@ -438,7 +454,12 @@
             gen++; maxGen = Math.max(maxGen, gen);
           }
           if (cut && si === def.w) { winDone = true; acc = 0; open({ g: gen, w: 1 }, d); }
-          else open({ g: gen, s: si }, d);
+          else {
+            open({ g: gen, s: si }, d);
+            // ёзги диапауза: ғумбакка ўтиш олдидан (қурт/олдинғумбак) 5 кунлик ўртача max ≥ pest.heat (33–39 °C
+            // тажрибаларида эркакларнинг ~63%, урғочиларнинг ~11% ғумбаги «ухлаб қолган»)
+            if (pest.heat && st[si].k === "pu" && mx5.length === 5) { var a5 = mx5.reduce(function (x, v) { return x + v; }, 0) / 5; if (a5 >= pest.heat) cur.heat = Math.round(a5 * 10) / 10; }
+          }
           c = P.cells[gen] = P.cells[gen] || []; addSym(c, winDone ? { w: 1, act: true } : { s: si });
         }
         // ишлов бериш ойнаси: авлод бошидан эфф. GDD улуши [win0, win1]
@@ -1009,6 +1030,8 @@
       if (ser) for (var j = 0; j < ser.length; j++) { var dd = (now - ser[j].t) / 86400000; if (dd >= 0 && dd < 7) { s7 += (ser[j].mx + ser[j].mn) / 2; c7++; } }
       if (c7) rows.push([T.di7, '<b>' + (s7 / c7).toFixed(1) + '°C</b>']);
       h += '<table class="di-t">' + rows.map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>'; }).join("") + '</table>';
+      if (phN && phN.heat) h += '<div class="di-note heat">' + T.heatNote.replace("{A}", phN.heat) + '</div>';
+      if (phN && !phN.w && isHarm(phN.k)) h += '<div class="di-note harm">⚠ ' + (pest.etl || T.harmNote) + '</div>';
     }
     if (OUTLOOK && selDist.t === "u" && !zone && ph) h += outlookHtml(i, pest);
     if (e && !Array.isArray(e) && e.crop != null)
@@ -1355,7 +1378,7 @@
   // текис оқиб ўтади. Ҳар фаза учун туманлар қопламаси → Гаусс-сингари текислаш → энг кўп улушли фаза.
   // Фақат фаза режимида ва бутун мамлакат кўринишида (вилоятга кирганда — туманлар бўйича).
   var FLD = { on: true, key: null, t: 0, im: null, p2: {} };
-  var FLD_K = ["eg", "la", "pu", "im", "w", "nd"];
+  var FLD_K = ["eg", "la", "pu", "im", "w", "ph", "nd"], FLD_ND = FLD_K.length - 1; // охирги — «маълумот йўқ»
   function fieldOn() { return FLD.on && MAPMODE === "phase" && !curReg && loadState === "ok" && !!SPR.mask; }
   function fieldSoon() {
     if (!fieldOn()) { if (FLD.im) FLD.im.style.display = "none"; return; }
@@ -1367,9 +1390,9 @@
   function drawField() {
     if (!fieldOn()) { if (FLD.im) FLD.im.style.display = "none"; return; }
     var M = SPR.mask, m = M.m, W = Math.round(M.W / 2), H = Math.round(M.H / 2), N = W * H;
-    var cls = { u: [], n: [] }, key = curPest + "|";
-    for (var i = 0; i < items.length; i++) { var ph = zoneD[i] ? null : phaseOf("u", i), c = ph ? FLD_K.indexOf(ph.k) : 5; if (c < 0) c = 5; cls.u.push(c); key += c; }
-    for (var k = 0; k < npaths.length; k++) { var pn = (zoneN[k] || !npheno[k]) ? null : phaseOf("n", k), cn = pn ? FLD_K.indexOf(pn.k) : 5; if (cn < 0) cn = 5; cls.n.push(cn); key += cn; }
+    var cls = { u: [], n: [] }, key = curPest + (HARM ? "H" : "") + "|";
+    for (var i = 0; i < items.length; i++) { var ph = zoneD[i] ? null : phaseOf("u", i), c = ph ? FLD_K.indexOf(ph.k) : FLD_ND; if (c < 0) c = FLD_ND; cls.u.push(c); key += c; }
+    for (var k = 0; k < npaths.length; k++) { var pn = (zoneN[k] || !npheno[k]) ? null : phaseOf("n", k), cn = pn ? FLD_K.indexOf(pn.k) : FLD_ND; if (cn < 0) cn = FLD_ND; cls.n.push(cn); key += cn; }
     if (FLD.im && key === FLD.key) { FLD.im.style.display = ""; return; }
     FLD.key = key;
     var cv = document.createElement("canvas"); cv.width = W; cv.height = H;
@@ -1385,7 +1408,7 @@
       for (var q = 0; q < N; q++) f[q] = dp[q * 4 + 3] / 255;
       return f;
     }
-    for (var c = 0; c < 5; c++) { // 5 — «маълумот йўқ» қатлами керак эмас (шаффоф)
+    for (var c = 0; c < FLD_ND; c++) { // «маълумот йўқ» қатлами керак эмас (шаффоф)
       L.push(layer(function () {
         for (var i = 0; i < items.length; i++) if (cls.u[i] === c) x.fill(p2d("u" + i, items[i].d));
         for (var k = 0; k < npaths.length; k++) if (cls.n[k] === c) x.fill(p2d("n" + k, npaths[k].getAttribute("d")));
@@ -1406,11 +1429,11 @@
       }
     }
     L.forEach(blur);
-    var rgb = FLD_K.map(function (k2) { var h = k2 === "nd" ? "#ffffff" : (k2 === "w" ? PHCOL.w : phc(k2)); return [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]; });
+    var rgb = FLD_K.map(function (k2) { var h = k2 === "nd" ? "#ffffff" : (HARM && !isHarm(k2) ? HARM_OFF : (k2 === "w" ? PHCOL.w : phc(k2))); return [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]; });
     var img = x.createImageData(W, H), px = img.data;
     for (var p = 0; p < N; p++) {
       var best = -1, bv = 0, ph = 0;
-      for (var c2 = 0; c2 < 5; c2++) { var v = L[c2][p]; ph += v; if (v > bv) { bv = v; best = c2; } }
+      for (var c2 = 0; c2 < FLD_ND; c2++) { var v = L[c2][p]; ph += v; if (v > bv) { bv = v; best = c2; } }
       // маълумотли фазалар улуши 0.4…0.6 оралиғида — шаффофлик аста ўзгаради (катталаштирганда чети зинапоя бўлмайди)
       var al = (ph - 0.4) * 5; if (best < 0 || al <= 0) continue; if (al > 1) al = 1;
       var col = rgb[best]; // қўшни давлатлар ҳам Ўзбекистон билан бир хил ёрқинликда
