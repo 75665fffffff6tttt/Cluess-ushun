@@ -1,0 +1,48 @@
+name: Sentinel-2 NDVI
+
+# Экинлар ҳолати: Sentinel-2 NDVI туманлар бўйича ҳар 10 кун (scripts/build-ndvi.py)
+# → plant-protection/data/ndvi.json. Мавсумда (апрел–ноябр) ҳар куни; тугаган декадалар қайта
+# ҳисобланмайди. Тўр: data-hist/ndvi-grid.npz (scripts/build-ndvi-grid.py, бир марта).
+on:
+  schedule:
+    - cron: "37 3 * 4-11 *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "sentinel-ndvi"
+  cancel-in-progress: false
+
+jobs:
+  ndvi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install "rasterio==1.4.3" "numpy<2.3"
+      - name: Build NDVI
+        env:
+          NDVI_MAX_MINUTES: "100"
+          GDAL_DISABLE_READDIR_ON_OPEN: EMPTY_DIR
+          GDAL_HTTP_MULTIRANGE: "YES"
+          VSI_CACHE: "TRUE"
+        run: python scripts/build-ndvi.py
+      - name: Commit if changed
+        run: |
+          git add plant-protection/data/ndvi.json data-hist/ndvi-tiles.json 2>/dev/null || true
+          if git diff --cached --quiet; then echo "No changes."; exit 0; fi
+          git config user.name "agro-weather-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Авто: Sentinel-2 NDVI янгиланди (ndvi.json)"
+          for i in 1 2 3; do
+            git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" && git push && exit 0
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          exit 1
