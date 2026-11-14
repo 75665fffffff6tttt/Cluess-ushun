@@ -1,0 +1,59 @@
+name: Telegram weekly forecast
+
+# Ҳар душанба эрталаб (Тошкент 08:47) — кейинги 7 кунда туманларда бошланадиган
+# фазалар ҳақида Telegram хабари (scripts/telegram-notify.cjs).
+# Керакли Secrets (Settings → Secrets and variables → Actions):
+#   TELEGRAM_BOT_TOKEN — @BotFather берган токен
+#   TELEGRAM_CHAT_ID   — канал (@kanal_nomi ёки -100...) ёки гуруҳ ID'си; бот у ерда админ бўлиши керак
+# Ихтиёрий Variables: TELEGRAM_PESTS (масалан "bollworm,cutworm"), SITE_URL.
+# Secrets бўлмаса — хабар фақат логга ёзилади (синов).
+
+on:
+  schedule:
+    - cron: "47 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Янги фаза бўлмаса ҳам юбориш"
+        type: boolean
+        default: false
+      fake_date:
+        description: "Синов санаси (YYYY-MM-DD), бўш — бугун"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "telegram-weekly"
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Playwright (Chromium)
+        run: |
+          npm install --no-save --no-package-lock playwright@1.49.1
+          npx playwright install --with-deps chromium
+
+      - name: Send forecast
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PESTS: ${{ vars.TELEGRAM_PESTS }}
+          SITE_URL: ${{ vars.SITE_URL }}
+          FORCE: ${{ github.event.inputs.force == 'true' && '1' || '' }}
+          FAKE_DATE: ${{ github.event.inputs.fake_date }}
+          SITE_DIR: plant-protection
+        run: node scripts/telegram-notify.cjs
