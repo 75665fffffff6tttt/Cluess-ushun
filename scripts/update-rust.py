@@ -100,8 +100,20 @@ def daily(obj):
 
 def main():
     today = dt.datetime.now(dt.timezone(dt.timedelta(hours=5))).date()
-    start = dt.date(today.year, 1, 1)
-    days = (today - start).days + uw.FC_FUTURE
+    past = int(os.environ.get("RUST_YEAR") or 0)  # ўтган йил: фақат архив → rust-YEAR.json
+    if past and past < today.year:
+        global OUT
+        OUT = os.path.join(uw.P, "data", "rust-%d.json" % past)
+        start = dt.date(past, 1, 1)
+        days = (dt.date(past, 12, 31) - start).days + 1
+        today = dt.date(past, 12, 31) + dt.timedelta(days=6)  # архив охири = 31-декабр
+    else:
+        past = 0
+        start = dt.date(today.year, 1, 1)
+        days = (today - start).days + uw.FC_FUTURE
+    j_from = 0
+    if os.environ.get("RUST_FROM"):  # архивни шу санадан тўлдириш (масалан 2025-08-01)
+        j_from = max(0, (dt.date.fromisoformat(os.environ["RUST_FROM"]) - start).days)
     st = None
     if os.path.exists(OUT):
         try:
@@ -109,7 +121,7 @@ def main():
                 st = json.load(fh)
         except Exception:
             st = None
-    if st and st.get("start") != start.isoformat():
+    if not past and st and st.get("start") != start.isoformat():
         arc = os.path.join(uw.P, "data", "rust-%s.json" % st["start"][:4])  # янги йил: ўтган йил сақланади
         with open(arc, "w", encoding="utf-8") as fh:
             json.dump(st, fh, separators=(",", ":"))
@@ -147,8 +159,8 @@ def main():
         os.replace(tmp, OUT)
 
     try:
-        # 1) прогноз: охирги 7 кун + 16 кун
-        for i in range(0, len(keys), 50):
+        # 1) прогноз: охирги 7 кун + 16 кун (ўтган йил учун йўқ)
+        for i in range(0, len(keys) if not past else 0, 50):
             ch = keys[i:i + 50]
             resp = call(uw.FORECAST, {
                 "latitude": ",".join("%.2f" % pts[k][0] for k in ch), "longitude": ",".join("%.2f" % pts[k][1] for k in ch),
@@ -165,7 +177,7 @@ def main():
         groups = {}
         for k in keys:
             a = st["d"][k]
-            first = next((j for j in range(0, last + 1) if a[NF * j] is None), None)
+            first = next((j for j in range(j_from, last + 1) if a[NF * j] is None), None)
             if first is not None:
                 groups.setdefault(first, []).append(k)
         for first in sorted(groups):
