@@ -48,7 +48,9 @@ jobs:
             git config user.name "agro-weather-bot"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add plant-protection/data/wx.json plant-protection/data/wx-years.json
-            git add plant-protection/data/rust.json plant-protection/data/rust-[0-9]*.json 2>/dev/null || true
+            # ҳар файл алоҳида: шаблонга мос файл бўлмаса git add бутунлай бекор бўлмасин
+            git add plant-protection/data/rust.json 2>/dev/null || true
+            git add plant-protection/data/rust-[0-9]*.json 2>/dev/null || true
             git add plant-protection/data/wx-[0-9]*.json 2>/dev/null || true
             git commit -m "Авто: ҳарорат маълумоти янгиланди (wx.json)"
             # бошқа ишга тушириш wx.json'ни олдин ёзган бўлса — тўқнашувда шу (янгироқ) нусха қолади
