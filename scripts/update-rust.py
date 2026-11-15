@@ -8,7 +8,8 @@
   tm — кунлик ўртача ҳарорат ×10, tx — кунлик энг юқори ×10
   r  — ёмғирли соатлар (> 0.1 мм), h — нисбий намлик ≥ 90 % соатлар,
   c  — энг узун УЗЛУКСИЗ салқин ва ҳўл давр (соат) — споралар униши учун узлуксиз ҳўллик керак
-Файл (v2): {"start": "YYYY-01-01", "days": N, "n": 6, "d": {"0": [w, tm, tx, r, h, c, ...]}, ...}
+  rh — кунлик ўртача нисбий намлик (%), td/tn — кундузги (07–18) ва тунги ўртача ҳарорат ×10
+Файл (v3): {"start": "YYYY-01-01", "days": N, "n": 9, "d": {"0": [w, tm, tx, r, h, c, rh, td, tn, ...]}, ...}
 Прогноз (охирги 7 + 16 кун) ҳар ишга туширишда; архив (1-январдан) — бўш кунлар, лимит ичида.
 Модел (юқиш хавфи, яширин давр) — сайтда (js/fenologik.js). Параметрлар — тахминий, текширилмаган.
 """
@@ -58,7 +59,7 @@ def points():
     return pts
 
 
-NF = 6  # кун учун майдонлар сони
+NF = 9  # кун учун майдонлар сони (v3: + ўртача намлик, кундузги ва тунги ҳарорат — dala.efito.uz календари учун)
 
 
 def daily(obj):
@@ -70,7 +71,7 @@ def daily(obj):
         if j >= len(t) or t[j] is None:
             continue
         d = ts[:10]
-        o = out.setdefault(d, [0, 0.0, -99.0, 0, 0, 0, 0, 0])  # w, sumT, tx, n, r, h, run, cmax
+        o = out.setdefault(d, [0, 0.0, -99.0, 0, 0, 0, 0, 0, 0.0, 0, 0.0, 0, 0.0, 0])  # w, sumT, tx, n, r, h, run, cmax, sumRH, nRH, sumDay, nDay, sumNight, nNight
         T = t[j]
         rain = j < len(pr) and pr[j] is not None and pr[j] > 0.1
         humid = j < len(rh) and rh[j] is not None and rh[j] >= RH_WET
@@ -85,7 +86,16 @@ def daily(obj):
         o[5] += 1 if humid else 0
         o[6] = o[6] + 1 if good else 0
         o[7] = max(o[7], o[6])
-    return {d: (v[0], int(round(v[1] / v[3] * 10)), int(round(v[2] * 10)), v[4], v[5], v[7]) for d, v in out.items() if v[3] >= 20}
+        if j < len(rh) and rh[j] is not None:
+            o[8] += rh[j]; o[9] += 1
+        hr = int(ts[11:13])
+        if 7 <= hr <= 18:
+            o[10] += T; o[11] += 1
+        else:
+            o[12] += T; o[13] += 1
+    return {d: (v[0], int(round(v[1] / v[3] * 10)), int(round(v[2] * 10)), v[4], v[5], v[7],
+                int(round(v[8] / max(1, v[9]))), int(round(v[10] / max(1, v[11]) * 10)), int(round(v[12] / max(1, v[13]) * 10)))
+            for d, v in out.items() if v[3] >= 20}
 
 
 def main():
@@ -104,10 +114,10 @@ def main():
         with open(arc, "w", encoding="utf-8") as fh:
             json.dump(st, fh, separators=(",", ":"))
         st = None
-    if st and st.get("v") != 2:
+    if st and st.get("v") != 3:
         st = None  # эски формат (3 майдон) — қайтадан
     if not st:
-        st = {"v": 2, "n": NF, "start": start.isoformat(), "days": days, "d": {},
+        st = {"v": 3, "n": NF, "start": start.isoformat(), "days": days, "d": {},
               "rule": {"tLo": T_LO, "tHi": T_HI, "rh": RH_WET, "dew": DEW_GAP}}
     if st["days"] < days:
         for k in st["d"]:
