@@ -117,7 +117,8 @@ def main():
         OUT = os.path.join(uw.P, "data", "rust-%d.json" % past)
         start = dt.date(past, 1, 1)
         days = (dt.date(past, 12, 31) - start).days + 1
-        today = dt.date(past, 12, 31) + dt.timedelta(days=6)  # архив охири = 31-декабр
+        end = dt.date.fromisoformat(os.environ["RUST_TO"]) if os.environ.get("RUST_TO") else dt.date(past, 12, 31)
+        today = end + dt.timedelta(days=6)  # архив охири = RUST_TO ёки 31-декабр
     else:
         past = 0
         start = dt.date(today.year, 1, 1)
@@ -156,6 +157,8 @@ def main():
             st["d"][k] += [None] * (NF * (days - st["days"]))
         st["days"] = days
     pts = points()
+    if os.environ.get("RUST_ONLY") == "uz":  # фақат Ўзбекистон туманлари (лимитни тежаш)
+        pts = {k: v for k, v in pts.items() if not k.startswith("n")}
     for k in pts:
         st["d"].setdefault(k, [None] * (NF * days))
     keys = sorted(pts, key=lambda k: (k.startswith("n"), int(k.lstrip("n"))))
