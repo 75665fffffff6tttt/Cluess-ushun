@@ -347,7 +347,8 @@
       '<div class="di-ols"><span style="color:#2e7d32">━ ' + YEAR + '</span> &nbsp; <span style="color:#90a4ae">━ ' + (YEAR - 1) + "</span> · " + T.ndviSrc + "</div></div>";
   }
   // ===== фаза харитаси: танланган кунда ҳар туманда қайси фаза (тухум/қурт/ғумбак/етук зот/қишлов) =====
-  var MAPMODE = "phase", PHC = {}; // харита очилганда — фаза режими
+  var DISEASE_PAGE = window.FENO_PAGE === "disease"; // kasallik.html — касалликлар саҳифаси
+  var MAPMODE = DISEASE_PAGE ? "rust" : "phase", PHC = {}; // харита очилганда — фаза режими
   var PHCOL = { im: "#4f86c6", eg: "#f2c12e", la: "#e53935", pu: "#43a047", ph: "#1b4d20", w: "#b0bec5" }; // ph — жазирамада ғумбак (ёзги диапауза хавфи)
   var HARM = false, HARM_OFF = "#e6e9eb"; // «Зарарли босқич» режими: бошқа фазалар хира // тухум — сариқ, қурт/личинка — қизил, ғумбак — яшил
   function phaseR(t, i) {
@@ -415,7 +416,9 @@
     var tb = document.querySelector(".feno-ctl"); if (!tb) return;
     var row = document.createElement("div"); row.className = "selrow";
     row.innerHTML = '<span class="sellab">' + T.mapMode + ':</span><div class="pestsel" id="modesel">' +
-      '<button class="pbtn" data-m="gen">' + T.modeGen + '</button><button class="pbtn on" data-m="phase">' + T.modePhase + '</button><button class="pbtn" data-m="ndvi">🛰 ' + T.modeNdvi + '</button><button class="pbtn" data-m="ei">🌡 ' + T.modeEi + '</button><button class="pbtn" data-m="rust">🌾 ' + T.modeRust + '</button><button class="pbtn" data-m="rustz">🏔 ' + T.modeRustZ + '</button><button class="pbtn" data-m="rusts">💨 ' + T.modeSpore + '</button>' +
+      (DISEASE_PAGE
+        ? '<button class="pbtn on" data-m="rust">🌾 ' + T.modeRust + '</button><button class="pbtn" data-m="rustz">🏔 ' + T.modeRustZ + '</button><button class="pbtn" data-m="rusts">💨 ' + T.modeSpore + '</button>'
+        : '<button class="pbtn" data-m="gen">' + T.modeGen + '</button><button class="pbtn on" data-m="phase">' + T.modePhase + '</button><button class="pbtn" data-m="ndvi">🛰 ' + T.modeNdvi + '</button><button class="pbtn" data-m="ei">🌡 ' + T.modeEi + '</button>') +
       '<button class="pbtn spr on" data-spr="1">▬ ' + T.sprBtn + '</button>' +
       '<button class="pbtn smo on" data-smo="1"><i class="smo-ic"></i>' + T.smoBtn + '</button>' +
       '<button class="pbtn harm" data-harm="1">⚠ ' + T.harmBtn + '</button></div>';
