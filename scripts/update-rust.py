@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Буғдой сариқ занги учун соатлик об-ҳаво кўрсаткичлари → plant-protection/data/rust.json
 
-Ҳар туман (Ўзбекистон, 199) учун битта нуқта: туман экин майдонидаги энг катта вазнли 0.25°
+Ҳар туман (Ўзбекистон, 199; қўшни давлатлар — «n…» калитлар) учун битта нуқта: туман экин майдонидаги энг катта вазнли 0.25°
 катак (data/wx-points.json), бўлмаса туман маркази. Open-Meteo соатлик маълумотидан ҳар кун учун:
   w  — юқиш учун қулай соатлар: ҳарорат 5–15 °C ва барг ҳўл (нисбий намлик ≥ 90 %,
        ёки ёмғир > 0.1 мм, ёки ҳарорат − шудринг нуқтаси ≤ 2 °C)
@@ -59,6 +59,12 @@ def points():
         else:
             la, lo = uw.snap(g[0]), uw.snap(g[1])
         pts[str(i)] = (la, lo)
+    # қўшни давлатлар туманлари (харитадаги «n…» ҳудудлар): экин майдони бор энг катта вазнли катак
+    for k, e in wp.items():
+        if k.startswith("n") and isinstance(e, dict) and e.get("c"):
+            best = max(e["c"], key=lambda kw: kw[1])[0]
+            la, lo = (float(x) for x in best.split(","))
+            pts[k] = (la, lo)
     return pts
 
 
@@ -152,7 +158,7 @@ def main():
     pts = points()
     for k in pts:
         st["d"].setdefault(k, [None] * (NF * days))
-    keys = sorted(pts, key=int)
+    keys = sorted(pts, key=lambda k: (k.startswith("n"), int(k.lstrip("n"))))
     spent = 0.0
 
     def put(ch, resp, until=None):
