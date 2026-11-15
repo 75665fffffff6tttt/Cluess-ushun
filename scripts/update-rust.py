@@ -6,7 +6,9 @@
   w  — юқиш учун қулай соатлар: ҳарорат 5–15 °C ва барг ҳўл (нисбий намлик ≥ 90 %,
        ёки ёмғир > 0.1 мм, ёки ҳарорат − шудринг нуқтаси ≤ 2 °C)
   tm — кунлик ўртача ҳарорат ×10, tx — кунлик энг юқори ×10
-Файл: {"start": "YYYY-01-01", "days": N, "d": {"0": [w, tm, tx, w, tm, tx, ...]}, ...}
+  r  — ёмғирли соатлар (> 0.1 мм), h — нисбий намлик ≥ 90 % соатлар,
+  c  — энг узун УЗЛУКСИЗ салқин ва ҳўл давр (соат) — споралар униши учун узлуксиз ҳўллик керак
+Файл (v2): {"start": "YYYY-01-01", "days": N, "n": 6, "d": {"0": [w, tm, tx, r, h, c, ...]}, ...}
 Прогноз (охирги 7 + 16 кун) ҳар ишга туширишда; архив (1-январдан) — бўш кунлар, лимит ичида.
 Модел (юқиш хавфи, яширин давр) — сайтда (js/fenologik.js). Параметрлар — тахминий, текширилмаган.
 """
@@ -56,8 +58,11 @@ def points():
     return pts
 
 
+NF = 6  # кун учун майдонлар сони
+
+
 def daily(obj):
-    """Соатлик жавоб → {сана: (w, tm10, tx10)}"""
+    """Соатлик жавоб → {сана: (w, tm10, tx10, r, h, c)}"""
     h = (obj or {}).get("hourly") or {}
     tt, t, rh, dp, pr = (h.get(k) or [] for k in ("time", "temperature_2m", "relative_humidity_2m", "dew_point_2m", "precipitation"))
     out = {}
@@ -65,17 +70,22 @@ def daily(obj):
         if j >= len(t) or t[j] is None:
             continue
         d = ts[:10]
-        o = out.setdefault(d, [0, 0.0, -99.0, 0])
+        o = out.setdefault(d, [0, 0.0, -99.0, 0, 0, 0, 0, 0])  # w, sumT, tx, n, r, h, run, cmax
         T = t[j]
-        wet = (j < len(rh) and rh[j] is not None and rh[j] >= RH_WET) or \
-              (j < len(pr) and pr[j] is not None and pr[j] > 0.1) or \
-              (j < len(dp) and dp[j] is not None and T - dp[j] <= DEW_GAP)
-        if T_LO <= T <= T_HI and wet:
+        rain = j < len(pr) and pr[j] is not None and pr[j] > 0.1
+        humid = j < len(rh) and rh[j] is not None and rh[j] >= RH_WET
+        dew = j < len(dp) and dp[j] is not None and T - dp[j] <= DEW_GAP
+        good = T_LO <= T <= T_HI and (rain or humid or dew)
+        if good:
             o[0] += 1
         o[1] += T
         o[2] = max(o[2], T)
         o[3] += 1
-    return {d: (v[0], int(round(v[1] / v[3] * 10)), int(round(v[2] * 10))) for d, v in out.items() if v[3] >= 20}
+        o[4] += 1 if rain else 0
+        o[5] += 1 if humid else 0
+        o[6] = o[6] + 1 if good else 0
+        o[7] = max(o[7], o[6])
+    return {d: (v[0], int(round(v[1] / v[3] * 10)), int(round(v[2] * 10)), v[4], v[5], v[7]) for d, v in out.items() if v[3] >= 20}
 
 
 def main():
@@ -94,28 +104,30 @@ def main():
         with open(arc, "w", encoding="utf-8") as fh:
             json.dump(st, fh, separators=(",", ":"))
         st = None
+    if st and st.get("v") != 2:
+        st = None  # эски формат (3 майдон) — қайтадан
     if not st:
-        st = {"v": 1, "start": start.isoformat(), "days": days, "d": {},
+        st = {"v": 2, "n": NF, "start": start.isoformat(), "days": days, "d": {},
               "rule": {"tLo": T_LO, "tHi": T_HI, "rh": RH_WET, "dew": DEW_GAP}}
     if st["days"] < days:
         for k in st["d"]:
-            st["d"][k] += [None] * (3 * (days - st["days"]))
+            st["d"][k] += [None] * (NF * (days - st["days"]))
         st["days"] = days
     pts = points()
     for k in pts:
-        st["d"].setdefault(k, [None] * (3 * days))
+        st["d"].setdefault(k, [None] * (NF * days))
     keys = sorted(pts, key=int)
     spent = 0.0
 
     def put(ch, resp, until=None):
         for k, obj in zip(ch, resp):
-            for ds, (w, tm, tx) in daily(obj).items():
+            for ds, vals in daily(obj).items():
                 d = dt.date.fromisoformat(ds)
                 if until and d > until:
                     continue
                 j = (d - start).days
                 if 0 <= j < days:
-                    st["d"][k][3 * j:3 * j + 3] = [w, tm, tx]
+                    st["d"][k][NF * j:NF * j + NF] = list(vals)
 
     def save():
         st["updated"] = dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
@@ -143,7 +155,7 @@ def main():
         groups = {}
         for k in keys:
             a = st["d"][k]
-            first = next((j for j in range(0, last + 1) if a[3 * j] is None), None)
+            first = next((j for j in range(0, last + 1) if a[NF * j] is None), None)
             if first is not None:
                 groups.setdefault(first, []).append(k)
         for first in sorted(groups):
