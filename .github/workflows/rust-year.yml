@@ -12,6 +12,12 @@ on:
       from:
         description: "Шу санадан (YYYY-MM-DD)"
         default: "2025-08-01"
+      to:
+        description: "Шу санагача (YYYY-MM-DD, бўш — 31-декабр)"
+        default: ""
+      only:
+        description: "uz — фақат Ўзбекистон туманлари"
+        default: ""
 
 permissions:
   contents: write
@@ -33,6 +39,8 @@ jobs:
         env:
           RUST_YEAR: ${{ inputs.year }}
           RUST_FROM: ${{ inputs.from }}
+          RUST_TO: ${{ inputs.to }}
+          RUST_ONLY: ${{ inputs.only }}
           RUST_BUDGET: "4500"
           WX_MAX_MINUTES: "80"
         run: python scripts/update-rust.py
