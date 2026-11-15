@@ -1,0 +1,48 @@
+name: Field observations
+
+# Дала кузатувлари: Google Form жавоблари (чоп этилган CSV) → plant-protection/data/obs.json
+# Созлаш: Settings → Secrets and variables → Actions → Variables:
+#   OBS_CSV_URL  — Google жадвалининг «Интернетда чоп этиш» CSV ҳаволаси
+#   OBS_FORM_URL — Google Form ҳаволаси (сайтдаги «Кузатув қўшиш» тугмаси учун)
+
+on:
+  schedule:
+    - cron: "41 */3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "field-obs"
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Read form responses
+        env:
+          OBS_CSV_URL: ${{ vars.OBS_CSV_URL }}
+          OBS_FORM_URL: ${{ vars.OBS_FORM_URL }}
+        run: python scripts/update-obs.py
+      - name: Commit if changed
+        run: |
+          f=plant-protection/data/obs.json
+          [ -f "$f" ] || exit 0
+          [ -n "$(git status --porcelain "$f")" ] || { echo "No changes."; exit 0; }
+          git config user.name "agro-weather-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$f"
+          git commit -m "Авто: дала кузатувлари янгиланди (obs.json)"
+          for i in 1 2 3; do
+            git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" && git push && exit 0
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          exit 1
