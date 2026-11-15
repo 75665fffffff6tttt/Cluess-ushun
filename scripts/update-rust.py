@@ -9,7 +9,9 @@
   r  — ёмғирли соатлар (> 0.1 мм), h — нисбий намлик ≥ 90 % соатлар,
   c  — энг узун УЗЛУКСИЗ салқин ва ҳўл давр (соат) — споралар униши учун узлуксиз ҳўллик керак
   rh — кунлик ўртача нисбий намлик (%), td/tn — кундузги (07–18) ва тунги ўртача ҳарорат ×10
-Файл (v3): {"start": "YYYY-01-01", "days": N, "n": 9, "d": {"0": [w, tm, tx, r, h, c, rh, td, tn, ...]}, ...}
+  e  — юқиш учун қулай соатлар (De Wolf ва бошқ., 2026, Plant Disease): намлик ≥ 87 % ва 5–25 °C;
+       кунда > 8 соат — «юқиш ҳодисаси»
+Файл (v4): {"start": "YYYY-01-01", "days": N, "n": 10, "d": {"0": [w, tm, tx, r, h, c, rh, td, tn, e, ...]}, ...}
 Прогноз (охирги 7 + 16 кун) ҳар ишга туширишда; архив (1-январдан) — бўш кунлар, лимит ичида.
 Модел (юқиш хавфи, яширин давр) — сайтда (js/fenologik.js). Параметрлар — тахминий, текширилмаган.
 """
@@ -30,6 +32,7 @@ OUT = os.path.join(uw.P, "data", "rust.json")
 BUDGET = float(os.environ.get("RUST_BUDGET", "3000"))
 HOURLY = "temperature_2m,relative_humidity_2m,dew_point_2m,precipitation"
 T_LO, T_HI, RH_WET, DEW_GAP = 5.0, 15.0, 90.0, 2.0
+INF_RH, INF_TLO, INF_THI = 87.0, 5.0, 25.0  # юқиш ҳодисаси соати (De Wolf ва бошқ., 2026)
 
 
 def points():
@@ -59,11 +62,11 @@ def points():
     return pts
 
 
-NF = 9  # кун учун майдонлар сони (v3: + ўртача намлик, кундузги ва тунги ҳарорат — расмий фенологик календарь учун)
+NF = 10  # кун учун майдонлар сони (v3: + ўртача намлик, кундузги ва тунги ҳарорат — расмий календарь; v4: + юқиш соатлари)
 
 
 def daily(obj):
-    """Соатлик жавоб → {сана: (w, tm10, tx10, r, h, c)}"""
+    """Соатлик жавоб → {сана: (w, tm10, tx10, r, h, c, rh, td10, tn10, e)}"""
     h = (obj or {}).get("hourly") or {}
     tt, t, rh, dp, pr = (h.get(k) or [] for k in ("time", "temperature_2m", "relative_humidity_2m", "dew_point_2m", "precipitation"))
     out = {}
@@ -71,7 +74,7 @@ def daily(obj):
         if j >= len(t) or t[j] is None:
             continue
         d = ts[:10]
-        o = out.setdefault(d, [0, 0.0, -99.0, 0, 0, 0, 0, 0, 0.0, 0, 0.0, 0, 0.0, 0])  # w, sumT, tx, n, r, h, run, cmax, sumRH, nRH, sumDay, nDay, sumNight, nNight
+        o = out.setdefault(d, [0, 0.0, -99.0, 0, 0, 0, 0, 0, 0.0, 0, 0.0, 0, 0.0, 0, 0])  # w, sumT, tx, n, r, h, run, cmax, sumRH, nRH, sumDay, nDay, sumNight, nNight, inf
         T = t[j]
         rain = j < len(pr) and pr[j] is not None and pr[j] > 0.1
         humid = j < len(rh) and rh[j] is not None and rh[j] >= RH_WET
@@ -88,13 +91,15 @@ def daily(obj):
         o[7] = max(o[7], o[6])
         if j < len(rh) and rh[j] is not None:
             o[8] += rh[j]; o[9] += 1
+            if rh[j] >= INF_RH and INF_TLO <= T <= INF_THI:
+                o[14] += 1
         hr = int(ts[11:13])
         if 7 <= hr <= 18:
             o[10] += T; o[11] += 1
         else:
             o[12] += T; o[13] += 1
     return {d: (v[0], int(round(v[1] / v[3] * 10)), int(round(v[2] * 10)), v[4], v[5], v[7],
-                int(round(v[8] / max(1, v[9]))), int(round(v[10] / max(1, v[11]) * 10)), int(round(v[12] / max(1, v[13]) * 10)))
+                int(round(v[8] / max(1, v[9]))), int(round(v[10] / max(1, v[11]) * 10)), int(round(v[12] / max(1, v[13]) * 10)), v[14])
             for d, v in out.items() if v[3] >= 20}
 
 
@@ -126,11 +131,20 @@ def main():
         with open(arc, "w", encoding="utf-8") as fh:
             json.dump(st, fh, separators=(",", ":"))
         st = None
-    if st and st.get("v") != 3:
-        st = None  # эски формат (3 майдон) — қайтадан
+    if st and st.get("v") == 3 and st.get("n") == 9:
+        # v3 → v4: эски 9 майдон сақланади, юқиш соатлари (e) бўш — архивдан қайта тўлдирилади
+        for k, a in st["d"].items():
+            b = []
+            for j in range(st["days"]):
+                b += a[9 * j:9 * j + 9] + [None]
+            st["d"][k] = b
+        st.update({"v": 4, "n": NF})
+        st.setdefault("rule", {})["inf"] = [INF_RH, INF_TLO, INF_THI]
+    if st and st.get("v") != 4:
+        st = None  # эски формат — қайтадан
     if not st:
-        st = {"v": 3, "n": NF, "start": start.isoformat(), "days": days, "d": {},
-              "rule": {"tLo": T_LO, "tHi": T_HI, "rh": RH_WET, "dew": DEW_GAP}}
+        st = {"v": 4, "n": NF, "start": start.isoformat(), "days": days, "d": {},
+              "rule": {"tLo": T_LO, "tHi": T_HI, "rh": RH_WET, "dew": DEW_GAP, "inf": [INF_RH, INF_TLO, INF_THI]}}
     if st["days"] < days:
         for k in st["d"]:
             st["d"][k] += [None] * (NF * (days - st["days"]))
@@ -177,7 +191,7 @@ def main():
         groups = {}
         for k in keys:
             a = st["d"][k]
-            first = next((j for j in range(j_from, last + 1) if a[NF * j] is None), None)
+            first = next((j for j in range(j_from, last + 1) if a[NF * j] is None or a[NF * j + 9] is None), None)
             if first is not None:
                 groups.setdefault(first, []).append(k)
         for first in sorted(groups):
