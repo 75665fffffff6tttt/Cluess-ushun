@@ -414,7 +414,7 @@
     var row = document.createElement("div"); row.className = "selrow";
     row.innerHTML = '<span class="sellab">' + T.mapMode + ':</span><div class="pestsel" id="modesel">' +
       (DISEASE_PAGE
-        ? '<button class="pbtn on" data-m="rustall">🌾 ' + T.modeRall + '</button><span class="sellab sub">' + T.raParts + ':</span><button class="pbtn sm" data-m="rust">☁ ' + T.modeRustW + '</button><button class="pbtn sm" data-m="rustz">🏔 ' + T.modeRustZ + '</button>'
+        ? '<button class="pbtn on" data-m="rustall">🌾 ' + T.modeRall + '</button>'
         : '<button class="pbtn" data-m="gen">' + T.modeGen + '</button><button class="pbtn on" data-m="phase">' + T.modePhase + '</button><button class="pbtn" data-m="ndvi">🛰 ' + T.modeNdvi + '</button><button class="pbtn" data-m="ei">🌡 ' + T.modeEi + '</button>') +
       '<button class="pbtn spr on" data-spr="1">▬ ' + T.sprBtn + '</button>' +
       '<button class="pbtn smo on" data-smo="1"><i class="smo-ic"></i>' + T.smoBtn + '</button>' +
