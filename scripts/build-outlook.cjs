@@ -15,6 +15,7 @@ const SITE_DIR = path.join(ROOT, "plant-protection");
 const HIST = path.join(ROOT, "data-hist", "hist-1deg.json");
 const OUT = path.join(SITE_DIR, "data", "outlook.json");
 const MIN_YEARS = +(process.env.OUTLOOK_MIN_YEARS || 3);
+const FAKE = !!process.env.FAKE_DATE;
 
 function serve(dir) {
   const types = { ".html": "text/html", ".js": "application/javascript", ".json": "application/json", ".css": "text/css", ".png": "image/png", ".svg": "image/svg+xml", ".geojson": "application/json" };
@@ -44,7 +45,14 @@ function serve(dir) {
   // синов санасида: шу кундан 15 кун кейингача «прогноз», ундан кейинги ҳақиқий маълумот ташланади
   const cut = process.env.FAKE_DATE ? new Date(new Date(process.env.FAKE_DATE + "T12:00:00").getTime() + 15 * 864e5).toISOString().slice(0, 10) : null;
   const O = await pg.evaluate(([h, c]) => window.FENO_OUTLOOK(h, c), [H, cut]);
+  // CLIMEX усулидаги экоиқлим индекси (ҳар туман, ҳар йил) → data/climex.json
+  const CX = FAKE ? null : await pg.evaluate((h) => window.FENO_CLIMEX && window.FENO_CLIMEX(h), H);
   await b.close(); srv.close();
+  if (CX && Object.keys(CX.d).length) {
+    const cf = path.join(SITE_DIR, "data", "climex.json");
+    fs.writeFileSync(cf, JSON.stringify(CX));
+    console.log("→ climex.json", Object.keys(CX.d).length, "districts, years", CX.years.join(","), Math.round(fs.statSync(cf).size / 1024), "KB");
+  }
   if (!O) throw new Error("FENO_OUTLOOK: маълумот тайёр эмас");
   const nd = Object.keys(O.p[Object.keys(O.p)[0]] || {}).length;
   console.log("years", O.years.join(","), "| districts", nd, "| fcEnd", O.fcEnd, "|", Date.now() - t0, "ms");
