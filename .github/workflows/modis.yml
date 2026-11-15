@@ -1,0 +1,54 @@
+name: MODIS NDVI history
+
+# MODIS NDVI (MOD13Q1) 2000–2026: ҳар йил буғдой ниқоби ва туманлар бўйича баҳорги NDVI
+# (scripts/build-modis-ndvi.py, Microsoft Planetary Computer) → data-hist/modis-ndvi.json
+# Давом эттирилади: тайёр йиллар қайта олинмайди; керак бўлса бир неча марта ишга туширинг.
+
+on:
+  workflow_dispatch:
+    inputs:
+      years:
+        description: "Йиллар (масалан 2000-2026)"
+        default: "2000-2026"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "modis-ndvi"
+  cancel-in-progress: false
+
+jobs:
+  modis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install numpy rasterio
+      - name: MODIS NDVI
+        env:
+          MODIS_YEARS: ${{ inputs.years }}
+          MODIS_MAX_MINUTES: "300"
+          GDAL_HTTP_MAX_RETRY: "4"
+          GDAL_HTTP_RETRY_DELAY: "5"
+          GDAL_DISABLE_READDIR_ON_OPEN: "EMPTY_DIR"
+        run: python scripts/build-modis-ndvi.py
+      - name: Commit
+        if: always()
+        run: |
+          f=data-hist/modis-ndvi.json
+          [ -f "$f" ] || exit 0
+          [ -n "$(git status --porcelain "$f")" ] || { echo "No changes."; exit 0; }
+          git config user.name "agro-weather-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$f"
+          git commit -m "Авто: MODIS NDVI тарихи (modis-ndvi.json)"
+          for i in 1 2 3; do
+            git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" && git push && exit 0
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          exit 1
