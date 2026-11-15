@@ -409,7 +409,7 @@
   }
   items.forEach(function (it) { it.ctr = centroid(it.d); });
 
-  var ctlT = document.querySelector(".feno-ctl .title"); if (ctlT) ctlT.textContent = T.title;
+  var ctlT = document.querySelector(".feno-ctl .title"); if (ctlT && !DISEASE_PAGE) ctlT.textContent = T.title; // касалликлар саҳифасида — HTML'даги сарлавҳа
 
   var pestBox = document.getElementById("pestsel");
   (function () { // харита кўриниши: авлод / фаза
