@@ -18,6 +18,7 @@ import json
 import os
 import sys
 import time
+import urllib.parse
 import urllib.request
 
 import numpy as np
@@ -30,7 +31,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GRID = os.path.join(ROOT, "data-hist", "ndvi-grid.npz")
 OUT = os.path.join(ROOT, "data-hist", "modis-ndvi.json")
 STAC = "https://planetarycomputer.microsoft.com/api/stac/v1/search"
-SAS = "https://planetarycomputer.microsoft.com/api/sas/v1/token/modis-13Q1-061"
+SIGN = "https://planetarycomputer.microsoft.com/api/sas/v1/sign?href="
 COLL = "modis-13Q1-061"
 DOYS = [33, 49, 65, 81, 97, 113, 129, 145, 161, 177, 193]
 TOT = [81, 97, 113, 129]
@@ -57,14 +58,20 @@ def http(url, data=None, tries=4):
             time.sleep(5 * (k + 1))
 
 
-_tok = {"t": None, "at": 0}
+_tok = {}
 
 
-def token():
-    if not _tok["t"] or time.time() - _tok["at"] > 1800:
-        _tok["t"] = http(SAS)["token"]
-        _tok["at"] = time.time()
-    return _tok["t"]
+def signed(href):
+    """Planetary Computer: файл манзилини имзолаш (SAS). Бир хил сақлагич/контейнер учун токен кешланади."""
+    base = href.split("?")[0]
+    parts = base.split("/")
+    key = "/".join(parts[:4])  # https://<account>.blob.core.windows.net/<container>
+    t = _tok.get(key)
+    if not t or time.time() - t[1] > 1800:
+        sh = http(SIGN + urllib.parse.quote(base, safe=""))["href"]
+        t = (sh.split("?", 1)[1], time.time())
+        _tok[key] = t
+    return base + "?" + t[0]
 
 
 def items(y, bbox):
@@ -89,7 +96,7 @@ def items(y, bbox):
 
 
 def src_url(href):
-    return "/vsicurl/" + href + "?" + token()
+    return "/vsicurl/" + signed(href)
 
 
 def composite(feats, tr, H, W):
@@ -138,6 +145,7 @@ def main():
         with open(OUT, encoding="utf-8") as fh:
             st = json.load(fh)
     crop = lab > 0
+    st["y"] = {k: v for k, v in st.get("y", {}).items() if v}  # бўш (муваффақиятсиз) йиллар қайта ҳисобланади
     for y in range(int(a), int(b) + 1):
         if str(y) in st["y"]:
             continue
@@ -178,6 +186,9 @@ def main():
                 ys = np.array([v for _, v in tv], float)
                 slope = round(float(np.polyfit(xs, ys, 1)[0]), 2)
             res[str(i - 1)] = {"ha": round(float(pha[m].sum())), "nd": ser, "tot": tot, "slope": slope}
+        if not res:
+            log(y, "no wheat pixels / no data — skipped")
+            continue
         st["y"][str(y)] = res
         st["updated"] = dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
         with open(OUT, "w", encoding="utf-8") as fh:
