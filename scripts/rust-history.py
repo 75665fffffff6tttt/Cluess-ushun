@@ -3,7 +3,7 @@
 
 Мақсад: моделни маълум эпидемия йиллари (1999, 2004, 2009, 2010, 2016, 2023, 2024) билан текшириш.
 Нуқталар: ҳар вилоятдан буғдой майдони энг катта 2 туман (data/wheat-area.json), уларнинг экин нуқтаси
-(data/wx-points.json). Ҳар йил учун 1-январ – 30-июн соатлик маълумотдан ҳисобланади (соатлик маълумот сақланмайди):
+(data/wx-points.json). Ҳар йил учун ўтган йил 1-октябр – 30-июн соатлик маълумотидан (соатлик сақланмайди):
   p3, p2   — март–май: *** ва ** 5 кунликлар (расмий мезон: 15–25 °C ва намлик ≥ 70 %; 5–15 °C ва ≥ 55 %)
   inf      — март–май: юқиш кунлари (кунда > 8 соат намлик ≥ 87 % ва 5–25 °C; De Wolf ва бошқ., 2026)
   infw     — найчалаш–гуллаш (1-феврадан 0 °C йиғинди 400–1150) даври юқиш кунлари
@@ -26,7 +26,10 @@ log, call, Stop, weight = uw.log, uw.call, uw.Stop, uw.weight
 OUT = os.path.join(ROOT, "data-hist", "rust-history.json")
 BUDGET = float(os.environ.get("RH_BUDGET", "4500"))
 HOURLY = "temperature_2m,relative_humidity_2m,precipitation"
-VER = 2  # v2: кунлик қатор ҳам сақланади (SEIR калибрлаш учун)
+VER = 3  # v3: кунлик қатор 1-октябрдан (ўтган йил) 30-июнгача, ҳўл тун (wl, tw) — SEIR калибрлаш учун
+_spec2 = importlib.util.spec_from_file_location("wn", os.path.join(ROOT, "scripts", "wetnight.py"))
+wn = importlib.util.module_from_spec(_spec2)
+_spec2.loader.exec_module(wn)
 
 
 def years():
@@ -73,8 +76,10 @@ def metrics(obj, y):
         if j < len(PR) and PR[j] is not None and PR[j] > 0.1:
             o[4] += 1
     day = {dt.date.fromisoformat(d): (v[0] / v[2], v[1] / v[2], v[3], v[4]) for d, v in D.items() if v[2] >= 20}
-    # кунлик қатор (1-январдан): tm×10, tx×10, h (намлик ≥ 90 % соат), tn×10 (тунги 19–06), r (ёмғирли соат)
-    ser = {"tm": [], "tx": [], "h": [], "tn": [], "r": []}
+    # кунлик қатор (ўтган йил 1-октябрдан): tm×10, tx×10, h (намлик ≥ 90 % соат), tn×10, r (ёмғирли соат),
+    # wl (ҳўл тун: энг узун узлуксиз ҳўл давр, соат), tw×10 (шу даврдаги ҳарорат)
+    WN = wn.wet_nights(tt, T, RH, PR)
+    ser = {"tm": [], "tx": [], "h": [], "tn": [], "r": [], "wl": [], "tw": []}
     TX, H90, TN = {}, {}, {}
     for j, ts in enumerate(tt):
         if j >= len(T) or T[j] is None:
@@ -86,10 +91,13 @@ def metrics(obj, y):
         if hr >= 19 or hr <= 6:
             a_ = TN.setdefault(dd, [0.0, 0])
             a_[0] += T[j]; a_[1] += 1
-    d = dt.date(y, 1, 1)
+    d = dt.date(y - 1, 10, 1)
     while d <= dt.date(y, 6, 30):
         k_ = d.isoformat(); v = day.get(d)
         ok = v is not None and k_ in TN and TN[k_][1]
+        w_ = WN.get(d)
+        ser["wl"].append(w_[0] if ok and w_ else None)
+        ser["tw"].append(int(round(w_[1] * 10)) if ok and w_ and w_[1] is not None else None)
         ser["tm"].append(int(round(v[0] * 10)) if ok else None)
         ser["tx"].append(int(round(TX[k_] * 10)) if ok else None)
         ser["h"].append(H90.get(k_, 0) if ok else None)
@@ -142,12 +150,14 @@ def main():
             st = old
     st["v"] = VER
     spent = 0.0
-    n = 182
+    n = 0
     try:
         for y in years():
-            if str(y) in st["y"] and len(st["y"][str(y)]) == len(keys) and all("ser" in v for v in st["y"][str(y)].values()):
+            if str(y) in st["y"] and len(st["y"][str(y)]) == len(keys) and all("wl" in v.get("ser", {}) for v in st["y"][str(y)].values()):
                 continue
             res = {}
+            q0, q1 = dt.date(y - 1, 9, 30), dt.date(y, 6, 30)
+            n = (q1 - q0).days + 1
             for i in range(0, len(keys), 13):
                 ch = keys[i:i + 13]
                 w = weight(len(ch), n)
@@ -155,7 +165,7 @@ def main():
                     raise Stop("run budget")
                 resp = call(uw.ARCHIVE, {
                     "latitude": ",".join("%.2f" % pts[k]["lat"] for k in ch), "longitude": ",".join("%.2f" % pts[k]["lon"] for k in ch),
-                    "start_date": "%d-01-01" % y, "end_date": "%d-06-30" % y, "hourly": HOURLY, "timezone": uw.TZ,
+                    "start_date": q0.isoformat(), "end_date": q1.isoformat(), "hourly": HOURLY, "timezone": uw.TZ,
                 }, len(ch), n)
                 spent += w
                 if not resp:
