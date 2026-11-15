@@ -42,9 +42,17 @@ jobs:
           WX_MAX_MINUTES: "40"
         run: python scripts/update-rust.py
 
+      - name: Yellow rust SEIR model
+        continue-on-error: true
+        env:
+          WX_MAX_MINUTES: "20"
+        run: |
+          pip install --quiet numpy >/dev/null 2>&1 || true
+          python scripts/seir.py
+
       - name: Commit if changed
         run: |
-          if [ -n "$(git status --porcelain plant-protection/data/)" ]; then
+          if [ -n "$(git status --porcelain plant-protection/data/ data-hist/wind-2deg.json)" ]; then
             git config user.name "agro-weather-bot"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add plant-protection/data/wx.json plant-protection/data/wx-years.json
@@ -52,6 +60,8 @@ jobs:
             git add plant-protection/data/rust.json 2>/dev/null || true
             git add plant-protection/data/rust-[0-9]*.json 2>/dev/null || true
             git add plant-protection/data/wx-[0-9]*.json 2>/dev/null || true
+            git add plant-protection/data/seir.json 2>/dev/null || true
+            git add data-hist/wind-2deg.json 2>/dev/null || true
             git commit -m "Авто: ҳарорат маълумоти янгиланди (wx.json)"
             # бошқа ишга тушириш wx.json'ни олдин ёзган бўлса — тўқнашувда шу (янгироқ) нусха қолади
             for i in 1 2 3; do

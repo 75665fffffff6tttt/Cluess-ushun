@@ -11,7 +11,9 @@
   rh — кунлик ўртача нисбий намлик (%), td/tn — кундузги (07–18) ва тунги ўртача ҳарорат ×10
   e  — юқиш учун қулай соатлар (De Wolf ва бошқ., 2026, Plant Disease): намлик ≥ 87 % ва 5–25 °C;
        кунда > 8 соат — «юқиш ҳодисаси»
-Файл (v4): {"start": "YYYY-01-01", "days": N, "n": 10, "d": {"0": [w, tm, tx, r, h, c, rh, td, tn, e, ...]}, ...}
+  wl, tw — SEIR учун: (d−1) 12:00 – d 12:00 ойнасида энг узун узлуксиз ҳўл давр (соат; намлик ≥ 90 % ёки ёмғир)
+       ва шу даврдаги ўртача ҳарорат ×10 (scripts/wetnight.py)
+Файл (v5): {"start": "YYYY-01-01", "days": N, "n": 12, "d": {"0": [w, tm, tx, r, h, c, rh, td, tn, e, wl, tw, ...]}, ...}
 Прогноз (охирги 7 + 16 кун) ҳар ишга туширишда; архив (1-январдан) — бўш кунлар, лимит ичида.
 Модел (юқиш хавфи, яширин давр) — сайтда (js/fenologik.js). Параметрлар — тахминий, текширилмаган.
 """
@@ -27,6 +29,9 @@ _spec = importlib.util.spec_from_file_location("uw", os.path.join(ROOT, "scripts
 uw = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(uw)
 log, call, Stop, weight = uw.log, uw.call, uw.Stop, uw.weight
+_spec2 = importlib.util.spec_from_file_location("wn", os.path.join(ROOT, "scripts", "wetnight.py"))
+wn = importlib.util.module_from_spec(_spec2)
+_spec2.loader.exec_module(wn)
 
 OUT = os.path.join(uw.P, "data", "rust.json")
 BUDGET = float(os.environ.get("RUST_BUDGET", "3000"))
@@ -68,7 +73,7 @@ def points():
     return pts
 
 
-NF = 10  # кун учун майдонлар сони (v3: + ўртача намлик, кундузги ва тунги ҳарорат — расмий календарь; v4: + юқиш соатлари)
+NF = 12  # кун учун майдонлар сони (v3: + ўртача намлик, кундузги ва тунги ҳарорат — расмий календарь; v4: + юқиш соатлари; v5: + ҳўл тун)
 
 
 def daily(obj):
@@ -104,9 +109,16 @@ def daily(obj):
             o[10] += T; o[11] += 1
         else:
             o[12] += T; o[13] += 1
-    return {d: (v[0], int(round(v[1] / v[3] * 10)), int(round(v[2] * 10)), v[4], v[5], v[7],
-                int(round(v[8] / max(1, v[9]))), int(round(v[10] / max(1, v[11]) * 10)), int(round(v[12] / max(1, v[13]) * 10)), v[14])
-            for d, v in out.items() if v[3] >= 20}
+    WN = wn.wet_nights(tt, t, rh, pr)
+    res = {}
+    for d, v in out.items():
+        if v[3] < 20:
+            continue
+        w_ = WN.get(dt.date.fromisoformat(d))
+        res[d] = (v[0], int(round(v[1] / v[3] * 10)), int(round(v[2] * 10)), v[4], v[5], v[7],
+                  int(round(v[8] / max(1, v[9]))), int(round(v[10] / max(1, v[11]) * 10)), int(round(v[12] / max(1, v[13]) * 10)), v[14],
+                  w_[0] if w_ else None, (int(round(w_[1] * 10)) if w_ and w_[1] is not None else None))
+    return res
 
 
 def main():
@@ -147,10 +159,18 @@ def main():
             st["d"][k] = b
         st.update({"v": 4, "n": NF})
         st.setdefault("rule", {})["inf"] = [INF_RH, INF_TLO, INF_THI]
-    if st and st.get("v") != 4:
+    if st and st.get("v") == 4 and st.get("n") == 10:
+        # v4 → v5: ҳўл тун майдонлари (wl, tw) бўш — архивдан қайта тўлдирилади
+        for k, a in st["d"].items():
+            b = []
+            for j in range(st["days"]):
+                b += a[10 * j:10 * j + 10] + [None, None]
+            st["d"][k] = b
+        st.update({"v": 5, "n": NF})
+    if st and st.get("v") != 5:
         st = None  # эски формат — қайтадан
     if not st:
-        st = {"v": 4, "n": NF, "start": start.isoformat(), "days": days, "d": {},
+        st = {"v": 5, "n": NF, "start": start.isoformat(), "days": days, "d": {},
               "rule": {"tLo": T_LO, "tHi": T_HI, "rh": RH_WET, "dew": DEW_GAP, "inf": [INF_RH, INF_TLO, INF_THI]}}
     if st["days"] < days:
         for k in st["d"]:
@@ -164,12 +184,16 @@ def main():
     keys = sorted(pts, key=lambda k: (k.startswith("n"), int(k.lstrip("n"))))
     spent = 0.0
 
-    def put(ch, resp, until=None):
+    def put(ch, resp, until=None, since=None):
         for k, obj in zip(ch, resp):
             for ds, vals in daily(obj).items():
                 d = dt.date.fromisoformat(ds)
-                if until and d > until:
+                if (until and d > until) or (since and d < since):
                     continue
+                if vals[10] is None:  # ойна тўлиқ эмас (сўровнинг биринчи куни) — бор қийматни бузмаймиз
+                    j = (d - start).days
+                    if 0 <= j < days and st["d"][k][NF * j + 10] is not None:
+                        continue
                 j = (d - start).days
                 if 0 <= j < days:
                     st["d"][k][NF * j:NF * j + NF] = list(vals)
@@ -200,26 +224,27 @@ def main():
         groups = {}
         for k in keys:
             a = st["d"][k]
-            first = next((j for j in range(j_from, last + 1) if a[NF * j] is None or a[NF * j + 9] is None), None)
+            first = next((j for j in range(j_from, last + 1) if a[NF * j] is None or a[NF * j + 9] is None or a[NF * j + 10] is None), None)
             if first is not None:
                 groups.setdefault(first, []).append(k)
         for first in sorted(groups):
             d0 = start + dt.timedelta(days=first)
             n = (arch_end - d0).days + 1
+            q0 = max(dt.date(1940, 1, 2), d0 - dt.timedelta(days=1))  # ҳўл тун ойнаси учун олдинги кун ҳам
             g = groups[first]
             per = max(1, min(20, int(uw.MIN_CAP // weight(1, n))))
             for i in range(0, len(g), per):
                 ch = g[i:i + per]
-                w = weight(len(ch), n)
+                w = weight(len(ch), n + 1)
                 if spent + w > BUDGET:
                     raise Stop("run budget")
                 resp = call(uw.ARCHIVE, {
                     "latitude": ",".join("%.2f" % pts[k][0] for k in ch), "longitude": ",".join("%.2f" % pts[k][1] for k in ch),
-                    "start_date": d0.isoformat(), "end_date": arch_end.isoformat(), "hourly": HOURLY, "timezone": uw.TZ,
-                }, len(ch), n)
+                    "start_date": q0.isoformat(), "end_date": arch_end.isoformat(), "hourly": HOURLY, "timezone": uw.TZ,
+                }, len(ch), n + 1)
                 spent += w
                 if resp:
-                    put(ch, resp, until=arch_end)
+                    put(ch, resp, until=arch_end, since=d0)
                 save()
                 log("archive %s +%d days, %d points" % (d0, n, len(ch)))
     except Stop as e:
