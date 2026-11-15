@@ -1,0 +1,49 @@
+name: Rust history
+
+# Сариқ занг модели кўрсаткичлари кўп йиллар бўйича (scripts/rust-history.py) → data-hist/rust-history.json
+# Моделни маълум эпидемия йиллари билан текшириш учун. Лимит туфайли бир неча марта ишга туширилади.
+
+on:
+  workflow_dispatch:
+    inputs:
+      years:
+        description: "Йиллар (масалан 1995-2026)"
+        default: "1995-2026"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "rust-history"
+  cancel-in-progress: false
+
+jobs:
+  hist:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: History
+        env:
+          RH_YEARS: ${{ inputs.years }}
+          RH_BUDGET: "4500"
+          WX_MAX_MINUTES: "110"
+        run: python scripts/rust-history.py
+      - name: Commit
+        run: |
+          f=data-hist/rust-history.json
+          [ -f "$f" ] || exit 0
+          [ -n "$(git status --porcelain "$f")" ] || { echo "No changes."; exit 0; }
+          git config user.name "agro-weather-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$f"
+          git commit -m "Авто: сариқ занг тарихий кўрсаткичлари"
+          for i in 1 2 3; do
+            git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" && git push && exit 0
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          exit 1
