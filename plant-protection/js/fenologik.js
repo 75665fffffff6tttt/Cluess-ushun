@@ -80,13 +80,13 @@
   function eiOf(i) { var d = CLX && CLX.d && CLX.d[String(i)]; if (!d) return null; return d[String(YEAR)] || null; }
   var EI_ST = [[255, 247, 188], [254, 196, 79], [236, 112, 20], [204, 76, 2], [140, 45, 4]];
   function eiScale(t) { t = Math.max(0, Math.min(1, t)) * 4; var j = Math.min(3, Math.floor(t)); return mixC(EI_ST[j], EI_ST[j + 1], t - j); }
-  function eiCol(i) { var e = eiOf(i); return e ? eiScale((e.ei - 40) / 20) : "#eef1f2"; } // EI 40 … 60 (Ўзбекистонда фарқ шу оралиқда)
+  function eiCol(i) { var e = eiOf(i); return e ? eiScale((e.ei - 40) / 20) : NODATA_COL; } // EI 40 … 60 (Ўзбекистонда фарқ шу оралиқда)
   function eiTxt(i) {
     var e = eiOf(i); if (!e) return T.nodata;
     return "🌡 EI " + e.ei + " (" + YEAR + ")<br>" + T.eiGi + " " + e.gi + " · " + T.eiCs + " " + e.cs + "% · " + T.eiHs + " " + e.hs + "%<br>" + T.eiGen + ": " + e.gen;
   }
   // ===== 🛰 Sentinel-2 NDVI (data/ndvi.json, scripts/build-ndvi.py): ҳар 10 кун, туман экин майдонлари ўртачаси =====
-  var NDVI = null;
+  var NDVI = null, NODATA_COL = "#cfd8dc";
   function ndviDek(d) { var m = d.getMonth() + 1, dd = d.getDate(); if (m < 4) return -1; if (m > 10) return 20; return (m - 4) * 3 + (dd <= 10 ? 0 : (dd <= 20 ? 1 : 2)); }
   function ndviAt(i, y, k) { var Y = NDVI && NDVI.y && NDVI.y[String(y)], r = Y && Y[k]; return r && r[i] != null ? r[i] : null; }
   // танланган кун учун: шу йил, мавжуд энг яқин (олдинги) декада; ўтган йилнинг шу декадаси
@@ -97,10 +97,10 @@
   }
   function ndviDekTxt(k) { var a = NDVI.dekads[k].split("-"), m = +a[0] - 1, d0 = +a[1], d1 = k % 3 === 2 ? new Date(YEAR, m + 1, 0).getDate() : d0 + 9; return d0 + "–" + d1 + " " + (T.monthsGen || T.monthsFull)[m]; }
   function mixC(a, b, t) { return "rgb(" + [0, 1, 2].map(function (j) { return Math.round(a[j] + (b[j] - a[j]) * t); }).join(",") + ")"; }
-  var NDV_DIV = [[178, 24, 43], [239, 138, 98], [247, 247, 247], [127, 191, 123], [27, 120, 55]];
+  var NDV_DIV = [[178, 24, 43], [244, 140, 80], [255, 246, 178], [128, 196, 110], [27, 120, 55]]; // ўрта (фарқ 0) — оч сариқ, «маълумот йўқ»дан фарқ қилсин
   function ndviScale(t) { t = Math.max(0, Math.min(1, t)) * 4; var j = Math.min(3, Math.floor(t)); return mixC(NDV_DIV[j], NDV_DIV[j + 1], t - j); }
   function ndviCol(i) {
-    var n = ndviNow(i); if (!n) return "#eef1f2";
+    var n = ndviNow(i); if (!n) return NODATA_COL;
     if (n.p != null) return ndviScale((n.v - n.p + 0.2) / 0.4);       // ўтган йилга нисбатан: −0.2 … +0.2
     return ndviScale((n.v - 0.1) / 0.7);                                // фақат шу йил: 0.1 … 0.8
   }
@@ -308,7 +308,7 @@
       lg.innerHTML = '<div class="lg full"><b>🌡 ' + T.eiLeg.replace("{Y}", YEAR) + '</b></div>' +
         '<div class="lg full"><i style="width:180px;height:12px;border-radius:3px;background:linear-gradient(90deg,' + st2.join(",") + ')"></i></div>' +
         '<div class="lg full" style="justify-content:space-between;width:190px"><span>≤40 ' + T.eiLow + '</span><span>≥60 ' + T.eiHigh + '</span></div>' +
-        '<div class="lg full"><i style="background:#eef1f2"></i><b>' + T.nodata + '</b></div>' +
+        '<div class="lg full"><i style="background:' + NODATA_COL + '"></i><b>' + T.nodata + '</b></div>' +
         '<div class="lg full"><b style="font-weight:600;color:#607d8b">' + T.eiNote + '</b></div>';
       return;
     }
@@ -319,7 +319,7 @@
       lg.innerHTML = '<div class="lg full"><b>🛰 ' + (hasP ? T.ndviLegA.replace("{Y}", YEAR).replace("{P}", YEAR - 1) : T.ndviLegB) + '</b></div>' +
         '<div class="lg full"><i style="width:180px;height:12px;border-radius:3px;background:linear-gradient(90deg,' + st.join(",") + ')"></i></div>' +
         '<div class="lg full" style="justify-content:space-between;width:190px"><span>' + (hasP ? "−0.2 " + T.ndviWorse : "0.1") + '</span><span>' + (hasP ? "+0.2 " + T.ndviBetter : "0.8") + '</span></div>' +
-        '<div class="lg full"><i style="background:#eef1f2"></i><b>' + T.ndviNo + '</b></div>' +
+        '<div class="lg full"><i style="background:' + NODATA_COL + '"></i><b>' + T.ndviNo + '</b></div>' +
         '<div class="lg full"><b style="font-weight:600;color:#607d8b">' + lab + ' · Sentinel-2</b></div>';
       return;
     }
@@ -388,6 +388,22 @@
         t.setAttribute("style", "font-weight:700;pointer-events:none");
         t.textContent = dname(it) + (zoneD[i] ? " 🏜" : (dia ? " ❄" : (g ? " " + g + (LANG === "ru" ? "п" : "а") : "")));
         gl.appendChild(t);
+        // кичик туман (шаҳар): ёзув туман энидан кенг бўлса — кичрайтирилади; жуда кичик бўлса — яширилади
+        try {
+          var pb = paths[i].getBBox(), tw = t.getComputedTextLength();
+          if (tw > pb.width * 1.15) {
+            var f2 = fs * pb.width * 1.15 / tw;
+            if (f2 < fs * 0.45) { gl.removeChild(t); return; }
+            t.setAttribute("font-size", f2); t.setAttribute("stroke-width", f2 * 0.14);
+          }
+        } catch (e) {}
+      });
+      // қолган ёзувлар устма-уст тушса — кичик туманникини яширамиз
+      var lbs = [].slice.call(gl.querySelectorAll("text")).map(function (t) { var b = t.getBBox(); return { t: t, b: b, a: b.width * b.height }; }).sort(function (x, y) { return y.a - x.a; });
+      var kept = [];
+      lbs.forEach(function (L) {
+        var hit = kept.some(function (K) { return L.b.x < K.b.x + K.b.width && K.b.x < L.b.x + L.b.width && L.b.y < K.b.y + K.b.height && K.b.y < L.b.y + L.b.height; });
+        if (hit) gl.removeChild(L.t); else kept.push(L);
       });
     }
   }

@@ -56,7 +56,11 @@ function serve(dir) {
   if (!O) throw new Error("FENO_OUTLOOK: маълумот тайёр эмас");
   const nd = Object.keys(O.p[Object.keys(O.p)[0]] || {}).length;
   console.log("years", O.years.join(","), "| districts", nd, "| fcEnd", O.fcEnd, "|", Date.now() - t0, "ms");
-  if (O.years.length < MIN_YEARS) { console.log("йиллар кам (" + O.years.length + " < " + MIN_YEARS + ") — outlook.json ёзилмади"); return; }
+  if (O.years.length < MIN_YEARS) {
+    // ҳали кам йил: бўш файл (сайт 404 хатосини кўрсатмасин, карточкада бўлим чиқмайди)
+    if (!fs.existsSync(OUT)) fs.writeFileSync(OUT, JSON.stringify({ year: O.year, made: O.made, years: [], p: {} }));
+    console.log("йиллар кам (" + O.years.length + " < " + MIN_YEARS + ") — outlook.json тўлдирилмади"); return;
+  }
   fs.writeFileSync(OUT, JSON.stringify(O));
   console.log("→", path.relative(ROOT, OUT), Math.round(fs.statSync(OUT).size / 1024), "KB");
 })().catch((e) => { console.error(e); process.exit(1); });
