@@ -40,6 +40,10 @@
       if (foot && window.innerWidth > 960) {
         b.style.position = "static"; b.style.display = "inline-block"; b.style.marginBottom = "8px"; b.style.maxWidth = "100%";
         foot.insertBefore(b, foot.firstChild);
+      } else if (window.innerWidth <= 960) {
+        // телефонда — экран пастида қотирилган ёзув тугма ва хариталарни ёпмасин: саҳифа охирида оддий ёзув
+        b.style.position = "static"; b.style.display = "inline-block"; b.style.margin = "12px"; b.style.opacity = ".7";
+        document.body.appendChild(b);
       } else document.body.appendChild(b);
     }
     if (document.body) makeBadge();
