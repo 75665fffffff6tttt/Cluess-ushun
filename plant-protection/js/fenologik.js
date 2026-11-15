@@ -78,10 +78,10 @@
   // ===== 🌾 Буғдой сариқ занги (data/rust.json, scripts/update-rust.py) — расмий фенологик календарь услубида =====
   // 5 кунлик (I–VI) ўртача ҳарорат ва намлик бўйича хавф (расмий мезонлар):
   //   *** юқори: ҳарорат 15–25 °C, намлик ≥ 70 %;  ** ўртача: 5–15 °C, ≥ 55 %;  * кам: 21–35 °C, ≥ 50 %;  — йўқ/диапауза.
-  // Буғдой фенологияси (1-январдан 0 °C дан юқори ҳарорат йиғиндиси, тахминий): < 300 — тупланиш, 300–750 — НАЙЧАЛАШ,
-  // 750–1050 — бошоқлаш–гуллаш, 1050–1800 — дон тўлиши, ≥ 1800 — пишиш: касаллик диапаузада (1-октябргача, кузги экин униб чиққунча).
+  // Буғдой фенологияси (1-ФЕВРАЛДАН 0 °C дан юқори ҳарорат йиғиндиси, тахминий; январь илиқ кунлари ривожланишни тезлатмайди): < 400 — тупланиш, 400–1000 — НАЙЧАЛАШ,
+  // 1000–1150 — бошоқлаш–гуллаш, 1150–1950 — дон тўлиши, ≥ 1950 — пишиш: касаллик диапаузада (1-октябргача, кузги экин униб чиққунча).
   var RUST = null, RUST_COL = { "-1": "#eceff1", 0: "#c8e6c9", 1: "#fff176", 2: "#ffa726", 3: "#e53935" }, RUST_SYM = { "-1": "—", 0: "·", 1: "*", 2: "**", 3: "***" };
-  var WHEAT_ST = [[300, "til"], [750, "jnt"], [1050, "hd"], [1800, "gf"], [1e9, "rip"]];
+  var WHEAT_ST = [[400, "til"], [1000, "jnt"], [1150, "hd"], [1950, "gf"], [1e9, "rip"]];
   function rustDay(i, j) {
     var a = RUST && RUST.d && RUST.d[String(i)], n = (RUST && RUST.n) || 3; if (!a || j < 0 || n * j + 2 >= a.length || a[n * j] == null) return null;
     return { tm: a[n * j + 1] / 10, rh: n >= 9 ? a[n * j + 6] : null, td: n >= 9 ? a[n * j + 7] / 10 : null, tn: n >= 9 ? a[n * j + 8] / 10 : null };
@@ -94,7 +94,7 @@
   function rustGdd(i) {
     if (RGDD[i]) return RGDD[i];
     var a = [], s = 0, n = RUST.days || 0;
-    for (var j = 0; j < n; j++) { var r = rustDay(i, j); if (r) s += Math.max(0, r.tm); a.push(r ? s : null); }
+    for (var j = 0; j < n; j++) { var r = rustDay(i, j); if (r && j >= 31) s += Math.max(0, r.tm); a.push(r ? s : null); }
     return (RGDD[i] = a);
   }
   function wheatStage(i, d) {
@@ -463,7 +463,8 @@
         t.setAttribute("text-anchor", "middle"); t.setAttribute("fill", "#12240f"); t.setAttribute("stroke", "#fff");
         t.setAttribute("stroke-width", fs * 0.14); t.setAttribute("paint-order", "stroke");
         t.setAttribute("style", "font-weight:700;pointer-events:none");
-        t.textContent = dname(it) + (zoneD[i] ? " 🏜" : (dia ? " ❄" : (g ? " " + g + (LANG === "ru" ? "п" : "а") : "")));
+        var rz = MAPMODE === "rust" ? rustNow(i) : null;
+        t.textContent = dname(it) + (MAPMODE === "rust" ? (rz && rz.c > 0 ? " " + RUST_SYM[rz.c] : "") : MAPMODE === "ndvi" || MAPMODE === "ei" ? "" : (zoneD[i] ? " 🏜" : (dia ? " ❄" : (g ? " " + g + (LANG === "ru" ? "п" : "а") : ""))));
         gl.appendChild(t);
         // кичик туман (шаҳар): ёзув туман энидан кенг бўлса — кичрайтирилади; жуда кичик бўлса — яширилади
         try {
@@ -1176,8 +1177,12 @@
     else { var n = NB[i]; nm = n.nm || n.cn; rg = n.cn; ph = npheno[i]; ser = nseries[i]; zone = zoneN[i]; e = WXP && WXP.d && WXP.d["n" + n.fi]; }
     var pest = pestOf();
     var h = '<button class="di-x" type="button" aria-label="' + T.diClose + '" title="' + T.diClose + '">×</button>' +
-      '<div class="di-name">' + nm + '</div><div class="di-reg">' + rg + '</div><div class="di-pest">' + pest.nm + '</div>';
-    if (zone) h += '<div class="di-phase desert">' + T[zone + "Tip"] + '</div>';
+      '<div class="di-name">' + nm + '</div><div class="di-reg">' + rg + '</div>';
+    var rustM = MAPMODE === "rust" && selDist.t === "u";
+    if (rustM) h += '<div class="di-pest">🌾 ' + T.modeRust + '</div><div class="di-rnow">' + rustTxt(i) + '</div>' + rustChart(i);
+    else h += '<div class="di-pest">' + pest.nm + '</div>';
+    if (rustM) { }
+    else if (zone) h += '<div class="di-phase desert">' + T[zone + "Tip"] + '</div>';
     else if (loadState === "loading") h += '<div class="di-row">' + T.loading + '</div>';
     else if (!ph) h += '<div class="di-row">' + T.nodata + '</div>';
     else {
@@ -1199,9 +1204,8 @@
       if (phN && phN.heat) h += '<div class="di-note heat">' + T.heatNote.replace("{A}", phN.heat) + '</div>';
       if (phN && !phN.w && isHarm(phN.k)) h += '<div class="di-note harm">⚠ ' + (pest.etl || T.harmNote) + '</div>';
     }
-    if (selDist.t === "u" && MAPMODE === "rust") h += rustChart(i);
     if (selDist.t === "u") h += ndviChart(i);
-    if (OUTLOOK && selDist.t === "u" && !zone && ph) h += outlookHtml(i, pest);
+    if (OUTLOOK && selDist.t === "u" && !zone && ph && !rustM) h += outlookHtml(i, pest);
     if (e && !Array.isArray(e) && e.crop != null)
       h += '<div class="di-crop">' + (e.zone === "city" ? T.diCity : T.diCrop + ': <b>' + Math.round(e.crop) + ' км²</b> (' + e.cropPct + '%)') + '</div>';
     dinfo.innerHTML = h; dinfo.style.display = "";
