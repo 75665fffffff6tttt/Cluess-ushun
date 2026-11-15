@@ -504,9 +504,9 @@
     }
     for (var k = 0; k < npaths.length; k++) {
       var nph = npheno[k];
-      npaths[k].setAttribute("fill", MAPMODE === "ndvi" || MAPMODE === "ei" || MAPMODE === "rust" ? "#e3e8ea" : zoneN[k] ? DESERT_COL : (MAPMODE === "phase" ? (nph ? phaseCol(phaseOf("n", k)) : "#e3e8ea") : (nph ? phFill(nph) : "#e3e8ea")));
+      npaths[k].setAttribute("fill", MAPMODE === "rust" ? (RUST && RUST.d["n" + NB[k].fi] ? rustCol("n" + NB[k].fi) : "#e3e8ea") : MAPMODE === "ndvi" || MAPMODE === "ei" ? "#e3e8ea" : zoneN[k] ? DESERT_COL : (MAPMODE === "phase" ? (nph ? phaseCol(phaseOf("n", k)) : "#e3e8ea") : (nph ? phFill(nph) : "#e3e8ea")));
       var selN = selDist && selDist.t === "n" && selDist.i === k;
-      npaths[k].setAttribute("opacity", smo ? (selN ? "0.9" : "0") : (selN ? "0.9" : (curReg ? "0.12" : "0.42")));
+      npaths[k].setAttribute("opacity", smo ? (selN ? "0.9" : "0") : (selN ? "0.9" : (curReg ? "0.12" : (MAPMODE === "rust" && RUST && RUST.d["n" + NB[k].fi] ? "1" : "0.42"))));
       npaths[k].setAttribute("stroke", selN ? "#0f2b1f" : "#607d8b");
       npaths[k].setAttribute("stroke-width", selN ? "1.8" : "0.45");
     }
@@ -1162,7 +1162,7 @@
       html = "<b>" + dname(it) + "</b><br>" + rname(regById[it.r]) + "<br>" + (MAPMODE === "ndvi" ? ndviTxt(i) : MAPMODE === "ei" ? eiTxt(i) : MAPMODE === "rust" ? rustTxt(i) : zoneD[i] ? T[zoneD[i] + "Tip"] : (MAPMODE === "phase" ? phaseTxt(phaseOf("u", i)) : phLine(dpheno[i])));
     } else if (t && t.tagName === "path" && t.hasAttribute("data-n")) {
       var k = +t.getAttribute("data-n"), n = NB[k];
-      html = (n.nm ? "<b>" + n.nm + "</b><br>" : "") + n.cn + "<br>" + (zoneN[k] ? T[zoneN[k] + "Tip"] : (MAPMODE === "phase" ? phaseTxt(phaseOf("n", k)) : phLine(npheno[k])));
+      html = (n.nm ? "<b>" + n.nm + "</b><br>" : "") + n.cn + "<br>" + (MAPMODE === "rust" ? (RUST && RUST.d["n" + n.fi] ? rustTxt("n" + n.fi) : T.nodata) : zoneN[k] ? T[zoneN[k] + "Tip"] : (MAPMODE === "phase" ? phaseTxt(phaseOf("n", k)) : phLine(npheno[k])));
     }
     if (html) {
       tip.innerHTML = html;
@@ -1240,8 +1240,8 @@
     var pest = pestOf();
     var h = '<button class="di-x" type="button" aria-label="' + T.diClose + '" title="' + T.diClose + '">×</button>' +
       '<div class="di-name">' + nm + '</div><div class="di-reg">' + rg + '</div>';
-    var rustM = MAPMODE === "rust" && selDist.t === "u";
-    if (rustM) h += '<div class="di-pest">🌾 ' + T.modeRust + '</div><div class="di-rnow">' + rustTxt(i) + '</div>' + rustChart(i) + obsCard(i);
+    var rk = selDist.t === "u" ? i : "n" + NB[i].fi, rustM = MAPMODE === "rust" && (selDist.t === "u" || !!(RUST && RUST.d[rk]));
+    if (rustM) h += '<div class="di-pest">🌾 ' + T.modeRust + '</div><div class="di-rnow">' + rustTxt(rk) + '</div>' + rustChart(rk) + (selDist.t === "u" ? obsCard(i) : "");
     else h += '<div class="di-pest">' + pest.nm + '</div>';
     if (rustM) { }
     else if (zone) h += '<div class="di-phase desert">' + T[zone + "Tip"] + '</div>';
