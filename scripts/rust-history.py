@@ -26,6 +26,7 @@ log, call, Stop, weight = uw.log, uw.call, uw.Stop, uw.weight
 OUT = os.path.join(ROOT, "data-hist", "rust-history.json")
 BUDGET = float(os.environ.get("RH_BUDGET", "4500"))
 HOURLY = "temperature_2m,relative_humidity_2m,precipitation"
+VER = 2  # v2: кунлик қатор ҳам сақланади (SEIR калибрлаш учун)
 
 
 def years():
@@ -72,6 +73,29 @@ def metrics(obj, y):
         if j < len(PR) and PR[j] is not None and PR[j] > 0.1:
             o[4] += 1
     day = {dt.date.fromisoformat(d): (v[0] / v[2], v[1] / v[2], v[3], v[4]) for d, v in D.items() if v[2] >= 20}
+    # кунлик қатор (1-январдан): tm×10, tx×10, h (намлик ≥ 90 % соат), tn×10 (тунги 19–06), r (ёмғирли соат)
+    ser = {"tm": [], "tx": [], "h": [], "tn": [], "r": []}
+    TX, H90, TN = {}, {}, {}
+    for j, ts in enumerate(tt):
+        if j >= len(T) or T[j] is None:
+            continue
+        dd, hr = ts[:10], int(ts[11:13])
+        TX[dd] = max(TX.get(dd, -99), T[j])
+        if j < len(RH) and RH[j] is not None and RH[j] >= 90:
+            H90[dd] = H90.get(dd, 0) + 1
+        if hr >= 19 or hr <= 6:
+            a_ = TN.setdefault(dd, [0.0, 0])
+            a_[0] += T[j]; a_[1] += 1
+    d = dt.date(y, 1, 1)
+    while d <= dt.date(y, 6, 30):
+        k_ = d.isoformat(); v = day.get(d)
+        ok = v is not None and k_ in TN and TN[k_][1]
+        ser["tm"].append(int(round(v[0] * 10)) if ok else None)
+        ser["tx"].append(int(round(TX[k_] * 10)) if ok else None)
+        ser["h"].append(H90.get(k_, 0) if ok else None)
+        ser["tn"].append(int(round(TN[k_][0] / TN[k_][1] * 10)) if ok else None)
+        ser["r"].append(v[3] if ok else None)
+        d += dt.timedelta(days=1)
     g, inf, infw, rh, rain, tmar, cold = 0.0, 0, 0, [], 0, [], 0
     d = dt.date(y, 1, 1)
     while d <= dt.date(y, 6, 30):
@@ -104,7 +128,7 @@ def metrics(obj, y):
             elif 5 <= t_ < 15 and h_ >= 55:
                 p2 += 1
     return {"p3": p3, "p2": p2, "inf": inf, "infw": infw, "rh": round(sum(rh) / max(1, len(rh)), 1),
-            "rain": rain, "tmar": round(sum(tmar) / max(1, len(tmar)), 1), "cold": cold}
+            "rain": rain, "tmar": round(sum(tmar) / max(1, len(tmar)), 1), "cold": cold, "ser": ser}
 
 
 def main():
@@ -116,11 +140,12 @@ def main():
             old = json.load(fh)
         if set(old.get("pts", {})) == set(pts):
             st = old
+    st["v"] = VER
     spent = 0.0
     n = 182
     try:
         for y in years():
-            if str(y) in st["y"] and len(st["y"][str(y)]) == len(keys):
+            if str(y) in st["y"] and len(st["y"][str(y)]) == len(keys) and all("ser" in v for v in st["y"][str(y)].values()):
                 continue
             res = {}
             for i in range(0, len(keys), 13):
