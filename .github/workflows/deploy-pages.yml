@@ -10,7 +10,7 @@ on:
   # Бот коммитлари (GITHUB_TOKEN) push-триггерни ишга туширмайди — шунинг учун
   # ҳарорат маълумоти workflow'и тугагач сайтни қайта жойлаймиз.
   workflow_run:
-    workflows: ["Weather data", "Season outlook", "Sentinel-2 NDVI"]
+    workflows: ["Weather data", "Season outlook", "Sentinel-2 NDVI", "Field observations", "Rust past year"]
     types: [completed]
 
 permissions:
