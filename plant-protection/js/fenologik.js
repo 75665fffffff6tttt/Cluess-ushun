@@ -2024,6 +2024,7 @@
       WXRAW = res[0];
       addDesertLayer(res[1]); finish(wxMaps(res[0], pts, res[1])); buildTimeline();
       OUTLOOK = null;
+      if (DISEASE_PAGE) { // занг маълумоти (≈6 МБ) фақат касаллик саҳифаларида керак
       fetch((PAST ? "data/rust-" + YEAR + ".json" : "data/rust.json") + "?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
         .then(function (o) { if (o && o.d) { RUST = o; if (MAPMODE === "rust" || MAPMODE === "rustall" || MAPMODE === "brown") { paint(); renderLegend(); renderDistrict(); } } });
       fetch("data/rust-zones.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
@@ -2032,6 +2033,7 @@
         .then(function (o) { if (o && o.d) { WHEAT = o; if (isRustMode()) { paint(); renderDistrict(); } } });
       fetch("data/seir.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
         .then(function (o) { if (o && o.d) { SEIR = o; if (isRustMode()) { paint(); renderDistrict(); } } });
+      }
       fetch("data/obs.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
         .then(function (o) { if (o && (o.o || o.form)) { OBS = o; if (MAPMODE === "rust") { paint(); renderLegend(); renderDistrict(); } } });
       fetch("data/climex.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
