@@ -54,6 +54,10 @@ jobs:
         continue-on-error: true
         run: python scripts/split-rust.py
 
+      - name: Split weather data for the site (data/wx/*.json)
+        continue-on-error: true
+        run: python scripts/split-wx.py
+
       - name: Commit if changed
         run: |
           if [ -n "$(git status --porcelain plant-protection/data/ data-hist/wind-2deg.json)" ]; then
@@ -64,6 +68,7 @@ jobs:
             git add plant-protection/data/rust.json 2>/dev/null || true
             git add plant-protection/data/rust-[0-9]*.json 2>/dev/null || true
             git add plant-protection/data/rust/ 2>/dev/null || true
+            git add plant-protection/data/wx/ 2>/dev/null || true
             git add plant-protection/data/wx-[0-9]*.json 2>/dev/null || true
             git add plant-protection/data/seir.json 2>/dev/null || true
             git add data-hist/wind-2deg.json 2>/dev/null || true
