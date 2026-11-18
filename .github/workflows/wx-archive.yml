@@ -1,0 +1,57 @@
+name: Weather archive (past years)
+
+# Ўтган йиллар ҳарорат архиви (scripts/wx-archive.py) → plant-protection/data/wx-ЙИЛ.json — сайтдаги йил танлаш учун.
+# Ҳар куни оз-оздан (Open-Meteo кунлик лимитидан асосий wx.json янгиланишига ҳам қолсин); бир йил ≈ 18 минг оғирлик
+# бирлиги → кунига 4 мингдан ≈ 5 кун. Йил Ўзбекистон катаклари тўлгач сайтда пайдо бўлади. Ҳамма йил тўлгач — иш бўш ўтади.
+
+on:
+  schedule:
+    - cron: "43 18 * * *"   # ҳар куни 23:43 (Тошкент)
+  workflow_dispatch:
+    inputs:
+      years:
+        description: "Йиллар (вергул билан, тартиб бўйича)"
+        default: "2025,2024,2023"
+      budget:
+        description: "Бир ишга туширишда энг кўп оғирлик"
+        default: "4000"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "weather-data"
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Fetch archive (Open-Meteo, paced)
+        env:
+          WX_YEARS: ${{ inputs.years || '2025,2024,2023' }}
+          WX_ARCHIVE_BUDGET: ${{ inputs.budget || '4000' }}
+          WX_MAX_MINUTES: "100"
+        run: python scripts/wx-archive.py
+      - name: Split for the site
+        run: python scripts/split-wx.py
+      - name: Commit if changed
+        run: |
+          git add plant-protection/data/wx-[0-9]*.json plant-protection/data/wx-years.json plant-protection/data/wx/ 2>/dev/null || true
+          git add data-hist/wx-*.partial.json 2>/dev/null || true
+          git add -u data-hist/ 2>/dev/null || true
+          if git diff --cached --quiet; then echo "No changes."; exit 0; fi
+          git config user.name "agro-weather-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Авто: ўтган йиллар ҳарорат архиви"
+          for i in 1 2 3; do
+            git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" && git push && exit 0
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          exit 1
