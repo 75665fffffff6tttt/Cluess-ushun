@@ -15,6 +15,7 @@ import datetime as dt
 import json
 import os
 import random
+import statistics
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,6 +24,7 @@ LAB = os.path.join(ROOT, "data-hist", "rust-epidemics.json")
 SEIRP = os.path.join(ROOT, "plant-protection", "data", "seir-par.json")
 ENSO = os.environ.get("ENSO_FILE") or os.path.join(ROOT, "plant-protection", "data", "enso.json")
 OUT = os.path.join(ROOT, "data-hist", "enso-analysis.json")
+SIG = os.path.join(ROOT, "plant-protection", "data", "enso-signal.json")  # сайт учун қисқа хулоса (касаллик саҳифалари)
 NPERM = int(os.environ.get("ENSO_NPERM", "20000"))
 
 NAMES = {
@@ -93,7 +95,8 @@ def auc(pos, neg):
 
 def main():
     with open(ENSO, encoding="utf-8") as fh:
-        E = json.load(fh)["s"]
+        EJ = json.load(fh)
+    E = EJ["s"]
     with open(HIST, encoding="utf-8") as fh:
         H = json.load(fh)
     L = json.load(open(LAB, encoding="utf-8"))
@@ -171,6 +174,24 @@ def main():
     with open(OUT, "w", encoding="utf-8") as fh:
         json.dump(res, fh, ensure_ascii=False, indent=1)
     print("\n→", os.path.relpath(OUT, ROOT))
+    # сайт учун қисқа хулоса: ҳозирги ҳолат, гуруҳ ўртачалари, аналог йиллар (|OND| ≥ 1.0)
+    med = {k: round(statistics.median(r["m"][k] for r in rows), 2) for k in ("inf", "p3")}
+    an = {}
+    for ph, f in (("elnino", lambda o: o >= 1.0), ("lanina", lambda o: o <= -1.0)):
+        A = [r for r in rows if f(r["ond"])]
+        an[ph] = {"years": [r["year"] for r in A], "n": len(A),
+                  "inf_above": sum(1 for r in A if r["m"]["inf"] > med["inf"]),
+                  "inf_below": sum(1 for r in A if r["m"]["inf"] < med["inf"]),
+                  "strong": sum(1 for r in A if r["strong"])}
+    sig = {"made": res["made"], "n": len(rows), "y0": rows[0]["year"], "y1": rows[-1]["year"], "last": EJ.get("last"),
+           "g": {k: {ph: res["groups"][k][ph]["mean"] for ph in ("elnino", "neutral", "lanina")} for k in ("inf", "infw", "rh", "rain", "p3", "seir")},
+           "rho": {k: res["corr"][k]["rho_ond"] for k in res["corr"]}, "p": {k: res["corr"][k]["p_ond"] for k in res["corr"]},
+           "med": med, "an": an, "nstrong": len(S),
+           "strong": {ph: sum(1 for s in res["strong"]["years"] if s["phase"] == ph) for ph in ("elnino", "neutral", "lanina")},
+           "auc": res["strong"]["auc_ond"], "auc_p": res["strong"]["p"]}
+    with open(SIG, "w", encoding="utf-8") as fh:
+        json.dump(sig, fh, ensure_ascii=False, separators=(",", ":"))
+    print("→", os.path.relpath(SIG, ROOT))
     return 0
 
 

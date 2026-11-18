@@ -1607,3 +1607,7 @@ textarea.hb-inp { resize: vertical; }
 .legend.lg-out .lg span { font-size: 12px; color: #5a7a6a; }
 .legend.lg-out .lg .pc-ic { width: 18px; height: 18px; color: #263238; }
 .stage.narrow.lgout .mapwrap { bottom: 56px !important; }
+
+/* ENSO мавсум олди сигнали (касаллик саҳифалари, js/fenologik.js: ensoHtml) */
+.rust-sum .rs-enso { margin-top: 10px; padding: 9px 11px; background: #e3f2fd; border-radius: 8px; line-height: 1.45; color: #0d2b45; }
+.rust-sum .rs-enso .ra-p { margin-top: 4px; }
