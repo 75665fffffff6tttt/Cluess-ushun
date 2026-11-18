@@ -1,0 +1,43 @@
+name: ENSO (El Niño / La Niña)
+
+# NOAA CPC Oceanic Niño Index (scripts/enso.py → plant-protection/data/enso.json) ва унинг 1995–2026 мавсумлари
+# маълумоти билан боғлиқлиги (scripts/enso-analysis.py → data-hist/enso-analysis.json). Ҳар ой (CPC ONI'ни ой бошида янгилайди).
+
+on:
+  schedule:
+    - cron: "23 4 12 * *"   # ҳар ойнинг 12-куни, 09:23 (Тошкент)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "enso"
+  cancel-in-progress: false
+
+jobs:
+  enso:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Fetch ONI (NOAA CPC)
+        run: python scripts/enso.py
+      - name: Compare with 1995–2026 seasons
+        run: python scripts/enso-analysis.py
+      - name: Commit if changed
+        run: |
+          git add plant-protection/data/enso.json data-hist/enso-analysis.json
+          if git diff --cached --quiet; then echo "No changes."; exit 0; fi
+          git config user.name "agro-weather-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Авто: ENSO индекси ва таҳлил"
+          for i in 1 2 3; do
+            git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" && git push && exit 0
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          exit 1
