@@ -346,11 +346,19 @@
       (o.dis !== "none" ? "<br>" + (o.sev != null ? T.obsSev[o.sev] : "") + (o.inc != null ? (o.sev != null ? ", " : "") + T.obsInc + " " + o.inc + " %" : "") : "") +
       (o.st ? "<br>" + T.rustWheat + ": " + T.wheatSt[o.st] : "");
   }
+  // режимга мос кузатувлар: сариқ занг саҳифаси — сариқ ва «касаллик йўқ», қўнғир занг саҳифаси — қўнғир ва «касаллик йўқ»
+  function obsFor(o) { return MAPMODE === "brown" ? o.dis !== "sariq" : MAPMODE === "rustall" ? o.dis !== "qongir" : true; }
+  function obsMode() { return MAPMODE === "rust" || MAPMODE === "rustall" || MAPMODE === "brown"; }
+  function obsLegHtml() {
+    var has = OBS && OBS.o && OBS.o.some(obsFor);
+    return (has ? '<div class="lg full"><b style="font-weight:600">' + T.obsLeg + '</b></div>' : "") +
+      (OBS && OBS.form ? '<div class="lg full"><a class="obs-add" href="' + OBS.form + '" target="_blank" rel="noopener">' + T.obsAdd + '</a></div>' : "");
+  }
   function obsDraw() {
     while (gO.firstChild) gO.removeChild(gO.firstChild);
-    if (MAPMODE !== "rust" || !OBS) return;
+    if (!obsMode() || !OBS) return;
     if (gO.parentNode && gO !== svg.lastChild) svg.appendChild(gO);
-    var L = obsNear(updatedAt || new Date()), seen = {}, rr = curReg ? Math.max(regById[curReg].bbox[2], regById[curReg].bbox[3]) / 75 : 4.5;
+    var L = obsNear(updatedAt || new Date()).filter(obsFor), seen = {}, rr = curReg ? Math.max(regById[curReg].bbox[2], regById[curReg].bbox[3]) / 75 : 4.5;
     L.forEach(function (o) {
       var it = items[o.i]; if (!it || (curReg && it.r !== curReg)) return;
       var k = seen[o.i] = (seen[o.i] || 0) + 1, a = k * 2.4, dx = k > 1 ? Math.cos(a) * rr * 1.6 * Math.sqrt(k - 1) : 0, dy = k > 1 ? Math.sin(a) * rr * 1.6 * Math.sqrt(k - 1) : 0;
@@ -364,7 +372,7 @@
   }
   function obsCard(i) {
     if (!OBS || !OBS.o) return "";
-    var y = (updatedAt || new Date()).getFullYear(), L = OBS.o.filter(function (o) { var oy = +o.d.slice(0, 4); return o.i === i && (oy === y || oy === y - 1); }).slice(-6).reverse();
+    var y = (updatedAt || new Date()).getFullYear(), L = OBS.o.filter(function (o) { var oy = +o.d.slice(0, 4); return o.i === i && obsFor(o) && (oy === y || oy === y - 1); }).slice(-6).reverse();
     var add = OBS.form ? '<a class="obs-add" href="' + OBS.form + '" target="_blank" rel="noopener">' + T.obsAdd + "</a>" : "";
     if (!L.length) return add ? '<div class="di-ndvi"><div class="di-olh">📋 ' + T.obsCard + "</div>" + add + "</div>" : "";
     return '<div class="di-ndvi"><div class="di-olh">📋 ' + T.obsCard + "</div>" + L.map(function (o) { return '<div class="obs-row"><i style="background:' + OBS_COL[o.sev || 0] + '"></i><span>' + obsTxt(o) + "</span></div>"; }).join("") + add + "</div>";
@@ -624,13 +632,13 @@
     if (MAPMODE === "rustall") {
       lg.innerHTML = '<div class="lg full"><b>🌾 ' + T.raLeg + '</b></div>' +
         [2, 1, 0, -1].map(function (c) { return '<div class="lg full"><i style="background:' + RA_COL[c] + '"></i><b>' + T.raCls[c + 1] + '</b></div>'; }).join("") +
-        '<div class="lg full"><b style="font-weight:600;color:#607d8b">' + T.raNote + '</b></div>';
+        obsLegHtml() + '<div class="lg full"><b style="font-weight:600;color:#607d8b">' + T.raNote + '</b></div>';
       return;
     }
     if (MAPMODE === "brown") {
       lg.innerHTML = '<div class="lg full"><b>🟤 ' + T.brLeg + '</b></div>' +
         [2, 1, 0, -1].map(function (c) { return '<div class="lg full"><i style="background:' + RA_COL[c] + '"></i><b>' + T.raCls[c + 1] + '</b></div>'; }).join("") +
-        '<div class="lg full"><b style="font-weight:600;color:#607d8b">' + T.brNote + '</b></div>';
+        obsLegHtml() + '<div class="lg full"><b style="font-weight:600;color:#607d8b">' + T.brNote + '</b></div>';
       return;
     }
     if (MAPMODE === "rustz") {
@@ -2035,7 +2043,7 @@
         .then(function (o) { if (o && o.d) { SEIR = o; if (isRustMode()) { paint(); renderDistrict(); } } });
       }
       fetch("data/obs.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
-        .then(function (o) { if (o && (o.o || o.form)) { OBS = o; if (MAPMODE === "rust") { paint(); renderLegend(); renderDistrict(); } } });
+        .then(function (o) { if (o && (o.o || o.form)) { OBS = o; if (obsMode()) { paint(); renderLegend(); renderDistrict(); } } });
       fetch("data/climex.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
         .then(function (o) { if (o && o.d) { CLX = o; if (MAPMODE === "ei") { paint(); renderLegend(); } } });
       fetch("data/ndvi.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
