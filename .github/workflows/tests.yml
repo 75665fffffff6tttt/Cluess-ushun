@@ -1,0 +1,47 @@
+name: Site smoke test
+
+# Сайтнинг автоматик текшируви (tests/smoke.cjs): 14 саҳифа браузерда очилади — JavaScript хатолари,
+# очилмаган файллар, парол ойнаси, харита, касаллик хулосаси, зараркунанда режимлари.
+# Код ўзгарганда (маълумот файлларидан ташқари) ва ҳар куни бир марта (маълумот бузилмаганини билиш учун).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "plant-protection/**"
+      - "!plant-protection/data/**"
+      - "tests/**"
+      - "scripts/split-*.py"
+      - ".github/workflows/tests.yml"
+  pull_request:
+    paths:
+      - "plant-protection/**"
+      - "tests/**"
+      - "scripts/**"
+      - ".github/workflows/**"
+  schedule:
+    - cron: "29 1 * * *"   # ҳар куни 06:29 (Тошкент)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04   # Playwright Chromium: ubuntu-latest (26.04) ҳали қўллаб-қувватланмайди
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Install Playwright (Chromium)
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Smoke test
+        run: node tests/smoke.cjs

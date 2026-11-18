@@ -147,6 +147,11 @@ def main():
             st = None
     if not past and st and st.get("start") != start.isoformat():
         arc = os.path.join(uw.P, "data", "rust-%s.json" % st["start"][:4])  # янги йил: ўтган йил сақланади
+        y0 = dt.date.fromisoformat(st["start"])
+        n_y = min(st.get("days", 0), (dt.date(y0.year, 12, 31) - y0).days + 1)  # фақат 31-декабргача (прогноз кунлари кесилади)
+        nf = st.get("n", NF)
+        st["d"] = {k: a[:nf * n_y] for k, a in st["d"].items()}
+        st["days"] = n_y
         with open(arc, "w", encoding="utf-8") as fh:
             json.dump(st, fh, separators=(",", ":"))
         st = None

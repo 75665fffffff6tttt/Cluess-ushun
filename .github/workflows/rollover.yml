@@ -1,0 +1,55 @@
+name: Year rollover test
+
+# Йил алмашинуви текшируви (tests/rollover.py): маълумот скриптлари сохта санада (31.12 → 1.01 → 2.01 → 10.03)
+# сунъий об-ҳаво билан ишга туширилади, сўнг сайт шу нусхада 1 январь ва 10 март саналари билан текширилади.
+# Скриптлар ёки сайт коди ўзгарганда ва ҳар йили 20 декабрда (ҳақиқий йил алмашинувидан олдин).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**"
+      - "plant-protection/js/**"
+      - "tests/**"
+      - ".github/workflows/rollover.yml"
+  pull_request:
+    paths:
+      - "scripts/**"
+      - "plant-protection/js/**"
+      - "tests/**"
+      - ".github/workflows/rollover.yml"
+  schedule:
+    - cron: "41 2 20 12 *"   # 20 декабрь, 07:41 (Тошкент)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rollover-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rollover:
+    runs-on: ubuntu-24.04   # Playwright Chromium: ubuntu-latest (26.04) ҳали қўллаб-қувватланмайди
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Data scripts across the year boundary
+        run: |
+          python tests/rollover.py --keep "$RUNNER_TEMP/roll"
+      - name: Install Playwright (Chromium)
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Site on 1 January and 10 March of the new year
+        run: |
+          Y=$(( $(python -c "import json;print(json.load(open('plant-protection/data/wx.json'))['start'][:4])") + 1 ))
+          SITE_DIR="$RUNNER_TEMP/roll/plant-protection" FAKE_DATE="$Y-01-01" node tests/smoke.cjs
+          SITE_DIR="$RUNNER_TEMP/roll/plant-protection" FAKE_DATE="$Y-03-10" node tests/smoke.cjs
