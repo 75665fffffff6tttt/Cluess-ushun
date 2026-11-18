@@ -306,8 +306,16 @@
   // экранга мослаш
   var wrap = stage.parentElement;
   // кенг экранда саҳна кенгроқ (харита каттароқ), телефонда — квадрат
+  // тор экранда легенда саҳнадан ташқарига (харита остига) чиқарилади — кичраймайди ва ўқилади (css/style.css: .lg-out)
+  var lgEl = document.getElementById("legend"), lgHome = lgEl && lgEl.parentNode;
+  function lgPlace(out) {
+    if (!lgEl || lgEl.classList.contains("lg-out") === out) return;
+    if (out) wrap.parentNode.insertBefore(lgEl, wrap.nextSibling); else lgHome.appendChild(lgEl);
+    lgEl.classList.toggle("lg-out", out); stage.classList.toggle("lgout", out);
+  }
   function fit() {
     var w = wrap.clientWidth, wide = w >= 760, W = wide ? 1500 : 1080, H = wide ? 1180 : 1080, sc = w / W;
+    lgPlace(!wide);
     stage.style.width = W + "px"; stage.style.height = H + "px";
     stage.style.transform = "scale(" + sc + ")"; wrap.style.height = (H * sc) + "px";
   }
