@@ -8,9 +8,8 @@ name: Telegram weekly forecast
 # Ихтиёрий Variables: TELEGRAM_PESTS (масалан "bollworm,cutworm"), SITE_URL.
 # Secrets бўлмаса — хабар фақат логга ёзилади (синов).
 
+# Жадвал ўчирилган (2026-11-18): Telegram ҳозир керак эмас; керак бўлса қўлда ишга туширинг ёки жадвални қайтаринг.
 on:
-  schedule:
-    - cron: "47 3 * * 1"
   workflow_dispatch:
     inputs:
       force:

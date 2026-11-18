@@ -5,7 +5,8 @@ name: Sentinel-2 NDVI
 # ҳисобланмайди. Тўр: data-hist/ndvi-grid.npz (scripts/build-ndvi-grid.py, бир марта).
 on:
   schedule:
-    - cron: "37 3 * 4-11 *"
+    - cron: "37 3 * 4-10 *"    # мавсум: апрел–октябр
+    - cron: "37 3 1-10 11 *"   # ноябр бошида — октябр охиридаги суратлар учун
   workflow_dispatch:
 
 permissions:
