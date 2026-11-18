@@ -1,7 +1,7 @@
 name: Field observations
 
 # Дала кузатувлари: Google Form жавоблари (чоп этилган CSV) → plant-protection/data/obs.json
-# Созлаш: Settings → Secrets and variables → Actions → Variables:
+# Созлаш: Settings → Secrets and variables → Actions → Variables (ёки Secrets — иккаласи ҳам ўқилади):
 #   OBS_CSV_URL  — Google жадвалининг «Интернетда чоп этиш» CSV ҳаволаси
 #   OBS_FORM_URL — Google Form ҳаволаси (сайтдаги «Кузатув қўшиш» тугмаси учун)
 
@@ -28,8 +28,8 @@ jobs:
           python-version: "3.12"
       - name: Read form responses
         env:
-          OBS_CSV_URL: ${{ vars.OBS_CSV_URL }}
-          OBS_FORM_URL: ${{ vars.OBS_FORM_URL }}
+          OBS_CSV_URL: ${{ vars.OBS_CSV_URL || secrets.OBS_CSV_URL }}
+          OBS_FORM_URL: ${{ vars.OBS_FORM_URL || secrets.OBS_FORM_URL }}
         run: python scripts/update-obs.py
       - name: Commit if changed
         run: |
