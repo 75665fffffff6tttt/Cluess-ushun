@@ -503,7 +503,7 @@
   var WXR = null; // ҳарорат маълумоти санаси оралиғи (wx.json: start, days)
   // йил архиви: ?yil=YYYY → data/wx-YYYY.json; январ–февралда ўтган мавсум (бор бўлса) кўрсатилади
   var YQ = (function () { var m = /[?&]yil=(\d{4})/.exec(location.search); return m ? +m[1] : null; })();
-  var YEAR = null, CURY = null, YEARS = [], PAST = false, WXU = null;
+  var YEAR = null, CURY = null, YEARS = [], PAST = false, WXU = null, WXY = null, RUST_PRE = null;
   var loadState = "loading", updatedAt = null, wxPending = false, selDist = null, WXP = null;
   var WXRAW = null, OUTLOOK = null; // OUTLOOK — data/outlook.json (scripts/build-outlook.cjs)
 
@@ -2027,8 +2027,13 @@
       YEARS = yrs && yrs.years ? yrs.years : []; CURY = yrs ? yrs.cur : null;
       var want = YQ || (CURY && t.getMonth() < 2 && YEARS.indexOf(CURY - 1) >= 0 ? CURY - 1 : null);
       PAST = !!(want && want !== CURY && YEARS.indexOf(want) >= 0);
+      WXY = PAST ? want : CURY;
+      // касаллик саҳифаларида занг маълумотини (Ўзбекистон қисми) ҳарорат билан параллел сўраймиз
+      if (DISEASE_PAGE && WXY) RUST_PRE = fetch("data/rust/" + WXY + "-uz.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
       return Promise.all([
-        fetch((PAST ? "data/wx-" + want + ".json" : "data/wx.json") + "?h=" + stamp).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }),
+        // ҳарорат икки қисмда (scripts/split-wx.py): аввал Ўзбекистон катаклари; қисм бўлмаса — тўлиқ файл
+        (WXY ? fetch("data/wx/" + WXY + "-uz.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }) : Promise.resolve(null))
+          .then(function (o) { return o && o.cells && o.part === "uz" ? o : fetch((PAST ? "data/wx-" + want + ".json" : "data/wx.json") + "?h=" + stamp).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }); }),
         fetch("data/wx-points.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
       ]);
     }).then(function (res) {
@@ -2036,13 +2041,16 @@
       YEAR = +res[0].start.slice(0, 4);
       if (PAST && !NOW) NOW = new Date(YEAR, 11, 31, 12);
       WXRAW = res[0];
-      addDesertLayer(res[1]); finish(wxMaps(res[0], pts, res[1])); buildTimeline();
+      var wxSplit = res[0].part === "uz";
+      addDesertLayer(res[1]); finish(wxMaps(res[0], wxSplit ? pts.filter(function (p) { return typeof p.key === "number"; }) : pts, res[1])); buildTimeline();
+      if (wxSplit) fetch("data/wx/" + WXY + "-nb.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+        .then(function (b) { if (b && b.cells && b.start === res[0].start) { for (var k in b.cells) res[0].cells[k] = b.cells[k]; finish(wxMaps(res[0], pts, res[1])); } });
       OUTLOOK = null;
       if (DISEASE_PAGE) { // занг маълумоти (≈6 МБ) фақат касаллик саҳифаларида керак
       // занг маълумоти икки қисмда: аввал Ўзбекистон (харита дарҳол чизилади), кейин қўшни давлатлар; қисмлар бўлмаса — тўлиқ файл
       var getJ = function (u) { return fetch(u + "?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); };
       var rustShow = function () { if (MAPMODE === "rust" || MAPMODE === "rustall" || MAPMODE === "brown") { paint(); renderLegend(); renderDistrict(); } };
-      getJ("data/rust/" + YEAR + "-uz.json").then(function (o) {
+      (RUST_PRE && WXY === YEAR ? RUST_PRE : getJ("data/rust/" + YEAR + "-uz.json")).then(function (o) {
         if (o && o.d && o.f) {
           o.F = {}; o.f.forEach(function (k, q) { o.F[k] = q; }); RUST = o; rustShow();
           getJ("data/rust/" + YEAR + "-nb.json").then(function (b) {
