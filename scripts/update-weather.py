@@ -157,6 +157,41 @@ def archive_year(st):
     log("archived %d → %s (%d days, %d cells)" % (y, path, n, len(arc["cells"])))
 
 
+def finalize_prev(today, cells):
+    """7–20 январ: ўтган йил архивидаги 24–31 декабр (йил алмашганда прогноздан олинган) ҳақиқий архив билан алмаштирилади.
+    Бир марта: муваффақиятли бўлса архивга "final": true ёзилади."""
+    if not (today.month == 1 and 7 <= today.day <= 20):
+        return
+    y = today.year - 1
+    path = os.path.join(P, "data", "wx-%d.json" % y)
+    if not os.path.exists(path):
+        return
+    with open(path, encoding="utf-8") as fh:
+        arc = json.load(fh)
+    if arc.get("final"):
+        return
+    s0, d0, d1 = dt.date.fromisoformat(arc["start"]), dt.date(y, 12, 24), dt.date(y, 12, 31)
+    keys = [k for k in sorted(arc["cells"]) if k in cells]
+    n = (d1 - d0).days + 1
+    per = max(1, min(100, int(MIN_CAP // weight(1, n))))
+    ok = 0
+    for i in range(0, len(keys), per):
+        ch = keys[i:i + per]
+        resp = call(ARCHIVE, {"latitude": ",".join("%.2f" % cells[k][0] for k in ch),
+                              "longitude": ",".join("%.2f" % cells[k][1] for k in ch),
+                              "start_date": d0.isoformat(), "end_date": d1.isoformat(),
+                              "daily": "temperature_2m_max,temperature_2m_min", "timezone": TZ}, len(ch), n)
+        if resp:
+            put(arc, s0, ch, resp)
+            ok += len(ch)
+    if ok == len(keys):
+        arc["final"] = True
+    with open(path + ".tmp", "w", encoding="utf-8") as fh:
+        json.dump(arc, fh, separators=(",", ":"), sort_keys=True)
+    os.replace(path + ".tmp", path)
+    log("wx-%d.json: 24–31 декабр ҳақиқий архивдан (%d/%d катак)%s" % (y, ok, len(keys), ", якунланди" if arc.get("final") else ""))
+
+
 def update_years(cur):
     """data/wx-years.json: {"cur": жорий йил, "years": [архив ва жорий йиллар]} — саҳифадаги йил танлаш учун."""
     years = {cur}
@@ -309,6 +344,7 @@ def main():
 
     stopped = None
     try:
+        finalize_prev(today, cells)  # январ: ўтган йил охири ҳақиқий маълумот билан
         # 1) прогноз (охирги 7 кун + 16 кун олдинга) — 18 соатда бир марта
         fc_at = st.get("fc_at")
         fresh = False

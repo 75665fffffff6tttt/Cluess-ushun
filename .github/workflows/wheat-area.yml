@@ -1,0 +1,98 @@
+name: Wheat area (Sentinel-2)
+
+# Кузги буғдой майдони туманлар бўйича (scripts/build-wheat-area.py) → plant-protection/data/wheat-area.json
+# (касаллик саҳифаларидаги «минг га» рақамлари).
+#   24 май — дастлабки баҳо (феврал, апрел, май суратлари; ўримсиз қоида × 0.70);
+#   30 июл — якуний баҳо (ўримдан кейинги июн–июл суратлари билан).
+# Қўлда: year, stage (provisional/final), dry_run=true — натижа сайтга ёзилмайди, жорий файл билан солиштирилади.
+
+on:
+  schedule:
+    - cron: "17 2 24 5 *"
+    - cron: "17 2 30 7 *"
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "Ҳосил йили (бўш — жорий йил)"
+        default: ""
+      stage:
+        description: "provisional ёки final (бўш — ойга қараб)"
+        default: ""
+      dry_run:
+        description: "true — сайтга ёзмасдан синаш"
+        default: "false"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "sentinel-ndvi"
+  cancel-in-progress: false
+
+jobs:
+  wheat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install "rasterio==1.4.3" "numpy<2.3"
+      - name: Year and stage
+        id: p
+        run: |
+          Y="${{ inputs.year }}"; [ -n "$Y" ] || Y=$(date -u +%Y)
+          S="${{ inputs.stage }}"; [ -n "$S" ] || { [ "$(date -u +%m)" = "05" ] && S=provisional || S=final; }
+          echo "year=$Y" >> "$GITHUB_OUTPUT"; echo "stage=$S" >> "$GITHUB_OUTPUT"
+          echo "ҳосил йили $Y, босқич $S, синов ${{ inputs.dry_run || 'false' }}"
+      - name: Restore composites cache
+        uses: actions/cache/restore@v4
+        with:
+          path: data-hist/wheat-comp-spring${{ steps.p.outputs.year }}.npz
+          key: wheat-comp-${{ steps.p.outputs.year }}-${{ github.run_id }}
+          restore-keys: wheat-comp-${{ steps.p.outputs.year }}-
+      - name: Build wheat area
+        env:
+          WA_YEAR: ${{ steps.p.outputs.year }}
+          WA_STAGE: ${{ steps.p.outputs.stage }}
+          WA_OUT: ${{ inputs.dry_run == 'true' && format('{0}/wheat-test.json', runner.temp) || '' }}
+          WA_THREADS: "16"
+          GDAL_DISABLE_READDIR_ON_OPEN: EMPTY_DIR
+          GDAL_HTTP_MULTIRANGE: "YES"
+          VSI_CACHE: "TRUE"
+        run: python scripts/build-wheat-area.py
+      - name: Save composites cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data-hist/wheat-comp-spring${{ steps.p.outputs.year }}.npz
+          key: wheat-comp-${{ steps.p.outputs.year }}-${{ github.run_id }}
+      - name: Compare with current file (dry run)
+        if: inputs.dry_run == 'true'
+        run: |
+          python - <<'PY'
+          import json, os, statistics
+          a = json.load(open("plant-protection/data/wheat-area.json"))
+          b = json.load(open(os.path.join(os.environ["RUNNER_TEMP"], "wheat-test.json")))
+          ks = [k for k in a["d"] if k in b["d"] and a["d"][k]["ha"] >= 2000]
+          e = sorted(abs(b["d"][k]["ha"] - a["d"][k]["ha"]) / a["d"][k]["ha"] for k in ks)
+          print("жорий: %s %s ≈ %.0f минг га" % (a["year"], a.get("method"), sum(v["ha"] for v in a["d"].values()) / 1000))
+          print("синов: %s %s ≈ %.0f минг га" % (b["year"], b.get("method"), sum(v["ha"] for v in b["d"].values()) / 1000))
+          print("туманлар (≥ 2 минг га): %d, хато медианаси %.0f %%, 90%% квантил %.0f %%" % (len(e), 100 * statistics.median(e), 100 * e[int(0.9 * (len(e) - 1))]))
+          PY
+      - name: Commit
+        if: inputs.dry_run != 'true'
+        run: |
+          git add plant-protection/data/wheat-area.json
+          if git diff --cached --quiet; then echo "No changes."; exit 0; fi
+          git config user.name "agro-weather-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Авто: буғдой майдони (${{ steps.p.outputs.year }}, ${{ steps.p.outputs.stage }})"
+          for i in 1 2 3; do
+            git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" && git push && exit 0
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          exit 1

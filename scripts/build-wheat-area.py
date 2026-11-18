@@ -2,6 +2,9 @@
 """Кузги буғдой майдонлари (Sentinel-2) → plant-protection/data/wheat-area.json
 
 Асосий усул (WA_MODE=spring, андоза): ҳосил йилининг баҳор–ёз суратлари — spring_main() га қаранг.
+WA_STAGE=provisional — май охиридаги дастлабки баҳо (феврал, апрел, май; ўрим ҳали йўқ): якуний қоида ўримсиз
+× WA_K (0.70; 2026 йил бўйича: туманлар хатоси медианаси 11 %, 90 % туманда ≤ 39 %); WA_STAGE=final — июл охири.
+WA_OUT — бошқа файлга ёзиш (синов), WA_YEAR — ҳосил йили.
 Қуйидаги кузги усул (WA_MODE=autumn) текширувда ишламади: ноябр ўртасида кейин буғдой бўлган
 далалар NDVI бўйича бошқа далалардан фарқ қилмайди (медиана 0.21 ва 0.22) — фақат тажриба учун қолдирилди.
 Кузги усул (тахминий):
@@ -135,27 +138,36 @@ def spring_main(y):
             keep.append(t)
     cf = CACHE % ("spring%d" % y)
     C = dict(np.load(cf)) if os.path.exists(cf) else {}
+    prov = os.environ.get("WA_STAGE", "final") == "provisional"
     for nm, a, b in (("feb", (2, 1), (2, 28)), ("apr", (4, 5), (4, 25)), ("may", (5, 1), (5, 20)),
-                     ("jun", (6, 20), (7, 5)), ("jul", (7, 8), (7, 25))):
+                     ("jun", (6, 20), (7, 5)), ("jul", (7, 8), (7, 25)))[:3 if prov else 5]:
         if nm not in C:
             C[nm] = composite(dt.date(y, *a), dt.date(y, *b), keep, lab, minx, maxy, px)
             np.savez_compressed(cf, **C)
             log(y, nm, "done")
-    feb, apr, may, jun, jul = (C[k] for k in ("feb", "apr", "may", "jun", "jul"))
+    feb, apr, may = (C[k] for k in ("feb", "apr", "may"))
     pk = np.maximum(apr, may)
-    lo = np.minimum(np.where(jun > -1, jun, 9), np.where(jul > -1, jul, 9))
-    m = (lab > 0) & (pk >= 0.5) & (lo < 9) & (pk - lo >= 0.25) & ((feb <= -1) | (feb >= 0.2)) & (apr > -1)
+    K = float(os.environ.get("WA_K", "0.70")) if prov else 1.0
+    if prov:  # ўрим ҳали йўқ — беда, боғлар ҳам киради; K коэффициенти билан тузатилади
+        m = (lab > 0) & (pk >= 0.5) & ((feb <= -1) | (feb >= 0.2)) & (apr > -1)
+    else:
+        jun, jul = C["jun"], C["jul"]
+        lo = np.minimum(np.where(jun > -1, jun, 9), np.where(jul > -1, jul, 9))
+        m = (lab > 0) & (pk >= 0.5) & (lo < 9) & (pk - lo >= 0.25) & ((feb <= -1) | (feb >= 0.2)) & (apr > -1)
     rows = np.arange(H)
     pha = ((px * 111320.0) ** 2 * np.cos(np.radians(maxy - (rows + 0.5) * px)) / 1e4)[:, None] * np.ones((1, W))
     nd = int(lab.max())
     wha = np.bincount(lab[m], weights=pha[m], minlength=nd + 1)
     cha = np.bincount(lab.ravel(), weights=pha.ravel(), minlength=nd + 1)
-    res = {"year": y, "method": "spring", "rule": {"peak": 0.5, "drop": 0.25, "feb": 0.2},
+    wha = wha * K
+    res = {"year": y, "method": "spring-provisional" if prov else "spring",
+           "rule": {"peak": 0.5, "feb": 0.2, "k": K} if prov else {"peak": 0.5, "drop": 0.25, "feb": 0.2},
            "updated": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
            "d": {str(i - 1): {"ha": round(float(wha[i])), "crop": round(float(cha[i]))} for i in range(1, nd + 1) if cha[i] > 0}}
-    with open(OUT, "w", encoding="utf-8") as fh:
+    out = os.environ.get("WA_OUT") or OUT
+    with open(out, "w", encoding="utf-8") as fh:
         json.dump(res, fh, separators=(",", ":"))
-    log("wheat %d ≈ %.0f ming ga" % (y, wha[1:].sum() / 1000))
+    log("wheat %d%s ≈ %.0f ming ga → %s" % (y, " (дастлабки)" if prov else "", wha[1:].sum() / 1000, out))
 
 
 def main():

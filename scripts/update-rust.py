@@ -121,6 +121,48 @@ def daily(obj):
     return res
 
 
+def finalize_prev(today, pts):
+    """7–20 январ: ўтган йил архивидаги 24–31 декабр (йил алмашганда прогноздан олинган) ҳақиқий архив билан алмаштирилади.
+    Бир марта: муваффақиятли бўлса архивга "final": true ёзилади. Қайтаради: сарфланган оғирлик."""
+    if not (today.month == 1 and 7 <= today.day <= 20):
+        return 0.0
+    y = today.year - 1
+    path = os.path.join(uw.P, "data", "rust-%d.json" % y)
+    if not os.path.exists(path):
+        return 0.0
+    with open(path, encoding="utf-8") as fh:
+        st = json.load(fh)
+    if st.get("final") or st.get("n") != NF:
+        return 0.0
+    s0, d0, d1 = dt.date.fromisoformat(st["start"]), dt.date(y, 12, 24), dt.date(y, 12, 31)
+    q0 = d0 - dt.timedelta(days=1)  # ҳўл тун ойнаси учун олдинги кун
+    keys = [k for k in sorted(st["d"]) if k in pts]
+    nd = (d1 - q0).days + 1
+    per = max(1, min(20, int(uw.MIN_CAP // weight(1, nd))))
+    ok, spent = 0, 0.0
+    for i in range(0, len(keys), per):
+        ch = keys[i:i + per]
+        resp = call(uw.ARCHIVE, {"latitude": ",".join("%.2f" % pts[k][0] for k in ch), "longitude": ",".join("%.2f" % pts[k][1] for k in ch),
+                                 "start_date": q0.isoformat(), "end_date": d1.isoformat(), "hourly": HOURLY, "timezone": uw.TZ}, len(ch), nd)
+        spent += weight(len(ch), nd)
+        if not resp:
+            continue
+        ok += len(ch)
+        for k, obj in zip(ch, resp):
+            for ds, vals in daily(obj).items():
+                d = dt.date.fromisoformat(ds)
+                j = (d - s0).days
+                if d0 <= d <= d1 and 0 <= j < st["days"]:
+                    st["d"][k][NF * j:NF * j + NF] = list(vals)
+    if ok == len(keys):
+        st["final"] = True
+    with open(path + ".tmp", "w", encoding="utf-8") as fh:
+        json.dump(st, fh, separators=(",", ":"))
+    os.replace(path + ".tmp", path)
+    log("rust-%d.json: 24–31 декабр ҳақиқий архивдан (%d/%d туман)%s" % (y, ok, len(keys), ", якунланди" if st.get("final") else ""))
+    return spent
+
+
 def main():
     today = dt.datetime.now(dt.timezone(dt.timedelta(hours=5))).date()
     past = int(os.environ.get("RUST_YEAR") or 0)  # ўтган йил: фақат архив → rust-YEAR.json
@@ -211,6 +253,8 @@ def main():
         os.replace(tmp, OUT)
 
     try:
+        if not past:
+            spent += finalize_prev(today, pts)  # январ: ўтган йил охири ҳақиқий маълумот билан
         # 1) прогноз: охирги 7 кун + 16 кун (ўтган йил учун йўқ)
         for i in range(0, len(keys) if not past else 0, 50):
             ch = keys[i:i + 50]
