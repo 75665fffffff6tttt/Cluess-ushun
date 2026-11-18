@@ -18,7 +18,7 @@
   var AUTH = {
     user: "agrohimoya",
     // SHA-256(парол). Паролнинг ўзини бу ерда ёки репозиторийнинг бошқа жойида ЁЗМАНГ — репозиторий очиқ.
-    hash: "44f73d5605f2a3ae20167503e9659ddb8a37970185050307ed8fae7d9ddde696",
+    hash: "aa117ce21490b83062f73c5d86cfbab7a51c52fc3285f0888f30a48ea8afdec0",
     key: "agrohimoya_auth_v2"
   };
 
