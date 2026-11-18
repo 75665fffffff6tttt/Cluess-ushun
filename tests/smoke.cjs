@@ -53,11 +53,12 @@ async function checkPage(browser, file) {
   try {
     if (await p.$("#auth-gate")) fail(file, "парол ойнаси сақланган кириш билан ҳам чиқди");
     if (MAP_PAGES.includes(name)) {
+      // аввал маълумот юкланишини кутамиз (сана сургичи ҳарорат маълумоти келгач чизилади), кейин харита рангини текширамиз
+      await p.waitForSelector("#fenotime input[type=range]", { timeout: 45000 }).catch(() => fail(file, "сана сургичи чиқмади (ҳарорат маълумоти юкланмади)"));
       await p.waitForFunction(() => {
         const ps = [...document.querySelectorAll("#uzmap path[data-i]")];
         return ps.length >= 199 && ps.filter((e) => !["#cfd8dc", "#e3e8ea", null].includes(e.getAttribute("fill"))).length >= 150;
       }, null, { timeout: 45000 }).catch(() => fail(file, "харита туманлари бўялмади (199 тадан камида 150)"));
-      if (!(await p.$("#fenotime input[type=range]"))) fail(file, "сана сургичи йўқ");
       if (name !== "fenologik") {
         await p.waitForSelector("#rustsum .rs-chips", { timeout: 45000 }).catch(() => fail(file, "касаллик хулосаси (#rustsum) чиқмади"));
         await p.waitForFunction(() => [...document.querySelectorAll("path[data-n]")].some((e) => e.getAttribute("fill") !== "#e3e8ea"), null, { timeout: 45000 })
