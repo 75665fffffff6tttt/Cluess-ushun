@@ -83,7 +83,13 @@
   var RUST = null, RUST_COL = { "-1": "#eceff1", 0: "#c8e6c9", 1: "#fff176", 2: "#ffa726", 3: "#e53935" }, RUST_SYM = { "-1": "—", 0: "·", 1: "*", 2: "**", 3: "***" };
   var WHEAT_ST = [[400, "til"], [1000, "jnt"], [1150, "hd"], [1950, "gf"], [1e9, "rip"]];
   function rustDay(i, j) {
-    var a = RUST && RUST.d && RUST.d[String(i)], n = (RUST && RUST.n) || 3; if (!a || j < 0 || n * j + 2 >= a.length || a[n * j] == null) return null;
+    var a = RUST && RUST.d && RUST.d[String(i)], n = (RUST && RUST.n) || 3; if (!a || j < 0) return null;
+    if (RUST.F) { // қисм файли (data/rust/ЙИЛ-uz|nb.json, scripts/split-rust.py): фақат керакли майдонлар
+      var F = RUST.F, o = n * j; if (o + n > a.length || a[o + F.tm] == null) return null;
+      var g = function (k) { return F[k] == null ? null : a[o + F[k]]; }, t10 = function (k) { var v = g(k); return v == null ? null : v / 10; };
+      return { tm: a[o + F.tm] / 10, rh: g("rh"), td: t10("td"), tn: t10("tn"), ev: g("e"), wl: g("wl"), tw: t10("tw") };
+    }
+    if (n * j + 2 >= a.length || a[n * j] == null) return null;
     return { tm: a[n * j + 1] / 10, rh: n >= 9 ? a[n * j + 6] : null, td: n >= 9 ? a[n * j + 7] / 10 : null, tn: n >= 9 ? a[n * j + 8] / 10 : null, ev: n >= 10 ? a[n * j + 9] : null, wl: n >= 12 ? a[n * j + 10] : null, tw: n >= 12 && a[n * j + 11] != null ? a[n * j + 11] / 10 : null };
   }
   function rustBase() { return new Date(RUST.start + "T00:00:00"); }
@@ -2033,8 +2039,19 @@
       addDesertLayer(res[1]); finish(wxMaps(res[0], pts, res[1])); buildTimeline();
       OUTLOOK = null;
       if (DISEASE_PAGE) { // занг маълумоти (≈6 МБ) фақат касаллик саҳифаларида керак
-      fetch((PAST ? "data/rust-" + YEAR + ".json" : "data/rust.json") + "?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
-        .then(function (o) { if (o && o.d) { RUST = o; if (MAPMODE === "rust" || MAPMODE === "rustall" || MAPMODE === "brown") { paint(); renderLegend(); renderDistrict(); } } });
+      // занг маълумоти икки қисмда: аввал Ўзбекистон (харита дарҳол чизилади), кейин қўшни давлатлар; қисмлар бўлмаса — тўлиқ файл
+      var getJ = function (u) { return fetch(u + "?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); };
+      var rustShow = function () { if (MAPMODE === "rust" || MAPMODE === "rustall" || MAPMODE === "brown") { paint(); renderLegend(); renderDistrict(); } };
+      getJ("data/rust/" + YEAR + "-uz.json").then(function (o) {
+        if (o && o.d && o.f) {
+          o.F = {}; o.f.forEach(function (k, q) { o.F[k] = q; }); RUST = o; rustShow();
+          getJ("data/rust/" + YEAR + "-nb.json").then(function (b) {
+            if (b && b.d && b.f && b.f.join() === o.f.join()) { for (var k in b.d) RUST.d[k] = b.d[k]; RGDD = {}; rustShow(); }
+          });
+          return;
+        }
+        getJ(PAST ? "data/rust-" + YEAR + ".json" : "data/rust.json").then(function (o2) { if (o2 && o2.d) { RUST = o2; rustShow(); } });
+      });
       fetch("data/rust-zones.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
         .then(function (o) { if (o && o.d) { RZ = o; if (MAPMODE === "rustz" || MAPMODE === "rustall" || MAPMODE === "brown") { paint(); renderLegend(); renderDistrict(); } } });
       fetch("data/wheat-area.json?h=" + stamp).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
