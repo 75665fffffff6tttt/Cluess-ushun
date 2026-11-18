@@ -50,6 +50,10 @@ jobs:
           pip install --quiet numpy >/dev/null 2>&1 || true
           python scripts/seir.py
 
+      - name: Split rust data for the site (data/rust/*.json)
+        continue-on-error: true
+        run: python scripts/split-rust.py
+
       - name: Commit if changed
         run: |
           if [ -n "$(git status --porcelain plant-protection/data/ data-hist/wind-2deg.json)" ]; then
@@ -59,6 +63,7 @@ jobs:
             # ҳар файл алоҳида: шаблонга мос файл бўлмаса git add бутунлай бекор бўлмасин
             git add plant-protection/data/rust.json 2>/dev/null || true
             git add plant-protection/data/rust-[0-9]*.json 2>/dev/null || true
+            git add plant-protection/data/rust/ 2>/dev/null || true
             git add plant-protection/data/wx-[0-9]*.json 2>/dev/null || true
             git add plant-protection/data/seir.json 2>/dev/null || true
             git add data-hist/wind-2deg.json 2>/dev/null || true

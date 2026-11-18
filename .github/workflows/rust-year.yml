@@ -44,6 +44,9 @@ jobs:
           RUST_BUDGET: "4500"
           WX_MAX_MINUTES: "80"
         run: python scripts/update-rust.py
+      - name: Split rust data for the site
+        continue-on-error: true
+        run: python scripts/split-rust.py
       - name: Commit
         run: |
           f="plant-protection/data/rust-${{ inputs.year }}.json"
@@ -51,6 +54,7 @@ jobs:
           git config user.name "agro-weather-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$f"
+          git add plant-protection/data/rust/ 2>/dev/null || true
           git diff --cached --quiet && exit 0
           git commit -m "Авто: сариқ занг архиви ${{ inputs.year }}"
           for i in 1 2 3; do
