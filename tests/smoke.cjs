@@ -5,10 +5,12 @@
  *   SITE_DIR=<папка> FAKE_DATE=2027-03-10 node tests/smoke.cjs — бошқа нусха ва сохта сана (tests/rollover.py билан)
  * Текширилади: JavaScript хатолари, очилмаган файллар (4xx/5xx), парол ойнаси, харита туманлари бўялгани,
  * сана сургичи, касаллик хулосаси, зараркунанда режимлари, бош саҳифа карточкалари.
+ * Телефон (Pixel 7, ўзбекча 7 саҳифа): ён томонга чиқмаслик, легенда харита остида ва ёзуви ≥ 12px,
+ * такрорий сарлавҳа яширилган, «Тест режими» ёзуви йўқ; компьютерда легенда харита ичида.
  * Маълумот эскирганлиги (wx.json > 3 кун) — фақат огоҳлантириш, хато эмас.
  * Хато бўлса — чиқиш коди 1. */
 "use strict";
-const { chromium } = require("playwright");
+const { chromium, devices } = require("playwright");
 const { spawn } = require("child_process");
 const fs = require("fs");
 const path = require("path");
@@ -52,6 +54,7 @@ async function checkPage(browser, file) {
   const name = file.replace(/(\.ru)?\.html$/, "");
   try {
     if (await p.$("#auth-gate")) fail(file, "парол ойнаси сақланган кириш билан ҳам чиқди");
+    if (await p.$(".test-banner")) fail(file, "«Тест режими» ёзуви қайтиб келган");
     if (MAP_PAGES.includes(name)) {
       // аввал маълумот юкланишини кутамиз (сана сургичи ҳарорат маълумоти келгач чизилади), кейин харита рангини текширамиз
       await p.waitForSelector("#fenotime input[type=range]", { timeout: 45000 }).catch(() => fail(file, "сана сургичи чиқмади (ҳарорат маълумоти юкланмади)"));
@@ -61,6 +64,7 @@ async function checkPage(browser, file) {
       }, null, { timeout: 45000 }).catch(() => fail(file, "харита туманлари бўялмади (199 тадан камида 150)"));
       if (name !== "fenologik") {
         await p.waitForSelector("#rustsum .rs-chips", { timeout: 45000 }).catch(() => fail(file, "касаллик хулосаси (#rustsum) чиқмади"));
+        if (await p.$("#legend.lg-out")) fail(file, "компьютерда легенда харита ичида бўлиши керак");
         await p.waitForFunction(() => [...document.querySelectorAll("path[data-n]")].some((e) => e.getAttribute("fill") !== "#e3e8ea"), null, { timeout: 45000 })
           .catch(() => fail(file, "қўшни давлатлар туманлари бўялмади"));
       } else {
@@ -85,6 +89,43 @@ async function checkPage(browser, file) {
     await p.waitForTimeout(1500);
   } catch (e) { fail(file, "текширишда хато: " + e.message); }
   errs.forEach((e) => fail(file, e));
+  await ctx.close();
+}
+
+// телефон: ўзбекча саҳифалар, Pixel 7
+async function checkPhone(browser, file) {
+  const ctx = await browser.newContext({ ...devices["Pixel 7"] });
+  await ctx.addInitScript(([k, h]) => { try { localStorage.setItem(k, h); } catch (e) { /* */ } }, [KEY, HASH]);
+  const p = await ctx.newPage();
+  if (FAKE) await p.clock.setFixedTime(FAKE);
+  const errs = [];
+  p.on("pageerror", (e) => errs.push("JS: " + e.message));
+  const tag = file + " (телефон)";
+  await p.goto(BASE + file, { waitUntil: "load" });
+  const name = file.replace(/\.html$/, "");
+  try {
+    if (MAP_PAGES.includes(name) || name === "zararkunandalar-xarita") {
+      await p.waitForSelector("#legend.lg-out", { timeout: 45000 }).catch(() => fail(tag, "легенда харита остига чиқмади"));
+      // легенда маълумот юклангач қайта чизилади — шуни кутиб, кўринадиган ёзувларнинг энг кичигини ўлчаймиз
+      if (MAP_PAGES.includes(name)) await p.waitForSelector("#fenotime input[type=range]", { timeout: 45000 }).catch(() => {});
+      await p.waitForTimeout(500);
+      const fs = await p.evaluate(() => {
+        const L = [...document.querySelectorAll("#legend .lg b")].filter((e) => e.getClientRects().length);
+        return L.length ? Math.min.apply(null, L.map((e) => parseFloat(getComputedStyle(e).fontSize))) : -1;
+      });
+      if (process.env.DBG) console.log("DBG", tag, fs);
+      if (!(fs >= 12)) fail(tag, fs < 0 ? "легендада кўринадиган ёзув йўқ" : "легенда ёзуви кичик: " + fs + "px");
+    }
+    if (MAP_PAGES.includes(name)) {
+      const disp = await p.$eval(".feno-ctl .title", (e) => getComputedStyle(e).display).catch(() => "none");
+      if (disp !== "none") fail(tag, "такрорий сарлавҳа телефонда кўринмоқда");
+    }
+    await p.waitForTimeout(1000);
+    const over = await p.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    if (over > 2) fail(tag, "саҳифа ён томонга " + over + "px чиқиб кетган");
+    if (await p.$(".test-banner")) fail(tag, "«Тест режими» ёзуви қайтиб келган");
+  } catch (e) { fail(tag, "текширишда хато: " + e.message); }
+  errs.forEach((e) => fail(tag, e));
   await ctx.close();
 }
 
@@ -120,6 +161,7 @@ async function checkGate(browser) {
   try {
     await checkGate(browser);
     for (const f of PAGES) { const t = Date.now(); await checkPage(browser, f); console.log("  " + f.padEnd(32) + ((Date.now() - t) / 1000).toFixed(1) + " с"); }
+    for (const f of PAGES.filter((x) => !x.includes(".ru."))) { const t = Date.now(); await checkPhone(browser, f); console.log("  " + (f + " 📱").padEnd(32) + ((Date.now() - t) / 1000).toFixed(1) + " с"); }
   } finally {
     await browser.close();
     if (srv) srv.kill();
@@ -130,5 +172,5 @@ async function checkGate(browser) {
     fails.forEach((f) => console.log("  - " + f));
     process.exit(1);
   }
-  console.log("\n✓ " + PAGES.length + " саҳифа текширилди, хато йўқ (" + ((Date.now() - t0) / 1000).toFixed(0) + " с)");
+  console.log("\n✓ " + PAGES.length + " саҳифа + 7 саҳифа телефонда текширилди, хато йўқ (" + ((Date.now() - t0) / 1000).toFixed(0) + " с)");
 })().catch((e) => { console.error(e); process.exit(1); });

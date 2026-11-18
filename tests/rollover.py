@@ -4,9 +4,10 @@
 
   python3 tests/rollover.py [--keep ПАПКА]
 
-Саналар: 31.12 (жорий йил) → 1.01 (янги йил) → 2.01 → 10.03. Текширилади: ўтган йил архивлари (wx-ЙИЛ.json,
+Саналар: 31.12 (жорий йил) → 1.01 (янги йил) → 2.01 → 10.01 → 10.03. Текширилади: ўтган йил архивлари (wx-ЙИЛ.json,
 rust-ЙИЛ.json) 31-декабрда тугайди, wx-years.json янги йилни кўрсатади, иккала йил учун сайт қисмлари (data/wx/,
-data/rust/) бор, янги йил файллари 1-январдан бошланади, SEIR хатосиз ишлайди.
+data/rust/) бор, янги йил файллари 1-январдан бошланади, SEIR хатосиз ишлайди, январда ўтган йилнинг 24–31 декабри
+ҳақиқий архивдан қайта олинади ("final": true; сунъий архив прогноздан +0.3 °C фарқ қилади — шу билан текширилади).
 Сайтни шу нусхада браузерда текшириш: SITE_DIR=<ПАПКА>/plant-protection FAKE_DATE=2027-03-10 node tests/smoke.cjs
 """
 import argparse
@@ -23,6 +24,15 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+ARCH_OFF = 0.3  # сунъий архив жавоблари прогноздан шунча иссиқроқ — архивдан олинганини ажратиш учун
+
+
+def clim(d, lat, h=None):
+    doy = d.timetuple().tm_yday
+    base = 14 - (lat - 40) * 0.8 + 15 * math.sin(2 * math.pi * (doy - 105) / 365)
+    return (base + 6, base - 6) if h is None else base + 6 * math.sin(2 * math.pi * (h - 9) / 24)
+
+
 def run_day(sim, day):
     """Битта сана учун скриптлар (алоҳида жараёнда чақирилади — сана сохталаштирилади)."""
     DAY = datetime.date.fromisoformat(day)
@@ -34,12 +44,8 @@ def run_day(sim, day):
             return FIXED.astimezone(tz) if tz else FIXED.replace(tzinfo=None)
     datetime.datetime = FD
 
-    def clim(d, lat, h=None):
-        doy = d.timetuple().tm_yday
-        base = 14 - (lat - 40) * 0.8 + 15 * math.sin(2 * math.pi * (doy - 105) / 365)
-        return (base + 6, base - 6) if h is None else base + 6 * math.sin(2 * math.pi * (h - 9) / 24)
-
     def fake(base, params, n_loc, n_days):
+        off = ARCH_OFF if "archive" in base else 0.0
         lats = [float(x) for x in params["latitude"].split(",")]
         if "start_date" in params:
             d0, d1 = datetime.date.fromisoformat(params["start_date"]), datetime.date.fromisoformat(params["end_date"])
@@ -50,14 +56,14 @@ def run_day(sim, day):
         out = []
         for la in lats:
             if "daily" in params:
-                v = [clim(d, la) for d in days]
+                v = [(a + off, b + off) for a, b in (clim(d, la) for d in days)]
                 out.append({"daily": {"time": [d.isoformat() for d in days], "temperature_2m_max": [a for a, b in v],
                                       "temperature_2m_min": [b for a, b in v]}})
             else:
                 tt, T, RH, DP, PR = [], [], [], [], []
                 for d in days:
                     for h in range(24):
-                        t = clim(d, la, h)
+                        t = clim(d, la, h) + off
                         rh = min(100, 65 + 25 * math.cos(2 * math.pi * (h - 4) / 24))
                         tt.append("%sT%02d:00" % (d.isoformat(), h)); T.append(round(t, 1)); RH.append(round(rh))
                         DP.append(round(t - (100 - rh) / 5, 1)); PR.append(0.3 if d.day % 6 == 0 and h < 6 else 0)
@@ -103,6 +109,18 @@ def check(sim, y0):
         j = json.load(open(p))
         if j.get("days") != n0 or j.get("start") != "%d-01-01" % y0:
             errs.append("%s: start %s days %s (кутилган %d-01-01, %d)" % (f, j.get("start"), j.get("days"), y0, n0))
+    for f in ("wx-%d.json" % y0, "rust-%d.json" % y0):
+        p = os.path.join(D, f)
+        if os.path.exists(p) and not json.load(open(p)).get("final"):
+            errs.append(f + ": январда 24–31 декабр ҳақиқий архивдан олинмади (final йўқ)")
+    p = os.path.join(D, "wx-%d.json" % y0)
+    if os.path.exists(p):
+        j = json.load(open(p))
+        k = sorted(j["cells"])[0]
+        jd = (datetime.date(y0, 12, 30) - datetime.date(y0, 1, 1)).days
+        want = int(round((clim(datetime.date(y0, 12, 30), float(k.split(",")[0]))[0] + ARCH_OFF) * 10))
+        if j["cells"][k][2 * jd] != want:
+            errs.append("wx-%d.json: 30 декабр %s — %s, архивдан кутилган %s" % (y0, k, j["cells"][k][2 * jd], want))
     for f in ("wx.json", "rust.json"):
         j = json.load(open(os.path.join(D, f)))
         if j.get("start") != "%d-01-01" % y1:
@@ -135,7 +153,7 @@ def main():
         shutil.copytree(os.path.join(ROOT, d), os.path.join(sim, d), ignore=shutil.ignore_patterns("*.npz", "__pycache__"))
     y0 = json.load(open(os.path.join(sim, "plant-protection", "data", "wx.json")))["start"][:4]
     y0 = int(y0)
-    days = ["%d-12-31" % y0, "%d-01-01" % (y0 + 1), "%d-01-02" % (y0 + 1), "%d-03-10" % (y0 + 1)]
+    days = ["%d-12-31" % y0, "%d-01-01" % (y0 + 1), "%d-01-02" % (y0 + 1), "%d-01-10" % (y0 + 1), "%d-03-10" % (y0 + 1)]
     for d in days:
         print("== %s" % d, flush=True)
         p = subprocess.run([sys.executable, os.path.abspath(__file__), "--day", d, "--sim", sim], capture_output=True, text=True)
