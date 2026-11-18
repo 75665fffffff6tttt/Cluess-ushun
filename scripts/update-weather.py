@@ -201,6 +201,11 @@ def budget_wait(w):
         if last_min + w <= MIN_CAP and last_hour + w <= HOUR_CAP:
             _spent.append((now, w))
             return
+        recent = [t for t, _ in _spent if now - t < 60]
+        if not recent and last_hour + w <= HOUR_CAP or not _spent:
+            # битта сўров минутлик чегарадан катта, лекин олдинги сарф йўқ — кутишдан фойда йўқ (аввал бу ерда min([]) хатоси)
+            _spent.append((now, w))
+            return
         if last_hour + w > HOUR_CAP:
             oldest = min(t for t, _ in _spent)
             wait = 3600 - (now - oldest) + 5

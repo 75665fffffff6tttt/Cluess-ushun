@@ -326,14 +326,15 @@ def main():
     today = dt.datetime.now(dt.timezone(dt.timedelta(hours=5))).date()
     start = dt.date(today.year - 1 if today.month >= 10 else today.year - 2, 10, 1)  # ўтган ва жорий мавсум
     end = max(d for L in R.values() for d in L)
-    Wf = None
-    try:
-        WD = wind_update(start, end)
+    Wf = None  # шамол билан туманлараро тарқалиш ўчиқ (фойдаланувчи қарори, 2026-11-18): Open-Meteo лимити сарфланмайди
+    if os.environ.get("SEIR_WIND") == "1":  # қайта ёқиш учун (калибрланмаган)
+        try:
+            WD = wind_update(start, end)
 
-        def Wf(pt, d):
-            return WD["d"].get("%d,%d" % (2 * round(pt[0] / 2), 2 * round(pt[1] / 2)), {}).get(d.isoformat())
-    except Exception as e:
-        print("seir: шамол олинмади —", e, file=sys.stderr)
+            def Wf(pt, d):
+                return WD["d"].get("%d,%d" % (2 * round(pt[0] / 2), 2 * round(pt[1] / 2)), {}).get(d.isoformat())
+        except Exception as e:
+            print("seir: шамол олинмади —", e, file=sys.stderr)
     med = sorted(WA.values())[len(WA) // 2] if WA else 1.0
     D = {k: District(R[k], Z.get(k), WA.get(k, med)) for k in keys}
     res = run(D, start, end, PT, Wf, OBS)
