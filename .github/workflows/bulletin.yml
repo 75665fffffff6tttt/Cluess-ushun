@@ -1,0 +1,46 @@
+name: Weekly bulletin
+
+# Ҳафталик фитосанитар бюллетен (PDF): ҳар душанба 07:13 (Тошкент), сайтдаги byulleten.html дан
+# (scripts/bulletin-pdf.cjs) → plant-protection/byulleten/. Қўлда ҳам ишга тушириш мумкин.
+
+on:
+  schedule:
+    - cron: "13 2 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "weather-data"
+  cancel-in-progress: false
+
+jobs:
+  pdf:
+    runs-on: ubuntu-24.04   # Playwright Chromium: ubuntu-latest (26.04) ҳали қўллаб-қувватланмайди
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Install Playwright (Chromium) and fonts
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y -q fonts-noto-color-emoji >/dev/null 2>&1 || true
+      - name: Make PDF
+        run: node scripts/bulletin-pdf.cjs
+      - name: Commit
+        run: |
+          git config user.name "agro-weather-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A plant-protection/byulleten/
+          git diff --cached --quiet && exit 0
+          git commit -m "Авто: ҳафталик бюллетен"
+          for i in 1 2 3; do
+            git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" && git push && exit 0
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          exit 1
