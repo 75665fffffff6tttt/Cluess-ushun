@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """rust.json (ва rust-ЙИЛ.json архивлари) → сайт учун кичик қисмлар: plant-protection/data/rust/ЙИЛ-uz.json ва ЙИЛ-nb.json
 
-Нега: тўлиқ rust.json ≈ 4 МБ (gzip ≈ 1 МБ) ва унда сайт ишлатмайдиган майдонлар бор (w, tx, r, h, c).
-Сайт (js/fenologik.js) фақат tm, rh, td, tn, e, wl, tw ни ишлатади. Ўзбекистон туманлари (uz) биринчи юкланади
+Нега: тўлиқ rust.json ≈ 4 МБ (gzip ≈ 1 МБ) ва унда сайт ишлатмайдиган майдонлар бор (w, h, c).
+Сайт (js/fenologik.js) фақат tm, tx, r, rh, td, tn, e, wl, tw ни ишлатади (tx, r — септориоз ва ун-шудринг). Ўзбекистон туманлари (uz) биринчи юкланади
 ва харита дарҳол чизилади; қўшни давлатлар туманлари («n…» калитлар, nb) кейин юкланади.
 Тўлиқ rust.json скриптлар (seir.py, build-rust-zones.py) учун ўзгармай қолади; қисмлар алоҳида «rust/» папкасида,
 чунки бу скриптлар data/ ичидаги rust*.json файлларини ўқийди.
@@ -19,7 +19,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "plant-protection", "data")
 OUTD = os.path.join(DATA, "rust")
 SRC_FIELDS = ["w", "tm", "tx", "r", "h", "c", "rh", "td", "tn", "e", "wl", "tw"]  # rust.json v5 тартиби
-KEEP = ["tm", "rh", "td", "tn", "e", "wl", "tw"]
+KEEP = ["tm", "tx", "r", "rh", "td", "tn", "e", "wl", "tw"]  # tx, r — септориоз ва ун-шудринг учун
 
 
 def split(path):
