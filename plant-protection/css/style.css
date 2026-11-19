@@ -1611,3 +1611,5 @@ textarea.hb-inp { resize: vertical; }
 /* ENSO мавсум олди сигнали (касаллик саҳифалари, js/fenologik.js: ensoHtml) */
 .rust-sum .rs-enso { margin-top: 10px; padding: 9px 11px; background: #e3f2fd; border-radius: 8px; line-height: 1.45; color: #0d2b45; }
 .rust-sum .rs-enso .ra-p { margin-top: 4px; }
+.di-print{display:block;width:100%;margin-top:10px;padding:8px 10px;border:1px solid #a5d6a7;border-radius:8px;background:#f1f8e9;color:#1b5e20;font:inherit;font-weight:600;cursor:pointer}
+.di-print:hover{background:#e8f5e9}
