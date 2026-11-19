@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-/* Сайтнинг автоматик текшируви (smoke test): 14 саҳифа браузерда очилади ва асосий нарсалар текширилади.
+/* Сайтнинг автоматик текшируви (smoke test): 18 саҳифа браузерда очилади ва асосий нарсалар текширилади.
  *   node tests/smoke.cjs            — plant-protection/ папкасини ўзи маҳаллий серверда очади
  *   BASE=https://... node tests/smoke.cjs — тайёр сайтни текшириш
  *   SITE_DIR=<папка> FAKE_DATE=2027-03-10 node tests/smoke.cjs — бошқа нусха ва сохта сана (tests/rollover.py билан)
  * Текширилади: JavaScript хатолари, очилмаган файллар (4xx/5xx), парол ойнаси, харита туманлари бўялгани,
  * сана сургичи, касаллик хулосаси, зараркунанда режимлари, бош саҳифа карточкалари.
- * Телефон (Pixel 7, ўзбекча 7 саҳифа): ён томонга чиқмаслик, легенда харита остида ва ёзуви ≥ 12px,
+ * Телефон (Pixel 7, ўзбекча 9 саҳифа): ён томонга чиқмаслик, легенда харита остида ва ёзуви ≥ 12px,
  * такрорий сарлавҳа яширилган, «Тест режими» ёзуви йўқ; компьютерда легенда харита ичида.
  * Маълумот эскирганлиги (wx.json > 3 кун) — фақат огоҳлантириш, хато эмас.
  * Хато бўлса — чиқиш коди 1. */
@@ -22,8 +22,8 @@ let BASE = process.env.BASE || "";
 const HASH = (fs.readFileSync(path.join(ROOT, "js", "auth.js"), "utf8").match(/hash:\s*"([0-9a-f]{64})"/) || [])[1];
 const KEY = (fs.readFileSync(path.join(ROOT, "js", "auth.js"), "utf8").match(/key:\s*"([^"]+)"/) || [])[1];
 
-const MAP_PAGES = ["fenologik", "kasallik", "qongir-zang"];
-const PAGES = ["index", "fenologik", "kasallik", "qongir-zang", "zararkunandalar-xarita", "hisobot", "aloqa"]
+const MAP_PAGES = ["fenologik", "kasallik", "qongir-zang", "septorioz", "un-shudring"];
+const PAGES = ["index", "fenologik", "kasallik", "qongir-zang", "septorioz", "un-shudring", "zararkunandalar-xarita", "hisobot", "aloqa"]
   .flatMap((p) => [p + ".html", p + ".ru.html"]);
 
 const fails = [], warns = [];
@@ -67,6 +67,15 @@ async function checkPage(browser, file) {
         if (await p.$("#legend.lg-out")) fail(file, "компьютерда легенда харита ичида бўлиши керак");
         await p.waitForFunction(() => [...document.querySelectorAll("path[data-n]")].some((e) => e.getAttribute("fill") !== "#e3e8ea"), null, { timeout: 45000 })
           .catch(() => fail(file, "қўшни давлатлар туманлари бўялмади"));
+        if (name === "kasallik") { // қишлаб қолиш индекси режими
+          const b = await p.$('.pbtn[data-m="ow"]');
+          if (!b) fail(file, "«Қишлаб қолиш» тугмаси йўқ");
+          else {
+            await b.click();
+            await p.waitForFunction(() => { const e = document.querySelector("#rustsum .rs-h"); return e && e.textContent.indexOf("❄") >= 0; }, null, { timeout: 15000 })
+              .catch(() => fail(file, "қишлаб қолиш хулосаси чиқмади"));
+          }
+        }
       } else {
         for (const m of ["gen", "phase", "ndvi", "ei"]) {
           const b = await p.$('.pbtn[data-m="' + m + '"]');
@@ -172,5 +181,5 @@ async function checkGate(browser) {
     fails.forEach((f) => console.log("  - " + f));
     process.exit(1);
   }
-  console.log("\n✓ " + PAGES.length + " саҳифа + 7 саҳифа телефонда текширилди, хато йўқ (" + ((Date.now() - t0) / 1000).toFixed(0) + " с)");
+  console.log("\n✓ " + PAGES.length + " саҳифа + " + PAGES.length / 2 + " саҳифа телефонда текширилди, хато йўқ (" + ((Date.now() - t0) / 1000).toFixed(0) + " с)");
 })().catch((e) => { console.error(e); process.exit(1); });

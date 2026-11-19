@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Йил алмашинуви текшируви: маълумот скриптлари (update-weather, update-rust, split-rust, split-wx, seir)
+"""Йил алмашинуви текшируви: маълумот скриптлари (update-weather, update-rust, split-rust, split-wx, overwinter, seir)
 репозиторийнинг алоҳида нусхасида сохта санада ишга туширилади; Open-Meteo жавоблари сунъий (тармоқ керак эмас).
 
   python3 tests/rollover.py [--keep ПАПКА]
@@ -85,6 +85,7 @@ def run_day(sim, day):
     r.main()
     load("split-rust").main()
     load("split-wx").main()
+    load("overwinter").main()
     sm = load("seir")
 
     def no_wind(*a):
@@ -133,6 +134,14 @@ def check(sim, y0):
                     errs.append("%s/%d-%s.json йўқ" % (sub, y, part))
                 elif part == "uz" and not json.load(open(p)).get("cells" if sub == "wx" else "d"):
                     errs.append("%s/%d-%s.json бўш" % (sub, y, part))
+    p = os.path.join(D, "overwinter.json")
+    if not os.path.exists(p):
+        errs.append("overwinter.json йўқ")
+    else:
+        j = json.load(open(p))
+        want = "%d/%02d" % (y0, y1 % 100)
+        if j.get("season") != want or not any(v[4] is not None for v in j["d"].values()):
+            errs.append("overwinter.json: мавсум %s (кутилган %s) ёки қишлаш синфи ҳисобланмаган" % (j.get("season"), want))
     return errs
 
 

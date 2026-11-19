@@ -54,6 +54,10 @@ jobs:
         continue-on-error: true
         run: python scripts/split-rust.py
 
+      - name: Yellow rust overwintering index (data/overwinter.json)
+        continue-on-error: true
+        run: python scripts/overwinter.py
+
       - name: Split weather data for the site (data/wx/*.json)
         continue-on-error: true
         run: python scripts/split-wx.py
@@ -71,6 +75,7 @@ jobs:
             git add plant-protection/data/wx/ 2>/dev/null || true
             git add plant-protection/data/wx-[0-9]*.json 2>/dev/null || true
             git add plant-protection/data/seir.json 2>/dev/null || true
+            git add plant-protection/data/overwinter.json 2>/dev/null || true
             git add data-hist/wind-2deg.json 2>/dev/null || true
             git commit -m "Авто: ҳарорат маълумоти янгиланди (wx.json)"
             # бошқа ишга тушириш wx.json'ни олдин ёзган бўлса — тўқнашувда шу (янгироқ) нусха қолади

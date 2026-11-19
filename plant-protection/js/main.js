@@ -56,3 +56,23 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+
+// Телефонга ўрнатиш ва интернетсиз ишлаш (sw.js): охирги очилган саҳифа ва маълумот кешда сақланади
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+}
+(function () { // интернет йўқлигида кичик ёзув: кўрсатилаётган маълумот — охирги сақланган нусха
+  var ru = (document.documentElement.lang || "").indexOf("ru") === 0, el = null;
+  function show() {
+    if (navigator.onLine) { if (el) el.style.display = "none"; return; }
+    if (!el) {
+      el = document.createElement("div"); el.className = "offline-note"; el.setAttribute("role", "status");
+      el.style.cssText = "position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:9999;background:#37474f;color:#fff;padding:8px 14px;border-radius:18px;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.25);max-width:92vw;text-align:center";
+      el.textContent = ru ? "📴 Нет интернета — показаны последние сохранённые данные" : "📴 Интернет йўқ — охирги сақланган маълумот кўрсатилмоқда";
+      document.body.appendChild(el);
+    }
+    el.style.display = "";
+  }
+  window.addEventListener("online", show); window.addEventListener("offline", show);
+  document.addEventListener("DOMContentLoaded", show);
+})();
