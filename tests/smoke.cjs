@@ -67,6 +67,7 @@ async function checkPage(browser, file) {
         if (await p.$("#legend.lg-out")) fail(file, "компьютерда легенда харита ичида бўлиши керак");
         await p.waitForFunction(() => [...document.querySelectorAll("path[data-n]")].some((e) => e.getAttribute("fill") !== "#e3e8ea"), null, { timeout: 45000 })
           .catch(() => fail(file, "қўшни давлатлар туманлари бўялмади"));
+        await p.waitForSelector("#rustsum .yc-t", { timeout: 45000 }).catch(() => fail(file, "йилларни солиштириш жадвали чиқмади"));
         if (name === "kasallik") { // қишлаб қолиш индекси режими
           const b = await p.$('.pbtn[data-m="ow"]');
           if (!b) fail(file, "«Қишлаб қолиш» тугмаси йўқ");
