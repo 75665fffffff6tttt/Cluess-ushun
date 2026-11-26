@@ -358,7 +358,7 @@
 <script src="js/uz-districts.js?v=5"></script>
 <script src="js/uz-geo.js?v=1"></script>
 <script>window.FENO_PAGE="bulletin";document.body.classList.add("disease-page","report-page");fetch("byulleten/index.json?h="+Date.now()).then(function(r){return r.ok?r.json():null}).catch(function(){return null}).then(function(o){var e=document.getElementById("rp-arch");if(!e)return;if(!o||!o.f||!o.f.length){e.textContent="PDF пока нет — первый будет подготовлен в понедельник.";return}e.innerHTML=o.f.slice(0,30).map(function(x){return '<a href="byulleten/'+x.ru+'" target="_blank" rel="noopener">'+x.date+"</a>"}).join(" · ")});</script>
-<script src="js/fenologik.js?v=103"></script>
+<script src="js/fenologik.js?v=104"></script>
 <script src="js/counter.js?v=3"></script>
 </body>
 </html>
