@@ -63,6 +63,23 @@ function serve(dir) {
     } catch (e) { console.log("enso.json ўқилмади — вазнсиз:", e.message); }
     FCY = await pg.evaluate(([h, w, ty]) => window.FENO_YEAR && window.FENO_YEAR(h, w, ty), [H, W, TY]);
     if (FCY) { FCY.enso = enso; for (const y of Object.keys(FCY.w)) FCY.w[y] = Math.round(FCY.w[y] * 100) / 100; }
+    // 🧪 сценарийлар (prognoz.html): ENSO ҳолати × ҳарорат ўзгариши → фақат медианалар (data/forecast-scen.json)
+    if (FCY && process.env.SCEN !== "0") {
+      let E = null; try { E = JSON.parse(fs.readFileSync(path.join(SITE_DIR, "data", "enso.json"), "utf8")); } catch (e) { /* */ }
+      const wOf = (oni) => { const w = {}; if (!E || oni == null) return w; for (let y = 1990; y < TY; y++) { const v = E.s[String(y - 1)] && E.s[String(y - 1)].OND; if (v != null) w[y] = Math.max(0.15, Math.exp(-((v - oni) ** 2) / (2 * 1.44))); } return w; };
+      const ENS = { cur: enso ? enso.oni : 0, elnino: 1.5, neutral: 0, lanina: -1.2 }, DTS = [-2, -1, 0, 1, 2, 3], SC = { year: TY, made: FCY.made, enso: ENS, dts: DTS, s: {} };
+      const t1 = Date.now();
+      for (const ek of Object.keys(ENS)) for (const dt of DTS) {
+        const R = await pg.evaluate(([h, w, ty, d]) => window.FENO_YEAR(h, w, ty, d), [H, wOf(ENS[ek]), TY, dt]);
+        if (!R) continue;
+        const o = { p: {}, loc: {}, loca: {} };
+        for (const pid of Object.keys(R.p)) { o.p[pid] = {}; for (const i of Object.keys(R.p[pid])) { const a = R.p[pid][i]; o.p[pid][i] = [a[1], a[4]]; } }
+        for (const k of ["loc", "loca"]) for (const i of Object.keys(R[k] || {})) o[k][i] = R[k][i][1];
+        SC.s[ek + "|" + dt] = o;
+      }
+      fs.writeFileSync(path.join(SITE_DIR, "data", "forecast-scen.json"), JSON.stringify(SC));
+      console.log("→ forecast-scen.json", Object.keys(SC.s).length, "scenarios", Math.round((Date.now() - t1) / 1000) + " s", Math.round(fs.statSync(path.join(SITE_DIR, "data", "forecast-scen.json")).size / 1024), "KB");
+    }
   }
   await b.close(); srv.close();
   if (FCY && Object.keys(FCY.p).some((k) => Object.keys(FCY.p[k]).length)) {
