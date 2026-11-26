@@ -3,6 +3,7 @@
 // ҳарорат + 16 кунлик прогноз, ундан кейин — ўтган ҳар бир йилнинг об-ҳавоси (data-hist/hist-1deg.json,
 // scripts/build-hist.py). Натижа: ҳар туман ва зараркунанда учун кейинги фазалар санасининг 10/50/90%.
 //
+// Келаси йил прогнози (prognoz.html): window.FENO_YEAR — ўтган йиллар ENSO вазни билан → data/forecast.json
 // Ишга тушириш: node scripts/build-outlook.cjs   (playwright керак)
 // FAKE_DATE=2026-06-01 — синов учун бошқа «бугун»
 const { chromium } = require("playwright");
@@ -47,7 +48,28 @@ function serve(dir) {
   const O = await pg.evaluate(([h, c]) => window.FENO_OUTLOOK(h, c), [H, cut]);
   // CLIMEX усулидаги экоиқлим индекси (ҳар туман, ҳар йил) → data/climex.json
   const CX = FAKE ? null : await pg.evaluate((h) => window.FENO_CLIMEX && window.FENO_CLIMEX(h), H);
+  // келаси йил прогнози (prognoz.html): ўтган йиллар об-ҳавоси ENSO ўхшашлиги бўйича вазнли → data/forecast.json
+  let FCY = null;
+  if (!FAKE) {
+    const now = new Date(), TY = now.getFullYear() + (now.getMonth() >= 7 ? 1 : 0);
+    const W = {}; let enso = null;
+    try {
+      const E = JSON.parse(fs.readFileSync(path.join(SITE_DIR, "data", "enso.json"), "utf8")), cur = E.last && E.last.oni;
+      // аналог йил y учун: ундан олдинги кузнинг (y−1) OND ONI си; вазн = Гаусс (σ = 1.2), энг ками 0.15
+      if (cur != null) {
+        enso = { oni: cur, season: E.last.season, year: E.last.year, sigma: 1.2, floor: 0.15 };
+        for (let y = 1990; y < TY; y++) { const v = E.s[String(y - 1)] && E.s[String(y - 1)].OND; if (v != null) W[y] = Math.max(0.15, Math.exp(-((v - cur) ** 2) / (2 * 1.44))); }
+      }
+    } catch (e) { console.log("enso.json ўқилмади — вазнсиз:", e.message); }
+    FCY = await pg.evaluate(([h, w, ty]) => window.FENO_YEAR && window.FENO_YEAR(h, w, ty), [H, W, TY]);
+    if (FCY) { FCY.enso = enso; for (const y of Object.keys(FCY.w)) FCY.w[y] = Math.round(FCY.w[y] * 100) / 100; }
+  }
   await b.close(); srv.close();
+  if (FCY && Object.keys(FCY.p).some((k) => Object.keys(FCY.p[k]).length)) {
+    const ff = path.join(SITE_DIR, "data", "forecast.json");
+    fs.writeFileSync(ff, JSON.stringify(FCY));
+    console.log("→ forecast.json", FCY.year, "years", FCY.years.join(","), "w", JSON.stringify(FCY.w), Math.round(fs.statSync(ff).size / 1024), "KB");
+  }
   if (CX && Object.keys(CX.d).length) {
     const cf = path.join(SITE_DIR, "data", "climex.json");
     fs.writeFileSync(cf, JSON.stringify(CX));

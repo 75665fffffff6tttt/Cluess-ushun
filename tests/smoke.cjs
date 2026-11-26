@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-/* Сайтнинг автоматик текшируви (smoke test): 22 саҳифа браузерда очилади ва асосий нарсалар текширилади.
+/* Сайтнинг автоматик текшируви (smoke test): 24 саҳифа браузерда очилади ва асосий нарсалар текширилади.
  *   node tests/smoke.cjs            — plant-protection/ папкасини ўзи маҳаллий серверда очади
  *   BASE=https://... node tests/smoke.cjs — тайёр сайтни текшириш
  *   SITE_DIR=<папка> FAKE_DATE=2027-03-10 node tests/smoke.cjs — бошқа нусха ва сохта сана (tests/rollover.py билан)
  * Текширилади: JavaScript хатолари, очилмаган файллар (4xx/5xx), парол ойнаси, харита туманлари бўялгани,
  * сана сургичи, касаллик хулосаси, зараркунанда режимлари, бош саҳифа карточкалари.
- * Телефон (Pixel 7, ўзбекча 11 саҳифа): ён томонга чиқмаслик, легенда харита остида ва ёзуви ≥ 12px,
+ * Телефон (Pixel 7, ўзбекча 12 саҳифа): ён томонга чиқмаслик, легенда харита остида ва ёзуви ≥ 12px,
  * такрорий сарлавҳа яширилган, «Тест режими» ёзуви йўқ; компьютерда легенда харита ичида.
  * Маълумот эскирганлиги (wx.json > 3 кун) — фақат огоҳлантириш, хато эмас.
  * Хато бўлса — чиқиш коди 1. */
@@ -23,7 +23,7 @@ const HASH = (fs.readFileSync(path.join(ROOT, "js", "auth.js"), "utf8").match(/h
 const KEY = (fs.readFileSync(path.join(ROOT, "js", "auth.js"), "utf8").match(/key:\s*"([^"]+)"/) || [])[1];
 
 const MAP_PAGES = ["fenologik", "kasallik", "qongir-zang", "septorioz", "un-shudring"];
-const PAGES = ["index", "fenologik", "kasallik", "qongir-zang", "septorioz", "un-shudring", "mavsum", "byulleten", "zararkunandalar-xarita", "hisobot", "aloqa"]
+const PAGES = ["index", "fenologik", "kasallik", "qongir-zang", "septorioz", "un-shudring", "mavsum", "byulleten", "prognoz", "zararkunandalar-xarita", "hisobot", "aloqa"]
   .flatMap((p) => [p + ".html", p + ".ru.html"]);
 
 const fails = [], warns = [];
@@ -89,6 +89,14 @@ async function checkPage(browser, file) {
     } else if (name === "index") {
       const n = await p.$$eval(".home-card", (a) => a.length);
       if (n < 6) fail(file, "бош саҳифада карточкалар кам: " + n);
+    } else if (name === "prognoz") {
+      await p.waitForSelector("#rustsum .rs-h", { timeout: 60000 }).catch(() => fail(file, "эрта бошланиш хулосаси чиқмади"));
+      for (const m of ["f27", "g27"]) {
+        const b = await p.$('.pbtn[data-m="' + m + '"]');
+        if (!b) { fail(file, "режим тугмаси йўқ: " + m); continue; }
+        await b.click();
+        await p.waitForSelector("#rustsum .yc-t", { timeout: 30000 }).catch(() => fail(file, "«" + m + "» режимида вилоятлар жадвали чиқмади (forecast.json)"));
+      }
     } else if (name === "mavsum" || name === "byulleten") {
       await p.waitForSelector("#report.ready", { timeout: 90000 }).catch(() => fail(file, "ҳисобот (#report) тайёр бўлмади"));
       const n = await p.$eval("#report", (e) => e.innerText.length).catch(() => 0);
