@@ -55,6 +55,7 @@ jobs:
           git add data-hist/hist-1deg.json 2>/dev/null || true
           git add plant-protection/data/outlook.json 2>/dev/null || true
           git add plant-protection/data/climex.json 2>/dev/null || true
+          git add plant-protection/data/forecast.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "No changes."; exit 0; fi
           git config user.name "agro-weather-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
