@@ -78,7 +78,7 @@ async function checkPage(browser, file) {
           }
         }
       } else {
-        for (const m of ["gen", "phase", "ndvi", "ei"]) {
+        for (const m of ["gen", "phase", "ndvi", "ei", "loc", "loca"]) {
           const b = await p.$('.pbtn[data-m="' + m + '"]');
           if (!b) { fail(file, "режим тугмаси йўқ: " + m); continue; }
           await b.click(); await p.waitForTimeout(700);
@@ -91,7 +91,7 @@ async function checkPage(browser, file) {
       if (n < 6) fail(file, "бош саҳифада карточкалар кам: " + n);
     } else if (name === "prognoz") {
       await p.waitForSelector("#rustsum .rs-h", { timeout: 60000 }).catch(() => fail(file, "эрта бошланиш хулосаси чиқмади"));
-      for (const m of ["f27", "g27"]) {
+      for (const m of ["f27", "g27", "l27", "l27a"]) {
         const b = await p.$('.pbtn[data-m="' + m + '"]');
         if (!b) { fail(file, "режим тугмаси йўқ: " + m); continue; }
         await b.click();
